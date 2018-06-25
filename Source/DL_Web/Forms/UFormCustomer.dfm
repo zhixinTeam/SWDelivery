@@ -1,0 +1,354 @@
+inherited fFormCutomer: TfFormCutomer
+  ClientHeight = 515
+  ClientWidth = 480
+  Caption = #23458#25143
+  ExplicitWidth = 486
+  ExplicitHeight = 540
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited BtnOK: TUniButton
+    Left = 316
+    Top = 481
+    TabOrder = 1
+    ExplicitLeft = 316
+    ExplicitTop = 481
+  end
+  inherited BtnExit: TUniButton
+    Left = 397
+    Top = 481
+    TabOrder = 2
+    ExplicitLeft = 397
+    ExplicitTop = 481
+  end
+  inherited PanelWork: TUniSimplePanel
+    Width = 464
+    Height = 465
+    TabOrder = 0
+    ExplicitWidth = 464
+    ExplicitHeight = 465
+    object EditName: TUniEdit
+      Left = 70
+      Top = 15
+      Width = 380
+      Hint = ''
+      MaxLength = 80
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 1
+    end
+    object UniLabel1: TUniLabel
+      Left = 8
+      Top = 20
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #23458#25143#21517#31216':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 2
+    end
+    object UniLabel2: TUniLabel
+      Left = 237
+      Top = 58
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #20225#19994#27861#20154':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 6
+    end
+    object EditFaRen: TUniEdit
+      Left = 300
+      Top = 53
+      Width = 150
+      Hint = ''
+      MaxLength = 50
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 4
+    end
+    object UniLabel3: TUniLabel
+      Left = 8
+      Top = 96
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #32852#31995#22320#22336':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 8
+    end
+    object EditAddr: TUniEdit
+      Left = 70
+      Top = 91
+      Width = 380
+      Hint = ''
+      MaxLength = 100
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 7
+    end
+    object UniLabel4: TUniLabel
+      Left = 8
+      Top = 134
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #32852' '#31995' '#20154':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 11
+    end
+    object EditLiXiRen: TUniEdit
+      Left = 70
+      Top = 129
+      Width = 150
+      Hint = ''
+      MaxLength = 50
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 9
+    end
+    object EditSaleMan: TUniComboBox
+      Left = 70
+      Top = 53
+      Width = 150
+      Hint = ''
+      Style = csDropDownList
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 3
+    end
+    object UniLabel8: TUniLabel
+      Left = 8
+      Top = 58
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #19994#21153#20154#21592':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 5
+    end
+    object UniLabel9: TUniLabel
+      Left = 8
+      Top = 209
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #24320' '#25143' '#34892':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 19
+    end
+    object EditBank: TUniComboBox
+      Left = 70
+      Top = 204
+      Width = 150
+      Hint = ''
+      MaxLength = 35
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 17
+    end
+    object UniLabel10: TUniLabel
+      Left = 237
+      Top = 209
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #38134#34892#36134#25143':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 20
+    end
+    object EditAccount: TUniEdit
+      Left = 300
+      Top = 204
+      Width = 150
+      Hint = ''
+      MaxLength = 18
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 18
+    end
+    object UniLabel11: TUniLabel
+      Left = 8
+      Top = 247
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #20449#29992#37329#39069':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 22
+    end
+    object EditCredit: TUniEdit
+      Left = 70
+      Top = 242
+      Width = 150
+      Hint = ''
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 21
+      ReadOnly = True
+    end
+    object UniLabel12: TUniLabel
+      Left = 237
+      Top = 247
+      Width = 216
+      Height = 12
+      Hint = ''
+      Caption = #20803'  '#22791#27880':'#25480#20449#32473#23458#25143#30340#26368#39640#21487#27424#27454#37329#39069'.'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 23
+    end
+    object EditMemo: TUniMemo
+      Left = 8
+      Top = 312
+      Width = 442
+      Height = 129
+      Hint = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 25
+    end
+    object UniLabel13: TUniLabel
+      Left = 8
+      Top = 285
+      Width = 60
+      Height = 12
+      Hint = ''
+      Caption = #22791#27880#20449#24687#65306
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 24
+    end
+    object UniLabel14: TUniLabel
+      Left = 8
+      Top = 171
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #20256'    '#30495':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 15
+    end
+    object UniLabel6: TUniLabel
+      Left = 237
+      Top = 134
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #32852#31995#30005#35805':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 12
+    end
+    object UniLabel5: TUniLabel
+      Left = 237
+      Top = 171
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #31246'    '#21495':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 16
+    end
+    object EditFax: TUniEdit
+      Left = 70
+      Top = 166
+      Width = 150
+      Hint = ''
+      MaxLength = 15
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 13
+    end
+    object EditPhone: TUniEdit
+      Left = 300
+      Top = 129
+      Width = 150
+      Hint = ''
+      MaxLength = 15
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 10
+    end
+    object EditTax: TUniEdit
+      Left = 300
+      Top = 166
+      Width = 150
+      Hint = ''
+      MaxLength = 32
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 14
+    end
+  end
+end

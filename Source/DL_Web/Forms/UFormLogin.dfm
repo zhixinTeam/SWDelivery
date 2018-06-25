@@ -1,0 +1,123 @@
+object fFormLogin: TfFormLogin
+  Left = 0
+  Top = 0
+  ClientHeight = 260
+  ClientWidth = 358
+  Caption = #30331#24405
+  OldCreateOrder = False
+  BorderIcons = [biSystemMenu]
+  MonitoredKeys.Keys = <>
+  OnCreate = UniLoginFormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object ImageLogo: TUniImage
+    Left = 0
+    Top = 0
+    Width = 358
+    Height = 132
+    Hint = ''
+    Align = alTop
+    Anchors = [akLeft, akTop, akRight]
+  end
+  object UniSimplePanel1: TUniSimplePanel
+    Left = 8
+    Top = 138
+    Width = 342
+    Height = 85
+    Hint = ''
+    ParentColor = False
+    Border = True
+    TabOrder = 1
+    object UniLabel1: TUniLabel
+      Left = 12
+      Top = 20
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #29992#25143#21517#31216':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 1
+    end
+    object EditUser: TUniEdit
+      Left = 72
+      Top = 15
+      Width = 192
+      Hint = ''
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 2
+    end
+    object UniLabel2: TUniLabel
+      Left = 12
+      Top = 53
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #30331#24405#23494#30721':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 3
+    end
+    object EditPwd: TUniEdit
+      Left = 72
+      Top = 48
+      Width = 192
+      Hint = ''
+      PasswordChar = '*'
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 4
+    end
+    object ImageKey: TUniImage
+      Left = 272
+      Top = 15
+      Width = 55
+      Height = 55
+      Hint = ''
+    end
+  end
+  object BtnOK: TUniButton
+    Left = 194
+    Top = 229
+    Width = 75
+    Height = 25
+    Hint = ''
+    Caption = #30331#24405
+    ParentFont = False
+    Font.Charset = GB2312_CHARSET
+    Font.Height = -12
+    Font.Name = #23435#20307
+    TabOrder = 2
+    Default = True
+    ScreenMask.Enabled = True
+    ScreenMask.Message = #27491#22312#30331#24405
+    ScreenMask.Target = Owner
+    OnClick = BtnOKClick
+  end
+  object BtnExit: TUniButton
+    Left = 275
+    Top = 229
+    Width = 75
+    Height = 25
+    Hint = ''
+    Caption = #36864#20986
+    Cancel = True
+    ModalResult = 2
+    ParentFont = False
+    Font.Charset = GB2312_CHARSET
+    Font.Height = -12
+    Font.Name = #23435#20307
+    TabOrder = 3
+  end
+end
