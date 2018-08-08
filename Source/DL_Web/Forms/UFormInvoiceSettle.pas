@@ -90,7 +90,7 @@ end;
 //------------------------------------------------------------------------------
 //Desc: 执行结算
 procedure TfFormInvoiceSettle.BtnOKClick(Sender: TObject);
-var nStr,nSQL: string;
+var nStr,nSQL, nCusId, nStockId: string;
     nInit: Int64;
     nList: TStrings;
     nQuery: TADOQuery;
@@ -102,10 +102,22 @@ begin
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
     nQuery := LockDBQuery(FDBType);
 
+    nStr := 'Select * From ' + sTable_InvoiceWeek + ' Where W_NO=''%s''';
+    nStr := Format(nStr, [FNowWeek]);
+    with DBQuery(nStr, nQuery) do
+      if RecordCount > 0 then
+      begin
+        nCusId  := FieldByName('W_CusId').AsString;
+        nStockId:= FieldByName('W_StockId').AsString;
+      end;
+
+    nQuery.SQL.Clear;
+    //***************************************************
+
     EditMemo.Clear;
     ShowHintText('开始恢复上次结算数据...');
 
-    nSQL := 'Select S_CusID,Sum(S_Value*S_Price*(-1)) as S_Money From %s ' +
+    nSQL := 'Select S_CusID, IsNull(Sum(S_Value*IsNull((S_Price+IsNull(S_YunFei, 0)), 0)*(-1)), 0) as S_Money From %s ' +
             'Where S_Week=''%s'' Group By S_CusID';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
@@ -125,23 +137,31 @@ begin
     //--------------------------------------------------------------------------
     ShowHintText('开始生成新结算数据...');
     nStr := 'Insert Into $ST(S_Week,S_Bill,S_CusID,S_ZhiKa,S_Stock,S_StockName,' +
-      'S_Value,S_Price,S_OutFact,S_Man,S_Date) Select ''$WK'',L_ID,L_CusID,' +
-      'L_ZhiKa,L_StockNo,L_StockName,L_Value,0,L_OutFact,''$SM'',$SD From ' +
-      '$Bill Where L_OutFact>=''$SS'' And L_OutFact<''$ED''';
+      'S_Value,S_Price,S_OutFact,S_Man,S_Date,S_SalePrice, S_YunFei, S_Type) Select ''$WK'',L_ID,L_CusID,' +
+      'L_ZhiKa,L_StockNo,L_StockName,L_Value,0,L_OutFact,''$SM'',$SD,L_Price,IsNull(L_YunFei, 0), L_Type From ' +
+      '$Bill Where L_OutFact>=''$SS'' And L_OutFact<=''$ED'' ';
+
+    if nCusId<>'' then
+      nStr := nStr + ' And L_CusID='''+ nCusId +''' ';
+
+    if nStockId<>'' then
+      nStr := nStr + ' And L_StockNo='''+ nStockId +''' ';
+
 
     with TStringHelper,TDateTimeHelper do
     nStr := MacroValue(nStr, [MI('$ST', sTable_InvSettle), MI('$WK', FNowWeek),
             MI('$SM', UniMainModule.FUserConfig.FUserID),
             MI('$SD', sField_SQLServer_Now), MI('$Bill', sTable_Bill),
-            MI('$SS', Date2Str(FWeekBegin)), MI('$ED', Date2Str(FWeekEnd+1))]);
+            MI('$SS', DateTime2Str(FWeekBegin)), MI('$ED', DateTime2Str(FWeekEnd))]);
     nList.Add(nStr);
 
     ShowHintText('新结算数据生成完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始合并返利价格...');
-    nStr := 'Update $T Set $T.S_Price=$R.R_KPrice,$T.S_YunFei=$R.R_YunFei' +
-            ' From $R Where R_Week=''$WK'' And $T.S_Week=$R.R_Week' +
-            ' And $T.S_ZhiKa=$R.R_ZhiKa And $T.S_Stock=$R.R_Stock';
+    nStr := 'Update $T Set $T.S_Price=IsNull($R.R_KPrice, 0), $T.S_YunFei=IsNull($R.R_KYunFei, 0) ' +
+            ' From $R Where R_Week=''$WK'' And $T.S_Week=$R.R_Week ' +
+            ' And $T.S_ZhiKa=$R.R_ZhiKa And $T.S_Stock=$R.R_Stock ' +
+            ' And $T.S_SalePrice=$R.R_Price And $T.S_SaleYunFei=$R.R_YunFei';
     //xxxxx
 
     with TStringHelper do
@@ -149,14 +169,14 @@ begin
             MI('$R', sTable_InvoiceReq), MI('$WK', FNowWeek)]);
     nList.Add(nStr);
 
-    nStr := 'Delete From %s Where S_Week=''%s'' And S_Price=0';
+    nStr := 'Delete From %s Where S_Week=''%s'' And S_Price=0 And S_YunFei=0';
     nStr := Format(nStr, [sTable_InvSettle, FNowWeek]);
     nList.Add(nStr);
 
     ShowHintText('返利价格合并完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始计算返利...');
-    nSQL := 'Select S_CusID,Sum(S_Value*S_Price*(-1)) as S_Money From %s ' +
+    nSQL := 'Select S_CusID,Sum(ISNULL(S_Value, 0)*ISNULL((S_Price+IsNull(S_YunFei, 0)), 0)*(-1)) as S_Money From %s ' +
             'Where S_Week=''%s'' Group By S_CusID';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
@@ -171,13 +191,13 @@ begin
     ShowHintText('返利计算完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始生成最终结算报表...');
-    nSQL := 'Select S_ZhiKa,S_Stock,Sum(S_Value) as S_Value From %s ' +
-            'Where S_Week=''%s'' Group By S_ZhiKa,S_Stock';
+    nSQL := 'Select S_ZhiKa,S_Stock,S_SalePrice,Sum(S_Value) as S_Value From %s ' +
+            'Where S_Week=''%s'' Group By S_ZhiKa,S_Stock,S_SalePrice';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
     nStr := 'Update $T Set $T.R_KValue=t.S_Value,R_KMan=''$KM'',R_KDate=$DT ' +
             'From ($S) t Where $T.R_Week=''$WK'' And $T.R_ZhiKa=t.S_ZhiKa And ' +
-            '$T.R_Stock=t.S_Stock';
+            '$T.R_Stock=t.S_Stock And $T.R_Price=t.S_SalePrice';
     //xxxxx
 
     with TStringHelper do

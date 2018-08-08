@@ -3,7 +3,7 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
   ClientWidth = 344
   Caption = #21608#26399' - '#36873#25321
   ExplicitWidth = 350
-  ExplicitHeight = 165
+  ExplicitHeight = 169
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton

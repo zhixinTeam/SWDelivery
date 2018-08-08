@@ -92,6 +92,7 @@ object fFrameBase: TfFrameBase
         ImageIndex = 4
         Caption = #25171#21360
         TabOrder = 6
+        OnClick = BtnPrintClick
       end
       object BtnPreview: TUniToolButton
         Left = 451
@@ -166,5 +167,58 @@ object fFrameBase: TfFrameBase
     DataSet = ClientDS
     Left = 96
     Top = 232
+  end
+  object frxdbDs1: TfrxDBDataset
+    UserName = 'frxDBDataset1'
+    CloseDataSource = False
+    DataSource = DataSource1
+    BCDToCurrency = False
+    Left = 80
+    Top = 304
+  end
+  object frxRprt1: TfrxReport
+    Version = '5.6.1'
+    DotMatrixReport = False
+    IniFile = '\Software\Fast Reports'
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
+    PreviewOptions.Zoom = 1.000000000000000000
+    PrintOptions.Printer = #39044#35774
+    PrintOptions.PrintOnSheet = 0
+    ReportOptions.CreateDate = 43300.996752303240000000
+    ReportOptions.LastChange = 43300.996752303240000000
+    ScriptLanguage = 'PascalScript'
+    ScriptText.Strings = (
+      'begin'
+      ''
+      'end.')
+    Left = 120
+    Top = 304
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end
+  object frxpdfxprt1: TfrxPDFExport
+    UseFileCache = True
+    ShowProgress = True
+    OverwritePrompt = False
+    DataOnly = False
+    PrintOptimized = False
+    Outline = False
+    Background = False
+    HTMLTags = True
+    Quality = 95
+    Transparency = False
+    Author = 'FastReport'
+    Subject = 'FastReport PDF export'
+    ProtectionFlags = [ePrint, eModify, eCopy, eAnnot]
+    HideToolbar = False
+    HideMenubar = False
+    HideWindowUI = False
+    FitWindow = False
+    CenterWindow = False
+    PrintScaling = False
+    PdfA = False
+    Left = 160
+    Top = 304
   end
 end

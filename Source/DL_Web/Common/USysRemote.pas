@@ -239,8 +239,8 @@ function edit_shopclients(const nData: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
   {$IFDEF Debug}
-  Result := sFlag_Yes;
-  Exit;
+//  Result := sFlag_Yes;
+//  Exit;
   {$ENDIF}
 
   if CallBusinessWechat(cBC_WX_edit_shopclients, nData, '', '', @nOut) then

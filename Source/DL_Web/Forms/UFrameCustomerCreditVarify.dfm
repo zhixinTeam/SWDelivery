@@ -13,7 +13,7 @@ inherited fFrameCustomerCreditVarify: TfFrameCustomerCreditVarify
         Visible = False
       end
       inherited BtnEdit: TUniToolButton
-        Caption = #20449#29992#21464#21160
+        Caption = #23457#25209
         OnClick = BtnEditClick
       end
       inherited BtnDel: TUniToolButton
@@ -51,6 +51,8 @@ inherited fFrameCustomerCreditVarify: TfFrameCustomerCreditVarify
     end
     inherited DBGridMain: TUniDBGrid
       OnMouseDown = DBGridMainMouseDown
+      OnDblClick = DBGridMainDblClick
+      OnDrawColumnCell = DBGridMainDrawColumnCell
       Columns = <
         item
           Width = 64
@@ -60,11 +62,16 @@ inherited fFrameCustomerCreditVarify: TfFrameCustomerCreditVarify
         end>
     end
   end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end
   object PMenu1: TUniPopupMenu
     Left = 42
     Top = 184
     object MenuItemN1: TUniMenuItem
-      Caption = #26597#30475#21464#21160#26126#32454
+      Caption = #23457#26680#20449#29992
       OnClick = MenuItemN1Click
     end
   end

@@ -1,31 +1,31 @@
 inherited fFormCustomerCredit: TfFormCustomerCredit
-  ClientHeight = 286
+  ClientHeight = 283
   ClientWidth = 463
   Caption = #20449#29992#21464#21160
   ExplicitWidth = 469
-  ExplicitHeight = 315
+  ExplicitHeight = 312
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 297
-    Top = 252
+    Top = 249
     TabOrder = 1
     ExplicitLeft = 297
-    ExplicitTop = 252
+    ExplicitTop = 249
   end
   inherited BtnExit: TUniButton
     Left = 380
-    Top = 252
+    Top = 249
     TabOrder = 2
     ExplicitLeft = 380
-    ExplicitTop = 252
+    ExplicitTop = 249
   end
   inherited PanelWork: TUniSimplePanel
     Width = 447
-    Height = 236
+    Height = 233
     TabOrder = 0
     ExplicitWidth = 447
-    ExplicitHeight = 236
+    ExplicitHeight = 233
     object Label1: TUniLabel
       Left = 8
       Top = 56
@@ -69,7 +69,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
     end
     object EditCus: TUniComboBox
       Left = 68
-      Top = 51
+      Top = 50
       Width = 368
       Hint = ''
       Style = csDropDownList
@@ -188,10 +188,10 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Name = #23435#20307
       TabOrder = 13
     end
-    object cbb_VarMan1: TUniComboBox
+    object cbb_VarMan: TUniComboBox
       Left = 68
       Top = 196
-      Width = 117
+      Width = 125
       Hint = ''
       Text = ''
       Anchors = [akLeft, akTop, akRight]
@@ -200,34 +200,6 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 14
-      OnChange = EditSaleManChange
-    end
-    object cbb_VarMan2: TUniComboBox
-      Left = 194
-      Top = 196
-      Width = 117
-      Hint = ''
-      Text = ''
-      Anchors = [akLeft, akTop, akRight]
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 15
-      OnChange = EditSaleManChange
-    end
-    object cbb_VarMan3: TUniComboBox
-      Left = 319
-      Top = 196
-      Width = 117
-      Hint = ''
-      Text = ''
-      Anchors = [akLeft, akTop, akRight]
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 16
       OnChange = EditSaleManChange
     end
   end

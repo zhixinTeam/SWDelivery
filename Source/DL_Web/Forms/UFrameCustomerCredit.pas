@@ -10,7 +10,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, UFrameBase, Vcl.Menus,
   uniMainMenu, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniSplitter,
   uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, Vcl.Controls,
-  Vcl.Forms, uniGUIBaseClasses;
+  Vcl.Forms, uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameCustomerCredit = class(TfFrameBase)
@@ -59,6 +59,13 @@ begin
     begin
       Result := Result + ' Where (' + nWhere + ')';
     end;
+
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + 'And (sm.S_Name='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
+    //*****************
 
     Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
               MI('$CA', sTable_CusAccount), MI('$SM', sTable_Salesman),

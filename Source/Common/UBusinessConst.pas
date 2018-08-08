@@ -7,6 +7,7 @@
 *******************************************************************************}
 unit UBusinessConst;
 
+{$I LibFun.Inc}
 interface
 
 uses
@@ -75,12 +76,15 @@ const
   cBC_JSGetStatus             = $0063;
   cBC_SaveCountData           = $0064;   //保存计数结果
   cBC_RemoteExecSQL           = $0065;
-  cBC_LineClose               = $0068;
+  cBC_ShowLedTxt              = $0066;   //向led屏幕发送内容
+  cBC_GetLimitValue           = $0067;   //获取车辆最大限载值
+  cBC_LineClose               = $0068;   //关闭放灰
 
   cBC_IsTunnelOK              = $0075;
   cBC_TunnelOC                = $0076;
   cBC_PlayVoice               = $0077;
   cBC_OpenDoorByReader        = $0078;
+  cBC_ShowTxt                 = $0079;   //车检:发送小屏
 
   cBC_SyncCustomer            = $0080;   //远程同步客户
   cBC_SyncSaleMan             = $0081;   //远程同步业务员
@@ -167,11 +171,13 @@ type
     FPoundID    : string;          //称重记录
     FSelected   : Boolean;         //选中状态
 
+    FHKRecord   : string;          //合单记录(销售)卸货地点(采购)
     FYSValid    : string;          //验收结果，Y验收成功；N拒收；
     FKZValue    : Double;          //供应扣除
     FPrintHY    : Boolean;         //打印化验单
     FHYDan      : string;          //化验单号
     FMemo       : string;          //动作备注
+    FLadeTime   : string;          //提货时间
     FCtype      : string;          //卡类型；'L'：临时；'G'：固定
     FPrePData   : string;          //预置皮重
     FIsSale     : string;          //短倒销售
@@ -254,7 +260,8 @@ begin
       nListB.Text := PackerDecodeStr(nListA[nIdx]);
       //bill item
 
-      with nListB,nItems[nInt] do
+      with nListB,nItems[nInt]
+      {$IFDEF XE.LibFun},TDateTimeHelper,TStringHelper{$ENDIF} do
       begin
         FID         := Values['ID'];
         FZhiKa      := Values['ZhiKa'];
@@ -326,9 +333,11 @@ begin
         else FKZValue := 0;
 
         FYSValid := Values['YSValid'];
+        FHKRecord:= Values['HKRecord'];
         FPrintHY := Values['PrintHY'] = sFlag_Yes;
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
+        FLadeTime:= Values['LadeTime'];
       end;
 
       Inc(nInt);
@@ -336,7 +345,7 @@ begin
   finally
     nListB.Free;
     nListA.Free;
-  end;   
+  end;
 end;
 
 //Date: 2014-09-18
@@ -354,7 +363,8 @@ begin
     nListB.Clear;
 
     for nIdx:=Low(nItems) to High(nItems) do
-    with nItems[nIdx] do
+    with nItems[nIdx]
+    {$IFDEF XE.LibFun},TDateTimeHelper,TStringHelper{$ENDIF} do
     begin
       if not FSelected then Continue;
       //ignored
@@ -411,11 +421,13 @@ begin
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['YSValid']    := FYSValid;
         Values['Memo']       := FMemo;
+        Values['HKRecord']   := FHKRecord;
 
         if FPrintHY then
              Values['PrintHY'] := sFlag_Yes
         else Values['PrintHY'] := sFlag_No;
         Values['HYDan']    := FHYDan;
+        Values['LadeTime'] := FLadeTime;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));
@@ -431,5 +443,3 @@ begin
 end;
 
 end.
-
-

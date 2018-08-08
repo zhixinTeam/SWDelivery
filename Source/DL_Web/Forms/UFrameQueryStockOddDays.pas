@@ -11,7 +11,7 @@ uses
   UFrameBase, uniChart, uniPanel, uniSplitter, uniButton, uniBitBtn, uniEdit, System.DateUtils,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
   uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, uniDateTimePicker,
-  uniGUITypes, uniGUIRegClasses, uniGUIForm;
+  uniGUITypes, uniGUIRegClasses, uniGUIForm, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQueryStockOddDays = class(TfFrameBase)
@@ -52,8 +52,8 @@ end;
 procedure TfFrameQueryStockOddDays.OnCreateFrame(const nIni: TIniFile);
 begin
   inherited;
-  FSearchDate := Now;
-  EdtSearchTime.DateTime:= FSearchDate;
+  EdtSearchTime.DateTime:= Now;
+  FSearchDate := EdtSearchTime.DateTime;
 end;
 
 procedure TfFrameQueryStockOddDays.OnDestroyFrame(const nIni: TIniFile);
@@ -96,6 +96,8 @@ end;
 function TfFrameQueryStockOddDays.InitFormDataSQL(const nWhere: string): string;
 var nStr : string;
 begin
+  FSearchDate := EdtSearchTime.DateTime;
+  //********************
   with TStringHelper, TDateTimeHelper do
   begin
     nStr   := 'Select  Case when a.L_StockName=''(µÕºÓ) Ï¡œ'' then ''V'' else a.L_Type end L_Type, a.L_StockName, ISNULL(c.Value, 0) DayValue, CONVERT(decimal(15,2), ISNULL(c.L_Price, 0)) DayPrice, ISNULL(c.L_Money, 0) DayMoney,  ' +

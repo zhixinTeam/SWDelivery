@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, MainModule, USysConst, Data.DB, uniGUITypes, uniGUIFrame,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, uniGUIBaseClasses, Data.Win.ADODB;
+  uniToolBar, uniGUIBaseClasses, Data.Win.ADODB, frxClass, frxExportPDF,
+  frxDBSet;
 
 type
   TfFrameBase = class(TUniFrame)
@@ -31,13 +32,18 @@ type
     DBGridMain: TUniDBGrid;
     ClientDS: TClientDataSet;
     DataSource1: TDataSource;
+    frxdbDs1: TfrxDBDataset;
+    frxRprt1: TfrxReport;
+    frxpdfxprt1: TfrxPDFExport;
     procedure UniFrameCreate(Sender: TObject);
     procedure UniFrameDestroy(Sender: TObject);
     procedure BtnExitClick(Sender: TObject);
     procedure BtnRefreshClick(Sender: TObject);
     procedure BtnExportClick(Sender: TObject);
+    procedure BtnPrintClick(Sender: TObject);
   private
     { Private declarations }
+    function GenReportPDF(const RepName: string): string;
   protected
     FDBType: TAdoConnectionType;
     {*数据连接*}
@@ -71,7 +77,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ULibFun, USysBusiness, USysDB, uniPageControl;
+  ULibFun, USysBusiness, USysDB, uniPageControl, ServerModule;
 
 procedure TfFrameBase.UniFrameCreate(Sender: TObject);
 var nIni: TIniFile;
@@ -259,6 +265,52 @@ begin
       end else ShowMessage(nStr);
     end);
   //xxxxx
+end;
+
+function TfFrameBase.GenReportPDF(const RepName: string): string;
+begin
+  try
+    frxRprt1.PrintOptions.ShowDialog := False;
+    frxRprt1.ShowProgress := false;
+
+    frxRprt1.EngineOptions.SilentMode := True;
+    frxRprt1.EngineOptions.EnableThreadSafe := True;
+    frxRprt1.EngineOptions.DestroyForms := False;
+    frxRprt1.EngineOptions.UseGlobalDataSetList := False;
+
+    frxRprt1.LoadFromFile(gPath + 'Report\' + RepName + '.fr3');
+
+    frxPDFxprt1.Background := True;
+    frxPDFxprt1.ShowProgress := False;
+    frxPDFxprt1.ShowDialog := False;
+    frxPDFxprt1.FileName := UniServerModule.NewCacheFileUrl(False, 'pdf', '', '', Result, True);
+    frxPDFxprt1.DefaultPath := '';
+
+    frxRprt1.PreviewOptions.AllowEdit := False;
+    frxRprt1.PrepareReport;
+    frxRprt1.Export(frxPDFxprt1);
+
+    Result:= '';
+  finally
+  end;
+end;
+
+procedure TfFrameBase.BtnPrintClick(Sender: TObject);
+var nStr : string;
+begin
+  if (not ClientDS.Active) or (ClientDS.RecordCount < 1) then
+  begin
+    ShowMessage('没有可以打印的数据');
+    Exit;
+  end;
+
+  try
+    nStr := GenReportPDF('HuaYan_DAOLU');
+    if nStr <> '' then
+      ShowMessage(nStr);
+
+  finally
+  end;
 end;
 
 end.

@@ -375,6 +375,7 @@ end;
 procedure TfFramePopedom.BuildPopedomGrid(const nQuery: TADOQuery);
 var nStr: string;
     nCol: TUniGridColumn;
+    nIdx: Integer;
 begin
   Grid1.BeginUpdate;
   try
@@ -383,7 +384,8 @@ begin
     with nCol do
     begin
       Title.Caption := '模块标识';
-      Width := 150;
+      Width := 100;
+      Grid1.ColWidths[0]:= 100;
     end;
 
     nCol := Grid1.Columns.Add as TUniGridColumn;
@@ -391,6 +393,7 @@ begin
     begin
       Title.Caption := '模块名称';
       Width := 200;
+      Grid1.ColWidths[1]:= 200;
     end;
 
     nStr := 'Select * From ' + sTable_PopItem;
@@ -406,6 +409,12 @@ begin
           nStr := FieldByName('P_Name').AsString;
           Title.Caption := Format('%s[%s]', [nStr, FieldByName('P_ID').AsString]);
           Width := 92;
+
+          if nCol.Index=9 then
+            Grid1.ColWidths[9]:= 100;
+
+          if nCol.Index=10 then
+            Grid1.ColWidths[10]:= 137;
         end;
 
         Next;
@@ -415,6 +424,14 @@ begin
     Grid1.ColCount := Grid1.Columns.Count;
     //全部列显
   finally
+    for nIdx := 0 to Grid1.Columns.Count-1 do
+    begin
+      if nIdx=9 then
+        Grid1.ColWidths[nIdx]:= 100
+      else if nIdx=10 then
+        Grid1.ColWidths[nIdx]:= 137
+    end;
+
     Grid1.EndUpdate;
   end;
 end;
@@ -436,6 +453,7 @@ end;
 
 //------------------------------------------------------------------------------
 procedure TfFramePopedom.Grid1Click(Sender: TObject);
+var nCol: TUniGridColumn;
 begin
   with Grid1 do
   begin

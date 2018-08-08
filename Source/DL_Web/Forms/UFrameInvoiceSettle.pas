@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   uniGUIForm, UFrameBase, Vcl.Menus, uniMainMenu, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameInvoiceSettle = class(TfFrameBase)
@@ -32,6 +33,7 @@ type
     procedure N2Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure N3Click(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
   private
     { Private declarations }
     FNowYear,FNowWeek,FWeekName: string;
@@ -95,7 +97,7 @@ begin
       end;
     end;
 
-    Result := 'Select req.*,(R_KPrice*R_KValue) R_KMoney,W_Name,Z_Name,' +
+    Result := 'Select req.*,((R_KPrice+R_KYunFei)*R_KValue) R_KMoney,W_Name,Z_Name,' +
               'Z_Project From $Req req ' +
               ' Left Join $Week On W_NO=req.R_Week ' +
               ' Left Join $ZK On Z_ID=req.R_ZhiKa ';
@@ -194,6 +196,12 @@ begin
       //refresh
     end);
   //show form
+end;
+
+procedure TfFrameInvoiceSettle.BtnRefreshClick(Sender: TObject);
+begin
+  inherited;
+
 end;
 
 //Desc: Ñ¡ÔñÖÜÆÚ

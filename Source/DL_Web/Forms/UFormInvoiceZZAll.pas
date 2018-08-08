@@ -121,7 +121,7 @@ begin
 end;
 
 procedure TfFormInvoiceZZAll.BtnOKClick(Sender: TObject);
-var nStr: string;
+var nStr, nWeek: string;
     nInt: Integer;
     nQuery: TADOQuery;
 begin
@@ -139,16 +139,16 @@ begin
       ShowMessage(nStr); Exit;
     end;
 
-    if IsNextWeekEnable(FParam.FParamB, nQuery) then
-    begin
-      nStr := '本周期已结束,系统禁止再次扎账!';
-      ShowMessage(nStr); Exit;
-    end;
+//    if IsNextWeekEnable(FParam.FParamB, nQuery) then
+//    begin
+//      nStr := '本周期已结束,系统禁止再次扎账!';
+//      ShowMessage(nStr); Exit;
+//    end;
 
-    nInt := IsPreWeekOver(FParam.FParamB, nQuery);
+    nInt := IsPreWeekOver(FParam.FParamB, nQuery, nWeek);
     if nInt > 0 then
     begin
-      nStr := Format('以前周期还有[ %d ]笔未返利完毕,请先处理!', [nInt]);
+      nStr := Format('周期[ %s ]还有[ %d ]笔未返利完毕,请先处理!', [nWeek, nInt]);
       ShowMessage(nStr); Exit;
     end;
 
@@ -233,34 +233,52 @@ end;
 //Desc: 执行扎帐操作
 procedure TfFormInvoiceZZAll.ZZ_All(const nNeedCombine: Boolean;
   const nQuery: TADOQuery);
-var nStr,nSQL: string;
+var nStr, nSQL, nCusId, nStockId: string;
 begin
+  nStr := 'Select * From ' + sTable_InvoiceWeek + ' Where W_NO=''%s''';
+  nStr := Format(nStr, [FParam.FParamB]);
+  with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      nCusId  := FieldByName('W_CusId').AsString;
+      nStockId:= FieldByName('W_StockId').AsString;
+    end;
+
+  //******************************
   nStr := 'Delete From ' + sTable_InvReqtemp;
   DBExecute(nStr, nQuery);
   //清空临时表
 
   nSQL := 'Select L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName,L_Price,Sum(L_Value) as L_Value From $Bill ' +
-          'Where L_OutFact>=''$S'' And L_OutFact<=''$E'' ' +
-          'Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName,L_Price';
+          'L_Type,L_StockNo,L_StockName,L_Price, IsNull(L_YunFei, 0) L_YunFei,Sum(L_Value) as L_Value From $Bill ' +
+          'Where L_OutFact>=''$STime'' And L_OutFact<=''$ETime'' ';
+
+  if nCusId<>'' then
+    nSQL := nSQL + ' And L_CusID=''$CusID'' ';
+
+  if nStockId<>'' then
+    nSQL := nSQL + ' And L_StockNo=''$StockNo'' ';
+
+  nSQL := nSQL + ' Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+          'L_Type,L_StockNo,L_StockName,L_Price, L_YunFei';
   //xxxxx
 
   with TStringHelper,TDateTimeHelper do
     nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),
-            MI('$S', Date2Str(FWeekBegin)), MI('$E', Date2Str(FWeekEnd+1))]);
-  //同客户同品种同单价合并
+            MI('$STime', DateTime2Str(FWeekBegin)), MI('$ETime', DateTime2Str(FWeekEnd)+'.999'),
+            MI('$CusID', nCusId), MI('$StockNo', nStockId)]);
+  //同客户同品种同单价汇总合并
 
-  nStr := 'Select ''$W'' As R_Week,''$Man'' As R_Man,$Now As R_Date,' +
+  nStr := 'Select ''$Week'' As R_Week,''$Man'' As R_Man,$Now As R_Date,' +
           'b.* From ($Bill) b ';
   with TStringHelper do
-    nSQL := MacroValue(nStr, [MI('$W', FParam.FParamB), MI('$Bill', nSQL),
+    nSQL := MacroValue(nStr, [MI('$Week', FParam.FParamB), MI('$Bill', nSQL),
             MI('$Man', UniMainModule.FUserConfig.FUserID), 
             MI('$Now', sField_SQLServer_Now)]);
   //合并有效内容
 
   nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_SaleMan,' +
-    'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,R_Price,' +
+    'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,R_Price,R_YunFei,' +
     'R_Value) Select * From (%s) t';
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
@@ -269,8 +287,8 @@ begin
   ShowHintText('客户总提货量计算完毕!');
 
   //----------------------------------------------------------------------------
-  nSQL := 'Update $T Set $T.R_KPrice=$Z.D_FLPrice, ' +                          //$T.R_Price=$Z.D_Price,
-          '$T.R_YunFei=$Z.D_YunFei From $Z Where $T.R_ZhiKa=$Z.D_ZID And ' +
+  nSQL := 'UPDate $T Set $T.R_KPrice=$Z.D_FLPrice, R_KYunfei=0 ' +             // $T.R_YunFei=$Z.D_YunFei  $T.R_Price=$Z.D_Price,
+          ' From $Z Where $T.R_ZhiKa=$Z.D_ZID And ' +
           '$T.R_Stock=$Z.D_StockNo';
   //xxxxx
 
@@ -286,10 +304,11 @@ begin
   //----------------------------------------------------------------------------
   if nNeedCombine then
   begin
-    nSQL := 'Update $T Set $T.R_KPrice=$R.R_KPrice,$T.R_KValue=$R.R_KValue ' +
+    nSQL := 'Update $T Set $T.R_KPrice=$R.R_KPrice,$T.R_KValue=$R.R_KValue,$T.R_KYunFei=$R.R_KYunFei ' +
             'From $R Where $R.R_Week=''$W'' And $T.R_CusID=$R.R_CusID And ' +
             '$T.R_SaleID=$R.R_SaleID And $T.R_Type=$R.R_Type And ' +
-            '$T.R_Stock=$R.R_Stock And $T.R_ZhiKa=$R.R_ZhiKa';
+            '$T.R_Stock=$R.R_Stock And $T.R_ZhiKa=$R.R_ZhiKa And $T.R_Price=$R.R_Price ' +
+            'And $T.R_YunFei=$R.R_YunFei ';
     //xxxxx
 
     with TStringHelper do

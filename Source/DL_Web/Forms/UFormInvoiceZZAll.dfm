@@ -7,10 +7,10 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
-    Left = 240
+    Left = 242
     Top = 376
     Caption = #24320#22987
-    ExplicitLeft = 240
+    ExplicitLeft = 242
     ExplicitTop = 376
   end
   inherited BtnExit: TUniButton

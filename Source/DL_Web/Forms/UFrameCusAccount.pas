@@ -62,6 +62,13 @@ begin
          Result := Result + 'Where IsNull(C_XuNi, '''')<>''$Yes'''
     else Result := Result + 'Where (' + nWhere + ')';
 
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + 'And (sm.S_Name='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
+    //*****************
+
     Result := MacroValue(Result, [MI('$CA', sTable_CusAccount),
               MI('$Cus', sTable_Customer), MI('$SM', sTable_Salesman),
               MI('$Yes', sFlag_Yes)]);

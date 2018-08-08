@@ -190,6 +190,11 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         end>
     end
   end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end
   object PMenu1: TUniPopupMenu
     Left = 40
     Top = 184

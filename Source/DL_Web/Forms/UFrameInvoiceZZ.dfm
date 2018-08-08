@@ -98,6 +98,11 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
         end>
     end
   end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end
   object PMenu1: TUniPopupMenu
     Left = 42
     Top = 184

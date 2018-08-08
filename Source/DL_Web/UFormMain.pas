@@ -69,7 +69,7 @@ implementation
 
 uses
   uniGUIVars, MainModule, UManagerGroup, System.IniFiles, USysDB,
-  USysBusiness, USysConst;
+  USysBusiness, USysConst, UDataReport;
 
 function fFormMain: TfFormMain;
 begin

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
   dxSkinsCore, dxSkinsDefaultPainters, cxContainer, cxListBox, ExtCtrls,
-  StdCtrls, RzLstBox, cxEdit, cxTextEdit, cxMaskEdit, cxButtonEdit,
+  StdCtrls, cxEdit, cxTextEdit, cxMaskEdit, cxButtonEdit,
   UDataModule, UFormBase, cxDropDownEdit, cxCalendar;
 
 type

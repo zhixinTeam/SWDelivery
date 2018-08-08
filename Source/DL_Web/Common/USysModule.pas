@@ -18,7 +18,8 @@ uses
   UFormInvoiceWeek, UFormInvoiceGetWeek, UFrameInvoiceZZ, UFormInvoiceZZAll,
   UFormInvoiceFLSet, UFrameInvoiceSettle, UFormInvoiceSettle, UFormGetWXAccount,
   UFramePopedom, UFormPopedomGroup, UFormPopedomUser, UFramePriceRule,
-  UFormPriceRule, UFormZhiKaVerify,
+  UFormPriceRule, UFormZhiKaVerify, UFormCreditDetailVerify,
+  UFrameHYData, UfrmViewReport,
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,

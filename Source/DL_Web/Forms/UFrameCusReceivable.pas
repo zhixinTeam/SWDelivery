@@ -13,7 +13,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   uniGUITypes, Data.Win.ADODB, UFrameBase, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameCusReceivable = class(TfFrameBase)
@@ -204,13 +205,23 @@ begin
     nList.Add(nStr);
     //出入金
 
-    nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,' +
+
+    nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,R_Value,' +
       'R_Money,R_YunFei) Select S_Bill,S_Date,4,''结算返利'',S_StockName,' +
-      'S_Price*(-1),S_Price*S_Value*(-1),S_YunFei*S_Value From %s ' +
-      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED''';
+      'S_Price*(-1),S_Value,(S_Price)*S_Value*(-1),S_YunFei*S_Value*(-1) From %s ' +
+      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED'' And S_Price<>0 ';
     nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
-    //结算返利
+    //   水泥返利
+
+    nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,R_Value,' +
+      'R_Money,R_YunFei) Select S_Bill,S_Date,4,''运费返利'',S_StockName,' +
+      'S_YunFei*(-1),S_Value,(S_YunFei)*S_Value*(-1),S_YunFei*S_Value*(-1) From %s ' +
+      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED'' And S_YunFei<>0 ';
+    nStr := Format(nStr, [sTable_InvSettle, FCusID]);
+    nList.Add(nStr);
+    //运费返利
+    //************************结算返利
 
     nList.Text := MacroValue(nList.Text, [MI('$ST', Date2Str(FStart)),
                   MI('$ED', Date2Str(FEnd + 1))]);

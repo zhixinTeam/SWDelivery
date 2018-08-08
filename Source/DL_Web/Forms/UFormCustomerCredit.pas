@@ -26,9 +26,7 @@ type
     Label7: TUniLabel;
     EditMemo: TUniEdit;
     unlbl1: TUniLabel;
-    cbb_VarMan1: TUniComboBox;
-    cbb_VarMan2: TUniComboBox;
-    cbb_VarMan3: TUniComboBox;
+    cbb_VarMan: TUniComboBox;
     procedure EditSaleManChange(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
   private
@@ -92,9 +90,7 @@ begin
 
   LoadSaleMan(EditSaleMan.Items);
   //*********
-  LoadVerifyMan(cbb_VarMan1.Items);
-  LoadVerifyMan(cbb_VarMan2.Items);
-  LoadVerifyMan(cbb_VarMan3.Items);
+  LoadVerifyMan(cbb_VarMan.Items);
   //*********
   if nParam.FCommand <> cCmd_EditData then Exit;
 
@@ -148,24 +144,23 @@ begin
   begin
     Result := EditCus.ItemIndex >= 0;
     nHint := '请选择有效的客户';
-  end else
+  end
 
-  if Sender = EditCredit then
+  else if Sender = EditCredit then
   begin
-    Result := TStringHelper.IsNumber(EditCredit.Text, True)and
-                      (StrToFloatDef(EditCredit.Text, 0)>0);
+    Result := TStringHelper.IsNumber(EditCredit.Text, True);
     nHint := '请填写有效的金额';
-  end else
+  end
 
-  if Sender = EditEnd then
+  else if Sender = EditEnd then
   begin
     Result := EditEnd.DateTime > Now;
     nHint := '有效期应大于当前日期';
-  end else
+  end
 
-  if (Sender = cbb_VarMan1)or(Sender = cbb_VarMan2)or(Sender = cbb_VarMan3) then
+  else if (Sender = cbb_VarMan) then
   begin
-    Result := (cbb_VarMan1.Text<>'')or(cbb_VarMan3.Text<>'')or(cbb_VarMan3.Text<>'');
+    Result := (cbb_VarMan.Text<>'');
     nHint := '需要填写审核人';
   end;
 
@@ -174,11 +169,10 @@ end;
 procedure TfFormCustomerCredit.BtnOKClick(Sender: TObject);
 begin
   if IsDataValid and SaveCustomerCredit(GetIDFromBox(EditCus), EditMemo.Text,
-     StrToFloat(EditCredit.Text), EditEnd.DateTime,
-     cbb_VarMan1.Text, cbb_VarMan2.Text, cbb_VarMan3.Text) then
+     StrToFloat(EditCredit.Text), EditEnd.DateTime, cbb_VarMan.Text) then
   begin
     ModalResult := mrOk;
-    ShowMessage('授信成功');
+    ShowMessage('提交授信申请成功');
   end;
 end;
 

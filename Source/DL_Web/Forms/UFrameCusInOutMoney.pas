@@ -75,8 +75,11 @@ begin
          Result := Result + 'Where (M_Date>=''$Start'' And M_Date<''$End'')'
     else Result := Result + 'Where (' + nWhere + ')';
 
-    if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
-      Result := Result + 'And (S_Name='+ UniMainModule.FUserConfig.FUserID +')';
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if (HasPopedom2(sPopedom_ViewMYCusData, FPopedom)) then
+        Result := Result + 'And (S_Name='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
 
     Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
               MI('$IOM', sTable_InOutMoney),

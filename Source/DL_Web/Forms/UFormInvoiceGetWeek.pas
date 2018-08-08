@@ -167,7 +167,7 @@ begin
 
     nStr := 'Select W_NO,W_Name From $W Where (W_Begin>=''$S'' and ' +
             'W_Begin<''$E'') or (W_End>=''$S'' and W_End<''$E'') ' +
-            'Order By W_Begin';
+            'Order By W_NO Desc';
     nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
             MI('$S', nYear), MI('$E', IntToStr(StrToInt(nYear)+1))]);
     //xxxxx

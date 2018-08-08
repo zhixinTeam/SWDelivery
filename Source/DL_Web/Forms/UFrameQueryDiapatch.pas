@@ -10,7 +10,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, UFrameBase, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniSplitter, uniGUIClasses,
   uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms,
-  uniGUIBaseClasses;
+  uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQueryDiapatch = class(TfFrameBase)
@@ -45,6 +45,12 @@ begin
     if nWhere <> '' then
       Result := Result + ' Where (' + nWhere + ')';
     //xxxx
+
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
 
     Result := MacroValue(Result, [MI('$ZT', sTable_ZTTrucks),
               MI('$ZL', sTable_ZTLines), MI('$Bill', sTable_Bill)]);

@@ -95,6 +95,12 @@ begin
       else Result := Result + ' Where (' + nWhere + ')';
     //xxxxx
 
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
+
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx

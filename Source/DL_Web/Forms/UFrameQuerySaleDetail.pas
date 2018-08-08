@@ -11,7 +11,7 @@ uses
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniButton,
   uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses,
   uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses, ULibFun,
-  uniMultiItem, uniComboBox;
+  uniMultiItem, uniComboBox, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQuerySaleDetail = class(TfFrameBase)
@@ -191,8 +191,14 @@ begin
 
     nNo := GetStockID;
     if nNo <> '' then
-      nWH := nWH + ' and (b.L_StockNo=''$No'')';
+      nWH := nWH + ' And (b.L_StockNo=''$No'')';
     //xxxxx
+
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        nWH := nWH + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
 
     Result := MacroValue(Result, [MI('$WH', nWH)]);
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),

@@ -84,6 +84,10 @@ object fFormMain: TfFormMain
     object SheetWelcome: TUniTabSheet
       Hint = ''
       Caption = #27426#36814#39029#38754
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 256
+      ExplicitHeight = 128
       object UniPanel1: TUniPanel
         Left = 0
         Top = 0
@@ -252,8 +256,6 @@ object fFormMain: TfFormMain
       Color = clWindow
       OnClick = TreeMenuClick
       OnMouseDown = TreeMenuMouseDown
-      ExplicitTop = 65
-      ExplicitHeight = 427
     end
   end
   object UniSplitter1: TUniSplitter

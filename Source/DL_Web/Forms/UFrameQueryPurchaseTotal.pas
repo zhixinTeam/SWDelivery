@@ -11,7 +11,7 @@ uses
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu,
   uniRadioButton, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, uniGUIBaseClasses;
+  uniToolBar, uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQueryPurchaseTotal = class(TfFrameBase)

@@ -1,28 +1,28 @@
 inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
-  ClientHeight = 258
+  ClientHeight = 315
   ClientWidth = 387
   Caption = #36820#21033#20215#24046
   ExplicitWidth = 393
-  ExplicitHeight = 283
+  ExplicitHeight = 344
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 221
-    Top = 224
+    Top = 281
     ExplicitLeft = 221
-    ExplicitTop = 210
+    ExplicitTop = 281
   end
   inherited BtnExit: TUniButton
     Left = 304
-    Top = 224
+    Top = 281
     ExplicitLeft = 304
-    ExplicitTop = 210
+    ExplicitTop = 281
   end
   inherited PanelWork: TUniSimplePanel
     Width = 371
-    Height = 208
+    Height = 265
     ExplicitWidth = 371
-    ExplicitHeight = 194
+    ExplicitHeight = 265
     object Label1: TUniLabel
       Left = 7
       Top = 55
@@ -145,7 +145,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
     end
     object UniLabel4: TUniLabel
       Left = 7
-      Top = 174
+      Top = 172
       Width = 52
       Height = 13
       Hint = ''
@@ -154,7 +154,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
     end
     object EditFL: TUniEdit
       Left = 68
-      Top = 170
+      Top = 168
       Width = 110
       Hint = ''
       MaxLength = 50
@@ -169,7 +169,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
     end
     object EditFLNew: TUniEdit
       Left = 253
-      Top = 170
+      Top = 168
       Width = 110
       Hint = ''
       MaxLength = 50
@@ -183,7 +183,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
     end
     object UniLabel5: TUniLabel
       Left = 195
-      Top = 174
+      Top = 172
       Width = 52
       Height = 13
       Hint = ''
@@ -199,6 +199,56 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       ParentColor = False
       Border = True
       TabOrder = 15
+    end
+    object UnLbl1: TUniLabel
+      Left = 7
+      Top = 204
+      Width = 52
+      Height = 13
+      Hint = ''
+      Caption = #21407#36816#36153#20215':'
+      TabOrder = 16
+    end
+    object unEdt_YunFei: TUniEdit
+      Left = 68
+      Top = 231
+      Width = 110
+      Hint = ''
+      MaxLength = 50
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      Anchors = [akLeft, akTop, akRight]
+      TabOrder = 17
+    end
+    object UnLbl2: TUniLabel
+      Left = 7
+      Top = 235
+      Width = 52
+      Height = 13
+      Hint = ''
+      Caption = #26032#36820#36816#20215':'
+      TabOrder = 18
+    end
+    object UnLbl3: TUniLabel
+      Left = 69
+      Top = 205
+      Width = 6
+      Height = 13
+      Hint = ''
+      Caption = '0'
+      TabOrder = 19
+    end
+    object UnLbl4: TUniLabel
+      Left = 197
+      Top = 235
+      Width = 128
+      Height = 13
+      Hint = ''
+      Caption = '('#21407#20215#26684'-'#26032#20215#26684'='#36820#21033#20215')'
+      TabOrder = 20
     end
   end
 end

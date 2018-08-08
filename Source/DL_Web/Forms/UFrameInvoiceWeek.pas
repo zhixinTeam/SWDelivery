@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, uniGUITypes, uniGUIForm, UFrameBase, uniButton, uniBitBtn,
   uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid,
-  uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses;
+  uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses, frxClass, frxExportPDF,
+  frxDBSet;
 
 type
   TfFrameInvoiceWeek = class(TfFrameBase)
@@ -79,7 +80,10 @@ begin
   with TStringHelper, TDateTimeHelper do
   begin
     EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
-    Result := 'Select * From $Week ';
+    Result := 'Select W_ID, W_NO, W_Name, W_Begin, W_End, W_Man, W_Date, W_Memo, ' +
+                    'Case When IsNull(W_CusName, '''')='''' then ''全部客户'' else W_CusName End W_CusName, ' +
+                    'Case When IsNull(W_StockName, '''')='''' then ''全部品种'' else W_StockName End W_StockName ' +
+              'From $Week ';
 
     if nWhere = '' then
          Result := Result + 'Where (W_Date>=''$S'' and W_Date <''$E'')'

@@ -30,7 +30,7 @@ implementation
 {$R *.dfm}
 
 uses
-  UniGUIVars, USysFun, USysConst, USysBusiness;
+  UniGUIVars, USysFun, USysConst, USysBusiness, UDataReport;
 
 function UniServerModule: TUniServerModule;
 begin

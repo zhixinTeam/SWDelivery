@@ -317,6 +317,8 @@ begin
   AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');
   AddMenuModuleItem('MAIN_D06', 'TfFrameBill');
 
+  AddMenuModuleItem('MAIN_K03', 'TfFrameHYData');
+
   AddMenuModuleItem('MAIN_L01', 'TfFrameTruckQuery');
   AddMenuModuleItem('MAIN_L02', 'TfFrameCusAccount');
   AddMenuModuleItem('MAIN_L03', 'TfFrameCusInOutMoney');

@@ -7,10 +7,10 @@ unit UFrameCustomerCreditVarify;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, UFrameBase, Vcl.Menus,
-  uniMainMenu, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniSplitter,
+  Windows, Messages, SysUtils, Variants, Classes, UFrameBase, Vcl.Menus, uniGUITypes,
+  uniMainMenu, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniSplitter, Graphics,
   uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, Vcl.Controls,
-  Vcl.Forms, uniGUIBaseClasses;
+  Vcl.Forms, uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameCustomerCreditVarify = class(TfFrameBase)
@@ -23,6 +23,9 @@ type
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure MenuItemN1Click(Sender: TObject);
+    procedure DBGridMainDblClick(Sender: TObject);
+    procedure DBGridMainDrawColumnCell(Sender: TObject; ACol, ARow: Integer;
+      Column: TUniDBGridColumn; Attribs: TUniCellAttribs);
   private
     { Private declarations }
     procedure OnCusCredit(const nCusID: string);
@@ -39,16 +42,16 @@ implementation
 {$R *.dfm}
 uses
   uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
-  USysBusiness, USysDB, USysConst, UFormCustomerCredit, UFormCreditDetail;
+  USysBusiness, USysDB, USysConst, UFormCreditDetailVerify;
 
 function TfFrameCustomerCreditVarify.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    Result := 'Select a.*, C_Name C_CusName From $CusCredit a ' +
-              'Left  Join S_Customer b On C_ID=C_CusID ' +
-              'Where C_Verify=''N'' And C_VerDate Is Null And C_VerMan1=''$VerMan'' '+
-                    'or C_VerMan2=''$VerMan'' or C_VerMan3=''$VerMan'' ';
+    Result := 'Select a.*, C_Name C_CusName, c.R_ID V_RId, V_CreditID, V_PreFxMan, V_Verify, V_VerMan, V_VerDate, V_Memo From $CusCredit a ' +
+              'Left  Join $Customer b On C_ID=C_CusID ' +
+              'Left  Join $CusCreditVerify c On V_CreditID=C_CreditID ' +
+              'Where V_VerMan=''$VerMan'' ';  // And V_Verify=''U''
     //xxxxx
 
     if nWhere <> '' then
@@ -56,7 +59,8 @@ begin
       Result := Result + ' And (' + nWhere + ')';
     end;
 
-    Result := MacroValue(Result, [MI('$CusCredit', sTable_CusCredit),
+    Result := MacroValue(Result, [MI('$CusCredit', sTable_CusCredit),  MI('$Customer', sTable_Customer),
+                                  MI('$CusCreditVerify', sTable_CusCreditVif),
                                   MI('$VerMan', UniMainModule.FUserConfig.FUserID)]);
     Result := Result + ' Order By C_Date Desc';
   end;
@@ -89,14 +93,31 @@ procedure TfFrameCustomerCreditVarify.BtnEditClick(Sender: TObject);
 var nStr: string;
 begin
   if DBGridMain.SelectedRows.Count > 0 then
-       nStr := ClientDS.FieldByName('C_ID').AsString
-  else nStr := '';
-
-  ShowCusCreditForm(nStr, OnCusCredit);
+    MenuItemN1Click(Self);
   //xxxxx
 end;
 
 //------------------------------------------------------------------------------
+procedure TfFrameCustomerCreditVarify.DBGridMainDblClick(Sender: TObject);
+begin
+  MenuItemN1Click(self);
+end;
+
+procedure TfFrameCustomerCreditVarify.DBGridMainDrawColumnCell(Sender: TObject;
+  ACol, ARow: Integer; Column: TUniDBGridColumn; Attribs: TUniCellAttribs);
+begin
+  if ClientDS.FieldByName('V_Verify').AsString='N' then
+  begin
+    Attribs.Font.Color := $C0C0C0;
+    //Attribs.Color := clWhite;
+  end
+  else if ClientDS.FieldByName('V_Verify').AsString='U' then
+  begin
+    Attribs.Font.Color := $ffcc00;
+    //Attribs.Color := clWhite;
+  end;
+end;
+
 procedure TfFrameCustomerCreditVarify.DBGridMainMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
@@ -109,12 +130,26 @@ begin
 end;
 
 procedure TfFrameCustomerCreditVarify.MenuItemN1Click(Sender: TObject);
-var nStr: string;
+var nCusId, nCrdVifId, nCusName, nMoney, nEndDate, nVRId: string;
 begin
   if DBGridMain.SelectedRows.Count > 0 then
   begin
-    nStr := ClientDS.FieldByName('C_ID').AsString;
-    ShowCreditDetailForm(nStr, FPopedom, OnCreditDetail);
+    if ClientDS.FieldByName('V_Verify').AsString<>'U' then
+    begin
+      ShowMessage('该申请已处理，不能进行再次审核');
+      Exit;
+    end;
+
+    //*************************************************************
+    nCusId := ClientDS.FieldByName('C_CusID').AsString;
+    nCrdVifId:= ClientDS.FieldByName('C_CreditID').AsString;
+    nCusName := ClientDS.FieldByName('C_CusName').AsString;
+    nMoney   := ClientDS.FieldByName('C_Money').AsString;
+    nEndDate := FormatDateTime('yyyy-MM-dd hh:nn:ss', ClientDS.FieldByName('C_End').AsDateTime);
+    nVRId    := ClientDS.FieldByName('V_RId').AsString;
+
+    ShowCreditDetailVerifyForm(nCusId, nCrdVifId, nCusName, nMoney, nEndDate,
+                                              nVRId, OnCreditDetail);
   end;
 end;
 

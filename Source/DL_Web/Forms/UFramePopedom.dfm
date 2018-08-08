@@ -154,7 +154,7 @@ object fFramePopedom: TfFramePopedom
         Width = 552
         Height = 544
         Hint = ''
-        DefaultColWidth = 92
+        DefaultColWidth = 66
         Options = [goVertLine, goHorzLine]
         ShowColumnTitles = True
         Columns = <>

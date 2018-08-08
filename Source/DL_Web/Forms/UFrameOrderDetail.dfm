@@ -10,7 +10,7 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
   inherited PanelWork: TUniContainerPanel
     Width = 1080
     Height = 636
-    ExplicitWidth = 991
+    ExplicitWidth = 1080
     ExplicitHeight = 636
     inherited UniToolBar1: TUniToolBar
       Width = 1080
@@ -18,7 +18,7 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      ExplicitWidth = 991
+      ExplicitWidth = 1080
       inherited BtnAdd: TUniToolButton
         Visible = False
       end
@@ -34,7 +34,7 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
     end
     inherited PanelQuick: TUniSimplePanel
       Width = 1080
-      ExplicitWidth = 991
+      ExplicitWidth = 1080
       object Label2: TUniLabel
         Left = 422
         Top = 17
@@ -166,7 +166,7 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
     end
     inherited DBGridMain: TUniDBGrid
       Width = 1080
-      Height = 534
+      Height = 540
       OnMouseDown = DBGridMainMouseDown
       Columns = <
         item
@@ -176,6 +176,11 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
           Font.Name = #23435#20307
         end>
     end
+  end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
   object PMenu1: TUniPopupMenu
     Left = 40

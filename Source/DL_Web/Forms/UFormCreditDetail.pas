@@ -114,7 +114,7 @@ begin
   try
     nStr := 'Select cc.*,C_Name From %s cc ' +
             ' Left Join %s cus On cus.C_ID=cc.C_CusID ' +
-            'Where cc.C_CusID=''%s'' Order By C_Date ASC';
+            'Where cc.C_CusID=''%s'' Order By C_Date Desc';
     nStr := Format(nStr, [sTable_CusCredit, sTable_Customer, nCusID]);
 
     nQuery := LockDBQuery(FDBType);
@@ -129,6 +129,7 @@ end;
 procedure TfFormCreditDetail.DBGrid1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  Exit;
   if Button = mbRight then PMenu1.Popup(X, Y, DBGrid1);
 end;
 

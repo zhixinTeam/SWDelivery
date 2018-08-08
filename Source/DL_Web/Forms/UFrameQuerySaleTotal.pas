@@ -146,6 +146,13 @@ begin
       Result := Result + ' Where (' + FJBWhere + ')';
     end;
 
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+    end;
+    //*****************
+
     if Radio1.Checked then
     begin
       Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName';

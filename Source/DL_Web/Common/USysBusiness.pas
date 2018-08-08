@@ -12,9 +12,9 @@ uses
   Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient,
   System.SyncObjs, Vcl.Grids, Vcl.DBGrids, Vcl.Graphics,
   //----------------------------------------------------------------------------
-  uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
+  uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses, uniGUIFrame,
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm,
-  uniDBGrid, uniStringGrid, uniComboBox,
+  uniDBGrid, uniStringGrid, uniComboBox, UDataReport,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote,
   DBGrid2Excel;
@@ -87,7 +87,7 @@ procedure SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
 function IsAutoPayCredit(const nQuery: TADOQuery): Boolean;
 //回款时冲信用
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
- const nEndTime: TDateTime; nVarMan1, nVarMan2, nVarMan3:string): Boolean;
+ const nEndTime: TDateTime; nVarMan:string): Boolean;
 //保存信用记录
 
 procedure LoadMenuItems(const nForce: Boolean);
@@ -140,8 +140,16 @@ function IsWeekHasEnable(const nWeek: string; const nQuery: TADOQuery): Boolean;
 //周期是否启用
 function IsNextWeekEnable(const nWeek: string; const nQuery: TADOQuery): Boolean;
 //下一周期是否启用
-function IsPreWeekOver(const nWeek: string; const nQuery: TADOQuery): Integer;
+function IsPreWeekOver(const nWeek: string; const nQuery: TADOQuery; var nPreWeek:string): Integer;
 //上一周期是否结束
+
+function GetLeftStr(SubStr, Str: string): string;
+function GetRightStr(SubStr, Str: string): string;
+
+
+function PrintHuaYanReport(const nHID: string): Boolean;
+
+
 
 implementation
 
@@ -961,7 +969,7 @@ begin
     //do save
 
     if (nLimit > 0) and (
-       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now(),'','','')) then
+       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now(),'')) then
     begin
       nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
               '请手动调整该客户信用额度.';
@@ -992,12 +1000,24 @@ begin
   try
     nVal := Float2Float(nMoney, cPrecision, False);
     //adjust float value
+    nQuery := LockDBQuery(ctWork);
 
     {$IFNDEF NoCheckOnPayment}
     if nVal < 0 then
     begin
-      nLimit := GetCustomerValidMoney(nCusID, False);
+      nLimit := GetCustomerValidMoney(nCusID, True);
       //get money value
+
+      nStr := 'Select A_InMoney From %s Where A_CID=''%s''';
+      nStr := Format(nStr, [sTable_CusAccount, nCusID]);
+
+      with DBQuery(nStr, nQuery) do
+      if  RecordCount > 0 then
+      begin
+        if Fields[0].AsFloat < nLimit then
+          nLimit := Float2Float(Fields[0].AsFloat, cPrecision, False);
+        //客户入金小于当前可用金时,只可退回入金金额
+      end;
 
       if (nLimit <= 0) or (nLimit < -nVal) then
       begin
@@ -1012,7 +1032,6 @@ begin
     {$ENDIF}
 
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-    nQuery := LockDBQuery(ctWork);
     nLimit := 0;
     //no limit
 
@@ -1082,10 +1101,46 @@ begin
   end;
 end;
 
+//Parm: 前缀;表名;字段;自增连续编号长
+//Desc: 生成前缀为nPrefix,以nTable.nField为参考的连续编号
+function GetSerialID(const nPrefix, nTable, nField: string;
+ const nIncLen: Integer = 3): string;
+var nStr,nTmp: string;
+    nQuery: TADOQuery;
+begin
+
+  Result := ''; nQuery := nil;
+  try
+    nTmp := FormatDateTime('YYMMDD', Now);
+
+    nStr := 'Select Top 1 %s From %s Where %s Like ''%s'' Order By %s DESC';
+    nStr := Format(nStr, [nField, nTable, nField, nPrefix+nTmp+'%', nField]);
+    //xxxxx
+
+    nQuery := LockDBQuery(ctWork);
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      nStr := Fields[0].AsString;
+      nStr := Copy(nStr, Length(nStr) - nIncLen + 1, nIncLen);
+
+      if TStringHelper.IsNumber(nStr, False) then
+           nStr := IntToStr(StrToInt(nStr) + 1)
+      else nStr := '1';
+    end else nStr := '1';
+
+    nStr := StringOfChar('0', nIncLen - Length(nStr)) + nStr;
+    Result := nPrefix + nTmp + nStr;
+  except
+    //ignor any error
+  end;
+end;
+
+
 //Desc: 保存nCusID的一次授信记录
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
- const nEndTime: TDateTime; nVarMan1, nVarMan2, nVarMan3:string): Boolean;
-var nStr: string;
+ const nEndTime: TDateTime; nVarMan:string): Boolean;
+var nStr, nCId: string;
     nVal: Double;
     nList: TStrings;
     nQuery: TADOQuery;
@@ -1110,16 +1165,26 @@ begin
 
     if nStr = sFlag_Yes then //需审核
     begin
+      nCId:= GetSerialID('V', sTable_CusCredit, 'C_CreditID');
+
       nStr := MakeSQLByStr([SF('C_CusID', nCusID),
               SF('C_Money', nVal, sfVal),
               SF('C_Man', UniMainModule.FUserConfig.FUserID),
               SF('C_Date', sField_SQLServer_Now, sfVal),
+              SF('C_Verify', sFlag_Unknow),
+              SF('C_VerMan', nVarMan),
               SF('C_End', DateTime2Str(nEndTime)),
-              SF('C_Memo',nMemo),
-              SF('C_VerMan1',nVarMan1), SF('C_VerMan2',nVarMan2),
-              SF('C_VerMan3',nVarMan3)
+              SF('C_Memo',nMemo), SF('C_CreditID', nCId)
               ], sTable_CusCredit, '', True);
       nList.Add(nStr);
+
+      nStr := MakeSQLByStr([SF('V_CreditID', nCId),
+              SF('V_PreFxMan', UniMainModule.FUserConfig.FUserID),
+              SF('V_Verify', sFlag_Unknow),
+              SF('V_VerMan', nVarMan)
+              ], sTable_CusCreditVif, '', True);
+      nList.Add(nStr);
+
     end else
     begin
       nStr := MakeSQLByStr([SF('C_CusID', nCusID),
@@ -1685,7 +1750,11 @@ begin
               FTable := FieldByName('D_DBTable').AsString;
               FField := FieldByName('D_DBField').AsString;
               FIsKey := StrToBool(FieldByName('D_DBIsKey').AsString);
-              FLocked:= StrToBool(FieldByName('D_Locked').AsString);
+
+              if Assigned(FindField('D_Locked')) then
+              begin
+                FLocked:= StrToBool(FieldByName('D_Locked').AsString);
+              end else FLocked := False;
 
               FType  := TFieldType(FieldByName('D_DBType').AsInteger);
               FWidth := FieldByName('D_DBWidth').AsInteger;
@@ -2233,6 +2302,11 @@ begin
   end;
 end;
 
+//Desc: 打印nGrid表格
+function GridPrintData(const nQuery: TADOQuery; var nTitle: string): Boolean;
+begin
+
+end;
 //------------------------------------------------------------------------------
 //Date: 2018-05-17
 //Parm: 周期编号;提示
@@ -2309,25 +2383,135 @@ end;
 //Date: 2018-05-17
 //Parm: 周期编号
 //Desc: 检测nWee前面的周期是否已结算完成
-function IsPreWeekOver(const nWeek: string; const nQuery: TADOQuery): Integer;
+function IsPreWeekOver(const nWeek: string; const nQuery: TADOQuery; var nPreWeek:string): Integer;
 var nStr: string;
 begin
   with TStringHelper do
   begin
-    nStr := 'Select Count(*) From $Req Where (R_Week In ( ' +
-            ' Select W_NO From $W Where W_Begin < (' +
-            '  Select Top 1 W_Begin From $W Where W_NO=''$NO''))) And ' +
-            '(R_Value<>R_KValue) And (R_KPrice <> 0)';
+//    nStr := 'Select Count(*) From $Req Where (R_Week In ( ' +
+//            ' Select W_NO From $W Where W_Begin < (' +
+//            '  Select Top 1 W_Begin From $W Where W_NO=''$NO''))) And ' +
+//            '(R_Value<>R_KValue) And (R_KPrice <> 0)';
+//    nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
+//            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
+    //xxxxx
+
+    nStr := 'Select R_Week, Count(*) From $Req Where (R_Week<>''$NO'') And ' +
+            '(R_Value<>R_KValue) And (R_KPrice <> 0) Group by R_Week';
     nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
             MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
-    //xxxxx
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
-         Result := Fields[0].AsInteger
+    begin
+      nPreWeek:= Fields[0].AsString;
+      Result  := Fields[1].AsInteger;
+    end
     else Result := 0;
   end;
 end;
+
+function GetLeftStr(SubStr, Str: string): string;
+begin
+   Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+end;
+
+function GetRightStr(SubStr, Str: string): string;
+var
+   i: integer;
+begin
+   i := pos(SubStr, Str);
+   if i > 0 then
+     Result := Copy(Str
+       , i + Length(SubStr)
+       , Length(Str) - i - Length(SubStr) + 1)
+   else
+     Result := '';
+end;
+
+//Desc: 获取nStock品种的报表文件
+function GetReportFileByStock(const nStock: string): string;
+begin
+  Result := TStringHelper.GetPinYin(nStock);
+
+  if Pos('dj', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42_DJ.fr3'
+  else if Pos('gsysl', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
+  else if Pos('kzf', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
+  else if Pos('qz', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_qz.fr3'
+  else if Pos('32', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan32.fr3'
+  else if Pos('42', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42.fr3'
+  else if Pos('52', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42.fr3'
+
+  else if Pos('dlsn', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_DaoLu.fr3'
+  else if Pos('zrsn', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_ZhongRe.fr3'
+  else Result := '';
+end;
+
+
+//Desc: 打印标识为nHID的化验单
+function PrintHuaYanReport(const nHID: string): Boolean;
+var nStr,nSR: string;
+    nQuery: TADOQuery;
+var
+  FDR: TFDR;
+begin
+  Result := True;
+  FDR := TFDR(UniMainModule.GetFormInstance(TFDR));
+  try
+    with TStringHelper, TDateTimeHelper do
+    begin
+      nSR := 'Select * From %s sr ' +
+             ' Left Join %s sp on sp.P_ID=sr.R_PID';
+      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+
+      nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
+              ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+              ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+              'Where H_ID in ($ID)';
+      //xxxxx
+
+      nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
+              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
+      //xxxxx
+
+      nQuery := LockDBQuery(ctMain);
+      //get query
+      DBQuery(nStr, nQuery);
+      if nQuery.RecordCount < 1 then
+      begin
+        nStr := '编号为[ %s ] 的化验单记录已无效!!';
+        nStr := Format(nStr, [nHID]);
+        Exit;
+      end;
+
+      nStr := nQuery.FieldByName('P_Stock').AsString;
+      nStr := GetReportFileByStock(nStr);
+      if not FDR.LoadReportFile(nStr) then
+      begin
+        nStr := '无法正确加载报表文件';
+        Exit;
+      end;
+
+      FDR.Dataset1.DataSet := nQuery;
+      FDR.ShowReport(FDR.GenReportPDF);
+      Result := FDR.PrintSuccess;
+    end;
+  finally
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
+
+
 
 initialization
   gSyncLock := TCriticalSection.Create;

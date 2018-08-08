@@ -11,7 +11,7 @@ uses
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniCheckBox,
   uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient,
   uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar,
-  uniGUIBaseClasses;
+  uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameOrderDetail = class(TfFrameBase)
