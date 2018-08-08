@@ -205,6 +205,7 @@ end;
 
 //Desc: 强制指定服务地址
 function TClient2MITWorker.GetFixedServiceURL: string;
+//const ServUrl = 'http://%s:8082/';
 begin
   Result := '';
 end;
@@ -241,7 +242,7 @@ begin
       //call mit funciton
       Break;
     except
-      on E:Exception do
+      on E :Exception do
       begin
         if (GetFixedServiceURL <> '') or
            (gChannelChoolser.GetChannelURL = FHttp.TargetURL) then

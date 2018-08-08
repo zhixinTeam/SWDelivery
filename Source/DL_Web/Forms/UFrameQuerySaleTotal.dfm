@@ -34,7 +34,6 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
     end
     inherited PanelQuick: TUniSimplePanel
       Width = 991
-      ExplicitLeft = 3
       ExplicitWidth = 991
       object Label2: TUniLabel
         Left = 12
@@ -107,7 +106,6 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
         Width = 75
         Height = 17
         Hint = ''
-        Checked = True
         Caption = #21516#23458#25143
         ParentFont = False
         Font.Charset = GB2312_CHARSET
@@ -134,6 +132,7 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
         Width = 105
         Height = 17
         Hint = ''
+        Checked = True
         Caption = #21516#23458#25143#21516#21697#31181
         ParentFont = False
         Font.Charset = GB2312_CHARSET
@@ -144,10 +143,10 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
       object Label1: TUniLabel
         Left = 535
         Top = 17
-        Width = 54
+        Width = 60
         Height = 12
         Hint = ''
-        Caption = #23458#25143#21517#31216':'
+        Caption = #32479#35745#31867#22411#65306
         ParentFont = False
         Font.Charset = GB2312_CHARSET
         Font.Height = -12
@@ -157,7 +156,10 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
     end
     inherited DBGridMain: TUniDBGrid
       Width = 991
-      Height = 534
+      Height = 540
+      Grouping.FieldName = 'L_CusName'
+      Grouping.FieldCaption = #23458#25143
+      Grouping.Enabled = True
       OnMouseDown = DBGridMainMouseDown
       Columns = <
         item

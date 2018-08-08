@@ -151,8 +151,11 @@ end;
 
 procedure TfFormGetWXAccount.Grid1SelectCell(Sender: TObject; ACol,
   ARow: Integer; var CanSelect: Boolean);
+var nIdx : Integer;
 begin
-  FRowSelected := ARow;
+  for nIdx:=Low(FUsers) to High(FUsers) do
+    if FUsers[nIdx].FPhone=Grid1.Cells[giPhone, ARow] then
+      FRowSelected:= nIdx;
 end;
 
 //------------------------------------------------------------------------------

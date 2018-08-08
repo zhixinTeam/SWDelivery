@@ -1,6 +1,6 @@
 object fFormNewPurchaseCard: TfFormNewPurchaseCard
-  Left = 203
-  Top = 70
+  Left = 371
+  Top = 142
   BorderStyle = bsNone
   Caption = #29992#25143#33258#21161#21150#21345
   ClientHeight = 451

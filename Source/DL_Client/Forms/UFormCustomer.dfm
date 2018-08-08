@@ -1,10 +1,10 @@
 inherited fFormCustomer: TfFormCustomer
-  Left = 438
-  Top = 220
+  Left = 558
+  Top = 184
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 543
-  ClientWidth = 480
+  ClientHeight = 515
+  ClientWidth = 466
   OldCreateOrder = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -14,8 +14,8 @@ inherited fFormCustomer: TfFormCustomer
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 480
-    Height = 543
+    Width = 466
+    Height = 515
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -92,7 +92,7 @@ inherited fFormCustomer: TfFormCustomer
       Width = 120
     end
     object BtnAdd: TButton
-      Left = 411
+      Left = 397
       Top = 318
       Width = 46
       Height = 18
@@ -101,7 +101,7 @@ inherited fFormCustomer: TfFormCustomer
       OnClick = BtnAddClick
     end
     object BtnDel: TButton
-      Left = 412
+      Left = 398
       Top = 343
       Width = 45
       Height = 17
@@ -110,21 +110,21 @@ inherited fFormCustomer: TfFormCustomer
       OnClick = BtnDelClick
     end
     object BtnOK: TButton
-      Left = 324
-      Top = 510
+      Left = 310
+      Top = 457
       Width = 70
       Height = 22
       Caption = #20445#23384
-      TabOrder = 20
+      TabOrder = 21
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 399
-      Top = 510
+      Left = 385
+      Top = 457
       Width = 70
       Height = 22
       Caption = #21462#28040
-      TabOrder = 21
+      TabOrder = 22
       OnClick = BtnExitClick
     end
     object cxTextEdit1: TcxTextEdit
@@ -231,9 +231,9 @@ inherited fFormCustomer: TfFormCustomer
     end
     object Check1: TcxCheckBox
       Left = 11
-      Top = 510
+      Top = 457
       Hint = 'T.C_XuNi'
-      Caption = #38750#27491#24335#23458#25143': '#27491#24120#26597#35810#26102#19981#20104#26174#31034'.'
+      Caption = #38750#27491#24335#23458#25143'('#27491#24120#26597#35810#26102#19981#20104#26174#31034'.)'
       ParentFont = False
       TabOrder = 19
       Transparent = True
@@ -249,6 +249,16 @@ inherited fFormCustomer: TfFormCustomer
       Properties.ItemHeight = 20
       TabOrder = 12
       Width = 121
+    end
+    object Chkbx1: TcxCheckBox
+      Left = 11
+      Top = 483
+      Hint = 'T.C_InstantPrintHYD'
+      Caption = #25171#21360#38543#36710#21270#39564#21333
+      ParentFont = False
+      TabOrder = 20
+      Transparent = True
+      Width = 218
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
@@ -382,7 +392,8 @@ inherited fFormCustomer: TfFormCustomer
         end
       end
       object dxLayoutControl1Group2: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
+        AutoAligns = []
+        AlignHorz = ahClient
         AlignVert = avClient
         Caption = #38468#21152#20449#24687
         object dxLayoutControl1Group4: TdxLayoutGroup
@@ -446,11 +457,20 @@ inherited fFormCustomer: TfFormCustomer
         Hidden = True
         LayoutDirection = ldHorizontal
         ShowBorder = False
-        object dxLayoutControl1Item1: TdxLayoutItem
-          Caption = 'cxCheckBox1'
+        object dxlytgrp_PrintHYD: TdxLayoutGroup
           ShowCaption = False
-          Control = Check1
-          ControlOptions.ShowBorder = False
+          Hidden = True
+          ShowBorder = False
+          object dxLayoutControl1Item1: TdxLayoutItem
+            Caption = 'cxCheckBox1'
+            ShowCaption = False
+            Control = Check1
+            ControlOptions.ShowBorder = False
+          end
+          object dxlytmLayoutControl1Item23: TdxLayoutItem
+            Control = Chkbx1
+            ControlOptions.ShowBorder = False
+          end
         end
         object dxLayoutControl1Item10: TdxLayoutItem
           AutoAligns = [aaVertical]

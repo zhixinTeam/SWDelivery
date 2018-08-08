@@ -75,7 +75,7 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
     end
   end
   object PanelHide1: TUniHiddenPanel
-    Left = 8
+    Left = 24
     Top = 374
     Width = 160
     Height = 32

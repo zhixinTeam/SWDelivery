@@ -44,6 +44,8 @@ type
     procedure Grid1Click(Sender: TObject);
   private
     { Private declarations }
+    procedure MakeDefaultValue;
+    //设置默认值
     procedure InitFormData(const nID: string);
     //载入数据
     procedure LoadContract(const nCID: string; const nQuery: TADOQuery);
@@ -113,6 +115,19 @@ begin
   end;
 end;
 
+procedure TfFormZhiKa.MakeDefaultValue;
+var nStr: string;
+begin
+  with TStringHelper,TDateTimeHelper do
+  begin
+    EditLading.ItemIndex := StrListIndex('T', EditLading.Items, 0, '.');
+    EditPayment.Text := '现款';
+
+    nStr := Copy(Date2Str(Now(), False), 3, 4);
+    EditName.Text := Format('%s零售价', [nStr]);
+  end;
+end;
+
 //Date: 2018-05-03
 //Parm: 供应商编号
 //Desc: 载入nID供应商的信息到界面
@@ -129,7 +144,8 @@ begin
   if nID = '' then
   begin
     EditSaleMan.Style := csDropDownList;
-    EditCus.Style := csDropDown
+    EditCus.Style := csDropDown;
+    MakeDefaultValue;
   end else
   begin
     EditSaleMan.Style := csDropDown;

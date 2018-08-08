@@ -33,6 +33,7 @@ type
     MenuItem6: TUniMenuItem;
     MenuItem7: TUniMenuItem;
     MenuItem8: TUniMenuItem;
+    MenuItem9: TUniMenuItem;
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
@@ -43,6 +44,7 @@ type
     procedure BtnDateFilterClick(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
+    procedure MenuItem9Click(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -63,7 +65,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
   ULibFun, UManagerGroup, USysBusiness, UFormBase, USysDB, USysConst,
-  UFormDateFilter, UFormzhikaFixMoney;
+  UFormDateFilter, UFormzhikaFixMoney, UFormZhiKaVerify;
 
 procedure TfFrameZhiKa.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -73,6 +75,7 @@ begin
   MenuItem3.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
   MenuItem4.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
   MenuItem5.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
+  MenuItem9.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
 end;
 
 procedure TfFrameZhiKa.OnDestroyFrame(const nIni: TIniFile);
@@ -302,6 +305,18 @@ procedure TfFrameZhiKa.MenuItem5Click(Sender: TObject);
 begin
   if DBGridMain.SelectedRows.Count > 0 then
    ShowZKFixMoneyForm(ClientDS.FieldByName('Z_ID').AsString,
+    procedure(const nResult: Integer; const nParam: PFormCommandParam)
+    begin
+      if nResult = mrOk then InitFormData(FWhere);
+    end);
+  //xxxxx
+end;
+
+//Desc: Ö½¿¨ÉóºË
+procedure TfFrameZhiKa.MenuItem9Click(Sender: TObject);
+begin
+  if DBGridMain.SelectedRows.Count > 0 then
+   ShowZKVerifyForm(ClientDS.FieldByName('Z_ID').AsString,
     procedure(const nResult: Integer; const nParam: PFormCommandParam)
     begin
       if nResult = mrOk then InitFormData(FWhere);

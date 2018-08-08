@@ -321,9 +321,14 @@ var nNode, nTmp: TXmlNode;
 begin
   Result := False;
   try
-    FPacker.XMLBuilder.Clear;
-    FPacker.XMLBuilder.ReadFromString(nData);
-
+    try
+      FPacker.XMLBuilder.Clear;
+      
+      if Pos('<?xml', nData)>0 then
+        FPacker.XMLBuilder.ReadFromString(nData);
+    except
+      WriteLog('XML解析失败');
+    end;
     //nNode := FPacker.XMLBuilder.Root.FindNode('Head');
     nNode := FPacker.XMLBuilder.Root;
     if not (Assigned(nNode) and Assigned(nNode.FindNode('Command'))) then
@@ -376,7 +381,7 @@ begin
       if Assigned(nTmp) then FIn.FExtParam := nTmp.ValueAsString;
     end;
   except
-
+    Exit;
   end;
 end;
 
@@ -525,43 +530,49 @@ begin
 
   WriteLog('微信用户列表入参'+nStr);
 
-  Result := False;
-  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
-  nStr := FWXChannel.mainfuncs('getCustomerInfo', nStr);
+  try
+    Result := False;
+    FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
+    nStr := FWXChannel.mainfuncs('getCustomerInfo', nStr);
 
-  WriteLog('微信用户列表出参'+nStr);
+    WriteLog('微信用户列表出参'+nStr);
 
-  with FPacker.XMLBuilder do
-  begin
-    ReadFromString(nStr);
-    if not ParseDefault(nData) then Exit;
-    nRoot := Root.FindNode('items');
-
-    if not Assigned(nRoot) then
+    with FPacker.XMLBuilder do
     begin
-      nData := '无效参数节点(WebService-Response.items Is Null).';
-      Exit;
-    end;
+      ReadFromString(nStr);
+      if not ParseDefault(nData) then Exit;
+      nRoot := Root.FindNode('items');
 
-    FListA.Clear;
-    FListB.Clear;
-    for nIdx:=0 to nRoot.NodeCount-1 do
-    begin
-      nNode := nRoot.Nodes[nIdx];
-      if CompareText('item', nNode.Name) <> 0 then Continue;
-
-      with FListB,nNode do
+      if not Assigned(nRoot) then
       begin
-        Values['Phone']   := NodeByName('Phone').ValueAsString;
-        Values['BindID']  := NodeByName('Bindcustomerid').ValueAsString;
-        Values['Name']    := NodeByName('Namepinyin').ValueAsString;
+        nData := '无效参数节点(WebService-Response.items Is Null).';
+        Exit;
       end;
 
-      FListA.Add(PackerEncodeStr(FListB.Text));
-      //new item
+      FListA.Clear;
+      FListB.Clear;
+      for nIdx:=0 to nRoot.NodeCount-1 do
+      begin
+        nNode := nRoot.Nodes[nIdx];
+        if CompareText('item', nNode.Name) <> 0 then Continue;
+
+        with FListB,nNode do
+        begin
+          Values['Phone']   := NodeByName('Phone').ValueAsString;
+          Values['BindID']  := NodeByName('Bindcustomerid').ValueAsString;
+          Values['Name']    := NodeByName('Namepinyin').ValueAsString;
+        end;
+
+        FListA.Add(PackerEncodeStr(FListB.Text));
+        //new item
+      end;
+    end;
+  except on Ex : Exception do
+    begin
+      WriteLog('获取微信用户列表出错：' + Ex.Message);
     end;
   end;
-
+  
   Result := True;
   FOut.FData := FListA.Text;
   FOut.FBase.FResult := True;
@@ -575,72 +586,77 @@ var nStr, nMemo,nName,nNum: string;
     nNode,nRoot: TXmlNode;
 begin
   Result := False;
-  FListA.Text := PackerDecodeStr(FIn.FData);
+  try
+    FListA.Text := PackerDecodeStr(FIn.FData);
 
-  if FListA.Values['Memo'] = sFlag_Provide then
-  begin
-    nMemo := '<Customer/>' + '<Provider>%s</Provider>';
-    nName := '<providername>%s</providername>';
-    nNum  := '<providernumber>%s</providernumber>';
-  end
-  else
-  begin
-    nMemo := '<Customer>%s</Customer>';
-    nName := '<clientname>%s</clientname>';
-    nNum  := '<clientnumber>%s</clientnumber>';
+    if FListA.Values['Memo'] = sFlag_Provide then
+    begin
+      nMemo := '<Customer/>' + '<Provider>%s</Provider>';
+      nName := '<providername>%s</providername>';
+      nNum  := '<providernumber>%s</providernumber>';
+    end
+    else
+    begin
+      nMemo := '<Customer>%s</Customer>';
+      nName := '<clientname>%s</clientname>';
+      nNum  := '<clientnumber>%s</clientnumber>';
+    end;
+
+    if FListA.Values['Action'] = 'add' then //bind
+    begin
+      nStr := '<?xml version="1.0" encoding="UTF-8" ?>' +
+              '<DATA>' +
+              '<head>' +
+              '<Factory>%s</Factory>' +
+              nMemo +
+              '<type>add</type>' +
+              '</head>' +
+              '<Items>' +
+              '<Item>' +
+              nName +
+              '<cash>0</cash>' +
+              nNum +
+              '</Item>' +
+              '</Items>' +
+              '<remark />' +
+              '</DATA>';
+      nStr := Format(nStr, [gSysParam.FFactID, FListA.Values['BindID'],
+              FListA.Values['CusName'], FListA.Values['CusID']]);
+      //xxxxx
+    end else
+    begin
+      nStr := '<?xml version="1.0" encoding="UTF-8"?>' +
+              '<DATA>' +
+              '<head>' +
+              '<Factory>%s</Factory>' +
+              nMemo +
+              '<type>del</type>' +
+              '</head>' +
+              '<Items>' +
+              '<Item>' +
+              nNum +
+              '</Item></Items><remark/></DATA>';
+      nStr := Format(nStr, [gSysParam.FFactID,
+              FListA.Values['Account'], FListA.Values['CusID']]);
+      //xxxxx
+    end;
+    WriteLog('商城'+FListA.Values['Memo']+'账户关联入参'+nStr);
+
+    FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
+    nStr := FWXChannel.mainfuncs('edit_shopclients', nStr);
+
+    WriteLog('商城'+FListA.Values['Memo']+'账户关联出参'+nStr);
+
+    with FPacker.XMLBuilder do
+    begin
+      ReadFromString(nStr);
+      if not ParseDefault(nData) then Exit;
+    end;
+  except on Ex : Exception do
+    begin
+      WriteLog('商城账户微信关联/取消出错：' + Ex.Message);
+    end;
   end;
-
-  if FListA.Values['Action'] = 'add' then //bind
-  begin
-    nStr := '<?xml version="1.0" encoding="UTF-8" ?>' +
-            '<DATA>' +
-            '<head>' +
-            '<Factory>%s</Factory>' +
-            nMemo +
-            '<type>add</type>' +
-            '</head>' +
-            '<Items>' +
-            '<Item>' +
-            nName +
-            '<cash>0</cash>' +
-            nNum +
-            '</Item>' +
-            '</Items>' +
-            '<remark />' +
-            '</DATA>';
-    nStr := Format(nStr, [gSysParam.FFactID, FListA.Values['BindID'],
-            FListA.Values['CusName'], FListA.Values['CusID']]);
-    //xxxxx
-  end else
-  begin
-    nStr := '<?xml version="1.0" encoding="UTF-8"?>' +
-            '<DATA>' +
-            '<head>' +
-            '<Factory>%s</Factory>' +
-            nMemo +
-            '<type>del</type>' +
-            '</head>' +
-            '<Items>' +
-            '<Item>' +
-            nNum +
-            '</Item></Items><remark/></DATA>';
-    nStr := Format(nStr, [gSysParam.FFactID,
-            FListA.Values['Account'], FListA.Values['CusID']]);
-    //xxxxx
-  end;
-  WriteLog('商城'+FListA.Values['Memo']+'账户关联入参'+nStr);
-
-  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
-  nStr := FWXChannel.mainfuncs('edit_shopclients', nStr);
-
-  WriteLog('商城'+FListA.Values['Memo']+'账户关联出参'+nStr);
-
-  with FPacker.XMLBuilder do
-  begin
-    ReadFromString(nStr);
-    if not ParseDefault(nData) then Exit;
-  end;
-
   Result := True;
   FOut.FData := sFlag_Yes;
   FOut.FBase.FResult := True;
@@ -1122,61 +1138,70 @@ begin
   nStr := FWXChannel.mainfuncs('get_shoporderByNO', nStr);
   WriteLog('获取订单信息出参解码前:'+nStr);
 
-  with FPacker.XMLBuilder do
-  begin
-    ReadFromString(nStr);
-    if not ParseDefault(nData) then Exit;
-
-    nNode := Root.FindNode('Items');
-    if not (Assigned(nNode)) then
+  try
+    with FPacker.XMLBuilder do
     begin
-      nData := '无效参数节点(Items Null).';
-      Exit;
-    end;
+      ReadFromString(nStr);
+      if not ParseDefault(nData) then Exit;
 
-    FListA.Clear;
-    FListB.Clear;
-    for nInt := 0 to nNode.NodeCount - 1 do
+      nNode := Root.FindNode('Items');
+      if not (Assigned(nNode)) then
+      begin
+        nData := '无效参数节点(Items Null).';
+        Exit;
+      end;
+
+      FListA.Clear;
+      FListB.Clear;
+      for nInt := 0 to nNode.NodeCount - 1 do
+      begin
+        nTmp := nNode.Nodes[nInt];
+
+        if not (Assigned(nTmp)) then
+          Continue;
+
+        if Assigned(nTmp.NodeByName('order_id')) then
+          FListB.Values['order_id'] := nTmp.NodeByName('order_id').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('fac_order_no')) then
+          FListB.Values['fac_order_no'] := nTmp.NodeByName('fac_order_no').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('ordernumber')) then
+          FListB.Values['ordernumber'] := nTmp.NodeByName('ordernumber').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('goodsID')) then
+          FListB.Values['goodsID'] := nTmp.NodeByName('goodsID').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('goodstype')) then
+          FListB.Values['goodstype'] := nTmp.NodeByName('goodstype').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('goodsname')) then
+          FListB.Values['goodsname'] := nTmp.NodeByName('goodsname').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('tracknumber')) then
+          FListB.Values['tracknumber'] := nTmp.NodeByName('tracknumber').ValueAsString;
+
+        if Assigned(nTmp.NodeByName('data')) then
+          FListB.Values['data'] := nTmp.NodeByName('data').ValueAsString;
+
+        nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
+
+        {$IFDEF UseUTFDecode}
+        //WriteLog('UTF8DEcode解码:'+UTF8Decode(nStr));
+        WriteLog('已对订单做UTF8解码');
+        nStr := DecodeUtf8Str(nStr);
+        {$ENDIF}
+        WriteLog('获取订单信息出参解码后:'+nStr);
+
+        FListA.Add(nStr);
+      end;
+      nData := PackerEncodeStr(FListA.Text);
+    end;
+  except
+    on Ex : Exception do
     begin
-      nTmp := nNode.Nodes[nInt];
-
-      if not (Assigned(nTmp)) then
-        Continue;
-
-      if Assigned(nTmp.NodeByName('order_id')) then
-        FListB.Values['order_id'] := nTmp.NodeByName('order_id').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('fac_order_no')) then
-        FListB.Values['fac_order_no'] := nTmp.NodeByName('fac_order_no').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('ordernumber')) then
-        FListB.Values['ordernumber'] := nTmp.NodeByName('ordernumber').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodsID')) then
-        FListB.Values['goodsID'] := nTmp.NodeByName('goodsID').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodstype')) then
-        FListB.Values['goodstype'] := nTmp.NodeByName('goodstype').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodsname')) then
-        FListB.Values['goodsname'] := nTmp.NodeByName('goodsname').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('tracknumber')) then
-        FListB.Values['tracknumber'] := nTmp.NodeByName('tracknumber').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('data')) then
-        FListB.Values['data'] := nTmp.NodeByName('data').ValueAsString;
-
-      nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
-
-      {$IFDEF UseUTFDecode}
-      nStr := UTF8Decode(nStr);
-      {$ENDIF}
-      WriteLog('获取订单信息出参解码后:'+nStr);
-
-      FListA.Add(nStr);
+      WriteLog('解码过程中发生错误:'+Ex.Message);
     end;
-    nData := PackerEncodeStr(FListA.Text);
   end;
 
   Result := True;

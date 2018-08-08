@@ -1,13 +1,13 @@
 {*******************************************************************************
   作者: dmzn@163.com 2018-05-21
-  描述: 按品种统计日报
+  描述: 按品种统计月报 （每日）
 *******************************************************************************}
 unit UFrameQueryStockDays;
 
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles, System.StrUtils,
   UFrameBase, uniChart, uniPanel, uniSplitter, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
   uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
@@ -28,6 +28,8 @@ type
     //时间区间
     procedure OnDateFilter(const nStart,nEnd: TDate);
     //日期筛选
+    procedure ArrangeColum;
+    procedure AfterInitFormData; override;
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
@@ -42,6 +44,36 @@ implementation
 uses
   uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
   USysBusiness, USysDB, USysConst, UFormDateFilter;
+
+
+function GetLeftStr(SubStr, Str: string): string;
+begin
+   Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+end;
+
+procedure TfFrameQueryStockDays.ArrangeColum;
+var nIdx, nDay : Integer;
+begin
+  try
+    DBGridMain.Columns.BeginUpdate;
+
+    for nIdx := 0 to DBGridMain.Columns.Count-1 do
+      if Pos('日', DBGridMain.Columns[nIdx].Title.Caption)>0 then
+      begin
+        nDay:= StrToIntDef(GetLeftStr('日', DBGridMain.Columns[nIdx].Title.Caption), -1);
+        if nDay>StrToIntDef(FormatDateTime('dd',Now), -1) then
+          DBGridMain.Columns[nIdx].Visible:= False
+        else DBGridMain.Columns[nIdx].Visible:= True;
+      end;
+  finally
+    DBGridMain.Columns.EndUpdate;
+  end;
+end;
+
+procedure TfFrameQueryStockDays.AfterInitFormData;
+begin
+  ArrangeColum;
+end;
 
 procedure TfFrameQueryStockDays.OnCreateFrame(const nIni: TIniFile);
 var nY,nM,nD: Word;
@@ -84,17 +116,35 @@ begin
       if nIdx < 31 then nF2 := nF2 + ',';
     end;
 
-    Result := 'Select L_StockNo,L_StockName,$F1 From (' +
-      ' Select L_StockNo,L_StockName,$F2 From (' +
-      '  Select L_StockNo,L_StockName,L_Value,DATEPART(day,L_OutFact) as L_Days ' +
+    Result := 'Select L_Type, L_StockNo,L_StockName,$F1 From (' +
+      ' Select Case when L_StockName=''(低碱)熟料'' then ''V'' else L_Type end L_Type, L_StockNo,L_StockName,$F2 From (' +
+      '  Select L_Type, L_StockNo,L_StockName,L_Value,DATEPART(day,L_OutFact) as L_Days ' +
       '  From $Bill Where L_OutFact>=''$ST'' And L_OutFact<''$ED''' +
-      '	 ) t2 Group By L_StockNo,L_StockName,L_Days ' +
-      ') t1 Group By L_StockNo,L_StockName';
+      '	 ) t2 Group By L_Type, L_StockNo,L_StockName,L_Days ' +
+      ') t1 Group By L_Type, L_StockNo,L_StockName ';         //with rollup
     //xxxxx
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$F1', nF1), MI('$F2', nF2),
               MI('$ST', Date2Str(FStart)), MI('$ED', Date2Str(FEnd+1))]);
+
+    //添加汇总
+//    Result := 'Select case when (tl1.L_Type IS not NULL)and(tl1.L_StockNo IS not NULL)and(tl1.L_StockName IS not NULL)  then tl1.L_StockName ' +
+//                  'else (case when (tl1.L_Type IS not NULL)and(tl1.L_StockNo IS not NULL)and(tl1.L_StockName IS NULL) then ''小计: ''  ' +
+//                  'else case when (tl1.L_Type IS not NULL)and(tl1.L_StockNo IS NULL)and(tl1.L_StockName IS NULL) then ''品类小计: '' else   ' +
+//                  'case when (tl1.L_Type IS NULL)and(tl1.L_StockNo IS NULL)and(tl1.L_StockName IS NULL) then ''合计: '' else '''' end end end ) end L_StockName, '+
+
+      Result := 'Select tl1.*, tl2.本月累计, tl2.本年累计 From ( '+ Result + ' )  tl1 '+
+              'Left Join (  '+
+              'Select c.L_Type, c.L_StockName, ISNULL(b.Value, 0) 本月累计, c.Value 本年累计 From ( '+
+              '	Select L_Type, L_StockName, SUM(ISNULL(L_Value, 0)) as Value  From S_Bill b '+
+              '	Where (L_OutFact>='''+FormatDateTime('YYYY-01-01 00:00:00', FStart)+''' and L_OutFact <='''+FormatDateTime('YYYY-MM-DD 23:59:59', FEnd)+''') '+
+              '	Group  by  L_Type, L_StockName) c  '+
+              '	left Join (   '+
+              '	Select L_Type, L_StockName, SUM(ISNULL(L_Value, 0)) as Value  From S_Bill b '+
+              '	Where (L_OutFact>='''+FormatDateTime('YYYY-MM-01 00:00:00', FStart)+''' and L_OutFact <='''+FormatDateTime('YYYY-MM-DD 23:59:59', FEnd)+''') '+
+              '	Group  by  L_Type, L_StockName) b On c.L_StockName=b.L_StockName '+
+              ') tl2 On tl1.L_StockName= tl2.L_StockName';
     //xxxxx
   end;
 end;

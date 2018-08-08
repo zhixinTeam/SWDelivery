@@ -163,6 +163,7 @@ type
     FType: TFieldType;                               //数据类型
     FWidth: integer;                                 //字段宽度
     FDecimal: integer;                               //小数位
+    FLocked : Boolean;
   end;
 
   TDictFooterKind = (fkNone, fkSum, fkMin, fkMax, fkCount, fkAverage);
@@ -202,6 +203,17 @@ type
 
   TEntityItems = array of TEntityItemData;
   //实体列表
+
+  //----------------------------------------------------------------------------
+  TStockItem = record
+    FID: string;                                    //编号
+    FName: string;                                  //名称
+    FType: string;                                  //类型
+    FSelected: Boolean;                             //被选中
+  end;
+
+  TStockItems = array of TStockItem;
+  //物料列表
 
 //------------------------------------------------------------------------------
 var
@@ -293,9 +305,11 @@ begin
   AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
   AddMenuModuleItem('MAIN_B03', 'TfFrameSalesMan');
   AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
+  AddMenuModuleItem('MAIN_B05', 'TfFramePriceRule');
 
   AddMenuModuleItem('MAIN_C02', 'TfFramePayment');
   AddMenuModuleItem('MAIN_C03', 'TfFrameCustomerCredit');
+  AddMenuModuleItem('MAIN_CSH01', 'TfFrameCustomerCreditVarify');
   AddMenuModuleItem('MAIN_C06', 'TfFrameInvoiceWeek');
   AddMenuModuleItem('MAIN_C08', 'TfFrameInvoiceZZ');
 
@@ -315,6 +329,10 @@ begin
   AddMenuModuleItem('MAIN_L11', 'TfFrameQueryStockDays');
   AddMenuModuleItem('MAIN_L12', 'TfFrameCusReceivable');
   AddMenuModuleItem('MAIN_L13', 'TfFrameCusTotalMoney');
+  AddMenuModuleItem('MAIN_L14', 'TfFrameQueryStockOddDays');
+  AddMenuModuleItem('MAIN_L15', 'TfFrameCusReceivableTotal');
+  AddMenuModuleItem('MAIN_L16', 'TfFrameQueryPurchaseStockOddDays');
+  AddMenuModuleItem('MAIN_L17', 'TfFrameQueryPurchaseTotal');
 end;
 
 //Desc: 清理模块列表

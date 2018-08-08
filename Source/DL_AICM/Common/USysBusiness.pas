@@ -1482,7 +1482,7 @@ end;
 
 //Desc: 打印标识为nID的合格证
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
-var nStr,nSR: string;
+var nStr,nSR,nBatchNO: string;
 begin
   if nAsk then
   begin
@@ -1491,23 +1491,30 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
+  {$IFDEF HeGeZhengSimpleData}
+  nSR  := ' Select * From  %s  Where L_ID=''%s''  ';
+          //' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+          //' Where b.L_ID=''%s'' And b.L_HYDan=''%s'' ';
+  nStr := Format(nSR, [sTable_Bill, nHID]);
+  {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
-  nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
+  nStr := ' Select hy.*,sr.*,C_Name From $HY hy ' +
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
           ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
-          'Where H_ID in ($ID)';
+          ' Where H_ID in ($ID)';
   //xxxxx
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
   //xxxxx
+  {$ENDIF}
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
-    nStr := '编号为[ %s ] 的化验单记录已无效!!';
+    nStr := '单号[ %s ] 的合格证记录未能找到、请联系管理人员处理!!';
     nStr := Format(nStr, [nHID]);
     ShowMsg(nStr, sHint); Exit;
   end;
@@ -1520,7 +1527,8 @@ begin
   end;
 
   FDR.Dataset1.DataSet := FDM.SqlTemp;
-  FDR.ShowReport;
+  FDR.Report1.PrintOptions.Printer := gSysParam.FCardPrinter;
+  FDR.PrintReport;
   Result := FDR.PrintSuccess;
 end;
 

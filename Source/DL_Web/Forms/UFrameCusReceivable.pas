@@ -28,6 +28,7 @@ type
     procedure BtnDateFilterClick(Sender: TObject);
     procedure BtnFindCusClick(Sender: TObject);
     procedure BtnLoadClick(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -242,6 +243,12 @@ begin
       Sleep(2000 - nInit);
     //xxxxx
   end;
+end;
+
+procedure TfFrameCusReceivable.BtnRefreshClick(Sender: TObject);
+begin
+  inherited;
+
 end;
 
 //Desc: 计算ClientDS.R_End结存数据

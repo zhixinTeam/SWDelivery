@@ -512,9 +512,9 @@ begin
     FListC.Text := PackerDecodeStr(FListB[nIdx]);
     //get bill info
 
-    with FListC do
-      nVal := nVal + Float2Float(StrToFloat(Values['Price']) *
-                     StrToFloat(Values['Value']), cPrecision, True);
+    with FListC do                // Float2Float((StrToFloat(Values['Price'])+StrToFloat(Values['YunFeiPrice'])) *
+      nVal := nVal + Float2Float((StrToFloat(Values['Price'])+StrToFloat(Values['YunFeiPrice'])) *
+                      StrToFloat(Values['Value']), cPrecision, True);
     //xxxx
   end;
 
@@ -527,8 +527,6 @@ begin
     nData := Format(nData, [FListA.Values['ZhiKa'], nMoney, nVal]);
     Exit;
   end;
-
-  
 
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
@@ -600,9 +598,9 @@ begin
       end;
       //获取批次号信息
 
-//      if Pos('散', FListC.Values['StockName']) > 0 then                       // 声威
-//        FListC.Values['Type'] := 'S'
-//      else FListC.Values['Type'] := 'D';
+//      if Pos('袋', FListC.Values['StockName']) > 0 then                       // 声威
+//        FListC.Values['Type'] := 'D'
+//      else FListC.Values['Type'] := 'S';
 
       nStr := MakeSQLByStr([SF('L_ID', nOut.FData),
               SF('L_ZhiKa', FListA.Values['ZhiKa']),
@@ -620,6 +618,7 @@ begin
               SF('L_StockName', FListC.Values['StockName']),
               SF('L_Value', FListC.Values['Value'], sfVal),
               SF('L_Price', FListC.Values['Price'], sfVal),
+              SF('L_YunFei', FListC.Values['YunFeiPrice'], sfVal),
 
               {$IFDEF PrintGLF}
               SF('L_PrintGLF', FListC.Values['PrintGLF']),
@@ -1163,7 +1162,7 @@ begin
   Result := False;
   //init
 
-  nStr := 'Select L_ZhiKa,L_Value,L_Price,L_CusID,L_OutFact,L_ZKMoney,L_HYDan ' +
+  nStr := 'Select L_ZhiKa,L_Value,L_Price,L_YunFei,L_CusID,L_OutFact,L_ZKMoney,L_HYDan ' +
           'From %s Where L_ID=''%s''';
   nStr := Format(nStr, [sTable_Bill, FIn.FData]);
 
@@ -1192,8 +1191,8 @@ begin
     nFix := FieldByName('L_ZKMoney').AsString;
 
     nVal := FieldByName('L_Value').AsFloat;
-    nMoney := Float2Float(nVal*FieldByName('L_Price').AsFloat, cPrecision, True);
-  end;
+    nMoney := Float2Float(nVal*(FieldByName('L_Price').AsFloat+FieldByName('L_YunFei').AsFloat), cPrecision, True);
+  end;                                                  //+FieldByName('L_YunFei').AsFloat)
 
   nStr := 'Select R_ID,T_HKBills,T_Bill From %s ' +
           'Where T_HKBills Like ''%%%s%%''';
@@ -1807,7 +1806,7 @@ begin
   end;
 
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
-          'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
+          'L_StockName,L_Truck,L_Value,L_Price,L_YunFei,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
           'L_HYDan, L_EmptyOut From $Bill b ';
   //xxxxx
@@ -1849,6 +1848,8 @@ begin
       FStockName  := FieldByName('L_StockName').AsString;
       FValue      := FieldByName('L_Value').AsFloat;
       FPrice      := FieldByName('L_Price').AsFloat;
+      FYunfei    := FieldByName('L_YunFei').AsFloat;
+
 
       FCard       := FieldByName('L_Card').AsString;
       FIsVIP      := FieldByName('L_IsVIP').AsString;
@@ -2094,7 +2095,7 @@ begin
   end else
 
   if FIn.FExtParam = sFlag_TruckFH then //放灰现场
-  begin
+  begin                                                                         
     for nIdx:=Low(nBills) to High(nBills) do
     with nBills[nIdx] do
     begin
@@ -2148,19 +2149,19 @@ begin
           end;
 
           m := StrToFloat(nOut.FData);
-          m := m + Float2Float(FPrice * FValue, cPrecision, False);
+          m := m + Float2Float((FPrice+FYunFei) * FValue, cPrecision, False);
           //纸卡可用金
 
           nVal := FValue;
           FValue := nMVal - FPData.FValue;
           //新净重,实际提货量
-          f := Float2Float(FPrice * FValue, cPrecision, True) - m;
+          f := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True) - m;
           //实际所需金额与可用金差额
 
           if f > 0 then
           begin
             {$IFDEF SanPreHK}
-            f := Float2Float(f / FPrice, cPrecision, True);
+            f := Float2Float(f / (FPrice+FYunFei), cPrecision, True);
             //纸卡超发吨数
 
             FValue := FValue - f;
@@ -2181,13 +2182,13 @@ begin
                      '※.提货金额: %.2f元' + #13#10 +
                      '※.需 补 交: %.2f元' + #13#10+#13#10 +
                      '请到财务室办理"补交货款"手续,然后再次称重.';
-            nData := Format(nData, [FCusID, FCusName, m, FPrice * FValue, f]);
+            nData := Format(nData, [FCusID, FCusName, m, (FPrice+FYunFei) * FValue, f]);
             Exit;
             {$ENDIF}
           end;
 
-          m := Float2Float(FPrice * FValue, cPrecision, True);
-          m := m - Float2Float(FPrice * nVal, cPrecision, True);
+          m := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True);
+          m := m - Float2Float((FPrice+FYunFei) * nVal, cPrecision, True);
           //新增冻结金额
 
           nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney+(%.2f) ' +
@@ -2242,7 +2243,7 @@ begin
         end;
         //释放限提金额
 
-        nVal := Float2Float(FPrice * FValue, cPrecision, False);
+        nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, False);
 
         nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney-%s Where A_CID=''%s''';
         nSQL := Format(nSQL, [sTable_CusAccount, FloatToStr(nVal),
@@ -2399,7 +2400,7 @@ begin
 
       if FYSValid <> sFlag_Yes then
       begin
-        nVal := Float2Float(FPrice * FValue, cPrecision, True);
+        nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True);
         //提货金额
 
         nSQL := 'Update %s Set A_OutMoney=A_OutMoney+(%.2f),' +

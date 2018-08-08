@@ -200,6 +200,8 @@ type
     Edt31: TcxTextEdit;
     Edt32: TcxTextEdit;
     lbl22: TLabel;
+    dxlytmLayoutControl1Item5: TdxLayoutItem;
+    cbb_GuoBiaoParam: TcxComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -210,6 +212,7 @@ type
       Shift: TShiftState);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
     procedure cxTextEdit2KeyPress(Sender: TObject; var Key: Char);
+    procedure cbb_GuoBiaoParamPropertiesEditValueChanged(Sender: TObject);
   private
     { Private declarations }
     FRecordID: string;
@@ -220,6 +223,7 @@ type
     //前缀长度
     procedure InitFormData(const nID: string);
     //载入数据
+    procedure LoadGuoBiaoParamMx(nStrock: string);
   public
     { Public declarations }
   end;
@@ -369,6 +373,12 @@ end;
 procedure TfFormHYStock.InitFormData(const nID: string);
 var nStr: string;
 begin
+  if  cbb_GuoBiaoParam.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select X_Stock FROM X_StockGBParam ';
+    FDM.FillStringsData(cbb_GuoBiaoParam.Properties.Items, nStr, -1, '、');
+  end;
+
   if EditStock.Properties.Items.Count < 1 then
   begin
     nStr := 'D_Value=Select D_Memo,D_Value From %s Where D_Name=''%s''';
@@ -387,6 +397,37 @@ begin
     nStr := 'Select * From %s Where R_PID=''%s''';
     nStr := Format(nStr, [sTable_StockParamExt, nID]);
     LoadDataToForm(FDM.QueryTemp(nStr), Self, sTable_StockParamExt);
+  end;
+end;
+
+procedure TfFormHYStock.LoadGuoBiaoParamMx(nStrock: string);
+var nStr: string;
+begin
+  nStr := 'Select * FROM X_StockGBParam Where x_Stock='''+nStrock+''' ';
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      cxTextEdit7.Text:= FieldByName('X_BiBiao').AsString;
+      cxTextEdit4.Text:= FieldByName('X_ChuNing').AsString;
+      cxTextEdit8.Text:= FieldByName('X_ZhongNing').AsString;
+      cxTextEdit14.Text:= FieldByName('X_XiDu').AsString;
+      cxTextEdit6.Text:= FieldByName('X_SO3').AsString;
+      cxTextEdit5.Text:= FieldByName('X_ShaoShi').AsString;
+      cxTextEdit2.Text:= FieldByName('X_MgO').AsString;
+      cxTextEdit3.Text:= FieldByName('X_CL').AsString;
+      cxTextEdit44.Text:= FieldByName('X_YLiGai').AsString;
+
+      cxTextEdit1.Text:= FieldByName('X_Jian').AsString;
+      Edt31.Text:= FieldByName('X_LvSuanSG').AsString;
+      cxTextEdit11.Text:= FieldByName('X_3DZhe').AsString;
+      cxTextEdit12.Text:= FieldByName('X_28Zhe').AsString;
+
+      cxTextEdit9.Text:= FieldByName('X_3DYa').AsString;
+      cxTextEdit10.Text:= FieldByName('X_28Ya').AsString;
+
+      cxTextEdit51.Text:= FieldByName('X_AnDing').AsString;
+    end;
   end;
 end;
 
@@ -417,6 +458,9 @@ begin
   Label18.Caption := Label2.Caption;
   Label26.Caption := Label10.Caption;
 
+  SetCtrlData(EditType, Copy(EditStock.Text, 1, 1));
+  SetCtrlData(EditType, Copy(EditStock.Text, 1, 1));
+  SetCtrlData(EditType, Copy(EditStock.Text, 1, 1));
   SetCtrlData(EditType, Copy(EditStock.Text, 1, 1));
 end;
 
@@ -520,6 +564,12 @@ begin
     FDM.ADOConn.RollbackTrans;
     ShowMsg('数据保存失败', '未知原因');
   end;
+end;
+
+procedure TfFormHYStock.cbb_GuoBiaoParamPropertiesEditValueChanged(
+  Sender: TObject);
+begin
+  LoadGuoBiaoParamMx(Trim(cbb_GuoBiaoParam.Text));
 end;
 
 end.

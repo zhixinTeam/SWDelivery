@@ -31,7 +31,7 @@ uses
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormTransfer, UFrameTransfer, UFrameQueryTransferDetail,
-  UFrameQueryDuanDaoFH, 
+  UFrameQueryDuanDaoFH, UFrameBillHYDanHD,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,

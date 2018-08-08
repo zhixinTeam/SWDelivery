@@ -76,6 +76,9 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
     inherited DBGridMain: TUniDBGrid
       Width = 991
       Height = 334
+      Grouping.FieldName = 'L_Type'
+      Grouping.FieldCaption = #31867#22411
+      Grouping.Enabled = True
       OnDblClick = DBGridMainDblClick
       Columns = <
         item
@@ -95,7 +98,6 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
       Align = alBottom
       ParentColor = False
       Color = clBtnFace
-      ExplicitTop = 466
     end
     object Chart1: TUniChart
       Left = 0
@@ -103,6 +105,7 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
       Width = 991
       Height = 200
       Hint = ''
+      Visible = False
       Animate = True
       Axes.AxisA.Title = #38144#37327'('#21544')'
       Title.Text.Strings = (
@@ -111,7 +114,6 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
       Align = alBottom
       Anchors = [akLeft, akRight, akBottom]
       TitleAlign = taCenter
-      ExplicitTop = 472
       object Series1: TUniLineSeries
         Title = #26376#21333#26085#32479#35745
         MarkerConfig.Shape = 'circle'

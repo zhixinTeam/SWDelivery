@@ -193,18 +193,18 @@ begin
 
       nStr:= Format(nStr, [sTable_OrderDtl, sTable_OrderDtlTemp]);
       FDM.ExecuteSQL(nStr);
-      //****************************************
-      nStr:= 'INSERT INTO %s(P_ID, P_Type, P_Order, P_Truck, P_CusID, P_CusName, P_MID, P_MName, P_MType, P_LimValue, P_PValue, P_PDate, P_PMan,   '+
-                              'P_MValue, P_MDate, P_MMan, P_FactID, P_PStation, P_MStation, P_PModel, P_Status, P_Valid, P_PrintNum, P_KZValue)    '+
-             'Select ''P''+Right(CONVERT(VARCHAR(10),GETDATE(),112), 6)+Right(Cast(''00000000000''+Rtrim(ROW_NUMBER() OVER(ORDER BY D_InMan)) as varchar(20)),5),  '+
-                    '''P'', Right(CONVERT(VARCHAR(10),GETDATE(),112), 6)+Right(Cast(''00000000000''+Rtrim(ROW_NUMBER() OVER(ORDER BY D_InMan)) as varchar(20)),6), '+
-                    'D_Truck, D_ProID, D_ProName, D_StockNo, D_StockName, D_Type, 0, D_PValue, D_PDate, D_PMan, D_MValue, D_MDate, D_MMan, ''SXSW'', ''SW01'', ''SW02'', '+
-                    '''P'', ''P'', ''Y'', 1, D_KZValue '+
-             'From  %s ';
-
-      nStr:= Format(nStr, [sTable_PoundLog, sTable_OrderDtlTemp]);
-      nStr:= nStr;
-      FDM.ExecuteSQL(nStr);
+//      //****************************************
+//      nStr:= 'INSERT INTO %s(P_ID, P_Type, P_Order, P_Truck, P_CusID, P_CusName, P_MID, P_MName, P_MType, P_LimValue, P_PValue, P_PDate, P_PMan,   '+
+//                              'P_MValue, P_MDate, P_MMan, P_FactID, P_PStation, P_MStation, P_PModel, P_Status, P_Valid, P_PrintNum, P_KZValue)    '+
+//             'Select ''P''+Right(CONVERT(VARCHAR(10),GETDATE(),112), 6)+Right(Cast(''00000000000''+Rtrim(ROW_NUMBER() OVER(ORDER BY D_InMan)) as varchar(20)),5),  '+
+//                    '''P'', Right(CONVERT(VARCHAR(10),GETDATE(),112), 6)+Right(Cast(''00000000000''+Rtrim(ROW_NUMBER() OVER(ORDER BY D_InMan)) as varchar(20)),6), '+
+//                    'D_Truck, D_ProID, D_ProName, D_StockNo, D_StockName, D_Type, 0, D_PValue, D_PDate, D_PMan, D_MValue, D_MDate, D_MMan, ''SXSW'', ''SW01'', ''SW02'', '+
+//                    '''P'', ''P'', ''Y'', 1, D_KZValue '+
+//             'From  %s ';
+//
+//      nStr:= Format(nStr, [sTable_PoundLog, sTable_OrderDtlTemp]);
+//      nStr:= nStr;
+//      FDM.ExecuteSQL(nStr);
     except
       ShowMsg('导入失败', '提示');
     end;

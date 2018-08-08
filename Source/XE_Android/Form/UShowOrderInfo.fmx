@@ -14,7 +14,7 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
       object Label6: TLabel
         StyledSettings = [Family, Style, FontColor]
         Position.X = 8.000000000000000000
-        Position.Y = 176.000000000000000000
+        Position.Y = 180.000000000000000000
         Size.Width = 82.000000000000000000
         Size.Height = 23.000000000000000000
         Size.PlatformDefault = False
@@ -58,6 +58,7 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
         Size.Height = 24.000000000000000000
         Size.PlatformDefault = False
         StyledSettings = [Family, Style, FontColor]
+        OnKeyDown = EditKZValueKeyDown
         OnMouseEnter = EditMouseEnter
       end
       object Label10: TLabel
@@ -73,7 +74,7 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
       object Label8: TLabel
         StyledSettings = [Family, Style, FontColor]
         Position.X = 8.000000000000000000
-        Position.Y = 232.000000000000000000
+        Position.Y = 230.000000000000000000
         Size.Width = 82.000000000000000000
         Size.Height = 23.000000000000000000
         Size.PlatformDefault = False
@@ -83,7 +84,7 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
       object lblTruck: TLabel
         StyledSettings = [Family, Style, FontColor]
         Position.X = 104.000000000000000000
-        Position.Y = 232.000000000000000000
+        Position.Y = 230.000000000000000000
         Size.Width = 209.000000000000000000
         Size.Height = 23.000000000000000000
         Size.PlatformDefault = False
@@ -92,7 +93,7 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
       object lblMate: TLabel
         StyledSettings = [Family, Style, FontColor]
         Position.X = 104.000000000000000000
-        Position.Y = 176.000000000000000000
+        Position.Y = 180.000000000000000000
         Size.Width = 209.000000000000000000
         Size.Height = 23.000000000000000000
         Size.PlatformDefault = False

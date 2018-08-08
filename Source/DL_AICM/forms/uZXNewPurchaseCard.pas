@@ -9,10 +9,11 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
-  cxContainer, cxEdit, cxLabel, Menus, StdCtrls, cxButtons, cxGroupBox,
+  cxContainer, cxEdit, cxLabel, Menus, StdCtrls, cxButtons, cxGroupBox, IdURI,
   cxRadioGroup, cxTextEdit, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters,
   dxLayoutControl, cxDropDownEdit, cxMaskEdit, cxButtonEdit,
-  USysConst, cxListBox, ComCtrls,Uszttce_api,Contnrs,UFormCtrl;
+  USysConst, cxListBox, ComCtrls,Uszttce_api,Contnrs,UFormCtrl,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormNewPurchaseCard = class(TForm)
@@ -67,6 +68,8 @@ type
     FWebOrderItems:array of stMallPurchaseItem; //商城订单数组
     FMaxQuantity:Double; //合同剩余量
     Fbegin:TDateTime;
+    nSuccCard : string;
+  private
     procedure InitListView;
     procedure SetControlsReadOnly;
     procedure Writelog(nMsg:string);
@@ -89,7 +92,7 @@ var
 
 implementation
 uses
-  ULibFun,UBusinessPacker,USysLoger,UBusinessConst,UFormMain,USysBusiness,USysDB,
+  ULibFun,UBusinessPacker,USysLoger,UBusinessConst,UFormMain,USysBusiness,USysDB,Util_utf8,
   UAdjustForm,UFormBase,UDataReport,UDataModule,NativeXml,UMgrK720Reader,UFormWait,
   DateUtils;
 {$R *.dfm}
@@ -120,7 +123,7 @@ end;
 procedure TfFormNewPurchaseCard.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
-  Action:=  caFree;
+  Action:=  caFree;     nSuccCard:= '';
   fFormNewPurchaseCard := nil;
 end;
 
@@ -135,7 +138,7 @@ procedure TfFormNewPurchaseCard.FormShow(Sender: TObject);
 begin
   SetControlsReadOnly;
   btnOK.Enabled := False;
-  EditTruck.Properties.Buttons[0].Visible := False;
+  EditTruck.Properties.Buttons[0].Visible := False;    nSuccCard:= '';
 
   FAutoClose := gSysParam.FAutoClose_Mintue;
   TimerAutoClose.Interval := 60*1000;
@@ -179,7 +182,13 @@ procedure TfFormNewPurchaseCard.BtnOKClick(Sender: TObject);
 begin
   BtnOK.Enabled := False;
   try
+    if (nSuccCard='')or(nSuccCard<>Trim(editWebOrderNo.Text)) then
+    begin
+      ShowMsg('请确认您的网上订单号是否正确  '+ nSuccCard +' - '+Trim(editWebOrderNo.Text), sHint);
+      Exit;
+    end;
     if not SaveBillProxy then Exit;
+    nSuccCard:= '';
     Close;
   finally
     BtnOK.Enabled := True;
@@ -247,6 +256,16 @@ begin
   gSysLoger.AddLog(nStr+nMsg);
 end;
 
+function DecodeUtf8Str(const S: UTF8String): WideString;
+var lenSrc, lenDst  : Integer;
+begin
+  lenSrc  := Length(S);
+  if(lenSrc=0)then Exit;
+  lenDst  := MultiByteToWideChar(CP_UTF8, 0, Pointer(S), lenSrc, nil, 0);
+  SetLength(Result, lenDst);
+  MultiByteToWideChar(CP_UTF8, 0, Pointer(S), lenSrc, Pointer(Result), lenDst);
+end;
+
 function TfFormNewPurchaseCard.DownloadOrder(const nCard: string): Boolean;
 var
   nXmlStr,nData:string;
@@ -273,7 +292,7 @@ begin
   nListA := TStringList.Create;
   nListB := TStringList.Create;
   try
-    nListA.Text := nData;
+    nListA.Text := nData;      nSuccCard:= nCard;
 
     nWebOrderCount := nListA.Count;
     SetLength(FWebOrderItems,nWebOrderCount);
@@ -283,7 +302,7 @@ begin
       FWebOrderItems[i].FOrder_id := nListB.Values['ordernumber'];
       FWebOrderItems[i].Fpurchasecontract_no := nListB.Values['fac_order_no'];
       FWebOrderItems[i].FgoodsID := nListB.Values['goodsID'];
-      FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
+      FWebOrderItems[i].FGoodsname := (nListB.Values['goodsname']);
       FWebOrderItems[i].FData := nListB.Values['data'];
       FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
       AddListViewItem(FWebOrderItems[i]);
@@ -377,7 +396,7 @@ begin
   Result := False;
 
   //查询采购申请单
-  nStr := 'select b_proid as provider_code,b_proname as provider_name,b_stockno as con_materiel_Code,b_restvalue as con_remain_quantity from %s where b_id=''%s''';
+  nStr := 'select b_proid as provider_code,b_proname as provider_name,b_stockno as con_materiel_Code, B_StockName,b_restvalue as con_remain_quantity from %s where b_id=''%s''';
   nStr := Format(nStr,[sTable_OrderBase,nWebOrderItem.Fpurchasecontract_no]);
   with fdm.QueryTemp(nStr) do
   begin
@@ -401,6 +420,8 @@ begin
       Writelog(nMsg);
       Exit;
     end;
+
+    nWebOrderItem.FGoodsname := FieldByName('B_StockName').AsString;
 
     nwebOrderValue := StrToFloatDef(nWebOrderItem.FData,0);
     FMaxQuantity := FieldByName('con_remain_quantity').AsFloat;
@@ -465,21 +486,28 @@ begin
   nNewCardNo := '';
   FBegin := Now;
 
-  //连续三次读卡均失败，则回收卡片，重新发卡
-  for i := 0 to 3 do
-  begin
-    for nIdx:=0 to 3 do
-    if gMgrK720Reader.ReadCard(nNewCardNo) then Break
-    else Sleep(500);
-    //连续三次读卡,成功则退出。
-    if nNewCardNo<>'' then Break;
-    gMgrK720Reader.RecycleCard;
-  end;
+  try
+    //连续三次读卡均失败，则回收卡片，重新发卡
+    for i := 0 to 3 do
+    begin
+      for nIdx:=0 to 3 do
+      if gMgrK720Reader.ReadCard(nNewCardNo) then Break
+      else Sleep(500);
+      //连续三次读卡,成功则退出。
+      if nNewCardNo<>'' then Break;
+      gMgrK720Reader.RecycleCard;
+    end;
 
-  if nNewCardNo = '' then
-  begin
-    ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
-    Exit;
+    if nNewCardNo = '' then
+    begin
+      ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
+      Exit;
+    end;
+  except on Ex:Exception do
+    begin
+      WriteLog('卡箱异常 '+Ex.Message);
+      ShowDlg('卡箱异常, 请联系管理人员.', sWarn, Self.Handle);
+    end;
   end;
 
   nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
@@ -625,7 +653,7 @@ begin
   FAutoClose := gSysParam.FAutoClose_Mintue;
   if Key=Char(vk_return) then
   begin
-    key := #0;
+    key := #0;     btnQuery.SetFocus;
     btnQuery.Click;
   end;
 end;

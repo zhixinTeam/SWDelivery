@@ -1,6 +1,6 @@
 object fFormHYStock: TfFormHYStock
-  Left = 703
-  Top = 215
+  Left = 668
+  Top = 335
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 602
@@ -34,7 +34,7 @@ object fFormHYStock: TfFormHYStock
       Width = 70
       Height = 22
       Caption = #20445#23384
-      TabOrder = 7
+      TabOrder = 8
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
@@ -43,7 +43,7 @@ object fFormHYStock: TfFormHYStock
       Width = 70
       Height = 22
       Caption = #21462#28040
-      TabOrder = 8
+      TabOrder = 9
       OnClick = BtnExitClick
     end
     object EditID: TcxButtonEdit
@@ -79,12 +79,12 @@ object fFormHYStock: TfFormHYStock
     end
     object EditMemo: TcxMemo
       Left = 81
-      Top = 111
+      Top = 136
       Hint = 'T.P_Memo'
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
-      TabOrder = 5
+      TabOrder = 6
       Height = 35
       Width = 331
     end
@@ -93,7 +93,6 @@ object fFormHYStock: TfFormHYStock
       Top = 61
       Hint = 'T.P_Type'
       ParentFont = False
-      Properties.DropDownListStyle = lsEditFixedList
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 18
@@ -115,14 +114,14 @@ object fFormHYStock: TfFormHYStock
     end
     object wPage: TcxPageControl
       Left = 11
-      Top = 158
+      Top = 183
       Width = 428
       Height = 288
       ActivePage = Sheet1
       ParentColor = False
       ShowFrame = True
       Style = 9
-      TabOrder = 6
+      TabOrder = 7
       TabSlants.Kind = skCutCorner
       ClientRectBottom = 287
       ClientRectLeft = 1
@@ -198,7 +197,7 @@ object fFormHYStock: TfFormHYStock
         object Label9: TLabel
           Left = 296
           Top = 290
-          Width = 81
+          Width = 78
           Height = 12
           Caption = '28'#22825#25239#21387#24378#24230':'
           Transparent = True
@@ -206,7 +205,7 @@ object fFormHYStock: TfFormHYStock
         object Label10: TLabel
           Left = 296
           Top = 257
-          Width = 81
+          Width = 78
           Height = 12
           Caption = '28'#22825#25239#25240#24378#24230':'
           Transparent = True
@@ -1675,6 +1674,19 @@ object fFormHYStock: TfFormHYStock
       TabOrder = 4
       Width = 125
     end
+    object cbb_GuoBiaoParam: TcxComboBox
+      Left = 81
+      Top = 111
+      ParentFont = False
+      Properties.DropDownRows = 10
+      Properties.ImmediateDropDown = False
+      Properties.IncrementalSearch = False
+      Properties.ItemHeight = 18
+      Properties.MaxLength = 15
+      Properties.OnEditValueChanged = cbb_GuoBiaoParamPropertiesEditValueChanged
+      TabOrder = 5
+      Width = 185
+    end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
       Hidden = True
@@ -1722,6 +1734,11 @@ object fFormHYStock: TfFormHYStock
             Control = EditQLevel
             ControlOptions.ShowBorder = False
           end
+        end
+        object dxlytmLayoutControl1Item5: TdxLayoutItem
+          Caption = #22269#26631#21442#25968':'
+          Control = cbb_GuoBiaoParam
+          ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item8: TdxLayoutItem
           Caption = #22791#27880#20449#24687':'

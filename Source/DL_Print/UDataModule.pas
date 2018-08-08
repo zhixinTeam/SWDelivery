@@ -20,6 +20,7 @@ type
     { Public declarations }
     function SQLQuery(const nSQL: string; const nQuery: TADOQuery): TDataSet;
     //²éÑ¯Êý¾Ý¿â
+    function QuerySQL(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
   end;
 
 var
@@ -67,5 +68,31 @@ begin
     end;
   end;
 end;
+
+function TFDM.QuerySQL(const nSQL: string;
+  const nUseBackdb: Boolean): TDataSet;
+var nInt: Integer;
+begin
+  Result := nil;
+  nInt := 0;
+
+  while nInt < 2 do
+  try
+    if not ADOConn.Connected then
+      ADOConn.Connected := True;
+    //xxxxx
+
+    SQLQuery1.Close;
+    SQLQuery1.SQL.Text := nSQL;
+    SQLQuery1.Open;
+
+    Result := SQLQuery1;
+    Exit;
+  except
+    ADOConn.Connected := False;
+    Inc(nInt);
+  end;
+end;
+
 
 end.

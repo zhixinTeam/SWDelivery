@@ -21,6 +21,7 @@ type
    FName: string;
    FPrice: Double;
    FValue: Double;
+   FYfPrice: Double;
    FSelected: Boolean;
   end;
 
@@ -76,6 +77,8 @@ type
     EditName: TcxTextEdit;
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Group5: TdxLayoutGroup;
+    dxlytm_YF: TdxLayoutItem;
+    edt_YunFei: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditSManPropertiesEditValueChanged(Sender: TObject);
@@ -303,6 +306,7 @@ begin
           FName := FieldByName('D_StockName').AsString;
           FPrice := FieldByName('D_Price').AsFloat;
           FValue := FieldByName('D_Value').AsFloat;
+          FYfPrice := FieldByName('D_YunFei').AsFloat;
 
           Inc(nIdx);
           Next;
@@ -354,6 +358,7 @@ begin
         begin
           FStockList[i].FPrice := nItem[nIdx].FPrice;
           FStockList[i].FValue := nItem[nIdx].FValue;
+          FStockList[i].FYfPrice := nItem[nIdx].FYfPrice;
 
           FStockList[i].FSelected := True;
           nStr := 'Y';
@@ -370,6 +375,8 @@ begin
           FStockList[i].FName := nItem[nIdx].FName;
           FStockList[i].FPrice := nItem[nIdx].FPrice;
           FStockList[i].FValue := nItem[nIdx].FValue;
+          FStockList[i].FYfPrice := nItem[nIdx].FYfPrice;
+
           FStockList[i].FSelected := True;
         end;
       end;
@@ -395,6 +402,7 @@ begin
        Caption := FStockList[nIdx].FName;
        SubItems.Add(Format('%.2f', [FStockList[nIdx].FPrice]));
        SubItems.Add(Format('%.2f', [FStockList[nIdx].FValue]));
+       SubItems.Add(Format('%.2f', [FStockList[nIdx].FYfPrice]));
        Checked := FStockList[nIdx].FSelected;
      end;
   finally
@@ -509,7 +517,8 @@ begin
         FStock := FieldByName('E_StockNo').AsString;
         FType := FieldByName('E_Type').AsString;
         FName := FieldByName('E_StockName').AsString;
-        FPrice := FieldByName('E_Price').AsFloat;
+        FPrice   := FieldByName('E_Price').AsFloat;
+        FYfPrice := 0;
         FValue := 0;
 
         Next;
@@ -566,9 +575,11 @@ begin
 
     EditStock.Text := FStockList[ListDetail.ItemIndex].FName;
     EditPrice.Text := Format('%.2f', [FStockList[ListDetail.ItemIndex].FPrice]);
-    
+
     EditValue.Text := Format('%.2f', [FStockList[ListDetail.ItemIndex].FValue]);
     //EditValue.SetFocus;
+    edt_YunFei.Text := Format('%.2f', [FStockList[ListDetail.ItemIndex].FYfPrice]);
+
     FItemIndex := ListDetail.ItemIndex;
   end;
 end;
@@ -579,7 +590,7 @@ var nInt: Integer;
     nChanged: Boolean;
 begin
   if (FItemIndex >= 0) and IsNumber(EditPrice.Text, True) and
-     IsNumber(EditValue.Text, True) then
+     IsNumber(EditValue.Text, True)and IsNumber(edt_YunFei.Text, True) then
   begin
     nInt := Float2PInt(StrToFloat(EditPrice.Text), cPrecision);
     if nInt <> Float2PInt(FStockList[FItemIndex].FPrice, cPrecision) then
@@ -593,6 +604,13 @@ begin
     begin
       nChanged := True;
       FStockList[FItemIndex].FValue := nInt / cPrecision;
+    end;
+
+    nInt := Float2PInt(StrToFloat(edt_YunFei.Text), cPrecision);
+    if nInt <> Float2PInt(FStockList[FItemIndex].FYfPrice, cPrecision) then
+    begin
+      nChanged := True;
+      FStockList[FItemIndex].FYfPrice := nInt / cPrecision;
     end;
 
     if not (EditPrice.IsFocused or EditValue.IsFocused) then
@@ -775,7 +793,7 @@ begin
     nList.Add(Format('Z_Payment=''%s''', [EditPayment.Text]));
     nList.Add(Format('Z_Lading=''%s''', [GetCtrlData(EditLading)]));
     nList.Add(Format('Z_ValidDays=''%s''', [Date2Str(EditDays.Date)]));
-    nList.Add(Format('Z_YFMoney=%s', [EditMoney.Text]));
+    nList.Add(Format('Z_YFMoney=%s', [EditMoney.Text]));        // Ô¤¸¶¿î
 
     if FRecordID = '' then
     begin
@@ -821,7 +839,8 @@ begin
               SF('D_StockNo', FStock),
               SF('D_StockName', FName),
               SF('D_Price', FPrice, sfVal),
-              SF('D_Value', FValue, sfVal)
+              SF('D_Value', FValue, sfVal),
+              SF('D_YunFei', FYfPrice, sfVal)       // ÔË·Ñ
               ], sTable_ZhiKaDtl, '', True);
       FDM.ExecuteSQL(nSQL);
     end;

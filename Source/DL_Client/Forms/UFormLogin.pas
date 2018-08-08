@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls, Buttons;
+  Dialogs, StdCtrls, ExtCtrls, Buttons, StrUtils;
 
 type
   TfFormLogin = class(TForm)
@@ -178,6 +178,7 @@ procedure TfFormLogin.BtnLoginClick(Sender: TObject);
 var nStr: string;
     nMsg: string;
     nList: TStrings;
+    nIdx:Integer;
 begin
   Edit_User.Text := Trim(Edit_User.Text);
   Edit_Pwd.Text := Trim(Edit_Pwd.Text);
@@ -188,7 +189,7 @@ begin
   end;
 
   nStr := BuildConnectDBStr;
-
+     //gSysParam.FMITServURLBack:= MidStr(nStr, Pos('Source=', nStr), Length(nStr)-Pos('Source=', nStr));
   while nStr = '' do
   begin
     ShowMsg('请输入正确的"数据库"配置参数', sHint);

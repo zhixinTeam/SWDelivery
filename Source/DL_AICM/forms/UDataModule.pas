@@ -11,7 +11,10 @@ uses
   dxPrnPg, ULibFun, dxWrap, dxPrnDev, dxPSCompsProvider, dxPSFillPatterns,
   dxPSEdgePatterns, cxLookAndFeels, dxPSCore, dxPScxCommon, dxPScxGrid6Lnk,
   XPMan, dxLayoutLookAndFeels, cxEdit, ImgList, Controls, cxGraphics, DB,
-  ADODB, dxBkgnd;
+  ADODB, dxBkgnd, dxPSPDFExportCore, dxPSPDFExport, cxDrawTextUtils,
+  dxPSPrVwStd, dxPScxEditorProducers, dxPScxExtEditorProducers,
+  dxPScxPageControlProducer, dxSkinsCore, dxSkinscxPCPainter,
+  dxSkinsDefaultPainters;
 
 type
   TFDM = class(TDataModule)

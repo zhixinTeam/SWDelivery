@@ -1,6 +1,6 @@
 {*******************************************************************************
   作者: dmzn@163.com 2018-05-07
-  描述: 累计明细
+  描述: 销售统计
 *******************************************************************************}
 unit UFrameQuerySaleTotal;
 
@@ -41,6 +41,9 @@ type
     procedure OnDateFilter(const nStart,nEnd: TDate);
     procedure OnDateTimeFilter(const nStart,nEnd: TDate);
     //日期筛选
+    procedure ArrangeColum;
+    procedure AfterInitFormData; override;
+    procedure ChangeDBGridParam;
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
@@ -91,15 +94,26 @@ begin
   InitFormData(FWhere);
 end;
 
+procedure TfFrameQuerySaleTotal.ChangeDBGridParam;
+begin
+  DBGridMain.Grouping.Enabled:= not Radio1.Checked;
+  if Radio1.Checked then 
+    DBGridMain.Grouping.FieldName:= ''
+  else if Radio2.Checked then
+    DBGridMain.Grouping.FieldName:= 'L_Type'
+  else DBGridMain.Grouping.FieldName:= 'L_CusName' 
+end;
+
 function TfFrameQuerySaleTotal.InitFormDataSQL(const nWhere: string): string;
 begin
+  ChangeDBGridParam;
   with TStringHelper, TDateTimeHelper do
   begin
     EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
     if Radio1.Checked then
     begin
-      Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+      Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName, '''' L_Type, ' +
                 'Sum(L_Value) as L_Value,Sum(L_Value * L_Price) as L_Money ' +
                 'From $Bill ';
       //xxxxx
@@ -113,8 +127,8 @@ begin
       //xxxxx
     end else
     begin
-      Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,' +
-                'L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
+      Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_Type,' +
+                'L_StockNo,L_StockName,Sum(L_Value) as L_Value, L_Price,' +
                 'Sum(L_Value * L_Price) as L_Money From $Bill ';
       //xxxxx
     end;
@@ -134,7 +148,7 @@ begin
 
     if Radio1.Checked then
     begin
-      Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY';
+      Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName';
     end else
 
     if Radio2.Checked then
@@ -142,8 +156,8 @@ begin
       Result := Result + ' Group By L_Type,L_StockNo,L_StockName';
     end else
     begin
-      Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-                'L_Type,L_StockNo,L_StockName';
+      Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,' +
+                'L_Type,L_StockNo,L_StockName,L_Price';
       //xxxxx
     end;
 
@@ -151,9 +165,13 @@ begin
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
 
+    if Radio1.Checked or Radio2.Checked then
     Result := 'Select *,(case IsNull(L_Value,0) when 0 then 0 else convert(decimal(15,2),' +
               'L_Money/L_Value) end) as L_Price From (' + Result + ') t';
     //计算均价
+
+    if Radio2.Checked or Radio3.Checked then
+      Result := Result + ' Order by L_CusName, L_Type, L_StockName '
   end;
 end;
 
@@ -181,6 +199,38 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+procedure TfFrameQuerySaleTotal.ArrangeColum;
+var nIdx : Integer;
+    nstr : string;
+begin
+  try
+    DBGridMain.Columns.BeginUpdate;
+
+    ChangeDBGridParam;
+    //*********
+    for nIdx := 0 to DBGridMain.Columns.Count-1 do
+    begin
+      with DBGridMain.Columns[nIdx] do
+      begin
+        Sortable:= not DBGridMain.Grouping.Enabled;
+        nstr:= FieldName;
+        if (FieldName='DayValue')or(FieldName='MonthValue')or
+          (Radio1.Checked and((FieldName='L_StockNo')or(FieldName='L_StockName'))or
+          (Radio2.Checked and((FieldName='L_CusID')or(FieldName='L_CusName'))))then
+          Visible:= False
+        else Visible:= True;
+      end;
+    end;
+  finally
+    DBGridMain.Columns.EndUpdate;
+  end;
+end;
+
+procedure TfFrameQuerySaleTotal.AfterInitFormData;
+begin
+  ArrangeColum;
+end;
+
 procedure TfFrameQuerySaleTotal.DBGridMainMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin

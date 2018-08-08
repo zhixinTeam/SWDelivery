@@ -175,7 +175,7 @@ inherited fFormBill: TfFormBill
       Left = 81
       Top = 157
       ParentFont = False
-      Properties.MaxLength = 15
+      Properties.MaxLength = 50
       TabOrder = 17
       OnKeyPress = EditLadingKeyPress
       Width = 132
@@ -186,7 +186,7 @@ inherited fFormBill: TfFormBill
           Control = ListInfo
           ControlOptions.ShowBorder = False
         end
-        object dxLayout1Item15: TdxLayoutItem
+        object dxlytm_ICCard: TdxLayoutItem
           Caption = #21407'IC'#21345#21495':'
           Control = EdtICCardNo
           ControlOptions.ShowBorder = False

@@ -11,16 +11,16 @@ inherited fFormTruckEmpty: TfFormTruckEmpty
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 470
-    Height = 528
+    Height = 527
     inherited BtnOK: TButton
       Left = 324
-      Top = 495
+      Top = 494
       Caption = #25918#34892
       TabOrder = 4
     end
     inherited BtnExit: TButton
       Left = 394
-      Top = 495
+      Top = 494
       TabOrder = 5
     end
     object ListInfo: TcxMCListBox [2]

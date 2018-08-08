@@ -11,21 +11,21 @@ inherited fFormCreditDetail: TfFormCreditDetail
     Left = 695
     Top = 413
     Enabled = False
-    ExplicitLeft = 259
-    ExplicitTop = 403
+    ExplicitLeft = 695
+    ExplicitTop = 413
   end
   inherited BtnExit: TUniButton
     Left = 778
     Top = 413
     Caption = #20851#38381
-    ExplicitLeft = 342
-    ExplicitTop = 403
+    ExplicitLeft = 778
+    ExplicitTop = 413
   end
   inherited PanelWork: TUniSimplePanel
     Width = 845
     Height = 397
-    ExplicitWidth = 409
-    ExplicitHeight = 387
+    ExplicitWidth = 845
+    ExplicitHeight = 397
     object DBGrid1: TUniDBGrid
       Left = 0
       Top = 0

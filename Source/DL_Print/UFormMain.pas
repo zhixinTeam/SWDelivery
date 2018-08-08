@@ -60,7 +60,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, Registry, ULibFun, UDataModule, UDataReport, USysLoger, UFormConn,
-  DB, USysDB;
+  DB, USysDB, UFormCtrl;
 
 var
   gPath: string;               //程序路径
@@ -257,7 +257,7 @@ begin
   nHint := '';
   Result := False;
   
-  nStr := 'Select *,%s As L_ValidMoney From %s b Where L_ID=''%s''';
+  nStr := 'Select *,%s As L_ValidMoney From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
   nStr := Format(nStr, [nMoney, sTable_Bill, nBill]);
 
   nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
@@ -417,7 +417,24 @@ var nStr,nSR: string;
 begin
   nHint := '';
   Result := False;
-  
+
+  {$IFDEF ChkPopedomPrintHYD}
+  nStr:= 'Select L_ID, L_CusName, C_InstantPrintHYD From $Bill '+
+         'Left   Join $Customer On L_CusID=C_ID '+
+         'Where  L_ID=''$ID'' And C_InstantPrintHYD=''Y''';
+
+  nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
+          MI('$Customer', sTable_Customer), MI('$ID', nBill)]);
+  //xxxxx
+
+  if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
+  begin
+    nHint := '提货单[ %s ]没有提前随车打印化验单的特权';
+    nHint := Format(nHint, [nBill]);
+    Exit;
+  end;
+  {$ENDIF}
+  //****************************************************************************
   nSR := 'Select * From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
@@ -460,17 +477,37 @@ end;
 //Desc: 打印标识为nID的合格证
 function PrintHeGeReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''): Boolean;
-var nStr,nSR: string;
+var nStr,nSR, nBatchNO: string;
     nField: TField;
 begin
   nHint := '';
   Result := False;
 
+  {$IFDEF SWTC}    // 声威铜川工厂 熟料 骨料出厂不需要打印合格证
+  nSR := ' Select * From %s Where L_ID=''%s''  ';
+  nSR := Format(nSR, [sTable_Bill, nBill]);
+  with FDM.QuerySQL(nSR) do
+  begin
+    if RecordCount >0 then
+    begin
+      if (Pos('骨料', FieldByName('L_StockName').AsString) >0)OR
+          (Pos('熟料', FieldByName('L_StockName').AsString) >0) then
+      begin
+        WriteLog(Format('铜川 骨料、熟料不需打合格证: %s', [nBill]));
+        Exit;
+      end;
+    end;
+  end;
+  {$ENDIF}
+
+
   {$IFDEF HeGeZhengSimpleData}
-  nSR  := 'Select * from %s b ' +
-          ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
-          'Where b.L_ID=''%s''';
-  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill]);
+//  nSR  := 'Select * from %s b ' +
+//          ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+//          'Where b.L_ID=''%s'' And b.L_HYDan=''%s'' ';
+//  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill, nBatchNO]);
+  nSR  := 'Select * From  %s  Where L_ID=''%s''  ';
+  nStr := Format(nSR, [sTable_Bill, nBill]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
@@ -484,10 +521,6 @@ begin
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nBill)]);
-
-//  nStr := 'Select L_ID, L_StockName, L_OutFact, L_Seal, P_Stock, P_Name, P_QLevel From %s ' +
-//          'left join %s on L_StockName=P_Stock Where L_ID=''%s''';
-//  nStr := Format(nStr, [sTable_Bill, sTable_StockParam, nBill ]);   //
   //xxxxx
   {$ENDIF}
 

@@ -1,6 +1,6 @@
 {*******************************************************************************
   作者: dmzn@163.com 2018-05-07
-  描述: 出入车辆查询
+  描述: 资金明细
 *******************************************************************************}
 unit UFrameCusInOutMoney;
 
@@ -67,13 +67,16 @@ begin
   begin
     EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-    Result := 'Select iom.*,S_Name From $IOM iom ' +
+    Result := 'Select iom.*,S_Name,convert(varchar(20),M_Date,23) as M_DateOnly From $IOM iom ' +
               ' Left Join $SM sm On sm.S_ID=iom.M_SaleMan ';
     //xxxxx
 
     if nWhere = '' then
          Result := Result + 'Where (M_Date>=''$Start'' And M_Date<''$End'')'
     else Result := Result + 'Where (' + nWhere + ')';
+
+    if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+      Result := Result + 'And (S_Name='+ UniMainModule.FUserConfig.FUserID +')';
 
     Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
               MI('$IOM', sTable_InOutMoney),
@@ -98,7 +101,8 @@ begin
     EditCustomer.Text := Trim(EditCustomer.Text);
     if EditCustomer.Text = '' then Exit;
 
-    FWhere := 'M_CusID like ''%%%s%%'' Or M_CusName like ''%%%s%%''';
+    FWhere := '(M_Date>=''$Start'' And M_Date<''$End'') And ' +
+              '(M_CusID like ''%%%s%%'' Or M_CusName like ''%%%s%%'')';
     FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;

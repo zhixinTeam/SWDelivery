@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniButton,
   uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses,
-  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses;
+  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses, ULibFun,
+  uniMultiItem, uniComboBox;
 
 type
   TfFrameQuerySaleDetail = class(TfFrameBase)
@@ -25,13 +26,18 @@ type
     EditTruck: TUniEdit;
     PMenu1: TUniPopupMenu;
     MenuItemN1: TUniMenuItem;
+    UniLabel1: TUniLabel;
+    cbb_Stock: TUniComboBox;
     procedure EditTruckKeyPress(Sender: TObject; var Key: Char);
     procedure BtnDateFilterClick(Sender: TObject);
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure MenuItemN1Click(Sender: TObject);
+    procedure cbb_StockChange(Sender: TObject);
   private
     { Private declarations }
+    FStockList: TStringHelper.TDictionaryItems;
+    //品种列表
     FStart,FEnd: TDate;
     FTimeS,FTimeE: TDate;
     //时间区间
@@ -47,13 +53,15 @@ type
     function FilterColumnField: string; override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //构建语句
+    procedure LoadStockList;
+    function  GetStockID: string;
   end;
 
 implementation
 
 {$R *.dfm}
 uses
-  uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
+  uniGUIVars, MainModule, uniGUIApplication, UManagerGroup, Data.Win.ADODB,
   USysBusiness, USysDB, USysConst, UFormDateFilter;
 
 procedure TfFrameQuerySaleDetail.OnCreateFrame(const nIni: TIniFile);
@@ -64,6 +72,7 @@ begin
     FTimeS := Str2DateTime(Date2Str(Now) + ' 00:00:00');
     FTimeE := Str2DateTime(Date2Str(Now) + ' 00:00:00');
   end;
+  LoadStockList;
 
   FJBWhere := '';
   InitDateRange(ClassName, FStart, FEnd);
@@ -73,6 +82,58 @@ procedure TfFrameQuerySaleDetail.OnDestroyFrame(const nIni: TIniFile);
 begin
   SaveDateRange(ClassName, FStart, FEnd);
   inherited;
+end;
+
+//Desc: 读取品种列表
+procedure TfFrameQuerySaleDetail.LoadStockList;
+var nStr: string;
+    nIdx: Integer;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  try
+    with cbb_Stock.Items do
+    begin
+      BeginUpdate;
+      Clear;
+      Add('全部显示');
+    end;
+
+    SetLength(FStockList, 0);
+    nQuery := LockDBQuery(FDBType);
+
+    nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
+            'Where D_Name=''%s'' Order By D_Index ASC';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      SetLength(FStockList, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        with FStockList[nIdx] do
+        begin
+          FKey   := FieldByName('D_ParamB').AsString;
+          FValue := FieldByName('D_Value').AsString;
+          FParam := FieldByName('D_Memo').AsString;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+
+    for nIdx := Low(FStockList) to High(FStockList) do
+      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
+    cbb_Stock.ItemIndex := 0;
+  finally
+    cbb_Stock.Items.EndUpdate;
+    ReleaseDBQuery(nQuery);
+  end;
 end;
 
 //Desc: 过滤字段
@@ -90,8 +151,19 @@ begin
   InitFormData(FWhere);
 end;
 
+//Desc: 获取选中的品种
+function TfFrameQuerySaleDetail.GetStockID: string;
+var nIdx: Integer;
+begin
+  Result := '';
+  if cbb_Stock.ItemIndex < 1 then Exit;
+
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
+  Result := FStockList[nIdx].FKey;
+end;
+
 function TfFrameQuerySaleDetail.InitFormDataSQL(const nWhere: string): string;
-var nWH: string;
+var nWH, nNo: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
@@ -117,9 +189,14 @@ begin
       nWH := ' Where (' + FJBWhere + ')';
     end;
 
+    nNo := GetStockID;
+    if nNo <> '' then
+      nWH := nWH + ' and (b.L_StockNo=''$No'')';
+    //xxxxx
+
     Result := MacroValue(Result, [MI('$WH', nWH)]);
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-              MI('$ST', sTable_InvSettle),
+              MI('$ST', sTable_InvSettle), MI('$No', nNo),
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
@@ -168,6 +245,11 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+procedure TfFrameQuerySaleDetail.cbb_StockChange(Sender: TObject);
+begin
+  InitFormData(FWhere);
+end;
+
 procedure TfFrameQuerySaleDetail.DBGridMainMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin

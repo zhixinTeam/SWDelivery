@@ -1,31 +1,31 @@
 inherited fFormCustomerCredit: TfFormCustomerCredit
-  ClientHeight = 257
+  ClientHeight = 286
   ClientWidth = 463
   Caption = #20449#29992#21464#21160
   ExplicitWidth = 469
-  ExplicitHeight = 282
+  ExplicitHeight = 315
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 297
-    Top = 223
+    Top = 252
     TabOrder = 1
     ExplicitLeft = 297
-    ExplicitTop = 223
+    ExplicitTop = 252
   end
   inherited BtnExit: TUniButton
     Left = 380
-    Top = 223
+    Top = 252
     TabOrder = 2
     ExplicitLeft = 380
-    ExplicitTop = 223
+    ExplicitTop = 252
   end
   inherited PanelWork: TUniSimplePanel
     Width = 447
-    Height = 207
+    Height = 236
     TabOrder = 0
     ExplicitWidth = 447
-    ExplicitHeight = 207
+    ExplicitHeight = 236
     object Label1: TUniLabel
       Left = 8
       Top = 56
@@ -174,6 +174,61 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Text = ''
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 11
+    end
+    object unlbl1: TUniLabel
+      Left = 20
+      Top = 200
+      Width = 42
+      Height = 12
+      Hint = ''
+      Caption = #23457#26680#20154':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 13
+    end
+    object cbb_VarMan1: TUniComboBox
+      Left = 68
+      Top = 196
+      Width = 117
+      Hint = ''
+      Text = ''
+      Anchors = [akLeft, akTop, akRight]
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 14
+      OnChange = EditSaleManChange
+    end
+    object cbb_VarMan2: TUniComboBox
+      Left = 194
+      Top = 196
+      Width = 117
+      Hint = ''
+      Text = ''
+      Anchors = [akLeft, akTop, akRight]
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 15
+      OnChange = EditSaleManChange
+    end
+    object cbb_VarMan3: TUniComboBox
+      Left = 319
+      Top = 196
+      Width = 117
+      Hint = ''
+      Text = ''
+      Anchors = [akLeft, akTop, akRight]
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 16
+      OnChange = EditSaleManChange
     end
   end
 end

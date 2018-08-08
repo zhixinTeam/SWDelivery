@@ -13,7 +13,9 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxMaskEdit, cxButtonEdit, cxTextEdit, Menus,
-  UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters;
+  UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxSkinsdxLCPainter;
 
 type
   TfFrameTruckQuery = class(TfFrameNormal)

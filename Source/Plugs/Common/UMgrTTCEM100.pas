@@ -843,7 +843,7 @@ end;
 //Desc: 业务完成后根据读卡器类型处理磁卡
 function TM100ReaderManager.DealtWithCard(const nReader: PM100ReaderItem;
   nRetain: Boolean): Boolean;
-begin
+begin                           
   if (nReader.FVType = rtOutM100) and nRetain then
          Result := InitReader($32, nReader.FClient)
   else   Result := InitReader($31, nReader.FClient);

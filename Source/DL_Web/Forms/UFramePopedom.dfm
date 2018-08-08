@@ -117,8 +117,6 @@ object fFramePopedom: TfFramePopedom
         Caption = #25480#26435
         TabOrder = 8
         OnClick = BtnApplyClick
-        ExplicitLeft = 536
-        ExplicitTop = -2
       end
       object BtnExit: TUniToolButton
         Left = 625
@@ -128,8 +126,6 @@ object fFramePopedom: TfFramePopedom
         Caption = #36864#20986
         TabOrder = 10
         OnClick = BtnExitClick
-        ExplicitLeft = 631
-        ExplicitTop = -2
       end
     end
     object UniSplitter1: TUniSplitter
@@ -158,6 +154,7 @@ object fFramePopedom: TfFramePopedom
         Width = 552
         Height = 544
         Hint = ''
+        DefaultColWidth = 92
         Options = [goVertLine, goHorzLine]
         ShowColumnTitles = True
         Columns = <>

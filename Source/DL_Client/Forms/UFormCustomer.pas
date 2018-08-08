@@ -76,6 +76,9 @@ type
     EditWX: TcxComboBox;
     dxLayoutControl1Item22: TdxLayoutItem;
     dxLayoutControl1Group14: TdxLayoutGroup;
+    dxlytmLayoutControl1Item23: TdxLayoutItem;
+    Chkbx1: TcxCheckBox;
+    dxlytgrp_PrintHYD: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -239,6 +242,11 @@ begin
   begin
     Result := True;
     Check1.Checked := nData = sFlag_Yes;
+  end
+  else if Sender = Chkbx1 then
+  begin
+    Result := True;
+    Chkbx1.Checked := nData = sFlag_Yes;
   end;
 end;
 
@@ -334,6 +342,12 @@ begin
   if Sender = Check1 then
   begin
     if Check1.Checked then
+         nData := sFlag_Yes
+    else nData := sFlag_No;
+  end
+  else if Sender = Chkbx1 then
+  begin
+    if Chkbx1.Checked then
          nData := sFlag_Yes
     else nData := sFlag_No;
   end;

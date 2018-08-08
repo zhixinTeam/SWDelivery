@@ -153,6 +153,13 @@ inherited fFrameCusAccount: TfFrameCusAccount
     OnPopup = PMenu1Popup
     Left = 8
     Top = 276
+    object N8: TMenuItem
+      Caption = #20462#25913#26399#21021#37329#39069
+      OnClick = N8Click
+    end
+    object N7: TMenuItem
+      Caption = '-'
+    end
     object N1: TMenuItem
       Tag = 10
       Caption = #38750#27491#24335#23458#25143

@@ -72,6 +72,8 @@ type
     //车辆检测控制器业务
     function OpenDoorByReader(var nData: string): Boolean;
     //通过读卡器打开道闸
+    function LineClose(var nData: string): Boolean;
+    //定制放灰
   public
     constructor Create; override;
     destructor destroy; override;
@@ -86,7 +88,7 @@ implementation
 uses
 	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
-  UMgrTruckProbe;
+  UMgrTruckProbe, UMgrERelay;
 
 //Date: 2012-3-13
 //Parm: 如参数护具
@@ -248,6 +250,7 @@ begin
    cBC_TunnelOC             : Result := TruckProbe_TunnelOC(nData);
 
    cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
+   cBC_LineClose            : Result := LineClose(nData);
    //xxxxxx
    else
     begin
@@ -708,6 +711,26 @@ begin
   if Trim(nReader) <> '' then
     gHYReaderManager.OpenDoor(Trim(nReader));
 end;
+
+function THardwareCommander.LineClose(var nData: string): Boolean;
+var
+  nTunnel, nStr:string;
+begin
+  nTunnel := FIn.FData;
+  if FIn.FExtParam = sFlag_No then
+    gERelayManager.LineOpen(nTunnel)
+  else
+  begin
+    nStr := FIn.FExtParam;
+    gERelayManager.ShowTxt(nTunnel, '放灰完毕');
+
+    gERelayManager.LineClose(nTunnel);
+  end;
+
+  Result := True;
+end;
+
+
 
 initialization
   gBusinessWorkerManager.RegisteWorker(THardwareCommander, sPlug_ModuleHD);

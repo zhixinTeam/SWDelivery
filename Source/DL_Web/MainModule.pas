@@ -41,6 +41,8 @@ type
       GroupFieldValue: Variant);
     procedure DoColumnSummaryResult(Column: TUniDBGridColumn;
       GroupFieldValue: Variant; Attribs: TUniCellAttribs; var Result: string);
+    procedure DoColumnSummaryTotal(Column: TUniDBGridColumn; Attribs: TUniCellAttribs;
+      var Result: string);
     //表格处理
   end;
 
@@ -187,6 +189,11 @@ begin
         if Column.AuxValue = NULL then
              Column.AuxValue := Column.Field.AsFloat
         else Column.AuxValue := Column.AuxValue + Column.Field.AsFloat;
+
+        //***********************
+        if Column.AuxValues[1] = NULL then
+             Column.AuxValues[1]:= Column.Field.AsFloat
+        else Column.AuxValues[1] := Column.AuxValues[1] + Column.Field.AsFloat;
       end else
 
       if FFooter.FKind = fkCount then //count
@@ -194,6 +201,11 @@ begin
         if Column.AuxValue = NULL then
              Column.AuxValue := 1
         else Column.AuxValue := Column.AuxValue + 1;
+
+        //***********************
+        if Column.AuxValue = NULL then
+             Column.AuxValues[1] := 1
+        else Column.AuxValues[1] := Column.AuxValues[1] + 1;
       end;
     end;
   finally
@@ -237,6 +249,47 @@ begin
     GlobalSyncRelease;
   end;
 end;
+
+procedure TUniMainModule.DoColumnSummaryTotal(Column: TUniDBGridColumn;
+  Attribs: TUniCellAttribs; var Result: string);
+var nF: Double;
+    nI: Integer;
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    begin
+      Attribs.Color := $E0FFE0;
+
+      if FFooter.FKind = fkSum then //sum
+      begin
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clGreen;
+        Attribs.Color := $E0FFE0;
+
+        if Column.AuxValues[1] = Null then Exit;
+        nF := Column.AuxValues[1];
+        Result := FormatFloat(FFooter.FFormat, nF );
+      end else
+
+      if FFooter.FKind = fkCount then //count
+      begin
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clGreen;
+        Attribs.Color := $E0FFE0;
+
+        if Column.AuxValues[1] = Null then Exit;
+        nI := Column.AuxValues[1];
+        Result := FormatFloat(FFooter.FFormat, nI);
+      end;
+    end;
+
+    Column.AuxValues[1] := NULL;
+  finally
+    GlobalSyncRelease;
+  end;
+end;
+
 
 initialization
   RegisterMainModuleClass(TUniMainModule);

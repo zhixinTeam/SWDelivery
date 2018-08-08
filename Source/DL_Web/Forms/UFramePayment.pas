@@ -68,7 +68,8 @@ begin
   begin
     EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-    Result := 'Select iom.*,sm.S_Name From $IOM iom ' +
+    Result := 'Select iom.*,sm.S_Name,convert(varchar(20),M_Date,23) as ' +
+              'M_DateOnly From $IOM iom ' +
               ' Left Join $SM sm On sm.S_ID=iom.M_SaleMan ' +
               'Where M_Type=''$HK'' ';
 
@@ -99,7 +100,8 @@ begin
     EditCustomer.Text := Trim(EditCustomer.Text);
     if EditCustomer.Text = '' then Exit;
 
-    FWhere := '(M_CusID like ''%%%s%%'' Or M_CusName like ''%%%s%%'')';
+    FWhere := '(M_Date>=''$Start'' And M_Date <''$End'') And ' +
+              '(M_CusID like ''%%%s%%'' Or M_CusName like ''%%%s%%'')';
     FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;

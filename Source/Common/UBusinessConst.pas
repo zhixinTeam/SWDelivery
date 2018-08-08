@@ -75,6 +75,7 @@ const
   cBC_JSGetStatus             = $0063;
   cBC_SaveCountData           = $0064;   //保存计数结果
   cBC_RemoteExecSQL           = $0065;
+  cBC_LineClose               = $0068;
 
   cBC_IsTunnelOK              = $0075;
   cBC_TunnelOC                = $0076;
@@ -150,6 +151,7 @@ type
     FStockName  : string;          //品种名称
     FValue      : Double;          //提货量
     FPrice      : Double;          //提货单价
+    FYunFei     : Double;          //提货运费价
 
     FCard       : string;          //磁卡号
     FIsVIP      : string;          //通道类型
@@ -313,6 +315,11 @@ begin
              FPrice := StrToFloat(nStr)
         else FPrice := 0;
 
+        nStr := Trim(Values['YunFei']);
+        if (nStr <> '') and IsNumber(nStr, True) then
+             FYunFei := StrToFloat(nStr)
+        else FYunFei := 0;
+
         nStr := Trim(Values['KZValue']);
         if (nStr <> '') and IsNumber(nStr, True) then
              FKZValue := StrToFloat(nStr)
@@ -365,6 +372,7 @@ begin
         Values['StockName']  := FStockName;
         Values['Value']      := FloatToStr(FValue);
         Values['Price']      := FloatToStr(FPrice);
+        Values['YunFei']      := FloatToStr(FYunfei);
 
         Values['Card']       := FCard;
         Values['IsVIP']      := FIsVIP;

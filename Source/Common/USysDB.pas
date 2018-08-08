@@ -236,6 +236,7 @@ const
   sFlag_PoundQueue    = 'PoundQueue';                //延迟排队(厂内依据过皮时间)
   sFlag_NetPlayVoice  = 'NetPlayVoice';              //使用网络语音播发
   sFlag_BatchAuto     = 'BatchAuto';                 //使用自动批次号
+  sFlag_NoBatchAuto   = 'NoBatchAuto';               //无需批次品种
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -534,7 +535,8 @@ const
        'C_FaRen varChar(50), C_LiXiRen varChar(50), C_WeiXin varChar(15),' +
        'C_Phone varChar(15), C_Fax varChar(15), C_Tax varChar(32),' +
        'C_Bank varChar(35), C_Account varChar(18), C_SaleMan varChar(15),' +
-       'C_Param varChar(32), C_Memo varChar(50), C_XuNi Char(1))';
+       'C_Param varChar(32), C_Memo varChar(50), C_XuNi Char(1), '+
+       'C_InstantPrintHYD Char(1) Not Null Default ''N'')';
   {-----------------------------------------------------------------------------
    客户信息表: Customer
    *.R_ID: 记录号
@@ -554,6 +556,7 @@ const
    *.C_Param: 备用参数
    *.C_Memo: 备注信息
    *.C_XuNi: 虚拟(临时)客户
+   *.C_InstantPrintHYD        特殊客户 该标记为Y 允许客户随车打印化验单
   -----------------------------------------------------------------------------}
   
   sSQL_NewCusAccount = 'Create Table $Table(R_ID $Inc, A_CID varChar(15),' +
@@ -633,7 +636,7 @@ const
   sSQL_NewCusCredit = 'Create Table $Table(R_ID $Inc ,C_CusID varChar(15),' +
        'C_Money Decimal(15,5), C_Man varChar(32), C_Date DateTime, ' +
        'C_End DateTime, C_Verify Char(1) Default ''N'', C_VerMan varChar(32),' +
-       'C_VerDate DateTime, C_Memo varChar(50))';
+       'C_VerDate DateTime, C_Memo varChar(50), C_CreditID varChar(20) )';
   {-----------------------------------------------------------------------------
    信用明细:CustomerCredit
    *.R_ID:编号
@@ -742,7 +745,7 @@ const
        'L_CusID varChar(15), L_CusName varChar(80), L_CusPY varChar(80),' +
        'L_SaleID varChar(15), L_SaleMan varChar(32),' +
        'L_Type Char(1), L_StockNo varChar(20), L_StockName varChar(80),' +
-       'L_Value $Float, L_Price $Float, L_ZKMoney Char(1),' +
+       'L_Value $Float, L_Price $Float, L_ZKMoney Char(1), L_YunFei $Float Default 0,' +
        'L_Truck varChar(15), L_Status Char(1), L_NextStatus Char(1),' +
        'L_InTime DateTime, L_InMan varChar(32),' +
        'L_PValue $Float, L_PDate DateTime, L_PMan varChar(32),' +
@@ -816,7 +819,7 @@ const
        'B_ProID varChar(32), B_ProName varChar(80), B_ProPY varChar(80),' +
        'B_SaleID varChar(32), B_SaleMan varChar(80), B_SalePY varChar(80),' +
        'B_StockType Char(1), B_StockNo varChar(32), B_StockName varChar(80),' +
-       'B_Man varChar(32), B_Date DateTime,' +
+       'B_Man varChar(32), B_Date DateTime, ' +
        'B_DelMan varChar(32), B_DelDate DateTime, B_Memo varChar(500))';
   {-----------------------------------------------------------------------------
    采购申请单表: Order
@@ -844,8 +847,8 @@ const
        'O_ProID varChar(32), O_ProName varChar(80), O_ProPY varChar(80),' +
        'O_SaleID varChar(32), O_SaleMan varChar(80), O_SalePY varChar(80),' +
        'O_Type Char(1), O_StockNo varChar(32), O_StockName varChar(80),' +
-       'O_Truck varChar(15), O_OStatus Char(1),' +
-       'O_Man varChar(32), O_Date DateTime,' +
+       'O_Truck varChar(15), O_OStatus Char(1), O_YJZValue $Float,' +
+       'O_Man varChar(32), O_Date DateTime, O_YJZValue Decimal(15, 5) Default 0, ' +
        'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500))';
   {-----------------------------------------------------------------------------
    采购订单表: Order
@@ -1228,7 +1231,9 @@ const
 
   sSQL_NewInvoiceWeek = 'Create Table $Table(W_ID $Inc, W_NO varChar(15),' +
        'W_Name varChar(50), W_Begin DateTime, W_End DateTime,' +
-       'W_Man varChar(32), W_Date DateTime, W_Memo varChar(50))';
+       'W_Man varChar(32), W_Date DateTime, W_Memo varChar(50), W_CusId Varchar(20),'+
+       'W_CusName Varchar(32), W_StockId Varchar(20), W_StockName Varchar(100),'+
+       'W_SaleManId Varchar(32), W_SaleMan Varchar(32))';
   {-----------------------------------------------------------------------------
    发票结算周期:InvoiceWeek
    *.W_ID:记录编号
@@ -1286,6 +1291,7 @@ const
        'R_Stock varChar(30), R_Price $Float, R_Value $Float, ' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
        'R_KValue $Float Default 0, R_KOther $Float Default 0,' +
+       'R_KYunFei $Float Default 0,' +
        'R_Man varChar(32), R_Date DateTime)';
   {-----------------------------------------------------------------------------
    发票结算申请:InvoiceReq

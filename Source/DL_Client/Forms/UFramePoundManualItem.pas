@@ -937,7 +937,7 @@ begin
   try
     BtnSave.Enabled := False;
     ShowWaitForm(ParentForm, '正在保存称重', True);
-                                                                                ShowMessage('已过正在保存称重提示框');
+                                                                                
     if (Length(FBillItems) > 0) and (FCardUsed=sFlag_Sale) then
          nBool := SavePoundSale
     else nBool := SavePoundData;

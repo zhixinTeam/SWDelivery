@@ -1,45 +1,51 @@
 inherited fFormZhiKa: TfFormZhiKa
   Left = 717
   Top = 220
-  Width = 461
-  Height = 499
+  Width = 489
+  Height = 523
   BorderStyle = bsSizeable
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 445
-    Height = 460
+    Width = 473
+    Height = 484
     AutoControlAlignment = False
     inherited BtnOK: TButton
-      Left = 299
-      Top = 427
-      TabOrder = 15
+      Left = 327
+      Top = 451
+      TabOrder = 16
     end
     inherited BtnExit: TButton
-      Left = 369
-      Top = 427
-      TabOrder = 16
+      Left = 397
+      Top = 451
+      TabOrder = 17
     end
     object ListDetail: TcxListView [2]
       Left = 23
-      Top = 229
+      Top = 240
       Width = 400
       Height = 149
       Checkboxes = True
       Columns = <
         item
           Caption = #27700#27877#31867#22411
-          Width = 120
+          Width = 139
         end
         item
+          Alignment = taCenter
           Caption = #21333#20215'('#20803'/'#21544')'
-          Width = 100
+          Width = 80
         end
         item
+          Alignment = taCenter
           Caption = #21150#29702#37327'('#21544')'
-          Width = 100
+          Width = 90
+        end
+        item
+          Caption = #36816#36153'('#20803'/'#21544')'
+          Width = 80
         end>
       HideSelection = False
       ParentFont = False
@@ -53,27 +59,27 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object EditStock: TcxTextEdit [3]
       Left = 57
-      Top = 395
+      Top = 419
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 11
       Width = 123
     end
     object EditPrice: TcxTextEdit [4]
-      Left = 215
-      Top = 395
+      Left = 195
+      Top = 419
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       TabOrder = 12
-      Width = 79
+      Width = 55
     end
     object EditValue: TcxTextEdit [5]
-      Left = 345
-      Top = 395
+      Left = 301
+      Top = 419
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       TabOrder = 13
-      Width = 77
+      Width = 55
     end
     object EditCID: TcxButtonEdit [6]
       Left = 269
@@ -156,7 +162,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Width = 121
     end
     object cxLabel2: TcxLabel [13]
-      Left = 402
+      Left = 430
       Top = 161
       AutoSize = False
       Caption = #20803
@@ -169,10 +175,10 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object Check1: TcxCheckBox [14]
       Left = 11
-      Top = 427
+      Top = 451
       Caption = #23436#25104#21518#25171#24320#38480#25552#31383#21475
       ParentFont = False
-      TabOrder = 14
+      TabOrder = 15
       Transparent = True
       Width = 142
     end
@@ -192,6 +198,14 @@ inherited fFormZhiKa: TfFormZhiKa
       Properties.MaxLength = 100
       TabOrder = 0
       Width = 125
+    end
+    object edt_YunFei: TcxTextEdit [17]
+      Left = 395
+      Top = 419
+      ParentFont = False
+      Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
+      TabOrder = 14
+      Width = 55
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -307,6 +321,13 @@ inherited fFormZhiKa: TfFormZhiKa
             AlignHorz = ahRight
             Caption = #21150#29702#37327':'
             Control = EditValue
+            ControlOptions.ShowBorder = False
+          end
+          object dxlytm_YF: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahRight
+            Caption = #36816#36153':'
+            Control = edt_YunFei
             ControlOptions.ShowBorder = False
           end
         end

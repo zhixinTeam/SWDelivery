@@ -25,6 +25,10 @@ type
     Label6: TUniLabel;
     Label7: TUniLabel;
     EditMemo: TUniEdit;
+    unlbl1: TUniLabel;
+    cbb_VarMan1: TUniComboBox;
+    cbb_VarMan2: TUniComboBox;
+    cbb_VarMan3: TUniComboBox;
     procedure EditSaleManChange(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
   private
@@ -87,6 +91,11 @@ begin
   EditEnd.DateTime := Date() + 1;
 
   LoadSaleMan(EditSaleMan.Items);
+  //*********
+  LoadVerifyMan(cbb_VarMan1.Items);
+  LoadVerifyMan(cbb_VarMan2.Items);
+  LoadVerifyMan(cbb_VarMan3.Items);
+  //*********
   if nParam.FCommand <> cCmd_EditData then Exit;
 
   nQuery := nil;
@@ -143,7 +152,8 @@ begin
 
   if Sender = EditCredit then
   begin
-    Result := TStringHelper.IsNumber(EditCredit.Text, True);
+    Result := TStringHelper.IsNumber(EditCredit.Text, True)and
+                      (StrToFloatDef(EditCredit.Text, 0)>0);
     nHint := '请填写有效的金额';
   end else
 
@@ -151,13 +161,21 @@ begin
   begin
     Result := EditEnd.DateTime > Now;
     nHint := '有效期应大于当前日期';
+  end else
+
+  if (Sender = cbb_VarMan1)or(Sender = cbb_VarMan2)or(Sender = cbb_VarMan3) then
+  begin
+    Result := (cbb_VarMan1.Text<>'')or(cbb_VarMan3.Text<>'')or(cbb_VarMan3.Text<>'');
+    nHint := '需要填写审核人';
   end;
+
 end;
 
 procedure TfFormCustomerCredit.BtnOKClick(Sender: TObject);
 begin
   if IsDataValid and SaveCustomerCredit(GetIDFromBox(EditCus), EditMemo.Text,
-     StrToFloat(EditCredit.Text), EditEnd.DateTime) then
+     StrToFloat(EditCredit.Text), EditEnd.DateTime,
+     cbb_VarMan1.Text, cbb_VarMan2.Text, cbb_VarMan3.Text) then
   begin
     ModalResult := mrOk;
     ShowMessage('授信成功');

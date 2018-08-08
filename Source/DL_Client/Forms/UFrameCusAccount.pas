@@ -16,7 +16,7 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter;
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, StdCtrls;
 
 type
   TfFrameCusAccount = class(TfFrameNormal)
@@ -39,12 +39,15 @@ type
     N4: TMenuItem;
     N5: TMenuItem;
     N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
     procedure N3Click(Sender: TObject);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure PMenu1Popup(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
+    procedure N8Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -59,7 +62,8 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, USysBusiness;
+  ULibFun, UFormBase, UMgrControl, USysConst, USysDB, UDataModule, USysBusiness;
+
 
 class function TfFrameCusAccount.FrameID: integer;
 begin
@@ -117,6 +121,10 @@ begin
   {$ELSE}
   N4.Visible := False;
   {$ENDIF}
+  if PopedomItem='MAIN_CX01' then
+    N8.Visible := True
+  else N8.Visible := False;
+
   N6.Enabled := gSysParam.FIsAdmin;
 end;
 
@@ -185,6 +193,22 @@ begin
 
   InitFormData(FWhere);
   ShowMsg('校正完毕', sHint);
+end;
+
+procedure TfFrameCusAccount.N8Click(Sender: TObject);
+var nP: TFormCommandParam;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then Exit;
+
+  nP.FParamA := SQLQuery.FieldByName('A_CID').AsString;
+  nP.FParamB := SQLQuery.FieldByName('C_Name').AsString;
+  if (nP.FParamA='')or(nP.FParamB='') then
+  begin
+    ShowMsg('选择客户后才可以操作哦', sHint);
+    Exit;
+  end;
+  CreateBaseFormItem(cFI_FormCusInitEdit, '', @nP);
+  BtnRefresh.Click;
 end;
 
 initialization

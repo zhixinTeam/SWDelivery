@@ -35,7 +35,9 @@ const
   cFI_FrameMakeLSCard   = $0016;                     //厂内零售磁卡
   cFI_FrameSanPreHK     = $0017;                     //散装提货前预合单
   cFI_FrameAuditTruck   = $0018;                     //审核车辆
-  cFI_FrameBillBuDanAudit = $0019;                     //补单审核
+  cFI_FrameBillBuDanAudit = $0019;                   //补单审核
+
+  cFI_FrameBillHYDanHD    = $3001;                   //水泥回单查询
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -73,6 +75,7 @@ const
   cFI_FrameInvoiceWeek  = $0063;                     //结算周期
   cFI_FrameSaleZZ       = $0065;                     //销售扎账
   cFI_FrameSaleJS       = $0069;                     //销售结算
+  cFI_FormCusInitEdit   = $6069;                     //修改客户期初
 
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
@@ -232,6 +235,7 @@ type
     FMITServURL : string;                            //业务服务
     FHardMonURL : string;                            //硬件守护
     FWechatURL  : string;                            //微信服务
+    FMITServURLBack : string;                        //备用业务服务
     
     FFactNum    : string;                            //工厂编号
     FSerialID   : string;                            //电脑编号
@@ -270,7 +274,7 @@ var
   gSysParam:TSysParam;                               //程序环境参数
   gStatusBar: TStatusBar;                            //全局使用状态栏
   gMenuModule: TList = nil;                          //菜单模块映射表
-
+    
 //------------------------------------------------------------------------------
 ResourceString
   sProgID             = 'DMZN';                      //默认标识
@@ -359,6 +363,7 @@ begin
   AddMenuModuleItem('MAIN_C06', cFI_FrameInvoiceWeek);
   AddMenuModuleItem('MAIN_C07', cFI_FrameShouJu);
   AddMenuModuleItem('MAIN_C08', cFI_FrameSaleZZ);
+  AddMenuModuleItem('MAIN_CX01', cFI_FrameCusAccountQuery);
 
   AddMenuModuleItem('MAIN_D01', cFI_FormZhiKa, mtForm);
   AddMenuModuleItem('MAIN_D02', cFI_FrameMakeCard);
@@ -395,6 +400,7 @@ begin
   AddMenuModuleItem('MAIN_K06', cFI_FrameStockHY_Each);
   AddMenuModuleItem('MAIN_K07', cFI_FrameBatch);
   AddMenuModuleItem('MAIN_K08', cFI_FormBatch, mtForm);
+  AddMenuModuleItem('MAIN_KHD01', cFI_FrameBillHYDanHD);
 
   AddMenuModuleItem('MAIN_L01', cFI_FrameTruckQuery);
   AddMenuModuleItem('MAIN_L02', cFI_FrameCusAccountQuery);
@@ -418,6 +424,7 @@ begin
   AddMenuModuleItem('MAIN_M02', cFI_FrameMaterails);
   AddMenuModuleItem('MAIN_M03', cFI_FrameMakeOCard); 
   AddMenuModuleItem('MAIN_M04', cFI_FrameOrder);
+  AddMenuModuleItem('MAIN_MF05', cFI_FormOrder, mtForm);
   AddMenuModuleItem('MAIN_M08', cFI_FrameOrderDetail);
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
   AddMenuModuleItem('MAIN_M10', cFI_FrameTransBase);

@@ -44,6 +44,7 @@ type
     procedure imgPrintClick(Sender: TObject);
     procedure imgCardClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure LabelHintClick(Sender: TObject);
   private
     { Private declarations }
     FBuffer: string;
@@ -84,7 +85,7 @@ implementation
 uses
   IniFiles, ULibFun, CPortTypes, USysLoger, USysDB, USmallFunc, UDataModule,
   UFormConn, uZXNewCard,USysConst,UClientWorker,UMITPacker,USysModule,USysBusiness,
-  UDataReport,UFormInputbox,UFormBarcodePrint,uZXNewPurchaseCard,
+  UDataReport,UFormInputbox,UFormBarcodePrint,uZXNewPurchaseCard,  NativeXml,
   UFormBase,DateUtils;
 
 type
@@ -739,7 +740,7 @@ begin
     Exit;
   end;
 
-  {try
+  try
     FTimeCounter := 10;
     TimerReadCard.Enabled := True;
 
@@ -758,7 +759,7 @@ begin
       LabelOrder.Caption := '采购订单: ' + FieldByName('o_bid').AsString;
       LabelTruck.Caption := '车牌号码: ' + FieldByName('o_Truck').AsString;
       LabelStock.Caption := '品种名称: ' + FieldByName('o_StockName').AsString;
-      LabelTon.Caption := '提货数量: ';
+      LabelTon.Caption := '开单数量: ';
     end;
     WriteLog('TfFormMain.QueryPorderinfo(nCard='''+nCard+''')查询采购单['+nStr+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
     FLastQuery := GetTickCount;
@@ -769,7 +770,32 @@ begin
       ShowMsg('查询失败', sHint);
       WriteLog(E.Message);
     end;
-  end;}
+  end;
+end;
+
+function DecodeUtf8Str(const S: UTF8String): WideString;
+var lenSrc, lenDst  : Integer;
+begin
+  lenSrc  := Length(S);
+  if(lenSrc=0)then Exit;
+  lenDst  := MultiByteToWideChar(CP_UTF8, 0, Pointer(S), lenSrc, nil, 0);
+  SetLength(Result, lenDst);
+  MultiByteToWideChar(CP_UTF8, 0, Pointer(S), lenSrc, Pointer(Result), lenDst);
+end;
+
+procedure TfFormMain.LabelHintClick(Sender: TObject);
+var str, xx:string;
+begin
+
+  str:= '5rm/57KJ54Wk54GwXOa5v+iEseehq+efs+iGjw==';
+  str:= 'YjNKa1pYSmZhV1E5WVRRME16WmpNbUppTnpaak5HWTRNV0UxTm1JME9XTXdPREJqT0RZM05tWU5DbVpoWTE5dmNtUmxjbDl1YnoxUFFqRTRNRFl5TmpBd01E'+
+  'a05DbTl5WkdWeWJuVnRZbVZ5UFRFNE1EY3hNamM1TVRZTkNtZHZiMlJ6U1VROU1ETTNEUXBuYjI5a2MyNWhiV1U5eXFyTjBjSHl5cTgvUHcwS2RISmhZMnR1ZFcxaVpYSTlzdUpUTXpVMk56Z05DbVJoZEdFOU1BMEtEUW89';
+  str:= DecodeBase64(str);
+  str:= DecodeBase64(str);
+  xx:= UTF8Decode(str);
+  xx:= DecodeUtf8Str(str);
+  xx:= DecodeUtf8Str(str);
+
 end;
 
 end.

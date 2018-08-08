@@ -109,7 +109,7 @@ begin
             'Where S_Week=''%s'' Group By S_CusID';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
-    nStr := 'Update $T Set $T.A_Compensation=$T.A_Compensation-t.S_Money ' +
+    nStr := 'Update $T Set $T.A_Compensation=IsNull($T.A_Compensation, 0)-IsNull(t.S_Money, 0) ' +
             'From ($S) t Where $T.A_CID=t.S_CusID';
     //xxxxx
 
@@ -160,7 +160,7 @@ begin
             'Where S_Week=''%s'' Group By S_CusID';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
-    nStr := 'Update $T Set $T.A_Compensation=$T.A_Compensation+t.S_Money ' +
+    nStr := 'Update $T Set $T.A_Compensation=IsNull($T.A_Compensation, 0)+IsNull(t.S_Money, 0) ' +
             'From ($S) t Where $T.A_CID=t.S_CusID';
     //xxxxx
 
@@ -185,6 +185,8 @@ begin
             MI('$WK', FNowWeek), MI('$KM', UniMainModule.FUserConfig.FUserID),
             MI('$DT', sField_SQLServer_Now)]);
     nList.Add(nStr);
+    nList.Add(nStr);
+
 
     ShowHintText('Ω·À„ÕÍ±œ.');
     //EditMemo.Text := nList.Text;

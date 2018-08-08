@@ -127,6 +127,10 @@ inherited fFrameZhiKa: TfFrameZhiKa
   object PMenu1: TUniPopupMenu
     Left = 42
     Top = 182
+    object MenuItem9: TUniMenuItem
+      Caption = #32440#21345#23457#26680
+      OnClick = MenuItem9Click
+    end
     object MenuItem1: TUniMenuItem
       Caption = #25171#21360#32440#21345
     end

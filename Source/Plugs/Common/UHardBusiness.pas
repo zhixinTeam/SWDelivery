@@ -8,11 +8,11 @@ unit UHardBusiness;
 interface
 
 uses
-  Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB,
+  Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB, TypInfo,
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
-  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100;
+  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo;
 
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
@@ -550,84 +550,92 @@ var nStr,nCardType: string;
 begin
   Result := False;
   nCardType := '';
-  if not GetCardUsed(nCard, nCardType) then Exit;
+  try
+    if not GetCardUsed(nCard, nCardType) then Exit;
 
-  if nCardType = sFlag_Provide then
-    nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks) else
-  if nCardType = sFlag_Sale then
-    nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks) else
-  if nCardType = sFlag_DuanDao then
-    nRet := GetDuanDaoItems(nCard, sFlag_TruckOut, nTrucks) else nRet := False;
+    if nCardType = sFlag_Provide then
+      nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks) else
+    if nCardType = sFlag_Sale then
+      nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks) else
+    if nCardType = sFlag_DuanDao then
+      nRet := GetDuanDaoItems(nCard, sFlag_TruckOut, nTrucks) else nRet := False;
 
-  if not nRet then
-  begin
-    nStr := '读取磁卡[ %s ]订单信息失败.';
-    nStr := Format(nStr, [nCard]);
+    if not nRet then
+    begin
+      nStr := '读取磁卡[ %s ]订单信息失败.';
+      nStr := Format(nStr, [nCard]);
 
-    WriteHardHelperLog(nStr, sPost_Out);
-    Exit;
-  end;
+      WriteHardHelperLog(nStr, sPost_Out);
+      Exit;
+    end;
 
-  if Length(nTrucks) < 1 then
-  begin
-    nStr := '磁卡[ %s ]没有需要出厂车辆.';
-    nStr := Format(nStr, [nCard]);
+    if Length(nTrucks) < 1 then
+    begin
+      nStr := '磁卡[ %s ]没有需要出厂车辆.';
+      nStr := Format(nStr, [nCard]);
 
-    WriteHardHelperLog(nStr, sPost_Out);
-    Exit;
-  end;
+      WriteHardHelperLog(nStr, sPost_Out);
+      Exit;
+    end;
 
-  for nIdx:=Low(nTrucks) to High(nTrucks) do
-  with nTrucks[nIdx] do
-  begin
-    if FNextStatus = sFlag_TruckOut then Continue;
-    nStr := '车辆[ %s ]下一状态为:[ %s ],无法出厂.';
-    nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
+    for nIdx:=Low(nTrucks) to High(nTrucks) do
+    with nTrucks[nIdx] do
+    begin
+      if FNextStatus = sFlag_TruckOut then Continue;
+      nStr := '车辆[ %s ]下一状态为:[ %s ],无法出厂.';
+      nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
     
-    WriteHardHelperLog(nStr, sPost_Out);
-    Exit;
+      WriteHardHelperLog(nStr, sPost_Out);
+      Exit;
+    end;
+
+    if nCardType = sFlag_Provide then
+      nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks) else
+    if nCardType = sFlag_Sale then
+      nRet := SaveLadingBills(sFlag_TruckOut, nTrucks) else
+    if nCardType = sFlag_DuanDao then
+      nRet := SaveDuanDaoItems(sFlag_TruckOut, nTrucks);
+
+    if not nRet then
+    begin
+      nStr := '车辆[ %s ]出厂放行失败.';
+      nStr := Format(nStr, [nTrucks[0].FTruck]);
+
+      WriteHardHelperLog(nStr, sPost_Out);
+      Exit;
+    end;
+
+    if nReader <> '' then
+      BlueOpenDoor(nReader); //抬杆
+    Result := True;
+
+    for nIdx:=Low(nTrucks) to High(nTrucks) do
+    begin
+      {$IFDEF PrintBillMoney}
+      if CallBusinessCommand(cBC_GetZhiKaMoney,nTrucks[nIdx].FZhiKa,'',@nOut) then
+           nStr := #8 + nOut.FData
+      else nStr := #8 + '0';
+      {$ELSE}
+      nStr := '';
+      {$ENDIF}
+
+      nStr := nStr + #7 + nCardType;
+      //磁卡类型
+      if nHYPrinter <> '' then
+        nStr := nStr + #6 + nHYPrinter;
+      //化验单打印机
+
+      if nPrinter = '' then
+           gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
+      else gRemotePrinter.PrintBill(nTrucks[nIdx].FID + #9 + nPrinter + nStr);
+
+      WriteHardHelperLog(Format('添加打印任务，单号：%s', [(nTrucks[nIdx].FID)]));
+    end; //打印报表
+  except on Ex:Exception do
+    begin
+      WriteHardHelperLog(Ex.Message);
+    end;
   end;
-
-  if nCardType = sFlag_Provide then
-    nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks) else
-  if nCardType = sFlag_Sale then
-    nRet := SaveLadingBills(sFlag_TruckOut, nTrucks) else
-  if nCardType = sFlag_DuanDao then
-    nRet := SaveDuanDaoItems(sFlag_TruckOut, nTrucks);
-
-  if not nRet then
-  begin
-    nStr := '车辆[ %s ]出厂放行失败.';
-    nStr := Format(nStr, [nTrucks[0].FTruck]);
-
-    WriteHardHelperLog(nStr, sPost_Out);
-    Exit;
-  end;
-
-  if nReader <> '' then
-    BlueOpenDoor(nReader); //抬杆
-  Result := True;
-
-  for nIdx:=Low(nTrucks) to High(nTrucks) do
-  begin
-    {$IFDEF PrintBillMoney}
-    if CallBusinessCommand(cBC_GetZhiKaMoney,nTrucks[nIdx].FZhiKa,'',@nOut) then
-         nStr := #8 + nOut.FData
-    else nStr := #8 + '0';
-    {$ELSE}
-    nStr := '';
-    {$ENDIF}
-
-    nStr := nStr + #7 + nCardType;
-    //磁卡类型
-    if nHYPrinter <> '' then
-      nStr := nStr + #6 + nHYPrinter;
-    //化验单打印机
-
-    if nPrinter = '' then
-         gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
-    else gRemotePrinter.PrintBill(nTrucks[nIdx].FID + #9 + nPrinter + nStr);
-  end; //打印报表
 end;
 
 //Date: 2012-10-19
@@ -811,6 +819,9 @@ begin
       gHardwareHelper.SetReaderCard(nItem.FVReader, nItem.FCard, False);
     end;
   finally
+    gSysLoger.AddLog(T02NReader, '现场近距读卡器', Format('读卡器类型：%s 卡片回收：%s',
+          [GetEnumName(TypeInfo(TM100ReaderVType),Ord(nItem.FVType)), BoolToStr(nRetain, True)]));
+
     gM100ReaderManager.DealtWithCard(nItem, nRetain)
   end;
 end;
@@ -1317,6 +1328,13 @@ begin
     WriteNearReaderLog(nStr);
 
     TruckStartFH(nPTruck, nTunnel);
+    
+    {$IFDEF FixLoad}
+    WriteNearReaderLog('启动定置装车::'+nTunnel+'@'+nCard);
+    //发送卡号和通道号到定置装车服务器
+    gSendCardNo.SendCardNo(nTunnel+'@'+nCard);
+    {$ENDIF}
+
     Exit;
   end;
 
@@ -1329,13 +1347,17 @@ begin
     Exit;
   end;
 
-
   {$IFDEF ChkCardFHTime}   // 检查是否首次放灰 如果是则更新首次放灰时间
     MarkCardFHTime(nTrucks[0].FID);
   {$ENDIF}
 
   TruckStartFH(nPTruck, nTunnel);
   //执行放灰
+  {$IFDEF FixLoad}
+  WriteNearReaderLog('启动定置装车::'+nTunnel+'@'+nCard);
+  //发送卡号和通道号到定置装车服务器
+  gSendCardNo.SendCardNo(nTunnel+'@'+nCard);
+  {$ENDIF}
 end;
 
 //Date: 2018-6-4
@@ -1433,8 +1455,6 @@ begin
 
   if nHost.FType = rtKeep then
   begin
-    //MakeTruckLadingSan(nCard, nHost.FTunnel);
-
     nCardType := '';
     if not GetCardUsed(nCard, nCardType) then
       MakeTruckLadingSan(nCard, nHost.FTunnel)
@@ -1461,6 +1481,12 @@ begin
   gERelayManager.LineClose(nHost.FTunnel);
   Sleep(100);
 
+  {$IFDEF FixLoad}
+  WriteHardHelperLog('停止定置装车::'+nHost.FTunnel+'@Close');
+  //发送卡号和通道号到定置装车服务器
+  gSendCardNo.SendCardNo(nHost.FTunnel+'@Close');
+  {$ENDIF}
+  
   if nHost.FETimeOut then
        gERelayManager.ShowTxt(nHost.FTunnel, '电子标签超出范围')
   else gERelayManager.ShowTxt(nHost.FTunnel, nHost.FLEDText);

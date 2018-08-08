@@ -65,10 +65,15 @@ procedure ReloadSystemMemory(const nResetAllSession: Boolean);
 
 procedure LoadSysDictItem(const nItem: string; const nList: TStrings);
 //读取系统字典项
+procedure LoadStockFromDict(var nStock: TStockItems; const nQuery: TADOQuery=nil;
+  const nType: TAdoConnectionType = ctMain);
+//读取物料列表
 function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取业务员列表
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取客户列表
+function LoadVerifyMan(const nList: TStrings; const nWhere: string = ''): Boolean;
+//拉取审核权限用户列表
 function GetIDFromBox(const nBox: TUniComboBox): string;
 function GetNameFromBox(const nBox: TUniComboBox): string;
 //从nBox中读取ID,Name号
@@ -82,7 +87,7 @@ procedure SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
 function IsAutoPayCredit(const nQuery: TADOQuery): Boolean;
 //回款时冲信用
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
- const nEndTime: TDateTime): Boolean;
+ const nEndTime: TDateTime; nVarMan1, nVarMan2, nVarMan3:string): Boolean;
 //保存信用记录
 
 procedure LoadMenuItems(const nForce: Boolean);
@@ -716,6 +721,53 @@ begin
   end;
 end;
 
+//Date: 2018-07-03
+//Parm: 物料列表
+//Desc: 从字典配置中读取物料列表
+procedure LoadStockFromDict(var nStock: TStockItems; const nQuery: TADOQuery;
+  const nType: TAdoConnectionType);
+var nStr: string;
+    nIdx: Integer;
+    nTmp: TADOQuery;
+begin
+  nTmp := nil;
+  try
+    if Assigned(nQuery) then
+         nTmp := nQuery
+    else nTmp := LockDBQuery(nType);
+
+    SetLength(nStock, 0);
+    nStr := 'Select * From %s Where D_Name=''%s'' Order By D_Index DESC';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+
+    with DBQuery(nStr, nTmp) do
+    if nTmp.RecordCount > 0 then
+    begin
+      SetLength(nStock, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        with nStock[nIdx] do
+        begin
+          FID := FieldByName('D_ParamB').AsString;
+          FName := FieldByName('D_Value').AsString;
+          FType := FieldByName('D_Memo').AsString;
+          FSelected := True;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+  finally
+    if not Assigned(nQuery) then
+      ReleaseDBQuery(nTmp);
+    //xxxxx
+  end;
+end;
+
 //Date: 2018-05-03
 //Parm: 列表;查询条件
 //Desc: 加载业务员列表到nList中
@@ -798,6 +850,46 @@ begin
   end;
 end;
 
+//Date: 2018-07-17
+//Parm: 列表;查询条件
+//Desc: 加载审核人列表到nList中
+function LoadVerifyMan(const nList: TStrings; const nWhere: string = ''): Boolean;
+var nStr,nW: string;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  try
+    nList.BeginUpdate;
+    nList.Clear;
+    nQuery := LockDBQuery(ctWork);
+
+    if nWhere = '' then
+         nW := ''
+    else nW := Format(' And (%s)', [nWhere]);
+
+    nStr := 'Select U_Name From %s ' +
+            'Where U_State=1 And U_VerifyCredit=-1 ';
+    nStr := Format(nStr, [sTable_User, sFlag_Yes, nW]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      First;
+
+      while not Eof do
+      begin
+        nList.Add(FieldByName('U_Name').AsString);
+        Next;
+      end;
+    end;
+
+    Result := nList.Count > 0;
+  finally
+    nList.EndUpdate;
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
 //Date: 2018-05-08
 //Parm: 下拉框,数据格式: ID.Name
 //Desc: 获取nBox当前选中的记录ID号
@@ -869,7 +961,7 @@ begin
     //do save
 
     if (nLimit > 0) and (
-       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now())) then
+       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now(),'','','')) then
     begin
       nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
               '请手动调整该客户信用额度.';
@@ -992,7 +1084,7 @@ end;
 
 //Desc: 保存nCusID的一次授信记录
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
- const nEndTime: TDateTime): Boolean;
+ const nEndTime: TDateTime; nVarMan1, nVarMan2, nVarMan3:string): Boolean;
 var nStr: string;
     nVal: Double;
     nList: TStrings;
@@ -1023,7 +1115,9 @@ begin
               SF('C_Man', UniMainModule.FUserConfig.FUserID),
               SF('C_Date', sField_SQLServer_Now, sfVal),
               SF('C_End', DateTime2Str(nEndTime)),
-              SF('C_Memo',nMemo)
+              SF('C_Memo',nMemo),
+              SF('C_VerMan1',nVarMan1), SF('C_VerMan2',nVarMan2),
+              SF('C_VerMan3',nVarMan3)
               ], sTable_CusCredit, '', True);
       nList.Add(nStr);
     end else
@@ -1591,6 +1685,7 @@ begin
               FTable := FieldByName('D_DBTable').AsString;
               FField := FieldByName('D_DBField').AsString;
               FIsKey := StrToBool(FieldByName('D_DBIsKey').AsString);
+              FLocked:= StrToBool(FieldByName('D_Locked').AsString);
 
               FType  := TFieldType(FieldByName('D_DBType').AsInteger);
               FWidth := FieldByName('D_DBWidth').AsInteger;
@@ -1657,11 +1752,12 @@ procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
 var i,nIdx: Integer;
     nList: TStrings;
     nColumn: TUniBaseDBGridColumn;
+    nStr:string;
 begin
   with nGrid do
   begin
     BorderStyle := ubsDefault;
-    LoadMask.Message := '加载数据';
+    LoadMask.Message := '正在加载数据、请稍后';
     Options := [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect];
 
     if UniMainModule.FGridColumnAdjust then
@@ -1678,6 +1774,8 @@ begin
       OnColumnSummary := UniMainModule.DoColumnSummary;
     if not Assigned(OnColumnSummaryResult) then
       OnColumnSummaryResult := UniMainModule.DoColumnSummaryResult;
+    if not Assigned(OnColumnSummaryTotal) then
+      OnColumnSummaryTotal := UniMainModule.DoColumnSummaryTotal;
     //xxxxx
   end;
 
@@ -1736,6 +1834,9 @@ begin
           Alignment := FAlign;
           FieldName := FDBItem.FField;
 
+          if FDBItem.FLocked then
+            Locked:= FDBItem.FLocked;
+
           Title.Alignment := FAlign;
           Title.Caption := FTitle;
           Width := FWidth;
@@ -1744,6 +1845,7 @@ begin
           begin
             nColumn.ShowSummary := True;
             Summary.Enabled := True;
+            Summary.GrandTotal:= True;
           end;
         end;
       end;

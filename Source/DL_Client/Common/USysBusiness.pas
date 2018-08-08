@@ -2248,7 +2248,7 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //Ìí¼ÓÒýºÅ
   
-  nStr := 'Select * From %s b Where L_ID In(%s)';
+  nStr := 'Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In(%s)';
   nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
@@ -2481,6 +2481,9 @@ begin
 
   if Pos('dj', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan42_DJ.fr3'
+  else if (Pos('42', Result) > 0)and(Pos('tl', Result) > 0) then
+    Result := gPath + sReportDir + 'HuaYan42_TL.fr3'
+
   else if Pos('gsysl', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
   else if Pos('kzf', Result) > 0 then
@@ -2568,9 +2571,9 @@ begin
   {$IFDEF HeGeZhengSimpleData}
   nSR := 'Select * From %s hy ' +
          '  Left Join %s b On b.L_ID=hy.H_Reporter ' +
-         '  Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+         //'  Left Join %s sp On sp.P_Stock=b.L_StockName ' +
          'Where hy.H_ID in (%s)';
-  nStr := Format(nSR, [sTable_StockHuaYan, sTable_Bill, sTable_StockParam, nHID]);
+  nStr := Format(nSR, [sTable_StockHuaYan, sTable_Bill, nHID]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
@@ -2584,7 +2587,6 @@ begin
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
-
 //  nStr := 'Select L_ID, L_StockName, L_OutFact, L_Seal, P_Stock, P_Name, P_QLevel From %s ' +
 //          'left join %s on L_StockName=P_Stock Where L_ID=''%s''';
 //  nStr := Format(nStr, [sTable_Bill, sTable_StockParam, nHID ]);   //

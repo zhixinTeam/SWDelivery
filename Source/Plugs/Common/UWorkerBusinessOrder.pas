@@ -313,7 +313,7 @@ end;
 //Date: 2015-8-5
 //Desc: 保存采购单
 function TWorkerBusinessOrders.SaveOrder(var nData: string): Boolean;
-var nStr: string;
+var nStr, nOId : string;
     nIdx: Integer;
     nVal: Double;
     nOut: TWorkerBusinessCommand;
@@ -339,6 +339,7 @@ begin
     if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
           FListC.Text, sFlag_Yes, @nOut) then
       raise Exception.Create(nOut.FData);
+    nOId:= nOut.FData;
     //xxxxx
 
     FOut.FData := FOut.FData + nOut.FData + ',';
@@ -366,6 +367,7 @@ begin
             SF('O_StockName', FListA.Values['StockName']),
 
             SF('O_Truck', FListA.Values['Truck']),
+           // SF('O_YJZValue', FListA.Values['YJZValue']),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
             ], sTable_Order, '', True);
@@ -379,11 +381,64 @@ begin
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
 
+    if FListA.Values['BuDan'] = sFlag_Yes then //补单
+    begin
+      FListC.Clear;
+      FListC.Values['Group'] := sFlag_BusGroup;
+      FListC.Values['Object'] := sFlag_OrderDtl;
+
+      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+          FListC.Text, sFlag_Yes, @nOut) then
+        raise Exception.Create(nOut.FData);
+      //xxxxx
+
+      nStr := MakeSQLByStr([
+              SF('D_ID', nOut.FData),
+              SF('D_OID', nOId),
+              SF('D_Truck', FListA.Values['Truck']),
+              SF('D_ProID', FListA.Values['ProviderID']),
+              SF('D_ProName', FListA.Values['ProviderName']),
+              SF('D_ProPY', GetPinYinOfStr(FListA.Values['ProviderName'])),
+
+              SF('D_Type', sFlag_San),
+              SF('D_StockNo', FListA.Values['StockNO']),
+              SF('D_StockName', FListA.Values['StockName']),
+
+              SF('D_Status', sFlag_TruckOut),
+              SF('D_NextStatus', ''),
+              SF('D_InMan', ''),
+              SF('D_InTime', sField_SQLServer_Now, sfVal),
+              SF('D_PMan', FListA.Values['PMan']),
+              SF('D_MMan', FListA.Values['MMan']),
+              SF('D_YMan', ''),
+              SF('D_PValue', FListA.Values['PValue']),
+              SF('D_MValue', FListA.Values['MValue']),
+              SF('D_KZValue', '0')
+              ], sTable_OrderDtl, '', True);
+
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_KZValue, D_InTime= DATEADD(MI, 2, D_InTime), D_YSResult=''Y'' Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_MDate= DATEADD(MI, 3, D_InTime) Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_YTime= DATEADD(MI, 2, D_MDate)  Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_PDate= DATEADD(MI, 3, D_YTime)  Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 3, D_PDate) Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
+
     nIdx := Length(FOut.FData);
     if Copy(FOut.FData, nIdx, 1) = ',' then
       System.Delete(FOut.FData, nIdx, 1);
     //xxxxx
-    
+
     FDBConn.FConn.CommitTrans;
     Result := True;
   except
@@ -393,7 +448,7 @@ begin
 end;
 
 //Date: 2015-8-5
-//Desc: 保存采购单
+//Desc: 删除采购单
 function TWorkerBusinessOrders.DeleteOrder(var nData: string): Boolean;
 var nStr,nP: string;
     nIdx: Integer;
@@ -408,7 +463,7 @@ begin
   begin
     if Fields[0].AsInteger > 0 then
     begin
-      nData := '采购单[ %s ]已使用.';
+      nData := '采购单[ %s ]已使用、不能删除.';
       nData := Format(nData, [FIn.FData]);
       Exit;
     end;

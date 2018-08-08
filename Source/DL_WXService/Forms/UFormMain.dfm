@@ -1,8 +1,8 @@
 object fFormMain: TfFormMain
-  Left = 387
-  Top = 246
-  Width = 892
-  Height = 606
+  Left = 378
+  Top = 182
+  Width = 790
+  Height = 575
   Caption = #19994#21153#20013#38388#20214
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -19,7 +19,7 @@ object fFormMain: TfFormMain
     Left = 0
     Top = 48
     Width = 180
-    Height = 501
+    Height = 469
     Align = alLeft
     Color = 14408641
     ActiveGroupIndex = 0
@@ -197,13 +197,13 @@ object fFormMain: TfFormMain
   object PanelTitle: TPanel
     Left = 0
     Top = 0
-    Width = 876
+    Width = 774
     Height = 48
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      876
+      774
       48)
     object ImgLeft: TImage
       Left = 0
@@ -800,7 +800,7 @@ object fFormMain: TfFormMain
     object ImgClient: TImage
       Left = 289
       Top = 0
-      Width = 587
+      Width = 485
       Height = 48
       Align = alClient
       Picture.Data = {
@@ -916,7 +916,7 @@ object fFormMain: TfFormMain
       Stretch = True
     end
     object LabelHint: TcxLabel
-      Left = 542
+      Left = 440
       Top = 16
       Anchors = [akTop, akRight]
       Caption = #36890#29992#20013#38388#20214#26694#26550
@@ -938,8 +938,8 @@ object fFormMain: TfFormMain
   end
   object SBar: TStatusBar
     Left = 0
-    Top = 549
-    Width = 876
+    Top = 517
+    Width = 774
     Height = 19
     Panels = <
       item
@@ -955,8 +955,8 @@ object fFormMain: TfFormMain
   object PanelWork: TPanel
     Left = 180
     Top = 48
-    Width = 696
-    Height = 501
+    Width = 594
+    Height = 469
     Align = alClient
     BevelOuter = bvNone
     DockSite = True

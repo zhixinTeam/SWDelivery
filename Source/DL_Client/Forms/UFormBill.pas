@@ -47,7 +47,7 @@ type
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Item14: TdxLayoutItem;
     PrintHY: TcxCheckBox;
-    dxLayout1Item15: TdxLayoutItem;
+    dxlytm_ICCard: TdxLayoutItem;
     EdtICCardNo: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -102,6 +102,7 @@ type
     FStockSeal: string;
     FPrice: Double;
     FValue: Double;
+    FYfPrice: Double;
     FSelecte: Boolean;
   end;
 
@@ -176,7 +177,7 @@ begin
          FBuDanFlag := sFlag_Yes
     else FBuDanFlag := sFlag_No;
 
-    if Assigned(nParam) then
+    if Assigned(nParam) then           
     with PFormCommandParam(nParam)^ do
     begin
       FCommand := cCmd_ModalResult;
@@ -228,6 +229,10 @@ begin
   {$ELSE}
   dxLayout1Item14.Visible := False;
   PrintHY.Checked := False;
+  {$ENDIF}
+
+  {$IFDEF CreateBillByICCard}
+  dxlytm_ICCard.Caption:= '身份证号:';
   {$ENDIF}
 
   AdjustCtrlData(Self);
@@ -323,6 +328,7 @@ begin
       FStockNO := FieldByName('D_StockNo').AsString;
       FStockName := FieldByName('D_StockName').AsString;
       FPrice := FieldByName('D_Price').AsFloat;
+      FYfPrice := FieldByName('D_YunFei').AsFloat;
 
       FValue := 0;
       FSelecte := False;
@@ -449,7 +455,7 @@ begin
 
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
-    EditFQ.Text := nIni.ReadString('EditFQ', GetCtrlData(EditStock), '');
+    //EditFQ.Text := nIni.ReadString('EditFQ', GetCtrlData(EditStock), '');
   finally
     nIni.Free;
   end;
@@ -598,6 +604,13 @@ begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
 
+  {$IFDEF CreateBillByICCard}
+  if Trim(EdtICCardNo.Text)='' then
+  begin
+    ShowMsg('请输入开单人身份证号', sHint); Exit;
+  end;
+  {$ENDIF}
+
   nStocks := TStringList.Create;
   nList := TStringList.Create;
   nTmp := TStringList.Create;
@@ -629,6 +642,7 @@ begin
       Values['Seal']  := FStockSeal;
       Values['Price'] := FloatToStr(FPrice);
       Values['Value'] := FloatToStr(FValue);
+      Values['YunFeiPrice'] := FloatToStr(FYfPrice);
 
       if PrintGLF.Checked  then
            Values['PrintGLF'] := sFlag_Yes

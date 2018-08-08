@@ -1,7 +1,7 @@
 inherited fFormPurchaseOrder: TfFormPurchaseOrder
-  Left = 451
-  Top = 243
-  ClientHeight = 334
+  Left = 841
+  Top = 258
+  ClientHeight = 412
   ClientWidth = 477
   OnClose = FormClose
   OnCreate = FormCreate
@@ -9,22 +9,22 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 477
-    Height = 334
+    Height = 412
     AutoControlTabOrders = False
     inherited BtnOK: TButton
       Left = 331
-      Top = 301
+      Top = 379
       Caption = #24320#21333
       TabOrder = 8
     end
     inherited BtnExit: TButton
       Left = 401
-      Top = 301
+      Top = 379
       TabOrder = 10
     end
     object EditValue: TcxTextEdit [2]
       Left = 279
-      Top = 236
+      Top = 245
       ParentFont = False
       TabOrder = 7
       Text = '0.00'
@@ -89,7 +89,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditTruck: TcxButtonEdit [9]
       Left = 81
-      Top = 236
+      Top = 245
       ParentFont = False
       Properties.Buttons = <
         item
@@ -103,7 +103,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditCardType: TcxComboBox [10]
       Left = 81
-      Top = 261
+      Top = 270
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.Items.Strings = (
@@ -114,8 +114,60 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object cxLabel1: TcxLabel [11]
       Left = 221
-      Top = 261
+      Top = 270
       Caption = #27880':'#20020#26102#21345#20986#21378#26102#22238#25910';'#22266#23450#21345#20986#21378#26102#19981#22238#25910
+      ParentFont = False
+    end
+    object Edt_PValue: TcxTextEdit [12]
+      Left = 81
+      Top = 320
+      ParentFont = False
+      TabOrder = 16
+      OnKeyPress = Edt_PValueKeyPress
+      Width = 125
+    end
+    object Edt_MValue: TcxTextEdit [13]
+      Left = 81
+      Top = 295
+      ParentFont = False
+      TabOrder = 15
+      OnKeyPress = Edt_PValueKeyPress
+      Width = 135
+    end
+    object Edt_MMan: TcxTextEdit [14]
+      Left = 279
+      Top = 291
+      ParentFont = False
+      TabOrder = 17
+      Width = 135
+    end
+    object Edt_PMan: TcxTextEdit [15]
+      Left = 279
+      Top = 316
+      ParentFont = False
+      TabOrder = 18
+      Width = 135
+    end
+    object Edt_Man: TcxTextEdit [16]
+      Left = 81
+      Top = 345
+      ParentFont = False
+      TabOrder = 19
+      Width = 135
+    end
+    object edt_YsJz: TcxTextEdit [17]
+      Left = 81
+      Top = 220
+      ParentFont = False
+      TabOrder = 20
+      Text = '0.00'
+      OnKeyPress = Edt_PValueKeyPress
+      Width = 135
+    end
+    object cxlbl1: TcxLabel [18]
+      Left = 221
+      Top = 220
+      Caption = #27880':'#36135#28304#21333#20301#20986#20855#30340#20928#37325
       ParentFont = False
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
@@ -164,38 +216,83 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
         AutoAligns = [aaHorizontal]
         AlignVert = avClient
         Caption = #25552#21333#20449#24687
-        LayoutDirection = ldHorizontal
-        object dxLayout1Group2: TdxLayoutGroup
+        object dxlytgrphyjz: TdxLayoutGroup
           ShowCaption = False
           Hidden = True
+          LayoutDirection = ldHorizontal
           ShowBorder = False
-          object dxlytmLayout1Item12: TdxLayoutItem
-            Caption = #25552#36135#36710#36742':'
-            Control = EditTruck
+          object dxlytmYSJZ: TdxLayoutItem
+            Caption = #21407#22987#20928#37325':'
+            Control = edt_YsJz
             ControlOptions.ShowBorder = False
           end
-          object dxLayout1Item3: TdxLayoutItem
-            Caption = #21345#29255#31867#22411':'
-            Control = EditCardType
+          object dxlytmHYJz: TdxLayoutItem
+            Control = cxlbl1
             ControlOptions.ShowBorder = False
           end
         end
-        object dxLayout1Group4: TdxLayoutGroup
+        object dxlytgrpYSJZ: TdxLayoutGroup
           ShowCaption = False
           Hidden = True
+          LayoutDirection = ldHorizontal
           ShowBorder = False
-          object dxLayout1Item8: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            AlignHorz = ahClient
-            Caption = #21150#29702#21544#25968':'
-            Control = EditValue
-            ControlOptions.ShowBorder = False
-          end
-          object dxLayout1Item4: TdxLayoutItem
-            Caption = 'cxLabel1'
+          object dxLayout1Group2: TdxLayoutGroup
             ShowCaption = False
-            Control = cxLabel1
-            ControlOptions.ShowBorder = False
+            Hidden = True
+            ShowBorder = False
+            object dxlytmLayout1Item12: TdxLayoutItem
+              Caption = #25552#36135#36710#36742':'
+              Control = EditTruck
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item3: TdxLayoutItem
+              Caption = #21345#29255#31867#22411':'
+              Control = EditCardType
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item62: TdxLayoutItem
+              Caption = #36710#36742#27611#37325':'
+              Control = Edt_MValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item61: TdxLayoutItem
+              Caption = #36710#36742#30382#37325':'
+              Control = Edt_PValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item65: TdxLayoutItem
+              Caption = #24320' '#21333' '#20154':'
+              Control = Edt_Man
+              ControlOptions.ShowBorder = False
+            end
+          end
+          object dxLayout1Group4: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            ShowBorder = False
+            object dxLayout1Item8: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #21150#29702#21544#25968':'
+              Control = EditValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item4: TdxLayoutItem
+              Caption = 'cxLabel1'
+              ShowCaption = False
+              Control = cxLabel1
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item63: TdxLayoutItem
+              Caption = #27611#37325#21496#30917':'
+              Control = Edt_MMan
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item64: TdxLayoutItem
+              Caption = #30382#37325#21496#30917':'
+              Control = Edt_PMan
+              ControlOptions.ShowBorder = False
+            end
           end
         end
       end

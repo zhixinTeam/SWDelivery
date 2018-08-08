@@ -309,12 +309,13 @@ var nStr,nID,nSeal,nSave: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
-    {$IFDEF BatchInHYOfBill}
-    nSave := 'L_HYDan';
-    {$ELSE}
-    nSave := 'L_Seal';
-    {$ENDIF}
+//    {$IFDEF BatchInHYOfBill}
+//    nSave := 'L_HYDan';
+//    {$ELSE}
+//    nSave := 'L_Seal';
+//    {$ENDIF}
 
+    nSave:= 'L_Seal';
     nStr := SQLQuery.FieldByName(nSave).AsString;
     nSeal := nStr;
     if not ShowInputBox('请输入新的封签编号:', '修改', nSeal, 100) then Exit;

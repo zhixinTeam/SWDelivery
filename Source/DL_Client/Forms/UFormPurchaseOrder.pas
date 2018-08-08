@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxButtonEdit,
-  cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel;
+  cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormPurchaseOrder = class(TfFormNormal)
@@ -39,12 +40,29 @@ type
     cxLabel1: TcxLabel;
     dxLayout1Item4: TdxLayoutItem;
     dxLayout1Group4: TdxLayoutGroup;
+    dxlytmLayout1Item61: TdxLayoutItem;
+    Edt_PValue: TcxTextEdit;
+    dxlytmLayout1Item62: TdxLayoutItem;
+    Edt_MValue: TcxTextEdit;
+    dxlytmLayout1Item63: TdxLayoutItem;
+    Edt_MMan: TcxTextEdit;
+    dxlytmLayout1Item64: TdxLayoutItem;
+    Edt_PMan: TcxTextEdit;
+    dxlytmLayout1Item65: TdxLayoutItem;
+    Edt_Man: TcxTextEdit;
+    dxlytmYSJZ: TdxLayoutItem;
+    edt_YsJz: TcxTextEdit;
+    dxlytgrpYSJZ: TdxLayoutGroup;
+    dxlytmHYJz: TdxLayoutItem;
+    cxlbl1: TcxLabel;
+    dxlytgrphyjz: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
     procedure EditLadingKeyPress(Sender: TObject; var Key: Char);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure Edt_PValueKeyPress(Sender: TObject; var Key: Char);
   protected
     { Protected declarations }
     FCardData, FListA: TStrings;
@@ -67,7 +85,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, DB, IniFiles, UMgrControl, UAdjustForm, UFormBase, UBusinessPacker,
+  ULibFun, DB, IniFiles, UMgrControl, UAdjustForm, UFormBase, UBusinessPacker, UFormCtrl,
   UDataModule, USysBusiness, USysDB, USysGrid, USysConst;
 
 var
@@ -78,10 +96,12 @@ class function TfFormPurchaseOrder.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nStr: string;
     nP: PFormCommandParam;
+    nBuDan : Boolean;
 begin
   Result := nil;
   if GetSysValidDate < 1 then Exit;
 
+  nBuDan := nPopedom = 'MAIN_MF05';
   if not Assigned(nParam) then
   begin
     New(nP);
@@ -98,7 +118,19 @@ begin
 
   with TfFormPurchaseOrder.Create(Application) do
   try
-    Caption := '开采购单';
+    if nBuDan then //补单
+    begin
+      FBuDanFlag := sFlag_Yes;
+      Height:= 455;                Caption := '采购补单';
+    end
+    else
+    begin
+      FBuDanFlag := sFlag_No;      Caption := '开采购单';
+      Height:= 370;
+      dxlytmLayout1Item61.Visible:= False; dxlytmLayout1Item62.Visible:= False; dxlytmLayout1Item63.Visible:= False;
+      dxlytmLayout1Item64.Visible:= False; dxlytmLayout1Item65.Visible:= False;
+    end;
+
     ActiveControl := EditTruck;
 
     FCardData.Text := PackerDecodeStr(nStr);
@@ -216,10 +248,27 @@ end;
 
 //Desc: 保存
 procedure TfFormPurchaseOrder.BtnOKClick(Sender: TObject);
-var nOrder, nCardType: string;
+var nOrder, nCardType, nSQL: string;
 begin
   if not IsDataValid then Exit;
   //check valid
+
+  if FBuDanFlag=sflag_yes then
+  begin
+    if (StrToFloatDef(Trim((Edt_PValue.Text)), 0)<=0)or(StrToFloatDef(Trim((Edt_MValue.Text)), 0)<=0) then
+    begin
+      ShowMsg('请认真输入皮、毛重量数据', sHint);
+      Exit;
+    end;
+  end;
+
+  {$IFDEF PurchaseOrderChkJingZhong}
+  IF (StrToFloatDef(Trim((edt_YsJz.Text)), 0)<=0) then
+  begin
+    ShowMsg('请输入原始净重、才能开单', sHint);
+    Exit;
+  end;
+  {$ENDIF}
 
   with FListA do
   begin
@@ -241,9 +290,23 @@ begin
 
     Values['StockNO']       := FCardData.Values['SQ_StockNo'];
     Values['StockName']     := FCardData.Values['SQ_StockName'];
+
+    Values['BuDan'] := FBuDanFlag;
+
     if nCardType='L' then
           Values['Value']   := EditValue.Text
     else  Values['Value']   := '0.00';
+
+    Values['YJZValue'] := edt_YsJz.Text;     // 原始净重
+    //*******
+    if FBuDanFlag=sflag_yes then
+    begin
+      Values['Man']    := Edt_Man.Text;
+      Values['MMan']   := Edt_MMan.Text;
+      Values['PMan']   := Edt_PMan.Text;
+      Values['MValue'] := Edt_MValue.Text;
+      Values['PValue'] := Edt_PValue.Text;
+    end;
   end;
 
   nOrder := SaveOrder(PackerEncodeStr(FListA.Text));
@@ -253,11 +316,26 @@ begin
     PrintRCOrderReport(nOrder, True);
   //临时卡提示打印入厂  
 
-  SetOrderCard(nOrder, FListA.Values['Truck'], True);
+  nSQL := MakeSQLByStr([
+              SF('O_YJZValue', edt_YsJz.Text)
+              ], sTable_Order, SF('O_ID', nOrder), False);
+  FDM.ExecuteSQL(nSQL);
+  // 更新原始净重
+
+  if (FBuDanFlag <> sFlag_Yes) then
+    SetOrderCard(nOrder, FListA.Values['Truck'], True);
   //办理磁卡
 
-  ModalResult := mrOK;
+  if (FBuDanFlag <> sFlag_Yes) then
+    ModalResult := mrOK;
   ShowMsg('采购订单保存成功', sHint);
+end;
+
+procedure TfFormPurchaseOrder.Edt_PValueKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if not (Key in [#8, #13, #127, '.', '0'..'9', #22, #17]) then
+    Key := #0;
 end;
 
 initialization

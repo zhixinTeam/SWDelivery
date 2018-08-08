@@ -336,7 +336,7 @@ begin
    cBC_GetCardUsed         : Result := GetCardUsed(nData);
    cBC_ServerNow           : Result := GetServerNow(nData);                 
    cBC_GetSerialNO         : Result := GetSerailID(nData);
-
+                                                                             
    cBC_IsSystemExpired     : Result := IsSystemExpired(nData);
    cBC_GetCustomerMoney    : Result := GetCustomerValidMoney(nData);
    cBC_GetZhiKaMoney       : Result := GetZhiKaValidMoney(nData);
@@ -1033,6 +1033,16 @@ begin
     if nStr <> sFlag_Yes then Exit;
   end  else Exit;
   //默认不使用批次号
+
+  nStr := 'Select * From %s Where D_Name=''%s'' And D_Value=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_NoBatchAuto, FIn.FData]);
+  
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    Exit;
+  end;
+  //**********  无需批次品种
 
   Result := False; //Init
   nStr := 'Select *,%s as ServerNow From %s Where B_Stock=''%s''';

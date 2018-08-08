@@ -5,7 +5,7 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  UAndroidFormBase, FMX.Edit, FMX.Controls.Presentation, FMX.Layouts,
+  UAndroidFormBase, FMX.Edit, FMX.Controls.Presentation, FMX.Layouts, System.Character,
   UMITPacker,UClientWorker,UBusinessConst,USysBusiness,UMainFrom;
 
 type
@@ -30,6 +30,8 @@ type
     procedure BtnCancelClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure EditKZValueKeyDown(Sender: TObject; var Key: Word;
+      var KeyChar: Char; Shift: TShiftState);
   private
     { Private declarations }
   public
@@ -62,6 +64,17 @@ begin
     FKZValue := StrToFloatDef(EditKZValue.Text, 0);
 
     if SavePurchaseOrders('X', gOrders) then MainForm.Show;
+  end;
+end;
+
+procedure TFrmShowOrderInfo.EditKZValueKeyDown(Sender: TObject; var Key: Word;
+  var KeyChar: Char; Shift: TShiftState);
+begin
+  // 只能输入数字或控制字符
+  if not KeyChar.IsNumber and not KeyChar.IsControl then
+  begin
+    KeyChar := Char(0);
+    Key := 0;
   end;
 end;
 

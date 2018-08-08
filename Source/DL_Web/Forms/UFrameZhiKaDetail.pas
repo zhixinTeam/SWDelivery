@@ -96,7 +96,7 @@ uses
 procedure TfFrameZhiKaDetail.OnCreateFrame(const nIni: TIniFile);
 begin
   inherited;
-  FDateFilte := True;
+  FDateFilte := False;
   FValidFilte := True;
 
   MenuItem2.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
@@ -193,7 +193,7 @@ end;
 
 procedure TfFrameZhiKaDetail.AfterInitFormData;
 begin
-  FDateFilte := True;
+  FDateFilte := False;
   FValidFilte := True;
 end;
 
@@ -256,11 +256,11 @@ begin
   Result := '';
   if EditStock.ItemIndex < 1 then Exit;
 
-  if not (FDateFilte and FValidFilte) then
-  begin
-    EditStock.ItemIndex := 0;
-    Exit;
-  end;
+//  if not (FDateFilte and FValidFilte) then     //
+//  begin
+//    EditStock.ItemIndex := 0;
+//    Exit;
+//  end;
 
   nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex]);
   Result := FStockList[nIdx].FKey;

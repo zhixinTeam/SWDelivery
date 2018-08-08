@@ -240,10 +240,10 @@ begin
   //清空临时表
 
   nSQL := 'Select L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName,Sum(L_Value) as L_Value From $Bill ' +
+          'L_Type,L_StockNo,L_StockName,L_Price,Sum(L_Value) as L_Value From $Bill ' +
           'Where L_OutFact>=''$S'' And L_OutFact<=''$E'' ' +
           'Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName';
+          'L_Type,L_StockNo,L_StockName,L_Price';
   //xxxxx
 
   with TStringHelper,TDateTimeHelper do
@@ -260,7 +260,7 @@ begin
   //合并有效内容
 
   nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_SaleMan,' +
-    'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,' +
+    'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,R_Price,' +
     'R_Value) Select * From (%s) t';
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
@@ -269,7 +269,7 @@ begin
   ShowHintText('客户总提货量计算完毕!');
 
   //----------------------------------------------------------------------------
-  nSQL := 'Update $T Set $T.R_Price=$Z.D_Price,$T.R_KPrice=$Z.D_FLPrice, ' +
+  nSQL := 'Update $T Set $T.R_KPrice=$Z.D_FLPrice, ' +                          //$T.R_Price=$Z.D_Price,
           '$T.R_YunFei=$Z.D_YunFei From $Z Where $T.R_ZhiKa=$Z.D_ZID And ' +
           '$T.R_Stock=$Z.D_StockNo';
   //xxxxx

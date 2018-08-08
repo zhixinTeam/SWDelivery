@@ -10,22 +10,22 @@ inherited fFormPopedomUser: TfFormPopedomUser
     Left = 146
     Top = 293
     TabOrder = 1
-    ExplicitLeft = 122
-    ExplicitTop = 135
+    ExplicitLeft = 146
+    ExplicitTop = 293
   end
   inherited BtnExit: TUniButton
     Left = 229
     Top = 293
     TabOrder = 2
-    ExplicitLeft = 205
-    ExplicitTop = 135
+    ExplicitLeft = 229
+    ExplicitTop = 293
   end
   inherited PanelWork: TUniSimplePanel
     Width = 296
     Height = 277
     TabOrder = 0
-    ExplicitWidth = 272
-    ExplicitHeight = 119
+    ExplicitWidth = 296
+    ExplicitHeight = 277
     object EditName: TUniEdit
       Left = 65
       Top = 15
@@ -116,6 +116,15 @@ inherited fFormPopedomUser: TfFormPopedomUser
       Style = csDropDownList
       Text = ''
       TabOrder = 10
+    end
+    object Chk_VerifyCredit: TUniCheckBox
+      Left = 7
+      Top = 208
+      Width = 97
+      Height = 17
+      Hint = ''
+      Caption = #20449#29992#23457#26680
+      TabOrder = 11
     end
   end
 end

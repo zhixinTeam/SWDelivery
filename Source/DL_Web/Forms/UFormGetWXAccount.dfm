@@ -11,22 +11,22 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
     Left = 296
     Top = 277
     TabOrder = 1
-    ExplicitLeft = 288
-    ExplicitTop = 449
+    ExplicitLeft = 296
+    ExplicitTop = 277
   end
   inherited BtnExit: TUniButton
     Left = 379
     Top = 277
     TabOrder = 2
-    ExplicitLeft = 371
-    ExplicitTop = 449
+    ExplicitLeft = 379
+    ExplicitTop = 277
   end
   inherited PanelWork: TUniSimplePanel
     Width = 446
     Height = 261
     TabOrder = 0
-    ExplicitWidth = 438
-    ExplicitHeight = 433
+    ExplicitWidth = 446
+    ExplicitHeight = 261
     object Grid1: TUniStringGrid
       Left = 0
       Top = 49
@@ -59,8 +59,6 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      ExplicitWidth = 438
-      ExplicitHeight = 384
     end
     object UniSimplePanel1: TUniSimplePanel
       Left = 0
@@ -72,7 +70,6 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
       Align = alTop
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
-      ExplicitWidth = 438
       DesignSize = (
         446
         49)
@@ -94,7 +91,6 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
         OnChange = EditIDChange
-        ExplicitWidth = 289
       end
       object BtnFind: TUniButton
         Left = 368
@@ -109,7 +105,6 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
         ScreenMask.Message = #35835#21462#21830#22478#36134#25143#21015#34920
         ScreenMask.Target = Grid1
         OnClick = EditIDChange
-        ExplicitLeft = 360
       end
     end
   end

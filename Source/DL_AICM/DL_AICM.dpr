@@ -6,7 +6,8 @@ uses
   UMITPacker,
   UDataModule in 'forms\UDataModule.pas' {FDM: TDataModule},
   UFormMain in 'forms\UFormMain.pas' {fFormMain},
-  uReadCardThread in 'uReadCardThread.pas';
+  uReadCardThread in 'uReadCardThread.pas',
+  Util_utf8 in '..\DL_WXService\Common\Util_utf8.pas';
 
 {$R *.res}
 

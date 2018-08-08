@@ -60,6 +60,8 @@ type
     TimerAutoClose: TTimer;
     dxLayout1Group2: TdxLayoutGroup;
     PrintHY: TcxCheckBox;
+    edt_YunFei: TcxTextEdit;
+    dxlytmLayout1Item1: TdxLayoutItem;
     procedure BtnExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -206,7 +208,7 @@ end;
 
 function TfFormNewCard.DownloadOrder(const nCard: string): Boolean;
 var
-  nXmlStr,nData:string;
+  nXmlStr,nData, nStr:string;
   nListA,nListB:TStringList;
   i:Integer;
   nWebOrderCount:Integer;
@@ -239,14 +241,28 @@ begin
     for i := 0 to nWebOrderCount-1 do
     begin
       nListB.Text := PackerDecodeStr(nListA.Strings[i]);
+
+      FWebOrderItems[i].FYunTianOrderId := nListB.Values['fac_order_no'];
       FWebOrderItems[i].FOrder_id := nListB.Values['order_id'];
       FWebOrderItems[i].FOrdernumber := nListB.Values['ordernumber'];
       FWebOrderItems[i].FGoodsID := nListB.Values['goodsID'];
+      //*******************************************
+      nStr := 'Select D_StockName From %s a Join %s b on a.Z_ID = b.D_ZID ' +
+              'Where Z_ID=''%s'' and D_StockNo=''%s'' ';
+      nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,FWebOrderItems[i].FYunTianOrderId,FWebOrderItems[i].FGoodsID]);
+      with FDM.QueryTemp(nStr) do
+      begin
+        if RecordCount>0 then
+        begin
+          FWebOrderItems[i].FGoodsname  := Fields[0].AsString;
+        end;
+      end;
+      //*******************************************
       FWebOrderItems[i].FGoodstype := nListB.Values['goodstype'];
-      FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
+      //FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
       FWebOrderItems[i].FData := nListB.Values['data'];
       FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
-      FWebOrderItems[i].FYunTianOrderId := nListB.Values['fac_order_no'];
+
       AddListViewItem(FWebOrderItems[i]);
     end;
   finally
@@ -345,7 +361,7 @@ begin
   EditCus.Text    := '';
   EditCName.Text  := '';
 
-  nStr := 'select Z_Customer,D_Price from %s a join %s b on a.Z_ID = b.D_ZID ' +
+  nStr := 'Select Z_Customer,D_Price,D_YunFei From %s a join %s b on a.Z_ID = b.D_ZID ' +
           'where Z_ID=''%s'' and D_StockNo=''%s'' ';
 
   nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,nOrderItem.FYunTianOrderId,nOrderItem.FGoodsID]);
@@ -355,6 +371,7 @@ begin
     begin
       EditCus.Text    := Fields[0].AsString;
       EditPrice.Text  := Fields[1].AsString;
+      edt_YunFei.Text  := Fields[2].AsString;
     end;
   end;
 
@@ -480,25 +497,31 @@ begin
 
   nNewCardNo := '';
   Fbegin := Now;
-
-  //连续三次读卡均失败，则回收卡片，重新发卡
-  for i := 0 to 3 do
-  begin
-    for nIdx:=0 to 3 do
+                         
+  try
+    //连续三次读卡均失败，则回收卡片，重新发卡
+    for i := 0 to 3 do
     begin
-      if gMgrK720Reader.ReadCard(nNewCardNo) then Break;
-      //连续三次读卡,成功则退出。
+      for nIdx:=0 to 3 do
+      begin
+        if gMgrK720Reader.ReadCard(nNewCardNo) then Break;
+        //连续三次读卡,成功则退出。
+      end;
+      if nNewCardNo<>'' then Break;
+      gMgrK720Reader.RecycleCard;
     end;
-    if nNewCardNo<>'' then Break;
-    gMgrK720Reader.RecycleCard;
-  end;
 
-  if nNewCardNo = '' then
-  begin
-    ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
-    Exit;
+    if nNewCardNo = '' then
+    begin
+      ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
+      Exit;
+    end;
+  except on Ex:Exception do
+    begin
+      WriteLog('卡箱异常 '+Ex.Message);
+      ShowDlg('卡箱异常, 请联系管理人员.', sWarn, Self.Handle);
+    end;
   end;
-
   nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
   WriteLog(nNewCardNo);
   //解析卡片
@@ -519,6 +542,7 @@ begin
     nTmp.Values['StockNO'] := EditStock.Text;
     nTmp.Values['StockName'] := EditSName.Text;
     nTmp.Values['Price'] := EditPrice.Text;
+    nTmp.Values['YunFeiPrice'] := edt_YunFei.Text;
     nTmp.Values['Value'] := EditValue.Text;
 
     if PrintHY.Checked  then
@@ -539,7 +563,8 @@ begin
       Values['Seal'] := '';
       Values['HYDan'] := '';
       Values['WebOrderID'] := nWebOrderID;
-    end;                                      
+    end;
+    Writelog('单据内容：'+nList.Text);
     nBillData := PackerEncodeStr(nList.Text);
     FBegin := Now;
     nBillID := SaveBill(nBillData);
@@ -584,8 +609,11 @@ begin
   writelog('TfFormNewCard.SaveBillProxy 发卡机出卡并关联磁卡号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
 
   if nPrint then
-    PrintBillReport(nBillID, True);
+    PrintBillReport(nBillID, True);           
   //print report
+  {$IFDEF AICMPrintHGZ}
+  PrintHeGeReport(nBillID, False);
+  {$ENDIF}
 
   if nRet then Close;
 end;

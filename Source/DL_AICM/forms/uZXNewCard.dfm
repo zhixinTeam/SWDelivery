@@ -1,6 +1,6 @@
 object fFormNewCard: TfFormNewCard
-  Left = 358
-  Top = 91
+  Left = 374
+  Top = 117
   BorderStyle = bsNone
   Caption = #29992#25143#33258#21161#21150#21345
   ClientHeight = 597
@@ -126,7 +126,7 @@ object fFormNewCard: TfFormNewCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 8
+        TabOrder = 9
         OnClick = BtnOKClick
       end
       object BtnExit: TButton
@@ -141,7 +141,7 @@ object fFormNewCard: TfFormNewCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 9
+        TabOrder = 10
         OnClick = BtnExitClick
       end
       object EditValue: TcxTextEdit
@@ -292,6 +292,22 @@ object fFormNewCard: TfFormNewCard
         TabOrder = 5
         Width = 353
       end
+      object edt_YunFei: TcxTextEdit
+        Left = 652
+        Top = 230
+        ParentFont = False
+        Properties.ReadOnly = True
+        Style.BorderColor = clWindowFrame
+        Style.BorderStyle = ebs3D
+        Style.Font.Charset = DEFAULT_CHARSET
+        Style.Font.Color = clWindowText
+        Style.Font.Height = -24
+        Style.Font.Name = 'MS Sans Serif'
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 8
+        Width = 120
+      end
       object dxLayoutGroup1: TdxLayoutGroup
         AutoAligns = [aaHorizontal]
         ShowCaption = False
@@ -370,6 +386,11 @@ object fFormNewCard: TfFormNewCard
               object dxLayout1Item8: TdxLayoutItem
                 Caption = #21150#29702#21544#25968':'
                 Control = EditValue
+                ControlOptions.ShowBorder = False
+              end
+              object dxlytmLayout1Item1: TdxLayoutItem
+                Caption = #36816#36153#21333#20215':'
+                Control = edt_YunFei
                 ControlOptions.ShowBorder = False
               end
             end

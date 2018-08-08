@@ -383,7 +383,7 @@ begin
     with nCol do
     begin
       Title.Caption := 'Ä£¿é±êÊ¶';
-      Width := 100;
+      Width := 150;
     end;
 
     nCol := Grid1.Columns.Add as TUniGridColumn;

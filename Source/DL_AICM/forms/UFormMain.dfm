@@ -208,6 +208,7 @@ object fFormMain: TfFormMain
         Properties.Alignment.Vert = taVCenter
         Properties.WordWrap = True
         Transparent = True
+        OnClick = LabelHintClick
         Height = 124
         Width = 281
         AnchorX = 141

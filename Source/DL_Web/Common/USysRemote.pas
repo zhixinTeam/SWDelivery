@@ -253,21 +253,21 @@ end;
 //Desc: 读取商城注册账户列表
 function getWXCustomerList(const nData: string): string;
 var nOut: TWorkerBusinessCommand;
-{$IFDEF Debug}nList: TStrings;{$ENDIF}
+{$IFDEF DEBUG}nList: TStrings;{$ENDIF}
 begin
-  {$IFDEF Debug}
-  nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-  nList.Values['BindID'] := 'id';
-  nList.Values['Name'] := 'name_A';
-  nList.Values['Phone'] := 'Phone';
-
-  Result := PackerEncodeStr(nList.Text);
-  nList.Values['Name'] := 'name_B';
-  Result := Result + #13#10 + PackerEncodeStr(nList.Text);
-
-  gMG.FObjectPool.Release(nList);
-  Sleep(2000);
-  Exit;
+  {$IFDEF DEBUG}      // 该部分有问题
+//  nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+//  nList.Values['BindID'] := 'id';
+//  nList.Values['Name'] := 'name_A';
+//  nList.Values['Phone'] := 'Phone';
+//
+//  Result := PackerEncodeStr(nList.Text);
+//  nList.Values['Name'] := 'name_B';
+//  Result := Result + #13#10 + PackerEncodeStr(nList.Text);
+//
+//  gMG.FObjectPool.Release(nList);
+//  Sleep(2000);
+//  Exit;
   {$ENDIF}
 
   if CallBusinessWechat(cBC_WX_getCustomerInfo, nData, '', '', @nOut) then

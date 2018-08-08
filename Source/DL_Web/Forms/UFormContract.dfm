@@ -3,7 +3,7 @@ inherited fFormSaleContract: TfFormSaleContract
   ClientWidth = 544
   Caption = #21512#21516
   ExplicitWidth = 550
-  ExplicitHeight = 626
+  ExplicitHeight = 630
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
@@ -269,7 +269,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Width = 150
       Hint = ''
       MaxLength = 6
-      Text = '1'
+      Text = '360'
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12

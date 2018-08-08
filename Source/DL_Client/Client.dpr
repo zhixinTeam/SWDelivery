@@ -14,7 +14,8 @@ uses
   UFrameNormal in 'Forms\UFrameNormal.pas' {fFrameNormal: TFrame},
   UFormNormal in 'Forms\UFormNormal.pas' {fFormNormal},
   UFrameQueryOrderHD in 'Forms\UFrameQueryOrderHD.pas' {fFrameQueryOrderHD: TFrame},
-  UFramePurOrderImport in 'Forms\UFramePurOrderImport.pas' {fFramePurOrderImport: TFrame};
+  UFramePurOrderImport in 'Forms\UFramePurOrderImport.pas' {fFramePurOrderImport: TFrame},
+  UFormCustomerInitEdit in 'Forms\UFormCustomerInitEdit.pas' {fFormCustomerInitEdit};
 
 {$R *.res}
 var
@@ -43,6 +44,7 @@ begin
   Application.Initialize;
   Application.CreateForm(TFDM, FDM);
   Application.CreateForm(TfMainForm, fMainForm);
+  Application.CreateForm(TfFormCustomerInitEdit, fFormCustomerInitEdit);
   Application.Run;
 
   ReleaseMutex(gMutexHwnd);

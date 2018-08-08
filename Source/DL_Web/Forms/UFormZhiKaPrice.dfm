@@ -3,7 +3,7 @@ inherited fFormZKPrice: TfFormZKPrice
   ClientWidth = 466
   Caption = #32440#21345#35843#20215
   ExplicitWidth = 472
-  ExplicitHeight = 269
+  ExplicitHeight = 273
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton

@@ -24,6 +24,7 @@ type
     EditPhone: TUniEdit;
     UniLabel5: TUniLabel;
     EditGroup: TUniComboBox;
+    Chk_VerifyCredit: TUniCheckBox;
     procedure BtnOKClick(Sender: TObject);
   private
     { Private declarations }
@@ -125,6 +126,8 @@ begin
 
         nStr := FieldByName('U_Group').AsString;
         EditGroup.ItemIndex := StrListIndex(nStr, EditGroup.Items, 0, '.');
+        Chk_VerifyCredit.Checked:= StrToBoolDef(FieldByName('U_VerifyCredit').AsString, False);
+
         BtnOK.Enabled := True;
       end;
     end;
@@ -176,6 +179,7 @@ begin
     nStr := MakeSQLByStr([
       SF('U_Name', EditName.Text), SF('U_Password', EditPwd.Text),
       SF('U_Mail', EditMail.Text), SF('U_Phone', EditPhone.Text),
+      SF('U_VerifyCredit', BoolToStr(Chk_VerifyCredit.Checked)),
       SF('U_Group', GetIDFromBox(EditGroup), sfVal)
       ], sTable_User, SF('U_Name', nID), nBool);
     //xxxxx

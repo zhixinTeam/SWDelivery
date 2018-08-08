@@ -4,6 +4,8 @@
 *******************************************************************************}
 unit UFormBarcodePrint;
 
+{$I Link.Inc}
+
 interface
 
 uses
@@ -101,6 +103,7 @@ var
   nBillno:string;
   nMsg:string;
   nStatus:string;
+
 begin
   Result := False;
   nStr := 'select * from %s where WOM_WebOrderID=''%s'' ';  // and WOM_deleted=''%s''   , sFlag_No
@@ -111,7 +114,7 @@ begin
     if RecordCount<1 then
     begin
       nMsg := '商城订单号不存在或已删除';
-      ShowMsg(nMsg,sHint);
+      ShowMsg(nMsg, sHint);
       Writelog(nMsg);
       Exit;
     end;
@@ -128,7 +131,7 @@ begin
     if RecordCount<1 then
     begin
       nMsg := '未能找到相关订单、请确认您输入的订单号';
-      ShowMsg(nMsg,sHint);
+      ShowMsg(nMsg, sHint);
       Writelog(nMsg);
       Exit;
     end;
@@ -137,7 +140,7 @@ begin
     if (nStatus<>sFlag_TruckBFM) and (nStatus<>sFlag_TruckOut) then
     begin
       nMsg := '请在称完毛重或者车辆出厂后再扫描二维码图片打印化验单';
-      ShowMsg(nMsg,sHint);
+      ShowMsg(nMsg, sHint);
       Writelog(nMsg);
       Exit;
     end;
@@ -145,25 +148,42 @@ begin
     if (FieldByName('H_PrintNum').AsInteger>1) then
     begin
       nMsg := '您已打印过化验单、如有需要再次打印请联系工作人员处理';
-      ShowMsg(nMsg,sHint);
+      ShowMsg(nMsg, sHint);
       Writelog('单号：'+nBillno+' 再次自助打印化验单、已拒绝本次请求');
       Exit;
     end;
   end;
 
-  nStr := ' Select H_CusName, H_SerialNo, H_Reporter, ISNULL(H_PrintNum, 0)H_PrintNum, P_Stock, P_Name '+
+  {$IFDEF ChkPopedomPrintHYD}
+  nStr:= 'Select L_ID, L_CusName, C_InstantPrintHYD From $Bill '+
+         'Left   Join $Customer On L_CusID=C_ID '+
+         'Where  L_ID=''$ID'' And C_InstantPrintHYD=''Y'' And DATEDIFF(day, L_OutFact, GETDATE())>=3';
+
+  nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
+          MI('$Customer', sTable_Customer), MI('$ID', nBillno)]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nMsg := '您的订单所属批次的化验结果尚未检测完毕、请按照约定时间前来打印';
+    ShowMsg(nMsg, sHint);
+    Exit;
+  end;
+  {$ENDIF}
+
+  nStr := ' Select H_CusName, H_SerialNo, H_Reporter, ISNULL(H_PrintNum, 0) H_PrintNum, P_Stock, P_Name '+
           ' From S_StockHuaYan hy  Left Join S_Customer cus on cus.C_ID=hy.H_Custom           '+
           ' Left Join (Select R_SerialNo,P_Type,P_Stock,P_Name,P_QLevel From S_StockRecord sr '+
           ' Left Join S_StockParam sp on sp.P_ID=sr.R_PID) sr on sr.R_SerialNo=H_SerialNo     '+
           ' Where H_Reporter=''%s''';
 
   nStr := Format(nStr, [nBillno]);
-  with fdm.QueryTemp(nStr) do
+  with FDM.QueryTemp(nStr) do
   begin
     if (RecordCount<1)or(FieldByName('P_Stock').AsString='') then
     begin
-      nMsg := '您的订单所属批次的化验结果尚未有记录、请按照约定时间前来打印';
-      ShowMsg(nMsg,sHint);
+      nMsg := '您的订单所属批次的化验结果尚未检测完毕、请按照约定时间前来打印';
+      ShowMsg(nMsg, sHint);
       Writelog(nMsg);
       Exit;
     end;
