@@ -61,6 +61,20 @@ inherited fFrameQueryPurchaseStockOddDays: TfFrameQueryPurchaseStockOddDays
         Font.Charset = GB2312_CHARSET
         Font.Height = -12
         Font.Name = #23435#20307
+        OnChange = EdtSearchTimeChange
+      end
+      object UnLbl1: TUniLabel
+        Left = 262
+        Top = 17
+        Width = 276
+        Height = 12
+        Hint = ''
+        Caption = #31579#36873#35813#26085#26399#20043#21069#24050#20986#21378#21333#25454#12289#19981#21547#24403#21069#26085#26399#26694#20869#26085#26399
+        ParentFont = False
+        Font.Charset = GB2312_CHARSET
+        Font.Height = -12
+        Font.Name = #23435#20307
+        TabOrder = 3
       end
     end
     inherited DBGridMain: TUniDBGrid
@@ -109,5 +123,10 @@ inherited fFrameQueryPurchaseStockOddDays: TfFrameQueryPurchaseStockOddDays
         MarkerConfig.Radius = 2
       end
     end
+  end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
 end

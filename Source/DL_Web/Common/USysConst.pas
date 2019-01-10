@@ -316,6 +316,8 @@ begin
   AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
   AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');
   AddMenuModuleItem('MAIN_D06', 'TfFrameBill');
+  AddMenuModuleItem('MAIN_DXL02', 'TfFrameSalePlan');
+
 
   AddMenuModuleItem('MAIN_K03', 'TfFrameHYData');
 

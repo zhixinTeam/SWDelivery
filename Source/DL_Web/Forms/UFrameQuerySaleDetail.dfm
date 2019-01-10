@@ -36,7 +36,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
       Width = 991
       ExplicitWidth = 991
       object Label2: TUniLabel
-        Left = 351
+        Left = 293
         Top = 17
         Width = 54
         Height = 12
@@ -49,7 +49,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         TabOrder = 1
       end
       object EditCustomer: TUniEdit
-        Left = 409
+        Left = 351
         Top = 12
         Width = 108
         Hint = ''
@@ -63,7 +63,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         OnKeyPress = EditTruckKeyPress
       end
       object Label3: TUniLabel
-        Left = 734
+        Left = 676
         Top = 17
         Width = 54
         Height = 12
@@ -76,7 +76,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         TabOrder = 3
       end
       object EditDate: TUniEdit
-        Left = 792
+        Left = 734
         Top = 12
         Width = 160
         Hint = ''
@@ -91,7 +91,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         OnKeyPress = EditTruckKeyPress
       end
       object BtnDateFilter: TUniBitBtn
-        Left = 954
+        Left = 896
         Top = 12
         Width = 25
         Height = 22
@@ -116,7 +116,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
       object EditBill: TUniEdit
         Left = 70
         Top = 12
-        Width = 108
+        Width = 83
         Hint = ''
         Text = ''
         ParentFont = False
@@ -128,7 +128,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         OnKeyPress = EditTruckKeyPress
       end
       object Label4: TUniLabel
-        Left = 187
+        Left = 165
         Top = 17
         Width = 54
         Height = 12
@@ -141,9 +141,9 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         TabOrder = 8
       end
       object EditTruck: TUniEdit
-        Left = 245
+        Left = 223
         Top = 12
-        Width = 97
+        Width = 60
         Hint = ''
         Text = ''
         ParentFont = False
@@ -155,7 +155,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         OnKeyPress = EditTruckKeyPress
       end
       object UniLabel1: TUniLabel
-        Left = 525
+        Left = 467
         Top = 17
         Width = 48
         Height = 12
@@ -168,7 +168,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
         TabOrder = 10
       end
       object cbb_Stock: TUniComboBox
-        Left = 579
+        Left = 521
         Top = 12
         Width = 145
         Hint = ''

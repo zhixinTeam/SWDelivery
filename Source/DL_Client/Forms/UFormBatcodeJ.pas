@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormBatcodeJ;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -60,6 +61,8 @@ type
     dxLayout1Item3: TdxLayoutItem;
     Check3: TcxCheckBox;
     dxLayout1Group4: TdxLayoutGroup;
+    dxlytm_Fact: TdxLayoutItem;
+    cbb_Factory: TcxComboBox;
     procedure BtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
@@ -70,6 +73,7 @@ type
     procedure LoadFormData(const nID: string);
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
     //验证数据
+    procedure LoadStockFactory;
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -106,6 +110,12 @@ begin
       FRecordID := nP.FParamA;
     end;
 
+    {$IFDEF SetStdMValue}
+    dxlytm_Fact.caption:= '';
+    cbb_Factory.Visible:= False;
+    {$endif}
+
+    LoadStockFactory;
     LoadFormData(FRecordID); 
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
@@ -123,6 +133,29 @@ procedure TfFormBatcode.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
   ReleaseCtrlData(Self);
+end;
+
+// 加载开单工厂
+procedure TfFormBatcode.LoadStockFactory;
+var nStr: string;
+    i,nIdx: integer;
+begin
+  cbb_Factory.Clear;
+  cbb_Factory.Properties.Items.Clear;
+  nStr := ' Select * From Sys_Dict Where D_Name=''BillFromFactory''';
+  //扩展信息
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    First;
+    while not Eof do
+    begin
+        nStr := FieldByName('D_Value').AsString;
+        cbb_Factory.Properties.Items.Add(nStr);
+        Next;
+    end;
+  end;
 end;
 
 procedure TfFormBatcode.LoadFormData(const nID: string);
@@ -143,6 +176,8 @@ begin
 
     with FDM.SqlTemp do
     begin
+      nStr := FieldByName('B_SendFactory').AsString;
+      SetCtrlData(cbb_Factory, nStr);
       nStr := FieldByName('B_Stock').AsString;
       SetCtrlData(EditStock, nStr);
 
@@ -182,6 +217,15 @@ var nStr: string;
 begin
   Result := True;
 
+  {$IFDEF SendMorefactoryStock}
+  if Sender = cbb_Factory then
+  begin
+    Result := cbb_Factory.ItemIndex >= 0;
+    nHint := '请选择所属工厂';
+    if not Result then Exit;
+  end;
+  {$endif}
+  
   if Sender = EditStock then
   begin
     Result := EditStock.ItemIndex >= 0;
@@ -189,6 +233,9 @@ begin
     if not Result then Exit;
 
     nStr := 'Select R_ID From %s Where B_Stock=''%s''';
+      {$IFDEF SendMorefactoryStock}
+       nStr := nStr + ' And B_SendFactory='''+GetCtrlData(cbb_Factory)+'''';
+      {$endif}
     nStr := Format(nStr, [sTable_StockBatcode, GetCtrlData(EditStock)]);
 
     with FDM.QueryTemp(nStr) do
@@ -273,6 +320,10 @@ begin
           SF('B_Length', EditLen.Text, sfVal),
           SF('B_Incement', EditInc.Text, sfVal),
           SF('B_UseDate', nU),
+
+          {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂获取批次 声威
+          SF('B_SendFactory', GetCtrlData(cbb_Factory)),
+          {$ENDIF}
 
           SF('B_Value', EditValue.Text, sfVal),
           SF('B_Low', EditLow.Text, sfVal),

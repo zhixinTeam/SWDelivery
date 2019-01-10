@@ -100,21 +100,24 @@ begin
   //********************
   with TStringHelper, TDateTimeHelper do
   begin
-    nStr   := 'Select  Case when a.L_StockName=''(µÍ¼î)ÊìÁÏ'' then ''V'' else a.L_Type end L_Type, a.L_StockName, ISNULL(c.Value, 0) DayValue, CONVERT(decimal(15,2), ISNULL(c.L_Price, 0)) DayPrice, ISNULL(c.L_Money, 0) DayMoney,  ' +
+    nStr   := 'Select  Case when a.L_StockName Like ''%Êì%'' then ''U¡¢ÊìÁÏ'' when a.L_StockName like ''%¹ÇÁÏ%'' then ''V¡¢¹ÇÁÏ'' '+
+                    'when a.L_StockName like ''%´ü%'' then ''D¡¢´ü×°'' '+
+              '      when a.L_StockName like ''%É¢%'' then ''D¡¢É¢×°'' else a.L_Type end L_Type, '+
+                          'a.L_StockName, ISNULL(c.Value, 0) DayValue, CONVERT(decimal(15,2), ISNULL(c.L_Price, 0)) DayPrice, ISNULL(c.L_Money, 0) DayMoney,  ' +
                           'ISNULL(b.Value, 0) MonthValue, CONVERT(decimal(15,2), ISNULL(b.L_Price, 0)) MonthPrice, ISNULL(b.L_Money, 0) MonthMoney,    ' +
                           'a.Value YearValue, CONVERT(decimal(15,2), a.L_Price) YearPrice, a.L_Money YearMoney From (      ' +
-              '        Select L_Type, L_StockName, AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(L_Value * L_Price) as L_Money From $Bill ' +
+              '        Select L_Type, L_StockName, AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(CONVERT(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money From $Bill ' +
               '        Where (L_OutFact>=''$YearSTime'' and L_OutFact <''$ETime'')    ' +
               '        Group  by  L_Type, L_StockName) a     ' +
               '        left Join (      ' +
-              '        Select L_Type, L_StockName,  AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(L_Value * L_Price) as L_Money From $Bill ' +
+              '        Select L_Type, L_StockName,  AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(CONVERT(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money From $Bill ' +
               '        Where (L_OutFact>=''$MounthSTime'' and L_OutFact <''$ETime'')     ' +
               '        Group  by  L_Type, L_StockName) b On a.L_StockName=b.L_StockName   ' +
               '        left Join (    ' +
-              '        Select L_Type, L_StockName,  AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(L_Value * L_Price) as L_Money From $Bill  ' +
+              '        Select L_Type, L_StockName,  AVG(L_Price) L_Price, SUM(L_Value) as Value, Sum(CONVERT(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money From $Bill  ' +
               '        Where (L_OutFact>=''$DaySTime'' and L_OutFact <''$ETime'')   ' +
               '        Group  by  L_Type, L_StockName) c On a.L_StockName=c.L_StockName  ' +
-              '        Order  by  a.L_Type, b.L_StockName Desc  ';
+              '        Order  by  a.L_Type Desc, b.L_StockName ASC  ';
 
     Result := MacroValue(nStr, [MI('$Bill', sTable_Bill), MI('$YearSTime', FormatDateTime('yyyy-01-01 00:00:00', FSearchDate)),
                                   MI('$MounthSTime', FormatDateTime('yyyy-MM-01 00:00:00', FSearchDate)),

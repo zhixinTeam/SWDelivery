@@ -14,7 +14,7 @@ uses
   UFrameLog, UFrameSysLog, UFormIncInfo, UFormBackupSQL, UFormRestoreSQL,
   UFormPassword, UFormBaseInfo, UFrameAuthorize, UFormAuthorize, UFormOptions,
   UFrameCustomer, UFormCustomer, UFormGetCustom, UFrameSalesMan, UFormSalesMan,
-  UFrameSaleContract, UFormSaleContract, UFrameZhiKa, UFormZhiKa,
+  UFrameSaleContract, UFormSaleContract, UFrameZhiKa, UFormZhiKa, UFormCtlCusbd,
   UFormGetContract, UFormZhiKaAdjust, UFormZhiKaFixMoney, UFrameZhiKaVerify,
   UFormZhiKaVerify, UFrameShouJu, UFormShouJu, UFramePayment, UFormPayment,
   UFrameCustomerCredit, UFormCustomerCredit, UFrameCusAccount,
@@ -25,13 +25,14 @@ uses
   UFormBill, UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
   UFormZhiKaPrice, UFrameQueryDiapatch, UFrameTruckQuery, UFrameBillCard,
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
+  UFormLadingDuanDao,
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,      
   UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormTransfer, UFrameTransfer, UFrameQueryTransferDetail,
-  UFrameQueryDuanDaoFH, UFrameBillHYDanHD,
+  UFrameQueryDuanDaoFH, UFrameBillHYDanHD, UFrameBillSalePlan, UFrameQuerySyncOrderForNC,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
@@ -40,13 +41,15 @@ uses
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
   UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
-  UFormGetPOrderBase, UFormOrderDtl, UFormCstmerCategoryInfo, UFormSaleXLPlan,
+  UFormGetPOrderBase, UFormOrderDtl, UFormCstmerCategoryInfo, UFormSalePlan,
   {.$ENDIF}
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
 
+
+  
 procedure InitSystemObject;
 procedure RunSystemObject;
 procedure FreeSystemObject;
@@ -120,6 +123,13 @@ begin
     end;
   end;
 
+  nStr := 'Select D_Value From %s Where D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict,sFlag_NCServiceMIT]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    gSysParam.FNcURL := Fields[0].AsString;
+  end;
   //----------------------------------------------------------------------------
   with gSysParam do
   begin

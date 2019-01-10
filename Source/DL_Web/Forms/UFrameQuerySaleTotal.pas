@@ -11,7 +11,7 @@ uses
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu,
   uniRadioButton, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, uniGUIBaseClasses;
+  uniToolBar, uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQuerySaleTotal = class(TfFrameBase)
@@ -114,7 +114,7 @@ begin
     if Radio1.Checked then
     begin
       Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName, '''' L_Type, ' +
-                'Sum(L_Value) as L_Value,Sum(L_Value * L_Price) as L_Money ' +
+                'Sum(L_Value) as L_Value,Sum(Convert(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money ' +
                 'From $Bill ';
       //xxxxx
     end else
@@ -123,13 +123,13 @@ begin
     begin
       Result := 'select '''' as L_CusID,'''' as L_CusName,L_Type,' +
                 'L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
-                'Sum(L_Value * L_Price) as L_Money From $Bill ';
+                'Sum(Convert(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money From $Bill ';
       //xxxxx
     end else
     begin
       Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_Type,' +
                 'L_StockNo,L_StockName,Sum(L_Value) as L_Value, L_Price,' +
-                'Sum(L_Value * L_Price) as L_Money From $Bill ';
+                'Sum(Convert(Decimal(15,2), L_Value * (L_Price+L_YunFei))) as L_Money, L_YunFei From $Bill ';
       //xxxxx
     end;
 
@@ -164,7 +164,7 @@ begin
     end else
     begin
       Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,' +
-                'L_Type,L_StockNo,L_StockName,L_Price';
+                'L_Type,L_StockNo,L_StockName,L_Price,L_YunFei';
       //xxxxx
     end;
 
@@ -173,7 +173,7 @@ begin
     //xxxxx
 
     if Radio1.Checked or Radio2.Checked then
-    Result := 'Select *,(case IsNull(L_Value,0) when 0 then 0 else convert(decimal(15,2),' +
+    Result := 'Select *,(case IsNull(L_Value,0) when 0 then 0 else Convert(Decimal(15,2),' +
               'L_Money/L_Value) end) as L_Price From (' + Result + ') t';
     //¼ÆËã¾ù¼Û
 
@@ -222,8 +222,12 @@ begin
         Sortable:= not DBGridMain.Grouping.Enabled;
         nstr:= FieldName;
         if (FieldName='DayValue')or(FieldName='MonthValue')or
-          (Radio1.Checked and((FieldName='L_StockNo')or(FieldName='L_StockName'))or
-          (Radio2.Checked and((FieldName='L_CusID')or(FieldName='L_CusName'))))then
+          (Radio1.Checked and((FieldName='L_StockNo')or(FieldName='L_StockName')
+                                or(FieldName='L_YunFei')or(FieldName='L_Type'))or
+          (Radio2.Checked and((FieldName='L_CusID')or(FieldName='L_CusName')
+                                or(FieldName='L_YunFei')or(FieldName='L_Type')))
+
+          )then
           Visible:= False
         else Visible:= True;
       end;

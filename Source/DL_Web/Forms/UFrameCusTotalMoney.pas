@@ -13,7 +13,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   uniGUITypes, Data.Win.ADODB, UFrameBase, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameCusTotalMoney = class(TfFrameBase)
@@ -116,7 +117,7 @@ begin
     //期初:合并入金
 
     nStr := 'Update #total Set C_Init=C_Init-IsNull(L_Money,0) From (' +
-      'Select L_CusID,Sum(L_Price*L_Value) as L_Money From %s ' +
+      'Select L_CusID,Sum(CONVERT(Decimal(15,2), (L_Price+L_YunFei)*L_Value)) as L_Money From %s ' +
       'Where L_OutFact<''$ST'' Group By L_CusID) t Where C_ID=L_CusID';
     nStr := Format(nStr, [sTable_Bill]);
     nList.Add(nStr);

@@ -33,6 +33,7 @@ type
 
   PTruckItem = ^TTruckItem;
   TTruckItem = record
+    FCusName    : string;      //客户名称
     FEnable     : Boolean;
     FTruck      : string;      //车牌号
     FStockNo    : string;      //物料号
@@ -66,6 +67,7 @@ type
     FDelayQueue : Boolean;     //延时排队(厂内)
     FPoundQueue : Boolean;     //延时排队(厂内依据过皮时间)
     FNetVoice   : Boolean;     //网络播放语音
+    FSaleCardTimeOut : Integer;   //销售卡进厂超时
   end;
 
   TStockMatchItem = record
@@ -166,6 +168,7 @@ type
     //启停队列
     function IsTruckAutoIn: Boolean;
     function IsTruckAutoOut: Boolean;
+    function SaleCardInTimeDiff: Integer;
     function IsDaiQueueClosed: Boolean;
     function IsSanQueueClosed: Boolean;
     function IsDelayQueue: Boolean;
@@ -310,6 +313,19 @@ begin
   try
     FSyncLock.Enter;
     Result := FDBReader.FParam.FAutoOut;
+  finally
+    FSyncLock.Leave;
+  end;
+end;
+
+function TTruckQueueManager.SaleCardInTimeDiff: Integer;
+begin
+  Result := 1200;
+
+  if Assigned(FDBReader) then
+  try
+    FSyncLock.Enter;
+    Result := FDBReader.FParam.FSaleCardTimeOut;
   finally
     FSyncLock.Leave;
   end;
@@ -923,6 +939,10 @@ begin
       if CompareText(Fields[1].AsString, sFlag_NetPlayVoice) = 0 then
         FParam.FNetVoice := Fields[0].AsString = sFlag_Yes;
       //NetVoice
+
+      if CompareText(Fields[1].AsString, sFlag_SaleCardTimeOut) = 0 then
+        FParam.FSaleCardTimeOut := Fields[0].AsInteger;
+
       Next;
     end;
   end;

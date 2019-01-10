@@ -80,6 +80,7 @@ begin
   with TfFormTransfer.Create(Application) do
   try
     InitFormData;
+    cbbSrcAddr.Properties.Items.Clear;;
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
   finally

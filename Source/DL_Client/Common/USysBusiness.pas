@@ -130,7 +130,7 @@ function IsStockValid(const nStocks: string): Boolean;
 //品种是否可以发货
 function SaveBill(const nBillData: string): string;
 //保存交货单
-function DeleteBill(const nBill: string): Boolean;
+function DeleteBill(const nBill, nReason: string): Boolean;
 //删除交货单
 function ChangeLadingTruckNo(const nBill,nTruck: string): Boolean;
 //更改提货车辆
@@ -184,6 +184,9 @@ procedure TunnelOC(const nTunnel: string; const nOpen: Boolean);
 //控制通道红绿灯开合
 function PlayNetVoice(const nText,nCard,nContent: string): Boolean;
 //经中间件播发语音
+procedure ProberShowTxt(const nTunnel, nText: string);
+//车检发送小屏
+
 
 function SaveOrderBase(const nOrderData: string): string;
 //保存采购申请单
@@ -267,7 +270,11 @@ function PrintZhiKaReport(const nZID: string; const nAsk: Boolean): Boolean;
 //打印纸卡
 function PrintShouJuReport(const nSID: string; const nAsk: Boolean): Boolean;
 //打印收据
+
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
+//打印提货单小票 声威
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
+function PrintBillReport_Std(nBill, nStdValue: string; const nAsk: Boolean): Boolean;
 //打印提货单
 function PrintOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
 //打印采购单
@@ -276,6 +283,8 @@ function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
 function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 //打印榜单
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
+function PrintHuaYanReport_3(const nHID: string; const nAsk: Boolean): Boolean;
+function PrintHuaYanReportByBillNo(const nBillNo: string; const nAsk: Boolean): Boolean;
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 function PrintHeGeReportByThId(const nTHID: string; const nAsk: Boolean): Boolean;
 //化验单,合格证
@@ -328,8 +337,24 @@ function DownLoadPic(const nData: string): string;
 //下载照片
 function GetshoporderbyTruck(const nData: string): string;
 //根据车牌号获取订单
+
+function SendDeleteOrderDtlMsgToNc(const nData: string; var nRe:string): Boolean;
+function ChkNcStatus(const nData: string; var nRe:string): Boolean;
+
 procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
 //插入推送消息
+
+
+
+function VeriFySnapTruck(const nReader: string; nBill: TLadingBillItem;
+                         var nMsg: string): Boolean;
+//车牌识别   验证车牌
+function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
+//车牌识别   读取nReader岗位、部门
+function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
+function IsSaleCardInTimeOut(const nDiffTime: integer): Boolean;
+//进厂超时检查
+
 
 implementation
 
@@ -482,6 +507,38 @@ begin
     //自动称重时不提示
 
     nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessPurchaseOrder);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+
+    if not Result then
+      WriteLog(nOut.FBase.FErrDesc);
+    //xxxxx
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//Desc: 同步NC数据 采购单
+function CallBusinessPurchaseOrderToNC(const nCmd: Integer; const nData,nExt: string;
+  const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
+var nIn: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    if nWarn then
+         nIn.FBase.FParam := ''
+    else nIn.FBase.FParam := sParam_NoHintOnError;
+
+    if gSysParam.FAutoPound and (not gSysParam.FIsManual) then
+      nIn.FBase.FParam := sParam_NoHintOnError;
+    //自动称重时不提示
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessNC);
     //get worker
     Result := nWorker.WorkActive(@nIn, nOut);
 
@@ -940,6 +997,12 @@ begin
   if not Result then
     WriteLog(nOut.FBase.FErrDesc);
   //xxxxx
+end;
+
+procedure ProberShowTxt(const nTunnel, nText: string);
+var nOut: TWorkerBusinessCommand;
+begin
+  CallBusinessHardware(cBC_ShowTxt, nTunnel, nText, @nOut);
 end;
 
 //------------------------------------------------------------------------------
@@ -1619,10 +1682,10 @@ end;
 //Date: 2014-09-15
 //Parm: 交货单号
 //Desc: 删除nBillID单据
-function DeleteBill(const nBill: string): Boolean;
+function DeleteBill(const nBill, nReason: string): Boolean;
 var nOut: TWorkerBusinessCommand;
 begin
-  Result := CallBusinessSaleBill(cBC_DeleteBill, nBill, '', @nOut);
+  Result := CallBusinessSaleBill(cBC_DeleteBill, nBill, nReason, @nOut);
 end;
 
 //Date: 2014-09-15
@@ -2232,6 +2295,41 @@ begin
   Result := FDR.PrintSuccess;
 end;
 
+//  打印开单小票     声威
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
+var nStr: string;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+  if nAsk then
+  begin
+    nStr := '是否要打印提货小票?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+  
+  nStr := 'Select * From %s Where L_ID = ''%s'' ';
+  nStr := Format(nStr, [sTable_Bill, nBill]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的记录已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + sReportDir + 'LadingBillRt.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
 //Desc: 打印提货单
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
 var nStr: string;
@@ -2248,8 +2346,77 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
   
-  nStr := 'Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In(%s)';
+  nStr := 'Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)';
   nStr := Format(nStr, [sTable_Bill, nBill]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的记录已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  {$IFDEF SetStdValue}
+  if FDM.SqlTemp.FieldByName('L_StdValue').AsFloat>0 then
+  begin
+    nStr := ' Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s) ' +
+            ' Union ' +
+            ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
+            ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue L_MValue, ' +
+            ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
+            ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.* ' +
+            ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)  ';
+    nStr := Format(nStr, [sTable_Bill, nBill, nBill]);
+
+    FDM.QueryTemp(nStr);
+    if not Assigned(FDM.SqlTemp) then Exit;
+  end;
+  {$ENDIF}
+
+
+  nStr := gPath + sReportDir + 'LadingBill.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
+//Desc: 打印提货单(打印指定净重出厂小票)
+function PrintBillReport_Std(nBill, nStdValue: string; const nAsk: Boolean): Boolean;
+var nStr: string;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印提货单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
+  //添加引号
+  
+  nStr := ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
+          ' '+nStdValue+' AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, '+nStdValue+'+L_PValue L_MValue, ' +
+          ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
+          ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_IsSample, Sys_PoundLog.* ' +
+          ' From %s Left Join %s on P_Bill=L_ID Where L_ID In (%s)  ';
+  nStr := Format(nStr, [sTable_Bill, sTable_PoundLog, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -2278,7 +2445,6 @@ begin
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
 end;
-
 
 //Date: 2012-4-1
 //Parm: 采购单号;提示;数据对象;打印机
@@ -2515,19 +2681,19 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
-  nSR := 'Select * From %s sr ' +
-         ' Left Join %s sp on sp.P_ID=sr.R_PID';
+  nSR := 'Select * From %s sr Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
   nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
           ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
-          'Where H_ID in ($ID)';
+          'Where H_ID in ($ID) Or H_Reporter=''$BillNo''';
   //xxxxx
 
-  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
-          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
+  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan), MI('$Cus', sTable_Customer),
+                            MI('$SR', nSR), MI('$BillNo', nHID), MI('$ID', nHID)]);
   //xxxxx
+
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
@@ -2553,6 +2719,118 @@ begin
   begin
     nStr := 'Update %s Set H_PrintNum=H_PrintNum+1 Where H_ID=%s ';
     nStr := Format(nStr, [sTable_StockHuaYan, nHID]);
+    FDM.ExecuteSQL(nStr);
+  end;
+end;
+
+//Desc: 打印标识为nHID的化验单
+function PrintHuaYanReport_3(const nHID: string; const nAsk: Boolean): Boolean;
+var nStr,nSR: string;
+begin
+  if nAsk then
+  begin
+    Result := True;
+    nStr := '是否要打印化验单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end else Result := False;
+
+  nSR := 'Select R_ID,R_SerialNo,R_PID,R_SGType,R_SGValue,R_HHCType,R_HHCValue,R_MgO,R_SO3,R_ShaoShi,R_CL,R_BiBiao,R_ChuNing,R_ZhongNing, ' +
+         'R_AnDing,R_XiDu,R_Jian,R_ChouDu,R_BuRong,R_YLiGai,R_Water,R_KuangWu,R_GaiGui,R_3DZhe1,R_3DZhe2,R_3DZhe3,''-'' R_28Zhe1,''-'' R_28Zhe2,''-'' R_28Zhe3, ' +
+         'R_3DYa1,R_3DYa2,R_3DYa3,R_3DYa4,R_3DYa5,R_3DYa6,''-'' R_28Ya1,''-'' R_28Ya2,''-'' R_28Ya3,''-'' R_28Ya4,''-'' R_28Ya5,''-'' R_28Ya6,   ' +
+         'R_Date,R_Man,R_HHCValueBak,R_HHCValueHJ,R_GanSuo,R_NaiMo,R_C4AF,R_C3A,R_C3S,R_7DZhe1,R_7DZhe2,R_7DZhe3,R_7DYa1,R_7DYa2,R_7DYa3,  ' +
+         'R_7DYa4,R_7DYa5,R_7DYa6,R_3DShui1,R_3DShui2,R_7DShui1,R_7DShui2,''-'' R_28DShui1,''-'' R_28DShui2,R_ZhuMoJi,R_ZhuMoJiValue,R_LvSuanSG, sp.* From %s sr  ' + 
+         'Left Join %s sp on sp.P_ID=sr.R_PID ';
+
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+
+  nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
+          ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+          'Where H_ID in ($ID) Or H_Reporter=''$BillNo''';
+  //xxxxx
+
+  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan), MI('$Cus', sTable_Customer),
+                            MI('$SR', nSR), MI('$BillNo', nHID), MI('$ID', nHID)]);
+  //xxxxx
+
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的化验单记录已无效!!';
+    nStr := Format(nStr, [nHID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
+  nStr := GetReportFileByStock(nStr);
+
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+
+  if Result  then
+  begin
+    nStr := 'Update %s Set H_PrintNum=H_PrintNum+1 Where H_ID=%s ';
+    nStr := Format(nStr, [sTable_StockHuaYan, nHID]);
+    FDM.ExecuteSQL(nStr);
+  end;
+end;
+
+//Desc: 打印标识为nHID的化验单
+function PrintHuaYanReportByBillNo(const nBillNo: string; const nAsk: Boolean): Boolean;
+var nStr,nSR: string;
+begin
+  if nAsk then
+  begin
+    Result := True;
+    nStr := '是否要打印化验单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end else Result := False;
+
+  nSR := 'Select * From %s sr ' +
+         ' Left Join %s sp on sp.P_ID=sr.R_PID';
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+
+  nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
+          ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+          'Where H_Reporter=''$BillNo''';
+  //xxxxx
+
+  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan), MI('$Cus', sTable_Customer),
+                            MI('$SR', nSR), MI('$BillNo', nBillNo)]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的化验单记录已无效!!';
+    nStr := Format(nStr, [nBillNo]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
+  nStr := GetReportFileByStock(nStr);
+
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+
+  if Result  then
+  begin
+    nStr := 'UPDate %s Set H_PrintNum=H_PrintNum+1 Where H_Reporter=''%s'' ';
+    nStr := Format(nStr, [sTable_StockHuaYan, nBillNo]);
     FDM.ExecuteSQL(nStr);
   end;
 end;
@@ -2623,7 +2901,7 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
-  nSR := 'Select * from %s '+
+  nSR := 'Select * From %s '+
          //'Left Join %s sp On sp.P_Stock=b.L_StockName ' +
          'Where l_ID = ''%s''';
   nSR := Format(nSR, [sTable_Bill, nTHID]);
@@ -2991,6 +3269,20 @@ begin
   else Result := '';
 end;
 
+function SendDeleteOrderDtlMsgToNc(const nData: string; var nRe:string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result:= CallBusinessPurchaseOrderToNC(cBC_SendToNcOrdreInfo, nData, '', @nOut);
+  nRe := nOut.FData;
+end;
+
+function ChkNcStatus(const nData: string; var nRe:string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result:= CallBusinessPurchaseOrderToNC(cBC_NcStatusChk, '', '', @nOut);
+  nRe := nOut.FData;
+end;
+
 //Date: 2017-11-22
 //Parm: 交货单号,商城申请单
 //Desc: 插入删除推送消息
@@ -3026,6 +3318,7 @@ begin
   end;
 end;
 
+
 //------------------------------------------------------------------------------
 //Date: 2017-10-17
 //Parm: 车牌号;保留长度
@@ -3057,8 +3350,6 @@ begin
   nStr := Format('      %.2f', [nValue]);
   Result := Copy(nStr, Length(nStr) - 6 + 1, 6);
 end;
-
-
 
 
 
@@ -3184,6 +3475,197 @@ begin
   end;
 end;
 
+//车牌识别验证
+function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem;
+                         var nMsg: string): Boolean;
+var nStr, nPos, nDept: string;
+    nNeedManu, nUpdate: Boolean;
+    nSnapTruck, nTruck, nEvent, nPicName: string;
+begin
+  Result := False;
+  nPos := '';
+  nNeedManu := False;
+  nSnapTruck := '';
+  nDept := '';
+  nTruck := nBill.Ftruck;
+
+  if not nBill.FSnapTruck then
+  begin
+    Result := True;
+    nMsg := '读卡器[ %s ]车辆[ %s ]无需进行抓拍识别.';
+    nMsg := Format(nMsg, [nReader, nTruck]);
+    Exit;
+  end;
+
+  nPos := ReadPoundReaderInfo(nReader,nDept);
+  if nPos = '' then
+  begin
+    Result := True;
+    nMsg := '读卡器[ %s ]绑定岗位为空,无法进行抓拍识别.';
+    nMsg := Format(nMsg, [nReader]);
+    Exit;
+  end;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_TruckInNeedManu,nPos]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNeedManu := FieldByName('D_Value').AsString = sFlag_Yes;
+
+      if nNeedManu then
+      begin
+        nMsg := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已启用.';
+        nMsg := Format(nMsg, [nReader, nPos]);
+      end
+      else
+      begin
+        nMsg := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已关闭.';
+        nMsg := Format(nMsg, [nReader, nPos]);
+      end;
+    end
+    else
+    begin
+      Result := True;
+      nMsg := '读卡器[ %s ]绑定岗位[ %s ]未配置干预规则,无法进行抓拍识别.';
+      nMsg := Format(nMsg, [nReader, nPos]);
+      Exit;
+    end;
+  end;
+
+  nStr := 'Select * From %s Where S_ID=''%s'' order by R_ID desc ';
+  nStr := Format(nStr, [sTable_SnapTruck, nPos]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      if not nNeedManu then
+        Result := True;
+      Exit;
+    end;
+
+    nPicName := '';
+    First;
+
+    while not Eof do
+    begin
+      nSnapTruck := FieldByName('S_Truck').AsString;
+      if nPicName = '' then//默认取最新一次抓拍
+        nPicName := FieldByName('S_PicName').AsString;
+      if Pos(nTruck,nSnapTruck) > 0 then
+      begin
+        Result := True;
+        nPicName := FieldByName('S_PicName').AsString;
+        //取得匹配成功的图片路径
+        nMsg := '车辆[ %s ]车牌识别成功,抓拍车牌号:[ %s ]';
+        nMsg := Format(nMsg, [nTruck,nSnapTruck]);
+        Exit;
+      end;
+      //车牌识别成功
+      Next;
+    end;
+  end;
+                             
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nBill.FID+sFlag_ManualE]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      if FieldByName('E_Result').AsString = 'N' then
+      begin
+        nMsg := '车辆[ %s ]车牌识别失败,抓拍车牌号:[ %s ],管理员禁止';
+        nMsg := Format(nMsg, [nTruck,nSnapTruck]);
+        Exit;
+      end;
+      if FieldByName('E_Result').AsString = 'Y' then
+      begin
+        Result := True;
+        nMsg := '车辆[ %s ]车牌识别失败,抓拍车牌号:[ %s ],管理员允许';
+        nMsg := Format(nMsg, [nTruck,nSnapTruck]);
+        Exit;
+      end;
+      nUpdate := True;
+    end
+    else
+    begin
+      nMsg := '车辆[ %s ]车牌识别失败,抓拍车牌号:[ %s ]';
+      nMsg := Format(nMsg, [nTruck,nSnapTruck]);
+      nUpdate := False;
+      if not nNeedManu then
+      begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+  nEvent := '车辆[ %s ]车牌识别失败,抓拍车牌号:[ %s ]';
+  nEvent := Format(nEvent, [nTruck,nSnapTruck]);
+
+  nStr := SF('E_ID', nBill.FID+sFlag_ManualE);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nBill.FID+sFlag_ManualE),
+          SF('E_Key', nTruck),         //nPicName
+          SF('E_From', nPos),
+          SF('E_Result', 'Null', sfVal),
+
+          SF('E_Event', nEvent),
+          SF('E_Solution', sFlag_Solution_YN),
+          SF('E_Departmen', nDept),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+  FDM.ExecuteSQL(nStr);
+end;
+
+function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
+var nstr:string;
+begin
+  Result:= False;
+  nStr := 'Select DATEDIFF(MINUTE, L_Date, GETDATE()) InTimeDiff,* From S_Bill Where L_ID=''%s'' ';
+  nStr := Format(nStr, [nLid]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    nDiffTime:= FieldByName('InTimeDiff').AsInteger;
+    Result:= (RecordCount > 0) ;
+  end;
+end;
+
+function IsSaleCardInTimeOut(const nDiffTime: integer): Boolean;
+var nstr:string;
+begin
+  Result:= False;
+  nStr := 'Select D_Desc, D_Value From Sys_Dict Where D_Name =''SysParam'' And D_Memo=''%s'' And D_Value>=%d ';
+  nStr := Format(nStr, ['SaleCardTimeOut', nDiffTime]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    Result:= (RecordCount = 0) ;
+  end;
+end;
+
+//Date: 2018-08-03
+//Parm: 读卡器ID
+//Desc: 读取nReader岗位、部门
+function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := ''; nDept:= '';
+  //卡号
+  if CallBusinessHardware(cBC_GetPoundReaderInfo, nReader, '', @nOut)  then
+  begin
+    Result := Trim(nOut.FData);
+    nDept:= Trim(nOut.FExtParam);
+  end;
+end;
 
 
 end.

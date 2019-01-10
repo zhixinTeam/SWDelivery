@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
+  Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels, StdCtrls,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
   cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer,
@@ -37,19 +37,25 @@ type
     procedure N2Click(Sender: TObject);
     procedure Edt_CustomerKeyPress(Sender: TObject; var Key: Char);
     procedure Edt_StockKeyPress(Sender: TObject; var Key: Char);
+    procedure ToolBar1Click(Sender: TObject);
   private
     { Private declarations }
+    nScrPos, nTopPos:Integer;
   protected
     FStart,FEnd: TDate;
     FTimeS,FTimeE: TDate;
     //时间区间
     FJBWhere: string;
     //条件
+    FLastRecID : string;
+  private
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
 
     function InitFormDataSQL(const nWhere: string): string; override;
     //查询SQL
+    procedure AfterInitFormData; override;
+    procedure UPDateAdoData(nMark:string);
   public
     { Public declarations }
     class function FrameID: integer; override;  end;
@@ -87,9 +93,10 @@ end;
 function TfFrameQueryOrderHD.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
+  //*************
   Edt_Date.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
-  Result := ' Select od.R_Id, D_ID, O_BID, O_Truck, D_OID, D_MValue, D_PValue, D_KZValue,(D_MValue-D_PValue-D_KZValue) as D_NetWeight, '+
-                  'DATEPART(DAY, D_OutFact) DayD, CONVERT(varchar(11), D_OutFact, 120) Day, D_IsMark '+
+  Result := ' Select od.R_Id, D_ID, O_BID, O_Truck, D_OID, D_MValue, D_PValue, D_KZValue,(D_MValue-D_PValue-ISNULL(D_KZValue, 0)) as D_NetWeight, '+
+                  'DATEPART(DAY, D_OutFact) DayD, CONVERT(varchar(11), D_OutFact, 120) Day, D_IsMark, * '+
             ' From $OrderDtl od Inner Join $Order oo on od.D_OID=oo.O_ID ';
 
   if FJBWhere = '' then
@@ -104,6 +111,7 @@ begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
   //Result := Result + ' Group  By DATEPART(DAY, D_OutFact) Order By DATEPART(DAY, D_OutFact) ';
+  Result := Result + '  Order  by DayD, D_ID ';
 
   Result := MacroValue(Result, [MI('$OrderDtl', sTable_OrderDtl),
                                 MI('$Order', sTable_Order),
@@ -111,6 +119,12 @@ begin
   //xxxxx
 end;
 
+procedure TfFrameQueryOrderHD.AfterInitFormData;
+begin            
+  //cxView1.Controller.Scroll(sbVertical, scTrack, nScrPos);
+  cxView1.Controller.TopRowIndex:= nTopPos;
+  cxView1.Controller.FocusedRowIndex:= nScrPos ;
+end;
 
 procedure TfFrameQueryOrderHD.Edt_EditCustomerPropertiesButtonClick(
   Sender: TObject; AButtonIndex: Integer);
@@ -152,42 +166,59 @@ begin
       ACanvas.Canvas.Font.Color := $C0C0C0;
 end;
 
+procedure TfFrameQueryOrderHD.UPDateAdoData(nMark:string);
+begin
+end;
+
 procedure TfFrameQueryOrderHD.N1Click(Sender: TObject);
 var nRId, nStr: string;
+    nIdx : Integer;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nRId := SQLQuery.FieldByName('R_Id').AsString;
+    FLastRecID:= SQLQuery.FieldByName('D_ID').AsString;
+    nScrPos:= cxView1.Controller.FocusedRowIndex;
+    nTopPos:= cxView1.Controller.TopRowIndex;
 
-    nStr := 'UPDate %s Set D_IsMark=1 Where R_ID=''%s''';
-    nStr := Format(nStr, [sTable_OrderDtl, nRId]);
+    nStr := 'UPDate %s Set D_IsMark=1, D_HDMan=''%s''  Where R_ID=''%s''';
+    nStr := Format(nStr, [sTable_OrderDtl, gSysParam.FUserName, nRId]);
 
     FDM.ExecuteSQL(nStr);
 
     nStr:= Format('%s 设置采购单标记为  已核对 ', [gSysParam.FUserName]);
     FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
-    ShowMsg('已设置成功', sHint);
+    ShowMsg('已设置成功、【已核对】', sHint);
+    BtnRefresh.Click;
   end;
-  Edt_EditCustomerPropertiesButtonClick(Self, 0);
 end;
 
 procedure TfFrameQueryOrderHD.N2Click(Sender: TObject);
-var nRId, nStr: string;
+var nRId, nHDMan, nStr: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
-    nRId := SQLQuery.FieldByName('R_Id').AsString;
+    nRId  := SQLQuery.FieldByName('R_Id').AsString;
+    nHDMan:= SQLQuery.FieldByName('D_HDMan').AsString;
 
-    nStr := 'UPDate %s Set D_IsMark=0 Where R_ID=''%s''';
-    nStr := Format(nStr, [sTable_OrderDtl, nRId]);
+    FLastRecID:= SQLQuery.FieldByName('D_ID').AsString;
+    nScrPos:= cxView1.Controller.FocusedRowIndex;
+    nTopPos:= cxView1.Controller.TopRowIndex;
+    //***************************
+    if nHDMan=gSysParam.FUserName then
+    begin
+      nStr := 'UPDate %s Set D_IsMark=0 Where R_ID=''%s''';
+      nStr := Format(nStr, [sTable_OrderDtl, nRId]);
 
-    FDM.ExecuteSQL(nStr);
+      FDM.ExecuteSQL(nStr);            
 
-    nStr:= Format('%s 设置采购单标记为  取消已核对 ', [gSysParam.FUserName]);
-    FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
-    ShowMsg('已设置成功', sHint);
+      nStr:= Format('%s 设置采购单标记为  取消已核对 ', [gSysParam.FUserName]);
+      FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
+      ShowMsg('已设置成功、 【取消已核对】', sHint);
+      BtnRefresh.Click;
+    end
+    else ShowMsg('该订单非 您审核、您无权取消', sHint);
   end;
-  Edt_EditCustomerPropertiesButtonClick(Self, 0);
 end;
 
 procedure TfFrameQueryOrderHD.Edt_CustomerKeyPress(Sender: TObject;
@@ -236,6 +267,14 @@ begin
     end;
 
   end;
+end;
+
+procedure TfFrameQueryOrderHD.ToolBar1Click(Sender: TObject);
+var nxxx: Integer;
+begin
+  nxxx:= 300;
+  //cxView1.Controller.Scroll(sbVertical, scTrack, nxxx);
+  //cxView1.Controller.ScrollBarPos;
 end;
 
 initialization

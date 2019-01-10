@@ -11,7 +11,7 @@ uses
   UFrameBase, uniChart, uniPanel, uniSplitter, uniButton, uniBitBtn, uniEdit, System.DateUtils,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
   uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, uniDateTimePicker,
-  uniGUITypes, uniGUIRegClasses, uniGUIForm;
+  uniGUITypes, uniGUIRegClasses, uniGUIForm, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFrameQueryPurchaseStockOddDays = class(TfFrameBase)
@@ -20,6 +20,8 @@ type
     EdtSearchTime: TUniDateTimePicker;
     Chart1: TUniChart;
     Series1: TUniLineSeries;
+    UnLbl1: TUniLabel;
+    procedure EdtSearchTimeChange(Sender: TObject);
   private
     { Private declarations }
     FSearchDate : TDate;
@@ -79,6 +81,12 @@ begin
   end;
 end;
 
+procedure TfFrameQueryPurchaseStockOddDays.EdtSearchTimeChange(Sender: TObject);
+begin
+  FSearchDate:= EdtSearchTime.DateTime;
+  InitFormData(FWhere);
+end;
+
 procedure TfFrameQueryPurchaseStockOddDays.AfterInitFormData;
 begin
   ArrangeColum;
@@ -87,21 +95,24 @@ end;
 function TfFrameQueryPurchaseStockOddDays.InitFormDataSQL(const nWhere: string): string;
 var nStr : string;
 begin
+  FSearchDate:= EdtSearchTime.DateTime;
   with TStringHelper, TDateTimeHelper do
   begin
-    nStr   := 'Select a.D_StockName, a.D_Value D_YearValue, ISNULL(b.D_Value, 0) D_MonthValue, ISNULL(c.D_Value, 0) D_DayValue ' +
-              'From (    ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value  ' +
+    nStr   := 'Select a.D_StockName, a.D_Value D_YearValue, ISNULL(YearRecNum, 0) YearRecNum, '+
+                      'ISNULL(b.D_Value, 0) D_MonthValue, ISNULL(MonthRecNum, 0) MonthRecNum, '+
+                      'ISNULL(c.D_Value, 0) D_DayValue, ISNULL(DayRecNum, 0) DayRecNum  ' +
+                      'From (    ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) YearRecNum   ' +
               '	From $OrderDtl   ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$YearSTime'' and D_OutFact <''$ETime'')   ' +
               '	Group  by D_StockName) a  ' +
               'Left Join (   ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value  ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) MonthRecNum   ' +
               '	From $OrderDtl   ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$MounthSTime'' and D_OutFact <''$ETime'')   ' +
               '	Group  by D_StockName) b On a.D_StockName= b.D_StockName   ' +
               'Left Join (   ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value   ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) DayRecNum    ' +
               '	From $OrderDtl    ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$DaySTime'' and D_OutFact <''$ETime'')  ' +
               '	Group  by D_StockName) c On a.D_StockName= c.D_StockName   ' +

@@ -1,8 +1,8 @@
 inherited fFrameHYData: TfFrameHYData
-  Width = 839
+  Width = 872
   Height = 436
   inherited ToolBar1: TToolBar
-    Width = 839
+    Width = 872
     inherited BtnAdd: TToolButton
       Caption = #24320#21333
       OnClick = BtnAddClick
@@ -16,7 +16,7 @@ inherited fFrameHYData: TfFrameHYData
   end
   inherited cxGrid1: TcxGrid
     Top = 202
-    Width = 839
+    Width = 872
     Height = 234
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
@@ -24,7 +24,7 @@ inherited fFrameHYData: TfFrameHYData
     end
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 839
+    Width = 872
     Height = 135
     object EditNO: TcxButtonEdit [0]
       Left = 259
@@ -116,7 +116,7 @@ inherited fFrameHYData: TfFrameHYData
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item8: TdxLayoutItem
-          Caption = #35760#24405#32534#21495':'
+          Caption = #25552#36135#21333#21495':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
@@ -164,15 +164,15 @@ inherited fFrameHYData: TfFrameHYData
   end
   inherited cxSplitter1: TcxSplitter
     Top = 194
-    Width = 839
+    Width = 872
   end
   inherited TitlePanel1: TZnBitmapPanel
-    Width = 839
+    Width = 872
     inherited TitleBar: TcxLabel
       Caption = #21270#39564#21333#35760#24405
       Style.IsFontAssigned = True
-      Width = 839
-      AnchorX = 420
+      Width = 872
+      AnchorX = 436
       AnchorY = 11
     end
   end
@@ -193,6 +193,10 @@ inherited fFrameHYData: TfFrameHYData
       Caption = #25171#21360#21270#39564#21333
       OnClick = N1Click
     end
+    object N31: TMenuItem
+      Caption = #25171#21360'3'#22825#21270#39564#21333
+      OnClick = N31Click
+    end
     object N3: TMenuItem
       Caption = '-'
     end
@@ -200,6 +204,13 @@ inherited fFrameHYData: TfFrameHYData
       Tag = 20
       Caption = #25171#21360#21512#26684#35777
       OnClick = N2Click
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object N5: TMenuItem
+      Caption = #20462#25913#24320#21333#23458#25143
+      OnClick = N5Click
     end
   end
 end

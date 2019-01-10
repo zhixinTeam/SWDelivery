@@ -3,7 +3,7 @@ inherited fFormCutomer: TfFormCutomer
   ClientWidth = 480
   Caption = #23458#25143
   ExplicitWidth = 486
-  ExplicitHeight = 540
+  ExplicitHeight = 544
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton

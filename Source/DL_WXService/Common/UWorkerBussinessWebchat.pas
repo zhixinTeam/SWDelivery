@@ -1187,7 +1187,6 @@ begin
         nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
 
         {$IFDEF UseUTFDecode}
-        //WriteLog('UTF8DEcode解码:'+UTF8Decode(nStr));
         WriteLog('已对订单做UTF8解码');
         nStr := DecodeUtf8Str(nStr);
         {$ENDIF}

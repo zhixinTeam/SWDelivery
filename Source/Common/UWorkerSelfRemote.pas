@@ -67,6 +67,14 @@ type
     function GetFixedServiceURL: string; override;
   end;
 
+  TClientBusinessNC = class(TRemote2MITWorker)
+  public
+    function GetFlagStr(const nFlag: Integer): string; override;
+    class function FunctionName: string; override;
+    function GetFixedServiceURL: string; override;
+  end;
+
+
 function CallRemoteWorker(const nCLIWorkerName: string; const nData,nExt: string;
  const nOut: PWorkerBusinessCommand; const nCmd: Integer;const nRemoteUL: string=''): Boolean;
 //访问有效服务 
@@ -394,10 +402,45 @@ begin
   end;
 end;
 
+
+//------------------------------------------------------------------------------
+class function TClientBusinessNC.FunctionName: string;
+begin
+  Result := sCLI_BusinessNC;
+end;
+
+function TClientBusinessNC.GetFlagStr(const nFlag: Integer): string;
+begin
+  Result := inherited GetFlagStr(nFlag);
+
+  case nFlag of
+   cWorker_GetPackerName : Result := sBus_BusinessNC;
+   cWorker_GetMITName    : Result := sBus_BusinessNC;
+  end;
+end;
+
+function TClientBusinessNC.GetFixedServiceURL: string;
+var
+  nStr:string;
+begin
+  Result := '';
+  nStr := 'select d_value from %s where d_name=''%s''';
+  nStr := Format(nStr,[sTable_SysDict,sFlag_NCServiceMIT]);
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      Result := FieldByName('d_value').AsString;
+    end;
+  end;
+end;
+
+
 initialization
   gBusinessWorkerManager.RegisteWorker(TClientWorkerQueryField, sPlug_ModuleRemote);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessCommand, sPlug_ModuleRemote);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessSaleBill, sPlug_ModuleRemote);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessHardware, sPlug_ModuleRemote);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessWechat, sPlug_ModuleRemote);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessNC, sPlug_ModuleRemote);
 end.

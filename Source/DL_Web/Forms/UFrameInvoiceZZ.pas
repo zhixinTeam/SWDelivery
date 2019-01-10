@@ -25,6 +25,8 @@ type
     N1: TUniMenuItem;
     N2: TUniMenuItem;
     N3: TUniMenuItem;
+    unmntmN4: TUniMenuItem;
+    unmntmN5: TUniMenuItem;
     procedure EditCustomerKeyPress(Sender: TObject; var Key: Char);
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -33,12 +35,16 @@ type
     procedure N2Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure N3Click(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
+    procedure unmntmN5Click(Sender: TObject);
   private
     { Private declarations }
     FNowYear,FNowWeek,FWeekName: string;
     //当前周期
     procedure LoadWeek;
     //获取周期
+  private
+    procedure OnInvoiceZZDetailDetail(const nChanged: Boolean);
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
@@ -53,7 +59,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
   ULibFun, USysBusiness, USysDB, USysConst, UFormBase, UFormInvoiceGetWeek,
-  UFormInvoiceZZAll, UFormSysLog;
+  UFormInvoiceZZAll, UFormSysLog, UFormInvoiceZZDetail;
 
 procedure TfFrameInvoiceZZ.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -64,6 +70,41 @@ begin
   FNowWeek := '';
   FWeekName := '';
   LoadWeek;
+end;
+
+procedure TfFrameInvoiceZZ.OnInvoiceZZDetailDetail(const nChanged: Boolean);
+begin
+  if nChanged then InitFormData(FWhere);
+end;
+
+procedure TfFrameInvoiceZZ.unmntmN5Click(Sender: TObject);
+var nStr, nCanEdit: string;
+begin
+  nCanEdit:= '';
+  if DBGridMain.SelectedRows.Count > 0 then
+  begin
+    with ClientDS do
+    begin
+      if FieldByName('R_Value').AsString=FieldByName('R_KValue').AsString then
+      begin
+        nCanEdit:= 'N';
+      end;
+    end;
+
+    nStr := Format(' R_Week=''%s'' And  R_CusID=''%s'' And  R_SaleID=''%s'' And  R_Type=''%s'' And  R_Stock=''%s''  '+
+                   ' And  R_Price=''%s'' And  R_YunFei=''%s'' And  R_ZhiKa=''%s'' ',
+
+                        [ClientDS.FieldByName('R_Week').AsString,
+                        ClientDS.FieldByName('R_CusID').AsString,
+                        ClientDS.FieldByName('R_SaleID').AsString,
+                        ClientDS.FieldByName('R_Type').AsString,
+                        ClientDS.FieldByName('R_Stock').AsString,
+                        ClientDS.FieldByName('R_Price').AsString,
+                        ClientDS.FieldByName('R_YunFei').AsString,
+                        ClientDS.FieldByName('R_ZhiKa').AsString   ]);
+    /////*****
+    ShowInvoiceZZDetailForm(nStr, nCanEdit, FPopedom, OnInvoiceZZDetailDetail);
+  end;
 end;
 
 function TfFrameInvoiceZZ.FilterColumnField: string;
@@ -102,14 +143,28 @@ begin
       end;
     end;
 
-    Result := 'Select req.*,W_Name,Z_Name,Z_Project From $Req req ' +
-              ' Left Join $Week On W_NO=req.R_Week ' +
-              ' Left Join $ZK On Z_ID=req.R_ZhiKa ';
+    nWeek := nWeek + ' AND R_Chk=1 ';
+
+    //Result := 'Select req.*, W_Name, Z_Name, Z_Project From $Req req ' +
+    Result := 'Select ROW_NUMBER() over(order by R_CusID) as R_ID, x.* From (  ' +
+                'Select R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, SUM(R_Value) R_Value, R_PreHasK, '+
+                'R_ReqValue, IsNull(R_KPrice, 0) R_KPrice,SUM(R_KValue) R_KValue, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, '+
+                'R_KYunFei, W_Name,Z_Name,Z_Project From $Req  req ' +
+
+                ' Left Join $Week On W_NO=req.R_Week ' +
+                ' Left Join $ZK On Z_ID=req.R_ZhiKa  ';
+
     Result := Result + nWeek;
 
     if nWhere <> '' then
       Result := Result + ' And ( ' + nWhere + ' )';
     //xxxxx
+
+    Result := Result +
+              ' Group  by  R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, R_PreHasK, R_ReqValue, '+
+              'R_KPrice, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, R_KYunFei,'+
+              ' W_Name,Z_Name,Z_Project  ) x';
+
 
     Result := MacroValue(Result, [MI('$Req', sTable_InvoiceReq),
               MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa)]);
@@ -134,6 +189,8 @@ begin
       FNowYear := nParam.FParamA;
       FNowWeek := nParam.FParamB;
       FWeekName := nParam.FParamC;
+
+      FWhere:= '';
       InitFormData(FWhere);
     end);
   //xxxxx
@@ -158,6 +215,8 @@ end;
 procedure TfFrameInvoiceZZ.BtnEditClick(Sender: TObject);
 var nForm: TUniForm;
     nParam: TFormCommandParam;
+    nCusId, nCusName, nZhiKa, nWeek, nStockId,
+    nPrice, nType, nSaleId, nYunFei, nWhere : string;
 begin
   if DBGridMain.SelectedRows.Count < 1 then
   begin
@@ -165,11 +224,35 @@ begin
     Exit;
   end;
 
+  with ClientDS do
+  begin
+    if FieldByName('R_KValue').AsFloat>0 then
+    begin
+      ShowMessage('该周期返利已生效、不能修改');
+      Exit;
+    end;
+  end;
+  //************
   nForm := SystemGetForm('TfFormInvoiceFLSet', True);
   if not Assigned(nForm) then Exit;
 
   nParam.FCommand := cCmd_EditData;
-  nParam.FParamA := ClientDS.FieldByName('R_ID').AsString;
+
+  nCusId := ClientDS.FieldByName('R_CusID').AsString;
+  nCusName:= ClientDS.FieldByName('R_Customer').AsString;
+  nZhiKa := ClientDS.FieldByName('R_ZhiKa').AsString;
+  nWeek  := ClientDS.FieldByName('R_Week').AsString;
+  nStockId := ClientDS.FieldByName('R_Stock').AsString;
+  nPrice   := ClientDS.FieldByName('R_Price').AsString;
+  nType    := ClientDS.FieldByName('R_Type').AsString;
+  nSaleId  := ClientDS.FieldByName('R_SaleID').AsString;
+  nYunFei  := ClientDS.FieldByName('R_YunFei').AsString;
+
+  nWhere:= Format('R_CusID=''%s'' And R_Customer=''%s'' And R_ZhiKa=''%s'' And R_Week=''%s'' And R_Stock=''%s'' And R_Price=''%s'' '+
+                  'And R_Type=''%s'' And R_SaleID=''%s'' And R_YunFei=''%s''', [nCusId, nCusName, nZhiKa, nWeek, nStockId,
+                                  nPrice, nType, nSaleId, nYunFei]);
+  //*****************
+  nParam.FParamA := nWhere;
   (nForm as TfFormBase).SetParam(nParam);
 
   nForm.ShowModal(
@@ -180,6 +263,12 @@ begin
       //refresh
     end);
   //show form
+end;
+
+procedure TfFrameInvoiceZZ.BtnRefreshClick(Sender: TObject);
+begin
+  FWhere:= '';
+  InitFormData(FWhere);
 end;
 
 //Desc: 选择周期

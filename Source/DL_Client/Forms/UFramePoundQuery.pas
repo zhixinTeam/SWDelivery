@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFramePoundQuery;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -14,7 +15,8 @@ uses
   cxCheckBox, cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel,
   UBitmapPanel, cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFramePoundQuery = class(TfFrameNormal)
@@ -67,6 +69,7 @@ type
     procedure AfterInitFormData; override;
     function InitFormDataSQL(const nWhere: string): string; override;
     {*查询SQL*}
+    procedure UPDateXSql;
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -100,10 +103,31 @@ begin
   inherited;
 end;
 
+procedure TfFramePoundQuery.UPDateXSql;
+var nSQL: string;
+begin
+  nSQL := ' UPDate S_Bill Set L_StdMValue=Cast(FLOOR(RAND(checksum(newid()))*5)+46 + (ceiling(rand(checksum(newid()))*100))/100.00 as decimal(15,2)) ' +
+          ' Where  L_Value>=50 And L_StdMValue = 0 And L_Date>='''+Date2Str(Now)+'''  ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate S_Bill Set L_StdMValue=L_Value Where  L_Value<50 And L_StdMValue = 0  ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL((Select L_StdMValue From S_Bill Where L_ID=P_Bill And P_StdNetWeight=0), 0) '+
+          ' Where P_StdNetWeight=0 And P_Type=''S'' ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL(P_MValue-P_PValue, 0) Where P_StdNetWeight=0 And P_Type=''P''';
+  FDM.ExecuteSQL(nSQL);
+end;
+
 function TfFramePoundQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
   //启用备份数据库
+  {$IFDEF PoundRoundJZ}
+    UPDateXSql;
+  {$ENDIF}
 
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 

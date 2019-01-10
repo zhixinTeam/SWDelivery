@@ -77,6 +77,14 @@ type
     class function FunctionName: string; override;
   end;
 
+  TClientBusinessNC = class(TClient2MITWorker)
+  public
+    function GetFlagStr(const nFlag: Integer): string; override;
+    class function FunctionName: string; override;
+    function GetFixedServiceURL: string; override;
+  end;
+
+
 
 implementation
 
@@ -379,6 +387,27 @@ begin
    cWorker_GetMITName    : Result := sBus_BusinessDuanDao;
   end;
 end;
+//------------------------------------------------------------------------------ SYNC TO NC
+class function TClientBusinessNC.FunctionName: string;
+begin
+  Result := sCLI_BusinessNC;
+end;
+
+function TClientBusinessNC.GetFlagStr(const nFlag: Integer): string;
+begin
+  Result := inherited GetFlagStr(nFlag);
+
+  case nFlag of
+   cWorker_GetPackerName : Result := sBus_BusinessNC;
+   cWorker_GetMITName    : Result := sBus_BusinessNC;
+  end;
+end;
+
+function TClientBusinessNC.GetFixedServiceURL: string;
+begin
+  Result := gSysParam.FNcURL;
+end;
+
 
 
 initialization
@@ -389,4 +418,5 @@ initialization
   gBusinessWorkerManager.RegisteWorker(TClientBusinessPurchaseOrder);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessWechat);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessDuanDao);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessNC);
 end.

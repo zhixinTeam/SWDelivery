@@ -1,8 +1,8 @@
 object FDM: TFDM
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Left = 399
-  Top = 390
+  Left = 413
+  Top = 231
   Height = 357
   Width = 329
   object ADOConn: TADOConnection

@@ -38,7 +38,9 @@ type
     { Private declarations }
     FPrice,FFLPrice, FYYunFei, FYFlYunfei, FFLYunFei: Double;
     //旧价格
-    procedure InitFormData(const nID: string);
+    FWhere : string;
+  private
+    procedure InitFormData(const nWhere: string);
     //载入数据
   public
     { Public declarations }
@@ -64,6 +66,7 @@ begin
       FParam.FParamA := '';
       InitFormData('');
     end;
+
    cCmd_EditData:
     begin
       BtnOK.Enabled := False;
@@ -72,24 +75,39 @@ begin
   end;
 end;
 
-procedure TfFormInvoiceFLSet.InitFormData(const nID: string);
+procedure TfFormInvoiceFLSet.InitFormData(const nWhere: string);
 var nStr: string;
     nQuery: TADOQuery;
 begin
   nQuery := nil;
   try
-    nStr := 'Select req.*,W_Name From %s req ' +
-            ' Left Join %s on W_NO=req.R_Week ' +
-            'Where req.R_ID=%s';
-    nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvoiceWeek, nID]);
+//    nStr := 'Select req.*,W_Name From %s req ' +
+//            ' Left Join %s on W_NO=req.R_Week ' +
+//            'Where req.R_ID=%s';
+
+    nStr := 'Select R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, SUM(R_Value) R_Value, R_PreHasK, '+
+                'R_ReqValue, R_KPrice,SUM(R_KValue) R_KValue, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, '+
+                'R_KYunFei, W_Name,Z_Name,Z_Project From %s  req ' +
+
+              ' Left Join %s On W_NO=req.R_Week ' +
+              ' Left Join %s On Z_ID=req.R_ZhiKa  ';
+
+    nStr := nStr + 'Where R_Chk=1 And ' + nWhere;
+    nStr := nStr +
+              ' Group  by  R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, R_PreHasK, R_ReqValue, '+
+              'R_KPrice, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, R_KYunFei,'+
+              ' W_Name,Z_Name,Z_Project';
+
+    nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvoiceWeek, sTable_ZhiKa]);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
     begin
       if RecordCount < 1 then
       begin
-        nStr := Format('编号为[ %s ]的记录已丢失', [nID]);
-        ShowMessage(nStr); Exit;
+        //nStr := Format('编号为[ %s ]的记录已丢失', [nID]);
+        ShowMessage('未能找到符合条件的记录');
+        Exit;
       end;
 
       BtnOK.Enabled := True;
@@ -148,7 +166,7 @@ begin
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
     //xxxxx
 
-    nStr := 'UPDate %s Set R_KPrice=%.2f, R_KYunFei=%.2f Where R_ID=%s';
+    nStr := 'UPDate %s Set R_KPrice=%.2f, R_KYunFei=%.2f Where R_Chk=1 And %s';
     nStr := Format(nStr, [sTable_InvoiceReq, nVal, nYunFei, FParam.FParamA]);
     nList.Add(nStr);
 

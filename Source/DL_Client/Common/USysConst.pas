@@ -38,6 +38,7 @@ const
   cFI_FrameBillBuDanAudit = $0019;                   //补单审核
 
   cFI_FrameBillHYDanHD    = $3001;                   //水泥回单查询
+  cFI_FrameBillSalePlan   = $3002;                   //销售品种限量计划
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -79,6 +80,7 @@ const
 
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
+  cFI_FrameSyncOrderForNC = $0072;                   //NC订单同步
   
   cFI_FrameTransBase    = $0093;                     //短倒办理
   cFI_FrameTransferDetailQuery = $0094;              //短倒明细查询
@@ -89,6 +91,7 @@ const
   cFI_FrameOrder        = $0107;                     //采购订单
   cFI_FrameOrderBase    = $0108;                     //采购申请单
   cFI_FrameOrderDetail  = $0109;                     //采购明细
+  cFI_FrameMsgLog       = $0700;                     //通知事件记录
 
   cFI_FrameWXAccount    = $0110;                     //微信账户
   cFI_FrameWXSendLog    = $0111;                     //发送日志
@@ -100,8 +103,9 @@ const
   cFI_FormChangePwd     = $1005;                     //修改密码
   cFI_FormOptions       = $1102;                     //参数选项
 
-  cFI_FormSaleXLPlan    = $2005;                     //销售限量                 //***********************
-  cFI_FormCstmerCategoryInfo   = $2006;              //客户类别                 //***********************
+  cFI_FormBillSalePlan  = $2005;                     //销售供应编辑
+  cFI_FormCstmerCategoryInfo   = $2006;              //客户类别
+
 
   cFI_FormBaseInfo      = $1006;                     //基本信息
   cFI_FormCustomer      = $1007;                     //客户资料
@@ -142,7 +146,9 @@ const
   cFI_FormGetMeterail   = $1042;                     //选择原材料
   cFI_FormTruckEmpty    = $1043;                     //空车出厂
   cFI_FormReadCard      = $1044;                     //读取磁卡
-  cFI_FormZTLine        = $1045;                     //装车线   
+  cFI_FormZTLine        = $1045;                     //装车线
+  cFI_FormLadDuanDao    = $1046;                     //短倒放料 泾阳
+
 
   cFI_FormGetTruck      = $1047;                     //选择车辆
   cFI_FormGetContract   = $1048;                     //选择合同
@@ -156,6 +162,7 @@ const
   cFI_FormGetPOrderBase  = $1056;                    //采购订单
   cFI_FormOrderDtl      = $1057;                     //采购明细
   cFI_FormGetWXAccount  = $1058;                     //获取商城注册信息
+  cFI_FormCtlCusbd      = $1059;                     //管理绑定客户
 
   cFI_FormBatch         = $1064;                     //批次管理
   cFI_FormStockParam    = $1065;                     //品种管理
@@ -235,7 +242,9 @@ type
     FMITServURL : string;                            //业务服务
     FHardMonURL : string;                            //硬件守护
     FWechatURL  : string;                            //微信服务
+    FNcURL      : string;                            //用友NC服务
     FMITServURLBack : string;                        //备用业务服务
+
     
     FFactNum    : string;                            //工厂编号
     FSerialID   : string;                            //电脑编号
@@ -346,7 +355,7 @@ begin
   AddMenuModuleItem('MAIN_A07', cFI_FrameAuthorize);
   AddMenuModuleItem('MAIN_A08', cFI_FormTodo, mtForm);
   AddMenuModuleItem('MAIN_A09', cFI_FrameTodo);
-
+  AddMenuModuleItem('MAIN_A10', cFI_FrameSyncOrderForNC);
 
   AddMenuModuleItem('MAIN_B01', cFI_FormBaseInfo, mtForm);
   AddMenuModuleItem('MAIN_B02', cFI_FrameCustomer);
@@ -376,7 +385,8 @@ begin
   AddMenuModuleItem('MAIN_D10', cFI_FrameSanPreHK);
   AddMenuModuleItem('MAIN_D11', cFI_FrameAuditTruck);
   AddMenuModuleItem('MAIN_D12', cFI_FrameBillBuDanAudit);
-  AddMenuModuleItem('MAIN_DXL01', cFI_FormSaleXLPlan, mtForm);
+  AddMenuModuleItem('MAIN_DXL01', cFI_FormBillSalePlan, mtForm);
+  AddMenuModuleItem('MAIN_DXL02', cFI_FrameBillSalePlan);
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);
@@ -402,6 +412,7 @@ begin
   AddMenuModuleItem('MAIN_K08', cFI_FormBatch, mtForm);
   AddMenuModuleItem('MAIN_KHD01', cFI_FrameBillHYDanHD);
 
+
   AddMenuModuleItem('MAIN_L01', cFI_FrameTruckQuery);
   AddMenuModuleItem('MAIN_L02', cFI_FrameCusAccountQuery);
   AddMenuModuleItem('MAIN_L03', cFI_FrameCusInOutMoney);
@@ -413,6 +424,8 @@ begin
   AddMenuModuleItem('MAIN_L10', cFI_FrameOrderDetailQuery);
   AddMenuModuleItem('MAIN_LH11', cFI_FrameOrderDtlHDQuery);
   AddMenuModuleItem('MAIN_LH12', cFI_FrameOrderImport);
+  AddMenuModuleItem('MAIN_LH13', cFI_FrameMsgLog);
+
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);
@@ -431,7 +444,8 @@ begin
   AddMenuModuleItem('MAIN_M11', cFI_FormTransBase, mtForm);
   AddMenuModuleItem('MAIN_M12', cFI_FrameTransferDetailQuery);
   AddMenuModuleItem('MAIN_M13', cFI_FrameDuanDaoQuery);
-  
+  AddMenuModuleItem('MAIN_MDDFH', cFI_FormLadDuanDao, mtForm);
+
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);
 end;

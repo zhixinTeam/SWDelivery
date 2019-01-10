@@ -3,6 +3,7 @@ inherited fFrameQueryOrderHD: TfFrameQueryOrderHD
   Height = 462
   inherited ToolBar1: TToolBar
     Width = 919
+    OnClick = ToolBar1Click
     inherited BtnAdd: TToolButton
       Visible = False
     end
@@ -111,6 +112,9 @@ inherited fFrameQueryOrderHD: TfFrameQueryOrderHD
       AnchorX = 460
       AnchorY = 11
     end
+  end
+  inherited DataSource1: TDataSource
+    AutoEdit = False
   end
   object pmPMenu1: TPopupMenu
     AutoHotkeys = maManual

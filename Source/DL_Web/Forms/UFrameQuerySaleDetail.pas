@@ -163,18 +163,18 @@ begin
 end;
 
 function TfFrameQuerySaleDetail.InitFormDataSQL(const nWhere: string): string;
-var nWH, nNo: string;
+var nWH, nWR, nNo: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
     nWH := '';
     EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-    Result := 'Select L_Price,L_Value,L_Value*L_Price as L_Money,' +
-      '0 as L_YunFei,b.* from $Bill b $WH union all ' +
+    Result := 'Select L_Price,L_Value,Convert(Decimal(15,2), L_Value*(L_Price+IsNull(L_YunFei, 0))) as L_Money,' +
+      'L_YunFei,b.* from $Bill b $WH union all ' +
       'Select S_Price*(-1) as L_Price,0 as L_Value,' +
-      'S_Value*S_Price*(-1) as L_Money,L_Value*S_YunFei as L_YunFei,b.*' +
-      ' From $ST st Left Join $Bill b on b.L_ID=st.S_Bill $WH';
+      'S_Value*S_Price*(-1) as L_Money,L_Value*S_YunFei*(-1) as L_YunFei,b.*' +
+      ' From $ST st Left Join $Bill b on b.L_ID=st.S_Bill $WR';
     //xxxxx
 
     if FJBWhere = '' then
@@ -197,10 +197,14 @@ begin
     if (Not UniMainModule.FUserConfig.FIsAdmin) then
     begin
       if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
-        nWH := nWH + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+        nWH := nWH + 'And ((L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''') or (L_CusName='''+
+                            UniMainModule.FUserConfig.FUserID+'''))';
     end;
 
+    nWR:= StringReplace(nWH, 'L_OutFact', 'S_Date', [rfReplaceAll]);
+
     Result := MacroValue(Result, [MI('$WH', nWH)]);
+    Result := MacroValue(Result, [MI('$WR', nWR)]);
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$ST', sTable_InvSettle), MI('$No', nNo),
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);

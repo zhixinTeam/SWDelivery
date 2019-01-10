@@ -6,6 +6,8 @@ unit UFormHYData;
 
 interface
 
+{$I Link.Inc}
+
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
@@ -33,6 +35,9 @@ type
     dxLayout1Item9: TdxLayoutItem;
     dxLayout1Item6: TdxLayoutItem;
     cxLabel2: TcxLabel;
+    dxlytmLayout1Item10: TdxLayoutItem;
+    edt_LID: TcxTextEdit;
+    dxlytgrp_LID: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditCustomKeyPress(Sender: TObject; var Key: Char);
@@ -269,7 +274,12 @@ begin
           MI('$Cus', GetCtrlData(EditCustom)), MI('$CName', EditName.Text),
           MI('$No', EditNo.Text), MI('$TN', EditTruck.Text),
           MI('$Val', EditValue.Text), MI('$BD', DateTime2Str(EditDate.Date)),
-          MI('$RD', FDM.SQLServerNow), MI('$RE', gSysParam.FUserID)]);
+          MI('$RD', FDM.SQLServerNow),
+          {$IFDEF SXSW}
+          MI('$RE', edt_LID.Text)
+          {$ELSE}
+          MI('$RE', gSysParam.FUserID)
+          {$ENDIF}]);
   nList.Add(nStr);
 end;
 

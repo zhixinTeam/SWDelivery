@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniButton,
   uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses,
-  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses;
+  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameZhiKa = class(TfFrameBase)

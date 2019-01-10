@@ -54,6 +54,9 @@ type
     N11: TMenuItem;
     N12: TMenuItem;
     N13: TMenuItem;
+    N14: TMenuItem;
+    N15: TMenuItem;
+    N16: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -71,6 +74,9 @@ type
     procedure N11Click(Sender: TObject);
     procedure N12Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
+    procedure N14Click(Sender: TObject);
+    procedure N15Click(Sender: TObject);
+    procedure N16Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -230,18 +236,35 @@ end;
 
 //Desc: 删除
 procedure TfFrameBill.BtnDelClick(Sender: TObject);
-var nStr: string;
+var nStr, nReason: string;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
   end;
 
+  if SQLQuery.FieldByName('L_EmptyOut').AsString='Y' then
+  begin
+    ShowMsg('空车出厂记录禁止删除', sHint); Exit;
+  end;
+
   nStr := '确定要删除编号为[ %s ]的单据吗?';
   nStr := Format(nStr, [SQLQuery.FieldByName('L_ID').AsString]);
   if not QueryDlg(nStr, sAsk) then Exit;
 
-  if DeleteBill(SQLQuery.FieldByName('L_ID').AsString) then
+  begin
+    nReason:= '';
+    if not ShowInputBox('删除原因:', '删除', nReason, 200) then Exit;
+
+    if (nReason = '') then
+    begin
+      ShowMsg('您未填写删除原因、操作失败', sHint);
+      Exit;
+    end;
+    //无效或一致
+  end;
+
+  if DeleteBill(SQLQuery.FieldByName('L_ID').AsString, nReason) then
   begin
     InitFormData(FWhere);
     ShowMsg('提货单已删除', sHint);
@@ -446,6 +469,61 @@ begin
     nStr:= Format(' %s 重置散装车辆  %s  放灰时间', [gSysParam.FUserName, nStr]);
     FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
     ShowMsg('已重置成功', sHint);
+  end;
+end;
+
+procedure TfFrameBill.N14Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintHuaYanReportByBillNo(nStr, False);
+  end;
+end;
+
+procedure TfFrameBill.N15Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintBillRt(nStr, False);
+    // 声威开单小票
+  end;
+end;
+
+procedure TfFrameBill.N16Click(Sender: TObject);
+var nStr, nStd: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    begin
+      nStd:= '';
+      if not ShowInputBox('标准净重（吨）:', '输入', nStd, 15) then Exit;
+
+      if (nStd = '') then
+      begin
+        ShowMsg('您未填写标准净重、操作失败', sHint);
+        Exit;
+
+        if (StrToFloatDef(nStd, -1)=-1) then
+        begin
+          ShowMsg('请输入合法重量', sHint);
+          Exit;
+        end;
+
+        if (StrToFloatDef(nStd, 100)>100) then
+        begin
+          ShowMsg('标准净重输入异常', sHint);
+          Exit;
+        end;
+      end;
+      //无效
+    end;
+
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintBillReport_Std(nStr, nStd, False);
   end;
 end;
 

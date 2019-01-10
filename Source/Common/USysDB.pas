@@ -192,6 +192,11 @@ const
   sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
   sFlag_WXSrvRemote   = 'WXServiceRemote';           //微信远程服务
 
+  sFlag_NCFactory     = 'NCFactoryID';               //NC工厂标示
+  sFlag_NCServiceMIT  = 'NCServiceMIT';              //NC工厂服务
+  sFlag_NCSrvRemote   = 'NCServiceRemote';           //NC远程服务
+
+
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差
   sFlag_PDaiPercent   = 'PoundDaiPercent';           //按比例计算误差
@@ -217,6 +222,7 @@ const
   sFlag_ZhiKaItem     = 'ZhiKaItem';                 //纸卡信息项
   sFlag_BillItem      = 'BillItem';                  //提单信息项
   sFlag_TruckQueue    = 'TruckQueue';                //车辆队列
+  sFlag_HYDanItem     = 'HYDanItem';                 //化验单信息项
 
   sFlag_PaymentItem   = 'PaymentItem';               //付款方式信息项
   sFlag_PaymentItem2  = 'PaymentItem2';              //销售回款信息项
@@ -241,6 +247,7 @@ const
   sFlag_BatchAuto     = 'BatchAuto';                 //使用自动批次号
   sFlag_FobiddenInMul = 'FobiddenInMul';             //禁止多次进厂
   sFlag_NoBatchAuto   = 'NoBatchAuto';               //无需批次品种
+  sFlag_SaleCardTimeOut = 'SaleCardTimeOut';         //销售单开单后N分钟内进厂有效
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -267,6 +274,7 @@ const
   sFlag_DepJianZhuang = '监装';                      //监装
   sFlag_DepBangFang   = '磅房';                      //磅房
   sFlag_DepHuaYan     = '化验室';                    //化验室
+  sFlag_DepMenGang    = '门岗';                      //门岗
 
   sFlag_Solution_YN   = 'Y=通过;N=禁止';
   sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
@@ -279,6 +287,10 @@ const
   sFlag_WxItem        = 'WxItem';                    //微信相关
   sFlag_InOutBegin    = 'BeginTime';                 //进出厂查询起始时间
   sFlag_InOutEnd      = 'EndTime';                   //进出厂查询结束时间
+
+  sFlag_TruckInNeedManu = 'TruckNeedManu';         //车牌识别需人工干预
+  sFlag_SnapInfoPost  = 'SnapInfoPost';              //车牌识别消息推送岗位
+
 
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
@@ -312,6 +324,12 @@ const
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
 
+  sTable_SalePlanStock       = 'X_SalePlanStock';      //销售计划品种限量
+  sTable_SalePlanCustomer    = 'X_SalePlanCustomer';   //销售计划品种客户限量
+  sTable_BatCodeEx    = 'S_BatCodeEx';                 //多厂批次管理
+
+
+
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
   sTable_StockParamExt= 'S_StockParamExt';           //参数扩展
@@ -319,10 +337,12 @@ const
   sTable_StockHuaYan  = 'S_StockHuaYan';             //开化验单
   sTable_StockBatcode = 'S_Batcode';                 //批次号
 
+  sTable_TruckCus     = 'S_TruckCus';                //车辆客户绑定
+  sTable_ZTMatch      = 'S_ZTMatch';                 //通道映射
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
   sTable_ZTTrucks     = 'S_ZTTrucks';                //车辆队列
-  sTable_AuditTruck   = 'S_AuditTruck';                //车辆审核
+  sTable_AuditTruck   = 'S_AuditTruck';              //车辆审核
 
   sTable_AuxInfo      = 'A_AuxInfo';                 //内倒地点表
   sTable_Provider     = 'P_Provider';                //客户表
@@ -369,9 +389,12 @@ const
   sTable_K3_Customer  = 'T_Organization';            //组织结构(客户)
   sTable_K3_SalePlan  = 'S_K3_SalePlan';             //销售计划
 
-  sTable_SalePlan  = 'S_SalePlan';                   //系统内销售计划
+  sTable_SalePlan     = 'S_SalePlan';                //系统内销售计划
 
 
+  sTable_SnapTruck    = 'Sys_SnapTruck';             //车辆抓拍记录
+  sTable_UPLoadOrderNc  = 'S_UPLoadOrderNc';           //待上传NC采购、销售单
+  sTable_UPLoadOrderNcHistory = 'S_UPLoadOrderNcHistory';  //上传NC采购、销售单记录
 
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
@@ -824,7 +847,10 @@ const
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
        'L_HYDan varChar(15), L_PrintHY Char(1),L_Audit char(1) not null default(''N''),' +
        'L_Man varChar(32), L_Date DateTime,L_EmptyOut char(1) not null default(''N''),' +
-       'L_DelMan varChar(32), L_DelDate DateTime, L_ICCardNo varChar(32) not null default('''') )';
+       'L_DelMan varChar(32), L_DelDate DateTime, L_ICCardNo varChar(32) not null default(''''),'+
+       'L_SnapTruck Char(1) Not Null Default ''Y'', L_SendFactory Varchar(60) Not Null  Default '''' ,'+
+       'L_StdValue Decimal(15, 2) Not Null Default 0, L_PKzk varChar(50), L_PKDtl varChar(50), '+
+       'L_RefundPrice Decimal(15, 2) Not Null Default 0 )';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -916,7 +942,7 @@ const
        'O_Type Char(1), O_StockNo varChar(32), O_StockName varChar(80),' +
        'O_Truck varChar(15), O_OStatus Char(1), O_YJZValue $Float,' +
        'O_Man varChar(32), O_Date DateTime, O_YJZValue Decimal(15, 5) Default 0, ' +
-       'O_KFValue varChar(16), O_KFLS varChar(32),' +
+       'O_KFValue varChar(16), O_KFLS varChar(32), O_KFtime Varchar(30), ' +
        'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500))';
   {-----------------------------------------------------------------------------
    采购订单表: Order
@@ -957,7 +983,9 @@ const
        'D_YLine varChar(15), D_YLineName varChar(32), ' +
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),' +
-       'D_Unload varchar(80) NULL, D_IsMark int not Null Default 0)';
+       'D_Unload varchar(80) NULL, D_IsMark int not Null Default 0, '+
+       'D_UnloadPlace varchar(80) Default '''', D_UnloadType varchar(80) Default '''', '+
+       'D_HDMan Varchar(32) Default '''' )';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
@@ -984,6 +1012,8 @@ const
    *.D_YSResult: 验收结果
    *.D_OutFact,D_OutMan: 出厂放行
    *.D_IsMark      是否已核对  （声威）
+   *.D_UnloadPlace  卸货地点
+   *.D_UnloadType   卸货方式   人工、 自卸
   -----------------------------------------------------------------------------}
 
   sSQL_NewCard = 'Create Table $Table(R_ID $Inc, C_Card varChar(16),' +
@@ -1628,7 +1658,8 @@ const
        'B_Base Integer, B_Incement Integer, B_Length Integer, ' +
        'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
        'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
-       'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32))';
+       'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32),'+
+       'B_SendFactory Varchar(60) Not Null Default '''' )';
   {-----------------------------------------------------------------------------
    批次编码表: Batcode
    *.R_ID: 编号
@@ -1699,6 +1730,70 @@ const
    *.WOM_SyncNum: 发送次数
    *.WOM_BillType: 业务类型  采购 销售
   -----------------------------------------------------------------------------}
+
+
+  sSQL_SnapTruck = 'Create Table $Table(R_ID $Inc, S_ID varChar(20), ' +
+       'S_Truck varChar(20), S_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   微信发送日志:WeixinLog
+   *.R_ID:记录编号
+   *.S_ID: 抓拍岗位
+   *.S_Truck:抓拍车牌号
+   *.S_Date: 抓拍时间
+  -----------------------------------------------------------------------------}
+
+  sSQL_SalePlanStock = 'Create Table $Table(R_ID $Inc, S_StockNo varchar(80) NULL, ' +
+       'S_StockName varchar(80) NULL, S_Value decimal(15, 2) not NULL DEFAULT ((0)), '+
+       'S_ProhibitCreateBill Char(1) Not Null Default ''N'' )';
+  {-----------------------------------------------------------------------------
+   品种销售计划: SalePlanStock
+   *.R_ID:记录编号
+   *.S_StockNo: 品种编号
+   *.S_StockName:品种名称
+   *.S_Value: 品种总供应量
+  -----------------------------------------------------------------------------}
+
+  sSQL_SalePlanCustomer = 'Create Table $Table(R_ID $Inc, C_StockNo varchar(80) NULL, ' +
+       'C_StockName varchar(80) NULL, C_SManNo varchar(80) NULL, C_SManName varchar(80) NULL, '+
+       'C_CusNo varchar(80) NULL, C_CusName varchar(80) NULL, '+
+       'C_MaxValue decimal(15, 2) not Null DEFAULT ((0)), C_Date Datetime Null )';
+  {-----------------------------------------------------------------------------
+   品种、客户销售计划: SalePlanCustomer
+   *.R_ID:记录编号
+   *.C_StockNo: 品种编号
+   *.C_StockName:品种名称
+   *.C_CusNo、C_CusName
+   *.C_MaxValue: 总供应量
+  -----------------------------------------------------------------------------}
+  sSQL_ZTMatch = 'Create Table $Table(R_ID $Inc, Z_Group varchar(8) NULL,  ' +
+                 'Z_Tunnel varchar(20) NULL) ';
+  {-----------------------------------------------------------------------------
+   通道映射: ZTMatch
+   *.R_ID   : 记录编号
+   *.Z_Group: 分组表示
+   *.Z_Tunnel:通道
+  -----------------------------------------------------------------------------}
+
+  sSQL_TruckCus = 'Create Table $Table(R_ID $Inc, T_Truck varchar(15) NULL, T_CID varchar(32) NULL, ' +
+                  'T_CName varchar(200) NULL) ';
+  {-----------------------------------------------------------------------------
+   通道映射: TruckCus
+   *.R_ID   : 记录编号
+  -----------------------------------------------------------------------------}
+  sSQL_UPLoadOrderNc = 'Create Table $Table(R_ID $Inc, N_OrderNo varchar(32) NULL, N_Type varchar(6) NULL, ' +
+                       'N_Status int Null, N_Proc varchar(8) NULL,	N_SyncNum int Not Null Default 0, '+
+                       'N_ErrorMsg varchar(300) NULL) ';
+  {-----------------------------------------------------------------------------
+   NC订单同步: UPLoadOrderNc
+   *.N_OrderNo   : 销售或采购单编号
+   *.N_Type      : 销售(S)、采购 (P）
+   *.N_Status    : 状态： 0 成功、  1 失败 、 -1 待上传
+   *.N_Proc      : add    update   delete
+   *.N_SyncNum   : 同步次数 （如失败默认最多尝试 6 次）
+   *.N_ErrorMsg  : NC 返回的错误内容
+  -----------------------------------------------------------------------------}
+
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -1859,6 +1954,18 @@ begin
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
   AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
   AddSysTableItem(sTable_AuditTruck, sSQL_NewAuditTruck);
+
+  AddSysTableItem(sTable_SnapTruck,sSQL_SnapTruck);    // 车牌识别记录
+
+  AddSysTableItem(sTable_SalePlanStock, sSQL_SalePlanStock);
+  AddSysTableItem(sTable_SalePlanCustomer, sSQL_SalePlanCustomer);
+
+  AddSysTableItem(sTable_ZTMatch, sSQL_ZTMatch);
+  AddSysTableItem(sTable_TruckCus, sSQL_TruckCus);
+
+  AddSysTableItem(sTable_UPLoadOrderNc, sSQL_UPLoadOrderNc);
+  AddSysTableItem(sTable_UPLoadOrderNcHistory, sSQL_UPLoadOrderNc);
+
 end;
 
 //Desc: 清理系统表

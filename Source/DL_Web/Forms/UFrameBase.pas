@@ -186,6 +186,7 @@ procedure TfFrameBase.InitFormData(const nWhere: string;
 var nStr: string;
     nBool: Boolean;
     nC: TADOQuery;
+    nBookMark: TBookmark;
 begin
   nC := nil;
   try

@@ -64,6 +64,11 @@ type
 
     FDisplayDPI : Integer;                           //屏幕分辨率
     FAutoMin    : Boolean;                           //自动最小化
+    FNcURL      : string;                            //NC服务
+    FNcIsOnLine : Boolean;                           //NC 服务在线状态
+    FlastSaleTime:TDateTime;                         //离线后最后发货截止时间
+    FProportion : Double;                            //可发金额比例（在线状态 默认为 1 离线后默认为 0.8 即80%）
+    FAllowSale  : Boolean;
   end;
   //系统参数
 

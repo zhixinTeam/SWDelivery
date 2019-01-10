@@ -182,12 +182,13 @@ end;
 procedure TPrinterHelper.LoadConfig(const nFile: string);
 var nXML: TNativeXml;
     nNode: TXmlNode;
+    nStr : string;
 begin
   nXML := TNativeXml.Create;
   try
     nXML.LoadFromFile(nFile);
     nNode := nXML.Root.NodeByName('item');
-
+                                     
     with FHost do
     begin
       FID    := nNode.NodeByName('id').ValueAsString;
@@ -196,6 +197,7 @@ begin
       FPort  := nNode.NodeByName('port').ValueAsInteger;
     end;
   finally
+    WriteLog('打印服务器地址：'+FHost.FHost);
     nXML.Free;
   end;
 end;
@@ -258,7 +260,7 @@ begin
         FClient.Connect;
       end;
     except
-      WriteLog('连接远程打印服务失败.');
+      WriteLog('连接远程打印服务失败. '+ FOwner.FHost.FHost);
       FClient.Disconnect;
       Continue;
     end;

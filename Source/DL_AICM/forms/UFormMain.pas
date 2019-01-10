@@ -6,6 +6,7 @@ unit UFormMain;
 
 interface
 
+{$I Link.Inc}
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
@@ -86,7 +87,7 @@ uses
   IniFiles, ULibFun, CPortTypes, USysLoger, USysDB, USmallFunc, UDataModule,
   UFormConn, uZXNewCard,USysConst,UClientWorker,UMITPacker,USysModule,USysBusiness,
   UDataReport,UFormInputbox,UFormBarcodePrint,uZXNewPurchaseCard,  NativeXml,
-  UFormBase,DateUtils;
+  UFormBase,DateUtils, UFormChoseOPType;
 
 type
   TReaderType = (ptT800, pt8142);
@@ -165,6 +166,9 @@ begin
     FDR := TFDR.Create(Application);
   end;
   //imgPrint.Visible := False;
+  {$IFDEF CQJJ}
+  imgPrint.Visible:= False;
+  {$ENDIF}
 end;
 
 procedure TfFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -653,23 +657,39 @@ end;
 
 procedure TfFormMain.imgCardClick(Sender: TObject);
 begin
+  if gSysParam.FTTCEK720ID = '' then
+  begin
+    ShowMsg('未配置发卡机,请联系管理员', sHint);
+    Exit;
+  end;
+
   if Sender=imgCard then
   begin
-    if not Assigned(fFormNewCard) then
-    begin
-      fFormNewCard := TfFormNewCard.Create(nil);
-      fFormNewCard.SetControlsClear;
-    end;
-    fFormNewCard.BringToFront;
-    fFormNewCard.Left := self.Left;
-    fFormNewCard.Top := self.Top;
-    fFormNewCard.Width := self.Width;
-    fFormNewCard.Height := self.Height;
-    fFormNewCard.Show;
+    {$IFDEF CQJJ}
+        if not Assigned(FormChoseOPType) then
+        begin
+          FormChoseOPType := TFormChoseOPType.Create(nil);
+        end;
+        FormChoseOPType.nClose:= 0;
+        FormChoseOPType.BringToFront;
+        FormChoseOPType.Show;
+    {$ELSE}
+        if not Assigned(fFormNewCard) then
+        begin
+          fFormNewCard := TfFormNewCard.Create(nil);
+          fFormNewCard.SetControlsClear;
+        end;
+        fFormNewCard.BringToFront;
+        fFormNewCard.Left := self.Left;
+        fFormNewCard.Top := self.Top;
+        fFormNewCard.Width := self.Width;
+        fFormNewCard.Height:= self.Height;
+        fFormNewCard.Show;
+    {$ENDIF}
   end
   else if Sender=imgPurchaseCard then
   begin
-   if not Assigned(fFormNewPurchaseCard) then
+    if not Assigned(fFormNewPurchaseCard) then
     begin
       fFormNewPurchaseCard := TfFormNewPurchaseCard.Create(nil);
       fFormNewPurchaseCard.SetControlsClear;

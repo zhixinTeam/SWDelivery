@@ -51,6 +51,8 @@ type
     //切换调度模式
     function PoundCardNo(var nData: string): Boolean;
     //读取磅站卡号
+    function PoundReaderInfo(var nData: string): Boolean;
+    //读取磅站读卡器岗位、部门
     function LoadQueue(var nData: string): Boolean;
     //读取车辆队列
     function ExecuteSQL(var nData: string): Boolean;
@@ -70,10 +72,15 @@ type
     function TruckProbe_IsTunnelOK(var nData: string): Boolean;
     function TruckProbe_TunnelOC(var nData: string): Boolean;
     //车辆检测控制器业务
+    function TruckProbe_ShowTxt(var nData: string): Boolean;
+    //磅房小屏
+
     function OpenDoorByReader(var nData: string): Boolean;
     //通过读卡器打开道闸
     function LineClose(var nData: string): Boolean;
     //定制放灰
+    function RemoteSnap_DisPlay(var nData: string): Boolean;
+    //抓拍小屏显示
   public
     constructor Create; override;
     destructor destroy; override;
@@ -88,7 +95,7 @@ implementation
 uses
 	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
-  UMgrTruckProbe, UMgrERelay;
+  UMgrTruckProbe, UMgrERelay, UMgrRemoteSnap;
 
 //Date: 2012-3-13
 //Parm: 如参数护具
@@ -234,6 +241,9 @@ begin
   case FIn.FCommand of
    cBC_ChangeDispatchMode   : Result := ChangeDispatchMode(nData);
    cBC_GetPoundCard         : Result := PoundCardNo(nData);
+   cBC_GetPoundReaderInfo   : Result := PoundReaderInfo(nData);     //  获取读卡器绑定的标示
+   cBC_RemoteSnapDisPlay    : Result := RemoteSnap_DisPlay(nData);  //  车牌识别小屏显示
+
    cBC_GetQueueData         : Result := LoadQueue(nData);
    cBC_SaveCountData        : Result := SaveDaiNum(nData);
    cBC_RemoteExecSQL        : Result := ExecuteSQL(nData);
@@ -248,9 +258,11 @@ begin
 
    cBC_IsTunnelOK           : Result := TruckProbe_IsTunnelOK(nData);
    cBC_TunnelOC             : Result := TruckProbe_TunnelOC(nData);
+   cBC_ShowTxt              : Result := TruckProbe_ShowTxt(nData);
 
    cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
    cBC_LineClose            : Result := LineClose(nData);
+
    //xxxxxx
    else
     begin
@@ -305,6 +317,7 @@ function THardwareCommander.PoundCardNo(var nData: string): Boolean;
 var nStr, nReader: string;
 begin
   Result := True;
+
   FOut.FData := gHardwareHelper.GetPoundCard(FIn.FData, nReader);
   if FOut.FData = '' then Exit;
 
@@ -320,6 +333,16 @@ begin
     gHardwareHelper.SetPoundCardExt(FIn.FData, FOut.FData);
     //将远距离卡号对应的近距离卡号绑定
   end;
+end;
+
+//Date: 2018-08-03
+//Parm: 读卡器ID[FIn.FData];
+//Desc: 获取指定磅站读卡器上的岗位、部门
+function THardwareCommander.PoundReaderInfo(var nData: string): Boolean;
+var nStr, nPoundID: string;
+begin
+  Result := True;
+  FOut.FData := gHardwareHelper.GetReaderInfo(FIn.FData, FOut.FExtParam);
 end;
 
 //Date: 2014-10-01
@@ -667,6 +690,20 @@ begin
   WriteLog(nData);
 end;
 
+//Date: 2018-02-27
+//Parm: 通道号[FIn.FData] 发送内容[FIn.FExt]
+//Desc: 向指定通道的显示屏发送内容
+function THardwareCommander.TruckProbe_ShowTxt(var nData: string): Boolean;
+begin
+  Result := True;
+  if not Assigned(gProberManager) then Exit;
+
+  gProberManager.ShowTxt(FIn.FData,FIn.FExtParam);
+
+  nData := Format('ShowTxt -> %s:%s', [FIn.FData, FIn.FExtParam]);
+  WriteLog(nData);
+end;
+
 //Date: 2017/2/8
 //Parm: 读卡器编号[FIn.FData];读卡器类型[FIn.FExtParam]
 //Desc: 读卡器打开道闸
@@ -729,6 +766,30 @@ begin
 
   Result := True;
 end;
+
+//Date: 2018-08-14
+//Parm: 岗位[FIn.FData] 发送内容[FIn.FExt]
+//Desc: 向指定通道的显示屏发送内容
+function THardwareCommander.RemoteSnap_DisPlay(var nData: string): Boolean;
+var nInt: Integer;
+begin
+  Result := True;
+  if not Assigned(gHKSnapHelper) then Exit;
+
+  FListA.Clear;
+  FListA.Text := PackerDecodeStr(FIn.FExtParam);
+
+  if FListA.Values['succ'] = sFlag_No then
+         nInt := 3
+  else nInt := 2;
+
+  gHKSnapHelper.Display(FIn.FData,FListA.Values['text'], nInt);
+
+  nData := Format('RemoteSnapDisPlay -> %s:%s:%s', [FIn.FData, FListA.Values['text'],
+                                                    FListA.Values['succ']]);
+  WriteLog(nData);
+end;
+
 
 
 

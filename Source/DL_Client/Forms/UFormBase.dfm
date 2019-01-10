@@ -1,6 +1,6 @@
 object BaseForm: TBaseForm
-  Left = 296
-  Top = 250
+  Left = 444
+  Top = 375
   Width = 345
   Height = 334
   Color = clBtnFace

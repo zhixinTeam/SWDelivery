@@ -23,6 +23,7 @@ object fFormMain: TfFormMain
     Height = 70
     Align = alTop
     TabOrder = 0
+    OnClick = GroupBox1Click
     object CheckSrv: TCheckBox
       Left = 45
       Top = 45

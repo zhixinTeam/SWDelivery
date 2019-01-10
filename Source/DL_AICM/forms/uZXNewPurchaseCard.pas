@@ -93,7 +93,7 @@ var
 implementation
 uses
   ULibFun,UBusinessPacker,USysLoger,UBusinessConst,UFormMain,USysBusiness,USysDB,Util_utf8,
-  UAdjustForm,UFormBase,UDataReport,UDataModule,NativeXml,UMgrK720Reader,UFormWait,
+  UAdjustForm,UFormBase,UDataReport,UDataModule, NativeXml, UMgrTTCEDispenser, UFormWait,
   DateUtils;
 {$R *.dfm}
 
@@ -491,28 +491,28 @@ begin
     for i := 0 to 3 do
     begin
       for nIdx:=0 to 3 do
-      if gMgrK720Reader.ReadCard(nNewCardNo) then Break
-      else Sleep(500);
+      begin
+        nNewCardNo:= gDispenserManager.GetCardNo(gSysParam.FTTCEK720ID, nHint, False);
+        if nNewCardNo<>'' then Break;
+        Sleep(500);
+      end;
       //连续三次读卡,成功则退出。
-      if nNewCardNo<>'' then Break;
-      gMgrK720Reader.RecycleCard;
+      if nNewCardNo<>'' then
+        if IsCardValid(nNewCardNo) then Break;
     end;
 
     if nNewCardNo = '' then
     begin
       ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
       Exit;
-    end;
+    end
+    else WriteLog('读取到卡片: ' + nNewCardNo);
   except on Ex:Exception do
     begin
       WriteLog('卡箱异常 '+Ex.Message);
       ShowDlg('卡箱异常, 请联系管理人员.', sWarn, Self.Handle);
     end;
   end;
-
-  nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
-  WriteLog(nNewCardNo);
-  //解析卡片
   writelog('TfFormNewPurchaseCard.SaveBillProxy 发卡机读卡-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
 
   nList := TStringList.Create;
@@ -522,12 +522,17 @@ begin
     nList.Values['Truck'] := Trim(EditTruck.Text);
     nList.Values['Project'] := EditID.Text;
     nList.Values['CardType'] := 'L';
-
+    {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+    nList.Values['SendFactory'] := '榆林';
+    {$ENDIF}
+    
     nList.Values['ProviderID'] := nOrderItem.FProvID;
     nList.Values['ProviderName'] := nOrderItem.FProvName;
     nList.Values['StockNO'] := nOrderItem.FGoodsID;
     nList.Values['StockName'] := nOrderItem.FGoodsname;
     nList.Values['Value'] := EditValue.Text;
+    nList.Values['YJZValue'] := '0';     // 原始净重
+    nList.Values['KFTime'] := FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);       // 矿发时间
 
     nList.Values['WebOrderID'] := nWebOrderID;
 
@@ -558,9 +563,8 @@ begin
     nRet := False;
     for nIdx := 0 to 3 do
     begin
-      nRet := gMgrK720Reader.SendReaderCmd('FC0');
+      nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
       if nRet then Break;
-
       Sleep(500);
     end;
     //发卡
@@ -573,7 +577,7 @@ begin
     ShowMsg(nHint,sWarn);
   end
   else begin
-    gMgrK720Reader.RecycleCard;
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
 
     nHint := '商城货单号[%s]卡号 [%s] 关联采购订单 [%s] 失败，请到开票窗口重新关联。';
     nHint := Format(nHint,[editWebOrderNo.Text,nNewCardNo,nOrder]);

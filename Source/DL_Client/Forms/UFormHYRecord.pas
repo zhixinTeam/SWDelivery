@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormHYRecord;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -450,6 +451,9 @@ begin
     nSQL := MakeSQLByForm(Self, sTable_StockRecord, nStr, False, GetData);
   end;
 
+  //{$IFDEF SWAS}
+  nSQL:= StringReplace(nSQL, '''''', '''¡ª''', [rfReplaceAll]);
+  //{$ENDIF}
   FDM.ExecuteSQL(nSQL);
 
 

@@ -23,6 +23,7 @@ type
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
     //base funciton
+    function AddUPLoadOrderToNcMsg(nMid, nOrderNo, nProc: string): Boolean;
 
     function SaveOrderBase(var nData: string):Boolean;
     function DeleteOrderBase(var nData: string):Boolean;
@@ -313,7 +314,7 @@ end;
 //Date: 2015-8-5
 //Desc: 保存采购单
 function TWorkerBusinessOrders.SaveOrder(var nData: string): Boolean;
-var nStr, nOId : string;
+var nStr, nOId, nKfTime: string;
     nIdx: Integer;
     nVal: Double;
     nOut: TWorkerBusinessCommand;
@@ -367,7 +368,8 @@ begin
             SF('O_StockName', FListA.Values['StockName']),
 
             SF('O_Truck', FListA.Values['Truck']),
-           // SF('O_YJZValue', FListA.Values['YJZValue']),
+            SF('O_YJZValue', FListA.Values['YJZValue']),
+            SF('O_KFtime', nKfTime),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
             ], sTable_Order, '', True);
@@ -432,6 +434,10 @@ begin
 
       nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 3, D_PDate) Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      ///****************************************************
+      ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
+      AddUPLoadOrderToNcMsg(FListA.Values['StockNO'], nOut.FData, 'add');
     end;
 
     nIdx := Length(FOut.FData);
@@ -447,10 +453,33 @@ begin
   end;
 end;
 
+function TWorkerBusinessOrders.AddUPLoadOrderToNcMsg(nMid, nOrderNo, nProc: string): Boolean;
+var nStr : string;
+begin
+  Result:= False;
+  ///*********************************************************************
+  ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
+  nStr := 'Select * From %s Where M_ID=''%s'' And And ISNULL(M_Pk, '''')<>'''' ';
+  nStr := Format(nStr, [sTable_Materails, nMid, sTable_Materails]);
+  try
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      nStr:= MakeSQLByStr([SF('N_OrderNo', nOrderNo), SF('N_Type', 'P'),
+                           SF('N_Status', '-1'), SF('N_Proc', nProc),
+                           SF('N_SyncNum', '0')
+                            ], sTable_UPLoadOrderNc, '', True);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
+    Result:= True;
+  except
+  end;
+end;
+
 //Date: 2015-8-5
 //Desc: 删除采购单
 function TWorkerBusinessOrders.DeleteOrder(var nData: string): Boolean;
-var nStr,nP: string;
+var nStr,nP : string;
     nIdx: Integer;
 begin
   Result := False;
@@ -490,9 +519,9 @@ begin
     nStr := 'Insert Into $OB($FL,O_DelMan,O_DelDate) ' +
             'Select $FL,''$User'',$Now From $OO Where O_ID=''$ID''';
     nStr := MacroValue(nStr, [MI('$OB', sTable_OrderBak),
-            MI('$FL', nP), MI('$User', FIn.FBase.FFrom.FUser),
-            MI('$Now', sField_SQLServer_Now),
-            MI('$OO', sTable_Order), MI('$ID', FIn.FData)]);
+                              MI('$FL', nP), MI('$User', FIn.FBase.FFrom.FUser),
+                              MI('$Now', sField_SQLServer_Now),
+                              MI('$OO', sTable_Order), MI('$ID', FIn.FData)]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
 
     nStr := 'Delete From %s Where O_ID=''%s''';
@@ -826,7 +855,7 @@ end;
 function TWorkerBusinessOrders.SavePostOrderItems(var nData: string): Boolean;
 var nVal: Double;
     nIdx: Integer;
-    nStr,nSQL: string;
+    nStr,nSQL, nFYSValid: string;
     nPound: TLadingBillItems;
     nOut: TWorkerBusinessCommand;
     
@@ -836,7 +865,7 @@ var nVal: Double;
     nPrePTime:TDateTime;
     nNextStatus : string;
 begin
-  Result := False;  nIsPreTruck:= False;
+  Result := False;  nIsPreTruck:= False;    nFYSValid:= '';
   AnalyseBillItems(FIn.FData, nPound);
   //解析数据
   nIsPreTruck := GetPrePInfo(nPound[0].Ftruck, nPrePValue, nPrePMan, nPrePTime);
@@ -914,8 +943,11 @@ begin
       FNextStatus := sFlag_TruckXH;
 
       if FListB.IndexOf(FStockNo) >= 0 then
+      begin
         FNextStatus := sFlag_TruckBFM;
-      //现场不发货直接过重
+        //现场不发货直接过重
+        nFYSValid:= 'Y';
+      end;
 
       nSQL := MakeSQLByStr([
             SF('P_ID', nOut.FData),
@@ -950,6 +982,11 @@ begin
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);
 
+      nSQL := MakeSQLByStr([
+              SF('D_YSResult', nFYSValid),
+              SF('D_YMan', 'AutoYS')
+              ], sTable_OrderDtl, SF('D_ID', FID), False);
+      FListA.Add(nSQL);
 
       if nIsPreTruck then
       begin
@@ -983,6 +1020,8 @@ begin
               SF('D_YMan', FIn.FBase.FFrom.FUser),
               SF('D_KZValue', FKZValue, sfVal),
               SF('D_YSResult', FYSValid),
+              SF('D_UnloadPlace', FPlace),
+              SF('D_UnloadType', FUnloadingType),
               SF('D_Memo', FMemo)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);
@@ -1092,6 +1131,20 @@ begin
               SF('D_OutMan', FIn.FBase.FFrom.FUser)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL); //更新采购单
+
+      ///****************************************************
+      ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
+      nStr := 'Select * From %s Where M_ID=''%s'' And ISNULL(M_Pk, '''')<>'''' ';
+      nStr := Format(nStr, [sTable_Materails, FStockNo, sTable_Materails]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      if RecordCount > 0 then
+      begin
+        nSQL := MakeSQLByStr([SF('N_OrderNo', FID), SF('N_Type', 'P'),
+                              SF('N_Status', '-1'), SF('N_Proc', 'add'),
+                              SF('N_SyncNum', '0')
+                              ], sTable_UPLoadOrderNc, '', True);
+        FListA.Add(nSQL);
+      end;
     end;
 
     {$IFDEF UseERP_K3}

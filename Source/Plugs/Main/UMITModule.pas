@@ -14,7 +14,8 @@ uses
   UTaskMonitor, UBaseObject, USysShareMem, USysLoger, UMITConst, UMITPacker,
   {$IFDEF HardMon}UEventHardware, UWorkerHardware,{$ENDIF}
   UWorkerBusiness, UWorkerBusinessBill, UWorkerBusinessOrder, UWorkerBusinessDuanDao,
-  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} UMemDataPool,
+  UWorkerClientNC,
+  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} UMemDataPool, 
   UMgrDBConn, UMgrParam, UMgrPlug, UMgrChannel, UChannelChooser, USAPConnection;
 
 procedure InitSystemObject(const nMainForm: THandle);
@@ -188,6 +189,12 @@ begin
   {$IFDEF MicroMsg}
   gWXPlatFormHelper.LoadConfig(gPath + 'Hardware\MicroMsg.XML');
   {$ENDIF} //micro message
+
+  gChannelManager := TChannelManager.Create;
+  gChannelManager.ChannelMax := 20;
+  gChannelChoolser := TChannelChoolser.Create('');
+  gChannelChoolser.AutoUpdateLocal := False;
+
 
   with nParam do
   begin

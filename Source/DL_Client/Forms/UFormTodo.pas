@@ -11,7 +11,8 @@ uses
   UDataModule, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, ImgList, DB, ADODB,
   ExtCtrls, cxGroupBox, cxRadioGroup, cxMemo, cxTextEdit, cxListView,
-  cxLabel, dxLayoutControl, StdCtrls;
+  cxLabel, dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormTodo = class(TfFormNormal)
@@ -31,6 +32,7 @@ type
     Timer1: TTimer;
     ADOQuery1: TADOQuery;
     ImageBar: TcxImageList;
+    tmr1: TTimer;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -38,6 +40,7 @@ type
     procedure ListTodoSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure cxRadio1PropertiesEditValueChanged(Sender: TObject);
+    procedure tmr1Timer(Sender: TObject);
   private
     { Private declarations }
     function LoadEventFromDB: Boolean;
@@ -391,6 +394,15 @@ begin
 
     FDM.ExecuteSQL(nStr);
     Timer1.Tag := cRefreshInterval - 1;
+  end;
+end;
+
+procedure TfFormTodo.tmr1Timer(Sender: TObject);
+begin
+  if cxRadio1.Visible then
+  begin
+    cxRadio1.Visible:= False;
+    BtnOK.Visible:= False;
   end;
 end;
 

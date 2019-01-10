@@ -146,8 +146,12 @@ type
     FPoundID    : string;          //称重记录
     FSelected   : Boolean;         //选中状态
 
+    FYSValid    : string;          //验收结果，Y验收成功；N拒收；
     FKZValue    : Double;          //供应扣除
     FMemo       : string;          //动作备注
+
+    FPlace      : string;          //卸货地点
+    FUnloadingType : string;       //卸货方式
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -279,6 +283,11 @@ begin
         else FKZValue := 0;
 
         FMemo := Values['Memo'];
+
+        FYSValid := Values['YSValid'];
+        FPlace:= Values['UnloadingPlace'];
+        FUnloadingType:= Values['UnloadingType'];
+        FMemo:= Values['JuShou'];
       end;
 
       Inc(nInt);
@@ -355,6 +364,10 @@ begin
 
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['Memo']       := FMemo;
+
+        Values['YSValid']    := FYSValid;
+        Values['UnloadingPlace'] := FPlace;
+        Values['UnloadingType']  := FUnloadingType;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.572,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.134,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.748,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.924,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.dfm=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFormInputbox.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.529,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.dfm=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFrameSalePlan.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.824,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.dfm=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFormSalePlan.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.818,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.924,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFormInputbox.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.529,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFrameSalePlan.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.824,E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Forms\UFormSalePlan.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.761,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.365,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.969,=E:\ZhiXinProject\Base\ZXDelivery - ShengWei\trunk\Source\DL_Web\Unit1.pas</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="Common"/>
+    <File Path="Common\USysBusiness.pas"/>
+    <File Path="Common\USysConst.pas"/>
+    <File Path="Common\USysFun.pas"/>
+    <File Path="Common\USysModule.pas"/>
+    <File Path="Common\USysRemote.pas"/>
+    <File Path="Forms"/>
+    <File Path="Forms\UFormBase.pas"/>
+    <File Path="Forms\UFormBase.dfm"/>
+    <File Path="Forms\UFormChangePwd.pas"/>
+    <File Path="Forms\UFormChangePwd.dfm"/>
+    <File Path="Forms\UFormLogin.pas"/>
+    <File Path="Forms\UFormLogin.dfm"/>
+    <File Path="Forms\UFrameBase.pas"/>
+    <File Path="Forms\UFrameBase.dfm"/>
+    <File Path="Forms\UFrameSalePlan.pas"/>
+    <File Path="Forms\UFrameSalePlan.dfm"/>
+    <File Path="Forms\UFormSalePlan.pas"/>
+    <File Path="Forms\UFormSalePlan.dfm"/>
+    <File Path="MainModule.pas"/>
+    <File Path="MainModule.dfm"/>
+    <File Path="ServerModule.pas"/>
+    <File Path="ServerModule.dfm"/>
+    <File Path="UFormMain.pas"/>
+    <File Path="UFormMain.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

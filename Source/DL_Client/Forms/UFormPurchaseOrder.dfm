@@ -1,30 +1,30 @@
 inherited fFormPurchaseOrder: TfFormPurchaseOrder
   Left = 841
   Top = 258
-  ClientHeight = 412
-  ClientWidth = 477
+  ClientHeight = 436
+  ClientWidth = 492
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 477
-    Height = 412
+    Width = 492
+    Height = 436
     AutoControlTabOrders = False
     inherited BtnOK: TButton
-      Left = 331
-      Top = 379
+      Left = 346
+      Top = 403
       Caption = #24320#21333
       TabOrder = 8
     end
     inherited BtnExit: TButton
-      Left = 401
-      Top = 379
+      Left = 416
+      Top = 403
       TabOrder = 10
     end
     object EditValue: TcxTextEdit [2]
       Left = 279
-      Top = 245
+      Top = 269
       ParentFont = False
       TabOrder = 7
       Text = '0.00'
@@ -89,7 +89,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditTruck: TcxButtonEdit [9]
       Left = 81
-      Top = 245
+      Top = 269
       ParentFont = False
       Properties.Buttons = <
         item
@@ -103,7 +103,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditCardType: TcxComboBox [10]
       Left = 81
-      Top = 270
+      Top = 294
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.Items.Strings = (
@@ -114,13 +114,13 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object cxLabel1: TcxLabel [11]
       Left = 221
-      Top = 270
+      Top = 294
       Caption = #27880':'#20020#26102#21345#20986#21378#26102#22238#25910';'#22266#23450#21345#20986#21378#26102#19981#22238#25910
       ParentFont = False
     end
     object Edt_PValue: TcxTextEdit [12]
       Left = 81
-      Top = 320
+      Top = 344
       ParentFont = False
       TabOrder = 16
       OnKeyPress = Edt_PValueKeyPress
@@ -128,7 +128,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object Edt_MValue: TcxTextEdit [13]
       Left = 81
-      Top = 295
+      Top = 319
       ParentFont = False
       TabOrder = 15
       OnKeyPress = Edt_PValueKeyPress
@@ -136,39 +136,47 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object Edt_MMan: TcxTextEdit [14]
       Left = 279
-      Top = 291
+      Top = 315
       ParentFont = False
       TabOrder = 17
       Width = 135
     end
     object Edt_PMan: TcxTextEdit [15]
       Left = 279
-      Top = 316
+      Top = 340
       ParentFont = False
       TabOrder = 18
       Width = 135
     end
     object Edt_Man: TcxTextEdit [16]
       Left = 81
-      Top = 345
+      Top = 369
       ParentFont = False
       TabOrder = 19
       Width = 135
     end
     object edt_YsJz: TcxTextEdit [17]
       Left = 81
-      Top = 220
+      Top = 219
       ParentFont = False
       TabOrder = 20
       Text = '0.00'
       OnKeyPress = Edt_PValueKeyPress
-      Width = 135
+      Width = 141
     end
     object cxlbl1: TcxLabel [18]
-      Left = 221
-      Top = 220
-      Caption = #27880':'#36135#28304#21333#20301#20986#20855#30340#20928#37325
+      Left = 227
+      Top = 219
+      Caption = #27880':'#36135#28304#21333#20301#20986#20855#30340#20928#37325' '#20197#21450#20986#21378#26102#38388
       ParentFont = False
+    end
+    object EdtKFTime: TcxDateEdit [19]
+      Left = 81
+      Top = 244
+      ParentFont = False
+      Properties.Kind = ckDateTime
+      TabOrder = 22
+      Width = 141
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -221,10 +229,20 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
-          object dxlytmYSJZ: TdxLayoutItem
-            Caption = #21407#22987#20928#37325':'
-            Control = edt_YsJz
-            ControlOptions.ShowBorder = False
+          object dxLayout1Group3: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            ShowBorder = False
+            object dxlytmYSJZ: TdxLayoutItem
+              Caption = #21407#22987#20928#37325':'
+              Control = edt_YsJz
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item6: TdxLayoutItem
+              Caption = #30719#21457#26102#38388':'
+              Control = EdtKFTime
+              ControlOptions.ShowBorder = False
+            end
           end
           object dxlytmHYJz: TdxLayoutItem
             Control = cxlbl1

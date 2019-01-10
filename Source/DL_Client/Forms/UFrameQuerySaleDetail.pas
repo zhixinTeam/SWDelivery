@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameQuerySaleDetail;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -37,11 +38,14 @@ type
     dxLayout1Item4: TdxLayoutItem;
     EditBill: TcxButtonEdit;
     dxLayout1Item7: TdxLayoutItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure mniN1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -61,6 +65,7 @@ type
     procedure SummaryItemsGetText(Sender: TcxDataSummaryItem;
       const AValue: Variant; AIsFooter: Boolean; var AText: String);
     //处理摘要
+    procedure UPDateXSql;
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -71,7 +76,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
-  UBusinessConst, USysConst, USysDB;
+  UBusinessConst, USysConst, USysDB, UDataModule;
 
 class function TfFrameSaleDetailQuery.FrameID: integer;
 begin
@@ -113,9 +118,30 @@ begin
   inherited;
 end;
 
+procedure TfFrameSaleDetailQuery.UPDateXSql;
+var nSQL: string;
+begin
+  nSQL := ' UPDate S_Bill Set L_StdMValue=Cast(FLOOR(RAND(checksum(newid()))*5)+46 + (ceiling(rand(checksum(newid()))*100))/100.00 as decimal(15,2)) ' +
+          ' Where  L_Value>=50 And L_StdMValue = 0 And L_Date>='''+Date2Str(Now)+'''  ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate S_Bill Set L_StdMValue=L_Value Where  L_Value<50 And L_StdMValue = 0  ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL((Select L_StdMValue From S_Bill Where L_ID=P_Bill And P_StdNetWeight=0), 0) '+
+          ' Where P_StdNetWeight=0 And P_Type=''S'' ';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL(P_MValue-P_PValue, 0) Where P_StdNetWeight=0 And P_Type=''P''';
+  FDM.ExecuteSQL(nSQL);
+end;
+
 function TfFrameSaleDetailQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
+   {$IFDEF PoundRoundJZ}
+    UPDateXSql;
+   {$ENDIF}
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   Result := 'Select *,(L_Value*L_Price) as L_Money From $Bill b ';
 
@@ -220,6 +246,20 @@ begin
   except
     //ignor any error
   end;
+end;
+
+procedure TfFrameSaleDetailQuery.N2Click(Sender: TObject);
+begin
+  if ShowDateFilterForm(FTimeS, FTimeE, True) then
+  try
+    FJBWhere := '(L_LadeTime>=''%s'' and L_LadeTime <=''%s'')';
+    FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
+                sFlag_BillPick, sFlag_BillPost]);
+    InitFormData('');
+  finally
+    FJBWhere := '';
+  end;
+
 end;
 
 initialization

@@ -245,6 +245,7 @@ type
     FShuLiaoNeedBatchCode:Boolean;                   //熟料是否需要出厂编号
     FReadInsertCard:Boolean;                         //插入磁卡查询
     FEnablePurchaseMultipleCard:Boolean;             //采购允许办理多卡
+    FTTCEK720ID : string;                            //指定发卡机
   end;
   //系统参数
 

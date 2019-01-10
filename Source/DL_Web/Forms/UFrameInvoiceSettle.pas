@@ -84,8 +84,8 @@ begin
       if FNowWeek = '' then
       begin
         nWeek := 'Where (W_Begin>=''$S'' and ' +
-                 'W_Begin<''$E'') or (W_End>=''$S'' and W_End<''$E'') ' +
-                 'Order By W_Begin';
+                 'W_Begin<''$E'') or (W_End>=''$S'' and W_End<''$E'') ';// +
+                 //'Order By W_Begin';
         nInt := StrToInt(FNowYear);
 
         nWeek := MacroValue(nWeek, [MI('$W', sTable_InvoiceWeek),
@@ -93,12 +93,16 @@ begin
         //xxxxx
       end else
       begin
-        nWeek := Format('Where R_Week=''%s''', [FNowWeek]);
+        nWeek := Format('Where R_Week=''%s''  AND R_Chk=1', [FNowWeek]);
       end;
     end;
 
-    Result := 'Select req.*,((R_KPrice+R_KYunFei)*R_KValue) R_KMoney,W_Name,Z_Name,' +
-              'Z_Project From $Req req ' +
+    //Result := 'Select req.*,((R_KPrice+R_KYunFei)*R_KValue) R_KMoney,W_Name,Z_Name,' +
+    Result := 'Select ROW_NUMBER() over(order by R_CusID) as R_ID, x.*,((R_KPrice+R_KYunFei)*R_KValue) R_KMoney From (  ' +
+                'Select R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, SUM(R_Value) R_Value, R_PreHasK, '+
+                'R_ReqValue, R_KPrice,SUM(R_KValue) R_KValue, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, '+
+                'R_KYunFei, W_Name,Z_Name,Z_Project From $Req  req ' +
+
               ' Left Join $Week On W_NO=req.R_Week ' +
               ' Left Join $ZK On Z_ID=req.R_ZhiKa ';
     Result := Result + nWeek;
@@ -106,6 +110,14 @@ begin
     if nWhere <> '' then
       Result := Result + ' And ( ' + nWhere + ' )';
     //xxxxx
+
+    Result := Result +
+              ' Group  by  R_Week, R_CusID, R_Customer, R_SaleID, R_SaleMan, R_Type, R_Stock, R_Price, R_PreHasK, R_ReqValue, '+
+              'R_KPrice, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, R_KYunFei,'+
+              ' W_Name,Z_Name,Z_Project  ) x';
+
+
+    if FNowWeek='' then Result := Result + ' Order By R_Week ';
 
     Result := MacroValue(Result, [MI('$Req', sTable_InvoiceReq),
               MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa)]);
@@ -174,6 +186,7 @@ end;
 procedure TfFrameInvoiceSettle.BtnEditClick(Sender: TObject);
 var nForm: TUniForm;
     nParam: TFormCommandParam;
+    nCusId, nZhiKa, nWeek, nStockId, nPrice, nType, nSaleId, nYunFei, nWhere : string;
 begin
   if DBGridMain.SelectedRows.Count < 1 then
   begin
@@ -181,11 +194,34 @@ begin
     Exit;
   end;
 
+  with ClientDS do
+  begin
+    if FieldByName('R_KValue').AsFloat>0 then
+    begin
+      ShowMessage('该笔返利已生效、不能再操作了哦');
+      Exit;
+    end;
+  end;
+
   nForm := SystemGetForm('TfFormInvoiceFLSet', True);
   if not Assigned(nForm) then Exit;
 
   nParam.FCommand := cCmd_EditData;
-  nParam.FParamA := ClientDS.FieldByName('R_ID').AsString;
+
+  nCusId := ClientDS.FieldByName('R_CusID').AsString;
+  nZhiKa := ClientDS.FieldByName('R_ZhiKa').AsString;
+  nWeek  := ClientDS.FieldByName('R_Week').AsString;
+  nStockId := ClientDS.FieldByName('R_Stock').AsString;
+  nPrice   := ClientDS.FieldByName('R_Price').AsString;
+  nType    := ClientDS.FieldByName('R_Type').AsString;
+  nSaleId  := ClientDS.FieldByName('R_SaleID').AsString;
+  nYunFei  := ClientDS.FieldByName('R_YunFei').AsString;
+
+  nWhere:= Format('R_CusID=''%s'' And R_ZhiKa=''%s'' And R_Week=''%s'' And R_Stock=''%s'' And R_Price=''%s'' '+
+                  'And R_Type=''%s'' And R_SaleID=''%s'' And R_YunFei=''%s''', [nCusId, nZhiKa, nWeek, nStockId,
+                                  nPrice, nType, nSaleId, nYunFei]);
+  //*****************
+  nParam.FParamA := nWhere;
   (nForm as TfFormBase).SetParam(nParam);
 
   nForm.ShowModal(

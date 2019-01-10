@@ -44,6 +44,8 @@ type
     FKeep    : Word;
     FOKTime  : Int64;
     FOptions : TStrings;          //附加参数
+    FPost    : string;     //所在岗位
+    FDept    : string;     //所属门岗
   end;
 
   THardwareHelper = class;
@@ -113,6 +115,8 @@ type
     procedure StopRead;
     //启停读取
     function GetPoundCard(const nPound: string; var nReader: string): string;
+    function GetReaderInfo(const nReader: string; var nDept: string): string;
+
     procedure SetPoundCardExt(const nPound,nExtCard: string);
     //磅站卡号
     procedure OpenDoor(const nReader: string);
@@ -219,6 +223,32 @@ begin
         Break;
       end;
       //loop get card
+    end;
+  finally
+    FSyncLock.Leave;
+  end;
+end;
+
+//Desc: 获取nReader所属岗位、部门
+function THardwareHelper.GetReaderInfo(const nReader: string;
+    var nDept: string): string;
+var nIdx: Integer;
+begin
+  FSyncLock.Enter;
+  try
+    Result := '';
+
+    for nIdx:=Low(FItems) to High(FItems) do
+    if CompareText(nReader, FItems[nIdx].FID) = 0 then
+    begin
+      Result := FItems[nIdx].FPost;
+      //xxxxx
+
+      if Result <> '' then
+      begin
+        nDept := FItems[nIdx].FDept;
+        Break;
+      end;
     end;
   finally
     FSyncLock.Leave;
@@ -373,58 +403,77 @@ begin
     nNode := nXML.Root.NodeByName('readers');
     nInt := 0;
     SetLength(FItems, nNode.NodeCount);
+    try
+      for nIdx:=0 to nNode.NodeCount - 1 do
+      with nNode.Nodes[nIdx],FItems[nInt] do
+      begin
+        FCard := '';
+        FCardExt := '';
 
-    for nIdx:=0 to nNode.NodeCount - 1 do
-    with nNode.Nodes[nIdx],FItems[nInt] do
-    begin
-      FCard := '';
-      FCardExt := '';
+        FLast := 0;
+        FOKTime := 0;
+        FID := AttributeByName['ID'];
 
-      FLast := 0;
-      FOKTime := 0;
-      FID := AttributeByName['ID'];
+        i := NodeByName('type').ValueAsInteger;
+        case i of
+         1: FType := rtIn;
+         2: FType := rtOut;
+         3: FType := rtPound;
+         4: FType := rtGate;
+         5: FType := rtQueueGate else FType := rtGate;
+        end;
 
-      i := NodeByName('type').ValueAsInteger;
-      case i of
-       1: FType := rtIn;
-       2: FType := rtOut;
-       3: FType := rtPound;
-       4: FType := rtGate;
-       5: FType := rtQueueGate else FType := rtGate;
+        nTP := NodeByName('pound');
+        if Assigned(nTP) then
+             FPound := nTP.ValueAsString
+        else FPound := '';
+
+        nTP := NodeByName('printer');
+        if Assigned(nTP) then
+             FPrinter := nTP.ValueAsString
+        else FPrinter := '';
+
+        nTP := NodeByName('options');
+        if Assigned(nTP) then
+        begin
+          FOptions := TStringList.Create;
+          SplitStr(nTP.ValueAsString, FOptions, 0, ';');
+        end else FOptions := nil;
+
+
+        //*************************  车牌识别
+        nTP := NodeByName('Post');
+        if Assigned(nTP) then
+             FPost := nTP.ValueAsString
+        else FPost := 'Sin';
+
+        nTP := NodeByName('Dept');
+        if Assigned(nTP) then
+             FDept := nTP.ValueAsString
+        else FDept := '';
+
+
+        nTP := NodeByName('keeptime');
+        if Assigned(nTP) then
+        begin
+          i := nTP.ValueAsInteger;
+          if i < 1 then
+               FKeep := 1
+          else FKeep := i;
+        end else
+        begin
+          if FType = rtPound then
+               FKeep := 20
+          else FKeep := 3;
+        end;
+
+        Inc(nInt);
       end;
-
-      nTP := NodeByName('pound');
-      if Assigned(nTP) then
-           FPound := nTP.ValueAsString
-      else FPound := '';
-
-      nTP := NodeByName('printer');
-      if Assigned(nTP) then
-           FPrinter := nTP.ValueAsString
-      else FPrinter := '';
-
-      nTP := NodeByName('options');
-      if Assigned(nTP) then
+    except
+      on e:Exception do
       begin
-        FOptions := TStringList.Create;
-        SplitStr(nTP.ValueAsString, FOptions, 0, ';');
-      end else FOptions := nil;
-
-      nTP := NodeByName('keeptime');
-      if Assigned(nTP) then
-      begin
-        i := nTP.ValueAsInteger;
-        if i < 1 then
-             FKeep := 1
-        else FKeep := i;
-      end else
-      begin
-        if FType = rtPound then
-             FKeep := 20
-        else FKeep := 3;
+        WriteLog('加载[readers]失败：节点总数[' +IntToStr(nNode.NodeCount)+']，第['+IntToStr(nInt)+']节点，' + e.Message);
       end;
-
-      Inc(nInt);
     end;
   finally
     nXML.Free;

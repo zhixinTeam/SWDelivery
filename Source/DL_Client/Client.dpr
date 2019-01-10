@@ -15,7 +15,10 @@ uses
   UFormNormal in 'Forms\UFormNormal.pas' {fFormNormal},
   UFrameQueryOrderHD in 'Forms\UFrameQueryOrderHD.pas' {fFrameQueryOrderHD: TFrame},
   UFramePurOrderImport in 'Forms\UFramePurOrderImport.pas' {fFramePurOrderImport: TFrame},
-  UFormCustomerInitEdit in 'Forms\UFormCustomerInitEdit.pas' {fFormCustomerInitEdit};
+  UFormCustomerInitEdit in 'Forms\UFormCustomerInitEdit.pas' {fFormCustomerInitEdit},
+  UFrameMsgLog in 'Forms\UFrameMsgLog.pas' {fFrameMsgLog: TFrame},
+  UFormCtlCusbd in 'Forms\UFormCtlCusbd.pas' {fFormCtlCusbd},
+  UFrameQuerySyncOrderForNC in 'Forms\UFrameQuerySyncOrderForNC.pas' {fFrameQuerySyncOrderForNC: TFrame};
 
 {$R *.res}
 var
@@ -45,6 +48,7 @@ begin
   Application.CreateForm(TFDM, FDM);
   Application.CreateForm(TfMainForm, fMainForm);
   Application.CreateForm(TfFormCustomerInitEdit, fFormCustomerInitEdit);
+  Application.CreateForm(TfFormCtlCusbd, fFormCtlCusbd);
   Application.Run;
 
   ReleaseMutex(gMutexHwnd);

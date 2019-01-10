@@ -50,17 +50,31 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SWAS}
-//特定系统
+{$DEFINE SWJY}
+//特定系统       SWJY  SWTC  SWAS  SWYL  SWFX      CQJJ
 
-//山西声威
+//陕西声威集团 铜川工厂
 {$IFDEF SWTC}
+  {$DEFINE PRINT3dHY}
+  {$DEFINE DelNotInBill}
+  {$DEFINE ChkSaleCardInTimeOut}
+  {$DEFINE MsgPoundVoice} //通知磅房虚拟读卡器
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
+  {$DEFINE RemoteSnap}
+  //车牌识别  磅房
 
+  {$DEFINE PoundRoundJZ}
+  // 磅房随机净重  路政
 
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {$DEFINE PurchaseOrderChkJingZhong}
+  //原料开单必须录入原始净重（安塞）
   {$DEFINE PoundOpenBackGate}
   //过磅异常倒车下磅
 
-  {$DEFINE UseUTFDecode}
+  {.$DEFINE UseUTFDecode}
   //使用UTF解包函数
 
   {.$DEFINE ChkCardFHTime}  
@@ -111,17 +125,140 @@
 {$ENDIF}
 
 
+//声威安塞工厂
 {$IFDEF SWAS}
-
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {$DEFINE CheckTruckNo}
+  //开单检查是否输入的车号有正在进行中的单子做2次提醒
+  {$DEFINE ChkSaleCardInTimeOut}
+  {$DEFINE MsgPoundVoice} //通知磅房虚拟读卡器
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
   {.$DEFINE PoundOpenBackGate}
   //过磅异常倒车下磅
+  {$DEFINE SendMorefactoryStock}
+  //发多个分厂品种并对应打印分厂单据
 
   {$DEFINE PurchaseOrderChkJingZhong}
   //原料开单必须录入原始净重（安塞）
 
   {$DEFINE AICMPrintHGZ}
   //自助机开单打合格证
-  {$DEFINE UseUTFDecode}
+  {.$DEFINE UseUTFDecode}
+  //使用UTF解包函数
+
+  {.$DEFINE ChkCardFHTime}  
+  // 声威泾阳工厂  时间控制散装放灰 
+  {$DEFINE FixLoad}
+  // 地磅控制散装放灰 	
+  {$DEFINE ChkPopedomPrintHYD}
+  // 检查随车打印化验单特权 
+
+  {$DEFINE CreateBillByICCard}
+  //销售单开单强制依据身份证（铜川、安塞）
+
+  {$DEFINE CreateBillCreateHYEach}
+  //销售单开单开化验单
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}
+  {$DEFINE HeGeZhengSimpleData}
+  //使用简单合格证数据(无检验结果)
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {.$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
+
+
+//声威泾阳工厂
+{$IFDEF SWJY}
+  {.$DEFINE NCSale}	// NC销售开关
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
+  {$DEFINE PurchaseOrderChkJingZhong}
+  //原料开单必须录入原始净重
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {$DEFINE CheckTruckNo} //开单检查车号有正在进行中的单子做2次提醒
+  {$DEFINE ChkSaleCardInTimeOut}  // 检查车辆进出时间
+  {$DEFINE ChkCardFHTime}	//放灰时间检查
+  {$DEFINE DuanDaoCanFH}     //短倒模式销售骨料 泾阳工厂	
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE PrintHeGeZheng}
+  {$DEFINE HeGeZhengSimpleData}
+  //使用简单合格证数据(无检验结果)
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {.$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
+
+
+//声威榆林工厂
+{$IFDEF SWYL}
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
+  {$DEFINE SendMorefactoryStock}
+  //发多个分厂品种并对应打印分厂单据
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {$DEFINE PurchaseOrderChkJingZhong}
+  //原料开单必须录入原始净重（安塞）
+
+  {.$DEFINE UseUTFDecode}
   //使用UTF解包函数
 
   {.$DEFINE ChkCardFHTime}  
@@ -145,11 +282,12 @@
   //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHeGeZheng}  
+  //出厂打印合格证
   {$DEFINE HeGeZhengSimpleData}
   //使用简单合格证数据(无检验结果)
-  {$DEFINE PrintHuaYanDan}
-  //随车开单时打合格证、化验单
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
   {$DEFINE SanPreHK}
@@ -169,6 +307,151 @@
   {.$DEFINE PrintHY}
   //出厂打印化验单
 {$ENDIF}
+
+
+//声威凤县工厂
+{$IFDEF SWFX}
+  {$DEFINE ChkZTMatch}
+  //检查同组通道装车状态
+  {$DEFINE SetStdValue}
+  //打印2张提货单 （一张真实数据、一张标准数据）
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {$DEFINE PurchaseOrderChkJingZhong}
+  //原料开单必须录入原始净重（安塞）
+
+  {.$DEFINE UseUTFDecode}
+  //使用UTF解包函数
+
+  {.$DEFINE ChkCardFHTime}  
+  // 声威泾阳工厂  时间控制散装放灰 	
+  {$DEFINE ChkPopedomPrintHYD}
+  // 检查随车打印化验单特权 
+
+  {$DEFINE CreateBillByICCard}
+  //销售单开单强制依据身份证（铜川、安塞）
+
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE PrintHeGeZheng}  
+  //出厂打印合格证
+  {$DEFINE HeGeZhengSimpleData}
+  //使用简单合格证数据(无检验结果)
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {.$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
+
+
+//重庆金九集团 工厂
+{$IFDEF CQJJ}
+  {.$DEFINE PRINT3dHY}
+  {$DEFINE SXSW}
+  //声威批次号  年月日 + 水泥批次号
+  {.$DEFINE RemoteSnap}
+  //车牌识别  磅房
+  {.$DEFINE PoundRoundJZ}
+  // 磅房随机净重  路政
+  {$DEFINE ProberShow}
+  //磅房净重发送小屏
+  {$DEFINE HandleTunnel}
+  //磅房显示抬杆按钮可点击
+  {$DEFINE PoundTipsWeight}
+  //语音提示皮、净重
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+
+  {$DEFINE AllowMultiM}
+  //散装允许多次过重车
+  {$DEFINE SalePlanCheck}
+  //销售计划限量检查
+  {.$DEFINE PurchaseOrderChkJingZhong}
+  //原料开单必须录入原始净重（安塞）
+  {$DEFINE PoundOpenBackGate}
+  //过磅异常倒车下磅
+
+  {.$DEFINE UseUTFDecode}
+  //使用UTF解包函数
+  {$DEFINE DelBillNeedReson}
+
+  {.$DEFINE ChkCardFHTime}  
+  // 声威泾阳工厂  时间控制散装放灰 
+  {.$DEFINE FixLoad}
+  // 地磅控制散装放灰 	
+  {$DEFINE ChkPopedomPrintHYD}
+  // 检查随车打印化验单特权 
+
+  {.$DEFINE CreateBillByICCard}
+  //销售单开单强制依据身份证（铜川、安塞）
+
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}  
+  //出厂打印合格证
+  {$DEFINE HeGeZhengSimpleData}
+  //使用简单合格证数据(无检验结果)
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE BFLED}
+  //磅房小屏
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {.$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
+
+
 
 
 //新乡春江

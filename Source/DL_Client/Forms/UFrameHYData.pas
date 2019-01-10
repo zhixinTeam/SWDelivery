@@ -11,7 +11,7 @@ uses
   Dialogs, UFrameNormal, cxStyles, cxCustomData, cxGraphics, cxFilter,
   cxData, cxDataStorage, cxEdit, DB, cxDBData, ADODB, cxContainer, cxLabel,
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
-  cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
+  cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid, UFormInputbox, 
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UBitmapPanel,
   cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
   dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter;
@@ -38,6 +38,9 @@ type
     EditID: TcxButtonEdit;
     dxLayout1Item8: TdxLayoutItem;
     N3: TMenuItem;
+    N4: TMenuItem;
+    N5: TMenuItem;
+    N31: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -47,6 +50,8 @@ type
     procedure N2Click(Sender: TObject);
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure N5Click(Sender: TObject);
+    procedure N31Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -177,7 +182,7 @@ begin
     EditID.Text := Trim(EditID.Text);
     if EditID.Text = '' then Exit;
 
-    FWhere := Format('H_ID=%s', [EditID.Text]);
+    FWhere := Format('H_Reporter Like ''%s''', ['%'+EditID.Text+'%']);
     InitFormData(FWhere);
   end else
 
@@ -220,6 +225,37 @@ begin
   begin
     nStr := SQLQuery.FieldByName('H_ID').AsString;
     PrintHeGeReport(nStr, False);
+  end;
+end;
+
+procedure TfFrameHYData.N5Click(Sender: TObject);
+var nBillId, nCusName, nCusNameOld, nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nBillId := SQLQuery.FieldByName('H_ID').AsString;
+    nCusNameOld:= SQLQuery.FieldByName('H_CusName').AsString;
+    nCusName:= '';
+    if not ShowInputBox('请输入开单客户名称:', '修改', nCusName, 200) then Exit;
+    nStr := 'Update %s Set H_CusName=''%s'' Where H_ID=''%s''';
+    nStr := Format(nStr, [sTable_StockHuaYan, nCusName, nBillId]);
+
+    FDM.ExecuteSQL(nStr);
+
+    nStr:= Format(' %s 修改化验单客户名称  %s -> %s ', [gSysParam.FUserName, nCusNameOld, nCusName]);
+    FDM.WriteSysLog(sFlag_HYDanItem, '', nStr, False);
+    ShowMsg('修改成功', sHint);
+    BtnRefresh.Click;
+  end;
+end;
+
+procedure TfFrameHYData.N31Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('H_ID').AsString;
+    PrintHuaYanReport_3(nStr, False);
   end;
 end;
 

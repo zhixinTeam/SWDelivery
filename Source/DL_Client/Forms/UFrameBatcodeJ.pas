@@ -14,7 +14,8 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameBatcode = class(TfFrameNormal)
@@ -127,13 +128,14 @@ end;
 
 //Desc: 校正当前批次使用量
 procedure TfFrameBatcode.N1Click(Sender: TObject);
-var nSQL, nCode: string;
+var nSQL, nCode, nFactory: string;
     nVal: Double;
 begin
   inherited;
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nCode := SQLQuery.FieldByName('B_Batcode').AsString;
+    nFactory := SQLQuery.FieldByName('B_SendFactory').AsString;
 
     nSQL := 'Select Sum(L_Value) From %s Where L_HYDan=''%s''';
     nSQL := Format(nSQL, [sTable_Bill, nCode]);
@@ -144,6 +146,9 @@ begin
 
       nSQL := 'Update %s Set B_HasUse=%.2f Where B_Batcode=''%s''';
       nSQL := Format(nSQL, [sTable_StockBatcode, nVal, nCode]);
+              {$IFDEF SendMorefactoryStock}
+              nSQL := nSQL + ' And B_SendFactory='''+nFactory+'''';
+              {$endif}
       FDM.ExecuteSQL(nSQL);
     end;
     //校正为当前正在使用的批次量        

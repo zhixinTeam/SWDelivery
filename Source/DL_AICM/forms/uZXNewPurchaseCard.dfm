@@ -35,24 +35,24 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clRed
       Font.Height = -24
-      Font.Name = 'MS Sans Serif'
+      Font.Name = #24494#36719#38597#40657
       Font.Style = []
       ParentFont = False
     end
     object labelIdCard: TcxLabel
       Left = 0
-      Top = 8
+      Top = 3
       Caption = #21830#22478#36135#21333#21495#65306
       ParentFont = False
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
-      Style.Font.Name = 'MS Sans Serif'
+      Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object editWebOrderNo: TcxTextEdit
-      Left = 176
+      Left = 182
       Top = 8
       AutoSize = False
       ParentFont = False
@@ -76,7 +76,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -24
-      Font.Name = 'MS Sans Serif'
+      Font.Name = #24494#36719#38597#40657
       Font.Style = []
       ParentFont = False
       TabOrder = 2
@@ -91,7 +91,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -24
-      Font.Name = 'MS Sans Serif'
+      Font.Name = #24494#36719#38597#40657
       Font.Style = []
       ParentFont = False
       TabOrder = 3
@@ -123,7 +123,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -24
-        Font.Name = 'MS Sans Serif'
+        Font.Name = #24494#36719#38597#40657
         Font.Style = []
         ParentFont = False
         TabOrder = 5
@@ -138,7 +138,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -24
-        Font.Name = 'MS Sans Serif'
+        Font.Name = #24494#36719#38597#40657
         Font.Style = []
         ParentFont = False
         TabOrder = 6
@@ -335,15 +335,15 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -19
-      Style.Font.Name = 'MS Sans Serif'
+      Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object lvOrders: TListView
       Left = 0
-      Top = 28
+      Top = 29
       Width = 938
-      Height = 76
+      Height = 75
       Align = alClient
       Columns = <>
       Font.Charset = DEFAULT_CHARSET

@@ -710,7 +710,7 @@ begin
     begin
       Inc(nStep);
       nException := E.Message;
-      WriteLog(nException);
+      WriteLog(nException+' SQl:'+ nSQL);
     end;
   end;
 
@@ -761,7 +761,7 @@ begin
     begin
       Inc(nStep);
       nException := E.Message;
-      WriteLog(nException);
+      WriteLog(nException+' SQl:'+ nSQL);
     end;
   end;
 
@@ -812,7 +812,7 @@ begin
     begin
       Inc(nStep);
       nException := E.Message;
-      WriteLog(nException);
+      WriteLog(nException+' SQL:'+nSQL);
     end;
   end;
 
@@ -874,7 +874,7 @@ begin
     begin
       Inc(nStep);
       nException := E.Message;
-      WriteLog(nException);
+      WriteLog(nException+' SQl:'+ nSQL);
     end;
   end;
 

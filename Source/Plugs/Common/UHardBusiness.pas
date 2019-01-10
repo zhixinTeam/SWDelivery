@@ -12,7 +12,9 @@ uses
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
-  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo;
+  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100,
+  {$IFDEF HKVDVR}UMgrCamera, {$ENDIF} UMgrRemoteSnap, UMgrVoiceNet,
+  UMgrSendCardNo;
 
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
@@ -30,6 +32,17 @@ function GetJSTruck(const nTruck,nBill: string): string;
 //获取计数器显示车牌
 procedure WhenSaveJS(const nTunnel: PMultiJSTunnel);
 //保存计数结果
+
+
+{$IFDEF HKVDVR}
+procedure WhenCaptureFinished(const nPtr: Pointer);
+//保存图片
+{$ENDIF}
+
+function VerifySnapTruck(const nTruck,nBill,nPos: string;var nResult: string): Boolean;
+//车牌识别
+
+
 
 implementation
 
@@ -333,7 +346,7 @@ end;
 //Parm: 卡号
 //Desc: 对nCard放行进厂
 procedure MakeTruckIn(const nCard,nReader: string; const nDB: PDBWorker);
-var nStr,nTruck,nCardType: string;
+var nStr,nStrx,nTruck,nCardType: string;
     nIdx,nInt: Integer;
     nPLine: PLineItem;
     nPTruck: PTruckItem;
@@ -380,12 +393,46 @@ begin
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
   begin
+    {$IFDEF ChkSaleCardInTimeOut}
+    if (FMINUTEDate>gTruckQueueManager.SaleCardInTimeDiff)and
+                  (gTruckQueueManager.SaleCardInTimeDiff>0) and
+                  (nCardType = sFlag_Sale) then
+    begin
+      nStr := '车辆[ %s ]开单时间距当前 %d 已超规定时间 %d ,进厂刷卡无效.';
+      nStr := Format(nStr, [FTruck, FMINUTEDate, gTruckQueueManager.SaleCardInTimeDiff]);
+
+      //  进厂时间距离称重时间超时 依然给予拒绝
+      nStrx := 'UPDate %s Set L_Status=''N'', L_NextStatus='''' Where L_ID=''%s''';
+      nStrx := Format(nStrx, [sTable_Bill, FID]);
+      gDBConnManager.ExecSQL(nStrx);
+      //***************** //  自动进厂情况下通知磅房虚拟读卡器
+      {$IFDEF MsgPoundVoice}
+      IF (gTruckQueueManager.IsTruckAutoIn) then
+      begin
+        gHardwareHelper.SetCardLastDone(nCard, nReader);
+        gHardwareHelper.SetReaderCard(nReader, nCard);
+      end;
+      {$ENDIF}
+
+      WriteHardHelperLog(nStr, sPost_In);
+      Exit;
+    end;
+    {$ENDIF}
+
     if (FStatus = sFlag_TruckNone) or (FStatus = sFlag_TruckIn) then Continue;
     //未进长,或已进厂
 
+    {$IFDEF SWAS}        // 安塞厂 自动进厂 袋装称毛重失败后回磅卸料或装车需要从磅上过  or(FStatus = sFlag_TruckFH)
+    IF ((FStatus = sFlag_TruckZT)) and (gTruckQueueManager.IsTruckAutoIn) then
+    begin
+      gHardwareHelper.SetCardLastDone(nCard, nReader);
+      gHardwareHelper.SetReaderCard(nReader, nCard);
+    end;
+    {$ENDIF}
+
     nStr := '车辆[ %s ]下一状态为:[ %s ],进厂刷卡无效.';
     nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
-    
+
     WriteHardHelperLog(nStr, sPost_In);
     Exit;
   end;
@@ -1047,6 +1094,54 @@ var nStr: string;
         WriteNearReaderLog(nStr);
       end;
     end;
+
+    function IsGroupJSRun: Boolean;     // 检查同一分组通道是否有正在作业的（同一主皮带同一喷码机)
+    var nField : TField;
+        nTmp, nChkTunnel : string;
+        nWorker, nxWorker: PDBWorker;
+    begin
+      WriteNearReaderLog('同组通道检测 进入.');
+      Result:= False;   nWorker := nil;
+      if nTunnel = '' then Exit;
+      nStr := 'Select * From %s Where Z_Tunnel=''%s''';
+      nStr := Format(nStr, [sTable_ZTMatch, nTunnel]);
+      try
+        with gDBConnManager.SQLQuery(nStr, nWorker) do
+        if RecordCount > 0 then
+        begin
+          nField := FindField('Z_Group');
+          if Assigned(nField) then nTmp := nField.AsString;
+        end;
+
+        if nTmp<>'' then
+        begin
+          nxWorker := nil;
+          nStr := 'Select * From %s Where Z_Group=''%s''';
+          nStr := Format(nStr, [sTable_ZTMatch, nTmp]);
+          with gDBConnManager.SQLQuery(nStr, nxWorker) do
+          while not Eof do
+          begin
+            nField := FindField('Z_Tunnel');
+            if Assigned(nField) then nChkTunnel := nField.AsString;
+
+            if nChkTunnel = '' then Result:= True
+            else Result := gMultiJSManager.IsJSRun(nChkTunnel);
+
+            if Result then
+            begin
+              WriteNearReaderLog('通道[ ' + nTunnel + ' ] 所在分组为: '+nTmp + ' 该分组下辖装车道 '+
+                            nChkTunnel+' 正在作业、将拒绝本车道作业请求' );
+              Break;
+            end;
+
+            Next;
+          end;
+        end;
+      finally
+        gDBConnManager.ReleaseConnection(nWorker);
+        gDBConnManager.ReleaseConnection(nxWorker);
+      end;
+    end;
 begin
   WriteNearReaderLog('通道[ ' + nTunnel + ' ]: MakeTruckLadingDai进入.');
 
@@ -1077,6 +1172,10 @@ begin
     //重新定位车辆所在车道
     if IsJSRun then Exit;
   end;
+
+  {$IFDEF ChkZTMatch}
+  if IsGroupJSRun then Exit;
+  {$ENDIF}
   
   if not IsTruckInQueue(nTrucks[0].FTruck, nTunnel, False, nStr,
          nPTruck, nPLine, sFlag_Dai) then
@@ -1182,6 +1281,7 @@ begin
           FloatToStr(nTruck.FValue);
   //xxxxx
 
+  WriteNearReaderLog('发送通道 '+nTunnel+' 小屏、显示内容： '+nStr);
   gERelayManager.ShowTxt(nTunnel, nStr);
   //显示内容
 end;
@@ -1289,6 +1389,12 @@ begin
     if (FStatus = sFlag_TruckFH) or (FNextStatus = sFlag_TruckFH) then Continue;
     //未装或已装
 
+    {$IFDEF AllowMultiM}
+    if FStatus = sFlag_TruckBFM then
+      FStatus := sFlag_TruckFH;
+    //过重后允许返回再次装车 （多次过重）
+    {$ENDIF}
+
     nStr := '车辆[ %s ]下一状态为:[ %s ],无法放灰.';
     nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
 
@@ -1370,6 +1476,7 @@ var nStr: string;
     nPTruck: PTruckItem;
     nTrucks: TLadingBillItems;
 begin
+  WriteNearReaderLog('进入短倒放灰控制');
   if not GetDuanDaoItems(nCard, sFlag_TruckFH, nTrucks) then
   begin
     nStr := '[短倒]  读取磁卡[ %s ]短倒放灰订单信息失败.';
@@ -1455,16 +1562,20 @@ begin
 
   if nHost.FType = rtKeep then
   begin
-    nCardType := '';
-    if not GetCardUsed(nCard, nCardType) then
-      MakeTruckLadingSan(nCard, nHost.FTunnel)
-    else
-    begin
-      if nCardType = sFlag_DuanDao then
-          MakeTruckLadingDuanDaoSan(nCard, nHost.FTunnel)
+    {$IFDEF DuanDaoCanFH}
+      nCardType := '';
+      if not GetCardUsed(nCard, nCardType) then
+        MakeTruckLadingSan(nCard, nHost.FTunnel)
       else
-          MakeTruckLadingSan(nCard, nHost.FTunnel);
-    end;
+      begin
+        if nCardType = sFlag_DuanDao then
+            MakeTruckLadingDuanDaoSan(nCard, nHost.FTunnel)
+        else
+            MakeTruckLadingSan(nCard, nHost.FTunnel);
+      end;
+    {$ELSE}
+      MakeTruckLadingSan(nCard, nHost.FTunnel);
+    {$ENDIF}
   end;
 end;
 
@@ -1583,5 +1694,170 @@ begin
     nList.Free;
   end;
 end;
+
+
+//Date: 2018-03-28
+//Parm: 岗位
+//Desc: 查询DICT表里岗位是否配备语音卡
+function GetHasVoice(const nPost: string): Boolean;
+var nStr: string;
+    nIdx: Integer;
+    nDBConn: PDBWorker;
+begin
+  Result := False;
+  nDBConn := nil;
+  with gParamManager.ActiveParam^ do
+  try
+    nDBConn := gDBConnManager.GetConnection(FDB.FID, nIdx);
+    if not Assigned(nDBConn) then
+    begin
+      WriteHardHelperLog('连接HM数据库失败(DBConn Is Null).');
+      Exit;
+    end;
+
+    if not nDBConn.FConn.Connected then
+      nDBConn.FConn.Connected := True;
+    //conn db
+
+    nStr := 'Select * From %s Where D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, nPost]);
+
+    with gDBConnManager.WorkerQuery(nDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      if FieldByName('D_ParamB').AsString = sFlag_Yes then
+        Result := True;
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nDBConn);
+  end;
+end;
+
+//Date: 2017-10-16
+//Parm: 内容;岗位;业务成功
+//Desc: 播放门岗语音
+procedure MakeGateSound(const nText,nPost: string; const nSucc: Boolean);
+var nStr: string;
+    nInt: Integer;
+begin
+  try
+    if gNetVoiceHelper=nil then Exit;
+    if nSucc then
+         nInt := 2
+    else nInt := 3;
+
+    gHKSnapHelper.Display(nPost, nText, nInt);
+    //小屏显示
+
+    if GetHasVoice(nPost) then
+      gNetVoiceHelper.PlayVoice(nText, nPost);
+    //播发语音
+    WriteHardHelperLog(nText);
+  except
+    on nErr: Exception do
+    begin
+      nStr := '播放[ %s ]语音失败,描述: %s';
+      nStr := Format(nStr, [nPost, nErr.Message]);
+      WriteHardHelperLog(nStr);
+    end;
+  end;
+end;
+
+
+{$IFDEF HKVDVR}
+procedure WhenCaptureFinished(const nPtr: Pointer);
+var nStr: string;
+    nDS: TDataSet;
+    nPic: TPicture;
+    nDBConn: PDBWorker;
+    nErrNum, nRID: Integer;
+    nCapture: PCameraFrameCapture;
+begin
+  nDBConn := nil;
+  {$IFDEF DEBUG}
+  WriteHardHelperLog('WhenCaptureFinished进入.');
+  {$ENDIF}
+
+  nCapture :=  PCameraFrameCapture(nPtr);
+  if not FileExists(nCapture.FCaptureName) then Exit;
+
+  with gParamManager.ActiveParam^ do
+  try
+    nDBConn := gDBConnManager.GetConnection(FDB.FID, nErrNum);
+    if not Assigned(nDBConn) then
+    begin
+      WriteHardHelperLog('连接HM数据库失败(DBConn Is Null).');
+      Exit;
+    end;
+
+    if not nDBConn.FConn.Connected then
+      nDBConn.FConn.Connected := True;
+    //conn db
+
+    nDBConn.FConn.BeginTrans;
+    try
+      nStr := MakeSQLByStr([
+              SF('P_ID', nCapture.FCaptureFix),
+              //SF('P_Name', nCapture.FCaptureName),
+              SF('P_Date', sField_SQLServer_Now, sfVal)
+              ], sTable_Picture, '', True);
+      //xxxxx
+
+      if gDBConnManager.WorkerExec(nDBConn, nStr) < 1 then Exit;
+
+      nStr := 'Select Max(%s) From %s';
+      nStr := Format(nStr, ['R_ID', sTable_Picture]);
+      with gDBConnManager.WorkerQuery(nDBConn, nStr) do
+        nRID := Fields[0].AsInteger;
+
+      nStr := 'Select P_Picture From %s Where R_ID=%d';
+      nStr := Format(nStr, [sTable_Picture, nRID]);
+      nDS := gDBConnManager.WorkerQuery(nDBConn, nStr);
+
+      nPic := nil;
+      try
+        nPic := TPicture.Create;
+        nPic.LoadFromFile(nCapture.FCaptureName);
+
+        SaveDBImage(nDS, 'P_Picture', nPic.Graphic);
+        FreeAndNil(nPic);
+      except
+        if Assigned(nPic) then nPic.Free;
+      end;
+
+      DeleteFile(nCapture.FCaptureName);
+      nDBConn.FConn.CommitTrans;
+    except
+      nDBConn.FConn.RollbackTrans;
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nDBConn);
+  end;
+end;
+{$ENDIF}
+
+function VerifySnapTruck(const nTruck,nBill,nPos: string; var nResult: string): Boolean;
+var nList: TStrings;
+    nOut: TWorkerBusinessCommand;
+    nID: string;
+begin
+  if nBill = '' then
+    nID := nTruck + FormatDateTime('YYMMDD',Now)
+  else
+    nID := nBill;
+  nList := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Truck'] := nTruck;
+    nList.Values['Bill'] := nID;
+    nList.Values['Pos'] := nPos;
+
+    Result := CallBusinessCommand(cBC_VerifySnapTruck, nList.Text, '', @nOut);
+    nResult := nOut.FData;
+  finally
+    nList.Free;
+  end;
+end;
+
 
 end.

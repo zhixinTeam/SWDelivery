@@ -1,6 +1,6 @@
 {*******************************************************************************
   作者: dmzn@163.com 2018-05-08
-  描述: 发货明细
+  描述:采购明细
 *******************************************************************************}
 unit UFrameOrderDetail;
 
@@ -97,7 +97,7 @@ begin
 
     if FJBWhere = '' then
     begin
-      Result := Result + 'Where (D_InTime>=''$S'' and D_InTime <''$End'')';
+      Result := Result + 'Where (D_OutFact>=''$S'' and D_OutFact <''$End'')';
 
       if nWhere <> '' then
         Result := Result + ' And (' + nWhere + ')';
@@ -179,7 +179,8 @@ begin
     FTimeS := nStart;
     FTimeE := nEnd;
 
-    FJBWhere := '(D_InTime>=''%s'' and D_InTime <''%s'')';
+    //FJBWhere := '(D_InTime>=''%s'' and D_InTime <''%s'')';
+    FJBWhere := '(D_OutFact>=''%s'' and D_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE)]);
     InitFormData('');
   finally

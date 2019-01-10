@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
-  cxLabel, cxCheckBox, cxTextEdit, dxLayoutControl, StdCtrls;
+  cxLabel, cxCheckBox, cxTextEdit, dxLayoutControl, StdCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormZTLine = class(TfFormNormal)

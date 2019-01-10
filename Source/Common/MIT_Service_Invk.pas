@@ -45,6 +45,15 @@ type
     procedure Invoke_Action(const __Instance:IInterface; const __Message:IROMessage; const __Transport:IROTransport; out __oResponseOptions:TROResponseOptions);
   end;
 
+  TSrvNC_Invoker = class(TROInvoker)
+  private
+  protected
+  public
+    constructor Create; override;
+  published
+    procedure Invoke_Action(const __Instance:IInterface; const __Message:IROMessage; const __Transport:IROTransport; out __oResponseOptions:TROResponseOptions);
+  end;
+
 implementation
 
 uses
@@ -134,6 +143,37 @@ begin
     lResult := (__Instance as ISrvWebchat).Action(nFunName, nData);
 
     __Message.InitializeResponseMessage(__Transport, 'MIT_Service', 'SrvWebchat', 'ActionResponse');
+    __Message.Write('Result', TypeInfo(Boolean), lResult, []);
+    __Message.Write('nData', TypeInfo(AnsiString), nData, []);
+    __Message.Finalize;
+    __Message.UnsetAttributes(__Transport);
+
+  finally
+  end;
+end;
+
+{ TSrvNC_Invoker }
+
+constructor TSrvNC_Invoker.Create;
+begin
+  inherited Create;
+  FAbstract := False;
+end;
+
+procedure TSrvNC_Invoker.Invoke_Action(const __Instance:IInterface; const __Message:IROMessage; const __Transport:IROTransport; out __oResponseOptions:TROResponseOptions);
+{ function Action(const nFunName: Widestring; var nData: Widestring): Boolean; }
+var
+  nFunName: AnsiString;
+  nData: AnsiString;
+  lResult: Boolean;
+begin
+  try
+    __Message.Read('nFunName', TypeInfo(AnsiString), nFunName, []);
+    __Message.Read('nData', TypeInfo(AnsiString), nData, []);
+
+    lResult := (__Instance as ISrvWebchat).Action(nFunName, nData);
+
+    __Message.InitializeResponseMessage(__Transport, 'MIT_Service', 'SrvNC', 'ActionResponse');
     __Message.Write('Result', TypeInfo(Boolean), lResult, []);
     __Message.Write('nData', TypeInfo(AnsiString), nData, []);
     __Message.Finalize;

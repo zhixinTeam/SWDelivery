@@ -1,6 +1,6 @@
 inherited fFormPayment: TfFormPayment
-  Left = 715
-  Top = 285
+  Left = 1067
+  Top = 262
   ClientHeight = 428
   ClientWidth = 388
   OnClose = FormClose

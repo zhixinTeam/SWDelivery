@@ -289,11 +289,11 @@ procedure TfFormPayment.BtnOKClick(Sender: TObject);
 var nP: TFormCommandParam;
 begin
   if not IsDataValid then Exit;
-  if Trim(Mmo_1.Text)='' then
-  begin
-    ShowMsg('请填写收据单号', sHint);
-    Exit;
-  end;
+//  if Trim(Mmo_1.Text)='' then
+//  begin
+//    ShowMsg('请填写收据单号', sHint);
+//    Exit;
+//  end;
   if not SaveCustomerPayment(gInfo.FCusID, gInfo.FCusName,
      GetCtrlData(EditSalesMan), sFlag_MoneyHuiKuan, EditType.Text, EditDesc.Text,
      Mmo_1.Text,

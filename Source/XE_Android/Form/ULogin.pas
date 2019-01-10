@@ -64,7 +64,8 @@ begin
     FPassword := Trim(EditPsd.Text);
 
     FHasLogin := Login;
-    if FHasLogin then MainForm.Show;
+    if FHasLogin then MainForm.Show
+    else ShowMessage('登陆失败、请核对账号、密码或检查网络连接');
   end;
 end;
 

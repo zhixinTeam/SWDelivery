@@ -113,8 +113,20 @@ begin
 
     nQuery.SQL.Clear;
     //***************************************************
+    nStr := 'Select * From ' + sTable_InvSettle + ' Where S_Week=''%s''';
+    nStr := Format(nStr, [FNowWeek]);
+    with DBQuery(nStr, nQuery) do
+      if RecordCount > 0 then
+      begin
+        ShowMessage('该周期已做返利结算不能再次操作'+#13+
+                    '如有需要请重新建立周期->扎帐->结算');
+        Exit;
+      end;
 
-    EditMemo.Clear;
+    nQuery.SQL.Clear;
+    //***************************************************
+
+    EditMemo.Clear;                           {
     ShowHintText('开始恢复上次结算数据...');
 
     nSQL := 'Select S_CusID, IsNull(Sum(S_Value*IsNull((S_Price+IsNull(S_YunFei, 0)), 0)*(-1)), 0) as S_Money From %s ' +
@@ -133,31 +145,26 @@ begin
     nStr := Format(nStr, [sTable_InvSettle, FNowWeek]);
     nList.Add(nStr);
 
-    ShowHintText('恢复上次结算数据完毕.');
+    ShowHintText('恢复上次结算数据完毕.');                    }
     //--------------------------------------------------------------------------
     ShowHintText('开始生成新结算数据...');
-    nStr := 'Insert Into $ST(S_Week,S_Bill,S_CusID,S_ZhiKa,S_Stock,S_StockName,' +
-      'S_Value,S_Price,S_OutFact,S_Man,S_Date,S_SalePrice, S_YunFei, S_Type) Select ''$WK'',L_ID,L_CusID,' +
-      'L_ZhiKa,L_StockNo,L_StockName,L_Value,0,L_OutFact,''$SM'',$SD,L_Price,IsNull(L_YunFei, 0), L_Type From ' +
-      '$Bill Where L_OutFact>=''$SS'' And L_OutFact<=''$ED'' ';
+    nStr := 'Insert Into $ST(S_Week,S_Bill,S_CusID,S_ZhiKa,S_Stock,S_StockName,S_Value,S_Price,S_OutFact,S_Man,' +
+                            'S_Date,S_SalePrice,S_SaleYunFei, S_YunFei, S_Type) ' +
 
-    if nCusId<>'' then
-      nStr := nStr + ' And L_CusID='''+ nCusId +''' ';
-
-    if nStockId<>'' then
-      nStr := nStr + ' And L_StockNo='''+ nStockId +''' ';
-
+            'Select R_Week, R_LID, R_CusID, R_ZhiKa, R_Stock,R_StockName, R_Value, IsNull(R_KPrice, 0) R_KPrice, R_Date,''$SM'', '+
+                            'R_Date, R_Price,R_YunFei,IsNull(R_KYunFei , 0) R_KYunFei,R_Type ' +
+						'From $RQT Where R_Week=''$WK'' And R_Chk=1 ';
 
     with TStringHelper,TDateTimeHelper do
     nStr := MacroValue(nStr, [MI('$ST', sTable_InvSettle), MI('$WK', FNowWeek),
             MI('$SM', UniMainModule.FUserConfig.FUserID),
-            MI('$SD', sField_SQLServer_Now), MI('$Bill', sTable_Bill),
+            MI('$SD', sField_SQLServer_Now), MI('$RQT', sTable_InvoiceReq),
             MI('$SS', DateTime2Str(FWeekBegin)), MI('$ED', DateTime2Str(FWeekEnd))]);
     nList.Add(nStr);
 
     ShowHintText('新结算数据生成完毕.');
     //--------------------------------------------------------------------------
-    ShowHintText('开始合并返利价格...');
+    ShowHintText('开始合并返利价格...');            {
     nStr := 'Update $T Set $T.S_Price=IsNull($R.R_KPrice, 0), $T.S_YunFei=IsNull($R.R_KYunFei, 0) ' +
             ' From $R Where R_Week=''$WK'' And $T.S_Week=$R.R_Week ' +
             ' And $T.S_ZhiKa=$R.R_ZhiKa And $T.S_Stock=$R.R_Stock ' +
@@ -167,7 +174,7 @@ begin
     with TStringHelper do
     nStr := MacroValue(nStr, [MI('$T', sTable_InvSettle),
             MI('$R', sTable_InvoiceReq), MI('$WK', FNowWeek)]);
-    nList.Add(nStr);
+    nList.Add(nStr);              }
 
     nStr := 'Delete From %s Where S_Week=''%s'' And S_Price=0 And S_YunFei=0';
     nStr := Format(nStr, [sTable_InvSettle, FNowWeek]);
@@ -191,13 +198,12 @@ begin
     ShowHintText('返利计算完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始生成最终结算报表...');
-    nSQL := 'Select S_ZhiKa,S_Stock,S_SalePrice,Sum(S_Value) as S_Value From %s ' +
-            'Where S_Week=''%s'' Group By S_ZhiKa,S_Stock,S_SalePrice';
+    nSQL := 'Select S_Bill,S_ZhiKa,S_Stock,S_SalePrice,S_Value From %s ' +
+            'Where S_Week=''%s'' ';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
     nStr := 'Update $T Set $T.R_KValue=t.S_Value,R_KMan=''$KM'',R_KDate=$DT ' +
-            'From ($S) t Where $T.R_Week=''$WK'' And $T.R_ZhiKa=t.S_ZhiKa And ' +
-            '$T.R_Stock=t.S_Stock And $T.R_Price=t.S_SalePrice';
+            'From ($S) t Where $T.R_Week=''$WK'' And $T.R_LID=t.S_Bill ' ;
     //xxxxx
 
     with TStringHelper do

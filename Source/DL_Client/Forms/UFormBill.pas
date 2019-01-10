@@ -49,6 +49,15 @@ type
     PrintHY: TcxCheckBox;
     dxlytm_ICCard: TdxLayoutItem;
     EdtICCardNo: TcxTextEdit;
+    dxlytmItem15: TdxLayoutItem;
+    Chk_YZCP: TcxCheckBox;
+    dxlytmLayout1Item15: TdxLayoutItem;
+    Chk_IsYangPin: TcxCheckBox;
+    dxlytm_Factory: TdxLayoutItem;
+    cbb_Factory: TcxComboBox;
+    dxlytm_Std: TdxLayoutItem;
+    edt_StdValue: TcxTextEdit;
+    dxLayout1Group4: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -57,13 +66,19 @@ type
     procedure BtnOKClick(Sender: TObject);
     procedure EditLadingKeyPress(Sender: TObject; var Key: Char);
     procedure EditFQPropertiesEditValueChanged(Sender: TObject);
+    procedure Chk_YZCPClick(Sender: TObject);
+    procedure EdtICCardNoClick(Sender: TObject);
+    procedure edt_StdValueKeyPress(Sender: TObject; var Key: Char);
+    procedure edt_StdValueExit(Sender: TObject);
   protected
     { Protected declarations }
     FBuDanFlag: string;
     //补单标记
     procedure LoadFormData;
     procedure LoadStockList;
+    procedure LoadStockFactory;
     //载入数据
+    function CheckTruckIsIN(nTruck:string):Boolean;
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -152,6 +167,7 @@ begin
       end;
     end;
     {$ENDIF}
+
   finally
     if not Assigned(nParam) then Dispose(nP);
   end;
@@ -165,6 +181,20 @@ begin
     finally
       CloseWaitForm;
     end;
+
+    //***************************************
+    {$IFNDEF RemoteSnap}                     // 验证车牌   声威
+    Chk_YZCP.Visible:= False;
+    {$ENDIF}
+
+    {$IFNDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+    dxlytm_Factory.Caption:= '';
+    cbb_Factory.Visible:= False;
+    {$ENDIF}
+    {$IFNDEF SetStdValue}                   // 打印2张提货单 参考标准毛重
+    dxlytm_Std.Caption:= '';
+    edt_StdValue.Visible:= False;
+    {$ENDIF}
 
     if not BtnOK.Enabled then Exit;
     gInfo.FShowPrice := gPopedomManager.HasPopedom(nPopedom, sPopedom_ViewPrice);
@@ -290,6 +320,11 @@ var nStr,nTmp: string;
     nIdx: integer;
 begin
   BtnOK.Enabled := False;
+  {$IFDEF SendMorefactoryStock}
+  LoadStockFactory; // 加载开单工厂（本厂发多个厂品种）  声威  榆林 安塞工厂
+  {$ELSE}
+  cbb_Factory.Visible:= False;
+  {$ENDIF}
   nDB := LoadZhiKaInfo(gInfo.FZhiKa, ListInfo, nStr);
 
   if Assigned(nDB) then
@@ -392,6 +427,29 @@ begin
   end else
   begin
     ActiveControl := EditTruck;
+  end;
+end;
+
+// 加载开单工厂
+procedure TfFormBill.LoadStockFactory;
+var nStr: string;
+    i,nIdx: integer;
+begin
+  cbb_Factory.Clear;
+  cbb_Factory.Properties.Items.Clear;
+  nStr := ' Select * From Sys_Dict Where D_Name=''BillFromFactory''';
+  //扩展信息
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    First;
+    while not Eof do
+    begin
+        nStr := FieldByName('D_Value').AsString;
+        cbb_Factory.Properties.Items.Add(nStr);
+        Next;
+    end;
   end;
 end;
 
@@ -546,6 +604,18 @@ begin
       nSend:= GetFQValueByStockNo(EditFQ.Text);
       nVal := nSend + StrToFloat(EditValue.Text);
 
+      {$IFDEF SWAS}
+        if  (StrToFloat(EditValue.Text)>33)and (gStockList[nIdx].FType='S') then
+        begin
+          ShowMsg('根据工厂规定、最大开单量为：33 吨，请修改开单量', sHint);
+          Exit;
+        end
+        else if FSelecte and (FValue>70) and (gStockList[nIdx].FType='D') then
+        begin
+          ShowMsg('根据工厂规定、袋装最大开单量为：70 吨，请修改开单量', sHint); Exit;
+        end;
+      {$ENDIF}
+
       if VerifyFQSumValue then
       begin
         if FloatRelation(nMax, nVal, rtLE, cPrecision) then
@@ -593,16 +663,80 @@ begin
   end;
 end;
 
+function TfFormBill.CheckTruckIsIN(nTruck:string):Boolean;
+var nStr : string;
+begin
+  nStr := ' Select * From S_Bill Where L_Truck='''+nTruck+''' And L_OutFact IS NULL ';
+  //信息
+  with FDM.QueryTemp(nStr) do
+    Result:= RecordCount > 0;
+end;
+
 //Desc: 保存
 procedure TfFormBill.BtnOKClick(Sender: TObject);
 var nIdx: Integer;
     nPrint: Boolean;
     nList,nTmp,nStocks: TStrings;
+    nSql, nStock : string;
 begin
   if ListBill.Items.Count < 1 then
   begin
-    ShowMsg('请先办理提货单', sHint); Exit;
+    ShowMsg('请先办理提货单的品种', sHint); Exit;
   end;
+
+  {$IFDEF CheckTruckNo}           // 查询是否有车辆已存在 声威
+  if CheckTruckIsIN(EditTruck.Text) then
+  begin
+    if MessageBox(0, ' 该车辆当前  已开单、再次开单将会进行合单处理、请注意', '注意',
+                      MB_OKCANCEL + MB_ICONQUESTION) = ID_CANCEL then
+      Exit;
+
+    if MessageBox(0, ' 该车辆当前  已开单、再次开单将会进行合单处理、请注意', '注意',
+                      MB_OKCANCEL + MB_ICONQUESTION) = ID_CANCEL then
+      Exit;
+  end;
+  {$ENDIF}
+
+  {$IFDEF SetStdValue}           // 开单输入标准毛重 车辆出厂将会打印2张提货单 声威
+  if edt_StdValue.Text='' then
+  begin
+    ShowMsg('请输入标准净重', sHint); Exit;
+    if MessageBox(0, ' 请注意、还未输入标准净重哦 要继续么', '注意',
+                      MB_OKCANCEL + MB_ICONQUESTION) = ID_CANCEL then
+      Exit;
+
+    edt_StdValue.Text:= '0';
+  end;
+  {$ENDIF}
+
+  {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+  if cbb_Factory.ItemIndex < 0 then
+  begin
+    ShowMsg('请选择指定打印票据的工厂', sHint); Exit;
+  end;
+  {$ENDIF}
+
+  {$IFDEF RemoteSnap}
+  if not Chk_YZCP.Checked  then
+  begin
+    if MessageBox(0, '确定不对该车辆 进行车牌识别验证么', '提示',
+                      MB_OKCANCEL + MB_ICONQUESTION) = ID_CANCEL then
+      Exit;
+  end;
+  {$ENDIF}
+
+  {$IFDEF SWAS}
+  for nIdx:=Low(gStockList) to High(gStockList) do
+    with gStockList[nIdx] do
+    if FSelecte and (FValue>33) and (gStockList[nIdx].FType='S') then
+    begin
+      ShowMsg('根据工厂规定、散装最大开单量为：33 吨，请修改开单量', sHint); Exit;
+    end
+    else if FSelecte and (FValue>70) and (gStockList[nIdx].FType='D') then
+    begin
+      ShowMsg('根据工厂规定、袋装最大开单量为：70 吨，请修改开单量', sHint); Exit;
+    end;
+  {$ENDIF}
 
   {$IFDEF CreateBillByICCard}
   if Trim(EdtICCardNo.Text)='' then
@@ -638,7 +772,7 @@ begin
 
       Values['Type'] := FType;
       Values['StockNO'] := FStockNO;
-      Values['StockName'] := FStockName;
+      Values['StockName'] := FStockName;          nStock:= FType;
       Values['Seal']  := FStockSeal;
       Values['Price'] := FloatToStr(FPrice);
       Values['Value'] := FloatToStr(FValue);
@@ -651,6 +785,16 @@ begin
       if PrintHY.Checked  then
            Values['PrintHY'] := sFlag_Yes
       else Values['PrintHY'] := sFlag_No;
+
+      {$IFDEF RemoteSnap}
+      if Chk_YZCP.Checked  then                    // 车牌验证
+           Values['SnapTruck'] := sFlag_Yes
+      else Values['SnapTruck'] := sFlag_No;
+      {$ENDIF}
+                                
+      if Chk_IsYangPin.Checked  then               // 是否为样品
+           Values['IsSample'] := sFlag_Yes
+      else Values['IsSample'] := sFlag_No;   
 
       if Integer(gInfo.FPlan) > 0 then
       begin
@@ -673,9 +817,12 @@ begin
       Values['Bills'] := PackerEncodeStr(nList.Text);
       Values['ZhiKa'] := gInfo.FZhiKa;
       Values['Truck'] := EditTruck.Text;
-      Values['ICCardNo'] := EdtICCardNo.Text;                       //  声威
+      Values['ICCardNo'] := EdtICCardNo.Text;                       // 身份证或IC卡  声威
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
+      {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+      Values['SendFactory'] := GetCtrlData(cbb_Factory);
+      {$ENDIF}
       Values['BuDan'] := FBuDanFlag;
       Values['Card'] := gInfo.FCard;
     end;
@@ -690,6 +837,15 @@ begin
     end;
     //call mit bus
     if gInfo.FIDList = '' then Exit;
+
+    {$IFDEF SetStdValue}    //  设置标准净重用于打印第二张提货单  声威凤县工厂
+    if nStock='D' then
+      edt_StdValue.Text:= IntToStr(Trunc(StrToFloatDef(Trim(edt_StdValue.Text), 30)));
+
+    nSql := 'UPDate %s Set L_StdValue=%s Where L_ID=''%s''';
+    nSql := Format(nSql, [sTable_Bill, Trim(edt_StdValue.Text), gInfo.FIDList]);
+    FDM.ExecuteSQL(nSql);
+    {$ENDIF}
   finally
     nTmp.Free;
     nList.Free;
@@ -703,7 +859,12 @@ begin
   if nPrint then
     PrintBillFYDReport(gInfo.FIDList, True);
   //print report
-  
+
+  {$IFDEF SWTC}
+  PrintBillRt(gInfo.FIDList, True);
+  // 声威开单小票
+  {$ENDIF}
+
   ModalResult := mrOk;
   ShowMsg('提货单保存成功', sHint);
 end;
@@ -719,6 +880,37 @@ begin
     nIni.Free;
   end;
   //保存封签号
+end;
+
+procedure TfFormBill.Chk_YZCPClick(Sender: TObject);
+begin
+  if not Chk_YZCP.Checked then
+  begin
+    //MessageBox('确认 要对当前订单不做 【车牌检查】 么?'，'Message', MB_YESNO);
+    if Application.Messagebox('确认 要对当前订单不做 【车牌检查】 么！', '提示', 
+              mb_Iconinformation+MB_OKCANCEL) = mrCancel then
+    begin
+      exit;
+    end;
+  end;
+
+end;
+
+procedure TfFormBill.EdtICCardNoClick(Sender: TObject);
+begin
+  //PrintBillRt('TH180801032', True);
+end;
+
+procedure TfFormBill.edt_StdValueKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0'..'9',#8, '.']) then Key := #0;
+
+end;
+
+procedure TfFormBill.edt_StdValueExit(Sender: TObject);
+begin
+  Randomize;
+  edt_StdValue.Text:= Format('%.2f', [(StrToFloatDef(Trim(edt_StdValue.Text), 30)-(Random(2)+1))+Random(100)/100]);
 end;
 
 initialization

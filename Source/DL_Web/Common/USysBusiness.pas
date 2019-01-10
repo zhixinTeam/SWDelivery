@@ -140,6 +140,7 @@ function IsWeekHasEnable(const nWeek: string; const nQuery: TADOQuery): Boolean;
 //周期是否启用
 function IsNextWeekEnable(const nWeek: string; const nQuery: TADOQuery): Boolean;
 //下一周期是否启用
+function IsWeekCanZZ(const nWeek: string; const nQuery: TADOQuery): Boolean;
 function IsPreWeekOver(const nWeek: string; const nQuery: TADOQuery; var nPreWeek:string): Integer;
 //上一周期是否结束
 
@@ -148,7 +149,7 @@ function GetRightStr(SubStr, Str: string): string;
 
 
 function PrintHuaYanReport(const nHID: string): Boolean;
-
+function PrintHuaYanReport_3(const nHID: string): Boolean;
 
 
 implementation
@@ -323,25 +324,36 @@ end;
 //Desc: 在nQuery上执行查询
 function DBQuery(const nStr: string; const nQuery: TADOQuery;
   const nClientDS: TClientDataSet): TDataSet;
+var nBookMark: TBookmark;
 begin
   try
-    if not nQuery.Connection.Connected then
-      nQuery.Connection.Connected := True;
-    //xxxxx
-    
-    nQuery.Close;
-    nQuery.SQL.Text := nStr;
-    nQuery.Open;
+      try
+        if not nQuery.Connection.Connected then
+          nQuery.Connection.Connected := True;
+        //xxxxx
 
-    Result := nQuery;
-    //result
+        nQuery.Close;
+        nQuery.SQL.Text := nStr;
+        nQuery.Open;
 
-    if Assigned(nClientDS) then
-      DSClientDS(Result, nClientDS);
-    //xxxxx
-  except
-    nQuery.Connection.Connected := False;
-    raise;
+        Result := nQuery;
+        //result
+                                         if Assigned(nClientDS) then
+                                            nBookMark := nClientDS.GetBookmark;
+        if Assigned(nClientDS) then
+          DSClientDS(Result, nClientDS);
+        //xxxxx
+      except
+        nQuery.Connection.Connected := False;
+        raise;
+      end;
+
+       if Assigned(nClientDS) then
+       if nClientDS.BookmarkValid(nBookMark) then
+        nClientDS.GotoBookmark(nBookMark);
+  finally
+      if Assigned(nClientDS) then
+        nClientDS.FreeBookmark(nBookMark);
   end;
 end;
 
@@ -1008,7 +1020,11 @@ begin
       nLimit := GetCustomerValidMoney(nCusID, True);
       //get money value
 
+      {$IFDEF SXSW}
+      nStr := 'Select A_InMoney+A_InitMoney From %s Where A_CID=''%s''';
+      {$ELSE}
       nStr := 'Select A_InMoney From %s Where A_CID=''%s''';
+      {$ENDIF}
       nStr := Format(nStr, [sTable_CusAccount, nCusID]);
 
       with DBQuery(nStr, nQuery) do
@@ -1833,6 +1849,13 @@ begin
       Options := Options + [dgColumnResize, dgColumnMove];
     //选项控制
 
+    if Pos('beforeinit', ClientEvents.UniEvents.Text.ToLower) < 1 then
+    begin
+      ClientEvents.UniEvents.Add('beforeInit=function beforeInit(sender,' +
+                    'config){config.viewConfig.enableTextSelection = true;}');
+      //单元格可选
+    end;
+
     ReadOnly := True;
     WebOptions.Paged := True;
     WebOptions.PageSize := 1000;
@@ -2377,7 +2400,18 @@ begin
             MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
     Result := DBQuery(nStr, nQuery).RecordCount > 0;
   end;
+end;
 
+//Desc: 检测nWeek周期能否已再次扎账
+function IsWeekCanZZ(const nWeek: string; const nQuery: TADOQuery): Boolean;
+var nStr: string;
+begin
+  with TStringHelper do
+  begin
+    nStr := 'Select * From $Stl Where S_Week=''$NO'' ';
+    nStr := MacroValue(nStr, [MI('$Stl', sTable_InvSettle),MI('$NO', nWeek)]);
+    Result := DBQuery(nStr, nQuery).RecordCount > 0;
+  end;
 end;
 
 //Date: 2018-05-17
@@ -2397,7 +2431,7 @@ begin
     //xxxxx
 
     nStr := 'Select R_Week, Count(*) From $Req Where (R_Week<>''$NO'') And ' +
-            '(R_Value<>R_KValue) And (R_KPrice <> 0) Group by R_Week';
+            '(R_Value<>R_KValue) And (R_KPrice <> 0) And R_Chk=1 Group by R_Week';
     nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
             MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
 
@@ -2456,7 +2490,6 @@ begin
   else Result := '';
 end;
 
-
 //Desc: 打印标识为nHID的化验单
 function PrintHuaYanReport(const nHID: string): Boolean;
 var nStr,nSR: string;
@@ -2509,6 +2542,65 @@ begin
     ReleaseDBQuery(nQuery);
   end;
 end;
+
+
+//Desc: 打印标识为nHID的化验单    仅打印3天数据
+function PrintHuaYanReport_3(const nHID: string): Boolean;
+var nStr,nSR: string;
+    nQuery: TADOQuery;
+var
+  FDR: TFDR;
+begin
+  Result := True;
+  FDR := TFDR(UniMainModule.GetFormInstance(TFDR));
+  try
+    with TStringHelper, TDateTimeHelper do
+    begin
+      nSR := 'Select R_ID,R_SerialNo,R_PID,R_SGType,R_SGValue,R_HHCType,R_HHCValue,R_MgO,R_SO3,R_ShaoShi,R_CL,R_BiBiao,R_ChuNing,R_ZhongNing, ' +
+             'R_AnDing,R_XiDu,R_Jian,R_ChouDu,R_BuRong,R_YLiGai,R_Water,R_KuangWu,R_GaiGui,R_3DZhe1,R_3DZhe2,R_3DZhe3,''-'' R_28Zhe1,''-'' R_28Zhe2,''-'' R_28Zhe3, ' +
+             'R_3DYa1,R_3DYa2,R_3DYa3,R_3DYa4,R_3DYa5,R_3DYa6,''-'' R_28Ya1,''-'' R_28Ya2,''-'' R_28Ya3,''-'' R_28Ya4,''-'' R_28Ya5,''-'' R_28Ya6,   ' +
+             'R_Date,R_Man,R_HHCValueBak,R_HHCValueHJ,R_GanSuo,R_NaiMo,R_C4AF,R_C3A,R_C3S,R_7DZhe1,R_7DZhe2,R_7DZhe3,R_7DYa1,R_7DYa2,R_7DYa3,  ' +
+             'R_7DYa4,R_7DYa5,R_7DYa6,R_3DShui1,R_3DShui2,R_7DShui1,R_7DShui2,''-'' R_28DShui1,''-'' R_28DShui2,R_ZhuMoJi,R_ZhuMoJiValue,R_LvSuanSG, sp.* From %s sr  ' +
+             'Left Join %s sp on sp.P_ID=sr.R_PID ';
+      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+
+      nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
+              ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+              ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+              'Where H_ID in ($ID)';
+      //xxxxx
+
+      nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
+              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
+      //xxxxx
+
+      nQuery := LockDBQuery(ctMain);
+      //get query
+      DBQuery(nStr, nQuery);
+      if nQuery.RecordCount < 1 then
+      begin
+        nStr := '编号为[ %s ] 的化验单记录已无效!!';
+        nStr := Format(nStr, [nHID]);
+        Exit;
+      end;
+
+      nStr := nQuery.FieldByName('P_Stock').AsString;
+      nStr := GetReportFileByStock(nStr);
+      if not FDR.LoadReportFile(nStr) then
+      begin
+        nStr := '无法正确加载报表文件';
+        Exit;
+      end;
+
+      FDR.Dataset1.DataSet := nQuery;
+      FDR.ShowReport(FDR.GenReportPDF);
+      Result := FDR.PrintSuccess;
+    end;
+  finally
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
 
 
 

@@ -13,7 +13,9 @@ uses
   USysConst in 'Common\USysConst.pas',
   USysFun in 'Common\USysFun.pas',
   UFrameBase in 'Forms\UFrameBase.pas' {fFrameBase: TUniFrame},
-  USysRemote in 'Common\USysRemote.pas';
+  USysRemote in 'Common\USysRemote.pas',
+  UFrameSalePlan in 'Forms\UFrameSalePlan.pas' {fFrameSalePlan: TUniFrame},
+  UFormSalePlan in 'Forms\UFormSalePlan.pas' {fFormSalePlan: TUniForm};
 
 {$R *.res}
 

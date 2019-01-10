@@ -146,7 +146,7 @@ begin
 
   if (nParam.FCommand = cCmd_ModalResult) and (nParam.FParamA = mrOK) then
   begin
-    InitFormData(FWhere);
+    InitFormData('');
   end;
 end;
 

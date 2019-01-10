@@ -357,7 +357,12 @@ begin
     if (FStatus <> sFlag_TruckBFP) and (FNextStatus = sFlag_TruckZT) then
       FNextStatus := sFlag_TruckBFP;
     //状态校正
-
+    {$IFDEF AllowMultiM}
+    if (FStatus = sFlag_TruckBFM) then
+      FNextStatus := sFlag_TruckBFM;
+    //允许多次过重
+    {$ENDIF}
+    
     FSelected := (FNextStatus = sFlag_TruckBFP) or
                  (FNextStatus = sFlag_TruckBFM);
     //可称重状态判定
@@ -767,6 +772,7 @@ begin
   
   with FBillItems[0] do
   begin
+    FProc:= 'add';    ///  NC 操作类型
     FFactory := gSysParam.FFactNum;
     //xxxxx
     
@@ -786,12 +792,12 @@ end;
 
 //Desc: 保存销售
 function TfFrameManualPoundItem.SavePoundSale: Boolean;
-var nStr: string;
-    nVal,nNet: Double;
+var nStr, nStrSql: string;
+    nVal,nNet,nEmptyVal: Double;
 begin
   Result := False;
   //init
-
+  try
   if FBillItems[0].FNextStatus = sFlag_TruckBFP then
   begin
     if FUIData.FPData.FValue <= 0 then
@@ -821,7 +827,7 @@ begin
       ShowMsg('请先称量毛重', sHint);
       Exit;
     end;
-  end;
+  end;                                                                          
 
   if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
   begin
@@ -829,6 +835,17 @@ begin
     begin
       ShowMsg('皮重应小于毛重', sHint);
       Exit;
+    end;
+
+    nEmptyVal:= FUIData.FMData.FValue * 1000 - FUIData.FPData.FValue * 1000;
+    if (nEmptyVal > 0) and (Abs(nEmptyVal)<= gSysParam.FEmpTruckWc) and (FBillItems[0].FIsSample<>sFlag_Yes) then
+    begin
+      // 判断为空车出厂
+      FBillItems[0].FYSValid:= 'Y';
+      //*****************
+      nStrSql := 'UPDate %s Set L_EmptyOut=''Y'' Where L_Id=''%s''  ';
+      nStrSql := Format(nStrSql, [sTable_Bill, FBillItems[0].FID]);
+      FDM.ExecuteSQL(nStrSql);
     end;
 
     nNet := FUIData.FMData.FValue - FUIData.FPData.FValue;
@@ -910,14 +927,20 @@ begin
     Result := SaveLadingBills(FNextStatus, FBillItems, FPoundTunnel);
     //保存称重
   end;
+
+  except
+    on E:Exception do
+    begin
+      ShowMessage(E.Message);
+      Exit;
+    end;
+  end;
 end;
 
 //Desc: 保存称重
 procedure TfFrameManualPoundItem.BtnSaveClick(Sender: TObject);
 var nBool: Boolean;
 begin
-  try
-
 //  {$IFDEF MITTruckProber}
 //    if not IsTunnelOK(FPoundTunnel.FID) then
 //  {$ELSE}
@@ -976,13 +999,13 @@ begin
     CloseWaitForm;
   end;
 
-  except
-    on E:Exception do
-    begin
-      ShowMessage(E.Message);
-      Exit;
-    end;
-  end;
+//  except
+//    on E:Exception do
+//    begin
+//      ShowMessage(E.Message);
+//      Exit;
+//    end;
+//  end;
 end;
 
 procedure TfFrameManualPoundItem.PlayVoice(const nStrtext: string);

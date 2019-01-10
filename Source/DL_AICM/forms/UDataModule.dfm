@@ -3,7 +3,7 @@ object FDM: TFDM
   Left = 300
   Top = 286
   Height = 211
-  Width = 299
+  Width = 401
   object ADOConn: TADOConnection
     LoginPrompt = False
     Left = 28
@@ -25,7 +25,7 @@ object FDM: TFDM
     Connection = ADOConn
     Parameters = <>
     Left = 184
-    Top = 24
+    Top = 16
   end
   object Command: TADOQuery
     Connection = ADOConn
@@ -36,8 +36,8 @@ object FDM: TFDM
   object dxPrinter1: TdxComponentPrinter
     CurrentLink = dxGridLink1
     Version = 0
-    Left = 112
-    Top = 72
+    Left = 120
+    Top = 80
     object dxGridLink1: TdxGridReportLink
       PrinterPage.DMPaper = 9
       PrinterPage.Footer = 6350
@@ -52,5 +52,17 @@ object FDM: TFDM
       PrinterPage._dxLastMU_ = 2
       BuiltInReportLink = True
     end
+  end
+  object Qry_Cus: TADOQuery
+    Connection = ADOConn
+    Parameters = <>
+    Left = 226
+    Top = 20
+  end
+  object Qry_Search: TADOQuery
+    Connection = ADOConn
+    Parameters = <>
+    Left = 258
+    Top = 20
   end
 end

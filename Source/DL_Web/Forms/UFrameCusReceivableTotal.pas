@@ -13,7 +13,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   uniGUITypes, Data.Win.ADODB, UFrameBase, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameCusReceivableTotal = class(TfFrameBase)
@@ -172,7 +173,7 @@ begin
     //合并入金
 
     nStr := 'UPDate #qichu Set C_Init=C_Init- L_Money From ( ' +
-            'Select L_CusID, IsNull(Sum(L_Price*L_Value), 0) L_Money From %s ' +
+            'Select L_CusID, IsNull(Sum((L_Price+IsNull(L_YunFei, 0))*L_Value), 0) L_Money From %s ' +
             'Where L_OutFact<''$ST''  ' +
             'Group  by L_CusID ) a  Where L_CusID=C_ID ';
     nStr := Format(nStr, [sTable_Bill]);
@@ -181,7 +182,7 @@ begin
 
 
     nStr := 'UPDate #qichu Set C_Init=C_Init- xMoney From ( ' +
-            'Select S_CusID, IsNull(Sum(S_Price*S_Value), 0) xMoney From %s ' +
+            'Select S_CusID, -1*IsNull(Sum((S_Price+IsNull(S_YunFei, 0))*S_Value), 0) xMoney From %s ' +
             'Where S_Date<''$ST''  ' +
             'Group  by S_CusID ) a  Where S_CusID=C_ID ' ;
     nStr := Format(nStr, [sTable_InvSettle]);
@@ -198,7 +199,7 @@ begin
     //期初金额
 
     nStr := 'UPDate #qichu Set C_SaleMoney=L_Money From ( ' +
-            'Select L_CusID, IsNull(Sum(L_Price*L_Value), 0) L_Money From %s ' +
+            'Select L_CusID, Sum(CONVERT(Decimal(15,2), (L_Price+ISNULL(L_YunFei,0))*L_Value)) L_Money From %s ' +
             'Where L_OutFact>=''$ST'' And L_OutFact<''$ED''  ' +
             'Group  by L_CusID ) a  Where L_CusID=C_ID  ';
     nStr := Format(nStr, [sTable_Bill]);
@@ -207,7 +208,7 @@ begin
 
 
     nStr := 'UPDate #qichu Set C_FLMoney=xMoney From ( ' +
-            'Select S_CusID, Sum(ISNULL(S_Price,0)*ISNULL(S_Value, 0)*(-1)) xMoney From %s ' +
+            'Select S_CusID, Sum((ISNULL(S_Price,0)+ISNULL(S_YunFei,0))*ISNULL(S_Value, 0)*(-1)) xMoney From %s ' +
             'Where S_Date>=''$ST'' And S_Date<''$ED'' ' +
             'Group  by S_CusID ) a  Where S_CusID=C_ID ';
     nStr := Format(nStr, [sTable_InvSettle]);

@@ -25,6 +25,8 @@ type
     Command: TADOQuery;
     dxPrinter1: TdxComponentPrinter;
     dxGridLink1: TdxGridReportLink;
+    Qry_Cus: TADOQuery;
+    Qry_Search: TADOQuery;
   private
     { Private declarations }
     function CheckQueryConnection(const nQuery: TADOQuery;
@@ -46,6 +48,8 @@ type
      const nFixID: Integer; const nIncLen: Integer = 3): string;
     function SQLServerNow: string;
     function QuerySQL(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
+    function QuerySQLx(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
+    function QuerySQLChk(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
     procedure QueryData(const nQuery: TADOQuery; const nSQL: string;
      const nUseBackdb: Boolean = False);
   end;
@@ -209,8 +213,112 @@ end;
 
 procedure TFDM.QueryData(const nQuery: TADOQuery; const nSQL: string;
   const nUseBackdb: Boolean);
+var nStep: Integer;
+    nException: string;
+    nBookMark: Pointer;
 begin
-//
+  if not CheckQueryConnection(nQuery, nUseBackdb) then Exit;
+  nException := '';
+  nStep := 0;
+
+  while nStep <= 2 do
+  try
+    if nStep = 1 then
+    begin
+      SqlTemp.Close;
+      SqlTemp.Connection := nQuery.Connection;
+      SqlTemp.SQL.Text := 'select 1';
+      SqlTemp.Open;
+
+      SqlTemp.Close;
+      Break;
+      //connection is ok
+    end else
+
+    if nStep = 2 then
+    begin
+      nQuery.Connection.Close;
+      nQuery.Connection.Open;
+    end; //reconnnect
+
+    nQuery.DisableControls;
+    nBookMark := nQuery.GetBookmark;
+    try
+      nQuery.Close;
+      nQuery.SQL.Text := nSQL;
+      nQuery.Open;
+                 
+      nException := '';
+      nStep := 3;
+      //delay break loop
+
+      if nQuery.BookmarkValid(nBookMark) then
+        nQuery.GotoBookmark(nBookMark);
+    finally
+      nQuery.FreeBookmark(nBookMark);
+      nQuery.EnableControls;
+    end;
+  except
+    on E:Exception do
+    begin
+      Inc(nStep);
+      nException := E.Message;
+      WriteLog(nException+' SQl:'+ nSQL);
+    end;
+  end;
+
+  if nException <> '' then
+    raise Exception.Create(nException);
+  //xxxxx
+end;
+
+function TFDM.QuerySQLx(const nSQL: string;
+  const nUseBackdb: Boolean): TDataSet;
+var nInt: Integer;
+begin
+  Result := nil;
+  nInt := 0;
+
+  while nInt < 2 do
+  try
+    if not ADOConn.Connected then
+      ADOConn.Connected := True;
+    //xxxxx
+
+    Qry_Cus.Close;
+    Qry_Cus.SQL.Text := nSQL;
+    Qry_Cus.Open;
+
+    Result := Qry_Cus;
+    Exit;
+  except
+    ADOConn.Connected := False;
+    Inc(nInt);
+  end;
+end;
+
+function TFDM.QuerySQLChk(const nSQL: string; const nUseBackdb: Boolean): TDataSet;
+var nInt: Integer;
+begin
+  Result := nil;
+  nInt := 0;
+
+  while nInt < 2 do
+  try
+    if not ADOConn.Connected then
+      ADOConn.Connected := True;
+    //xxxxx
+
+    Qry_Search.Close;
+    Qry_Search.SQL.Text := nSQL;
+    Qry_Search.Open;
+
+    Result := Qry_Search;
+    Exit;
+  except
+    ADOConn.Connected := False;
+    Inc(nInt);
+  end;
 end;
 
 function TFDM.QuerySQL(const nSQL: string;

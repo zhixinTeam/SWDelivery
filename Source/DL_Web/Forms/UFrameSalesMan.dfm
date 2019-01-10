@@ -51,8 +51,8 @@ inherited fFrameSalesMan: TfFrameSalesMan
       end
     end
     inherited DBGridMain: TUniDBGrid
-      Top = 97
-      Height = 493
+      Top = 91
+      Height = 499
       OnMouseDown = DBGridMainMouseDown
       Columns = <
         item
@@ -62,6 +62,11 @@ inherited fFrameSalesMan: TfFrameSalesMan
           Font.Name = #23435#20307
         end>
     end
+  end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
   object PMenu1: TUniPopupMenu
     Left = 40

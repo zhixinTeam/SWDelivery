@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxButtonEdit,
   cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
-  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter, cxCalendar;
 
 type
   TfFormPurchaseOrder = class(TfFormNormal)
@@ -56,6 +56,9 @@ type
     dxlytmHYJz: TdxLayoutItem;
     cxlbl1: TcxLabel;
     dxlytgrphyjz: TdxLayoutGroup;
+    dxLayout1Item6: TdxLayoutItem;
+    EdtKFTime: TcxDateEdit;
+    dxLayout1Group3: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -121,12 +124,12 @@ begin
     if nBuDan then //补单
     begin
       FBuDanFlag := sFlag_Yes;
-      Height:= 455;                Caption := '采购补单';
+      Height:= 480;                Caption := '采购补单';
     end
     else
     begin
       FBuDanFlag := sFlag_No;      Caption := '开采购单';
-      Height:= 370;
+      Height:= 408;
       dxlytmLayout1Item61.Visible:= False; dxlytmLayout1Item62.Visible:= False; dxlytmLayout1Item63.Visible:= False;
       dxlytmLayout1Item64.Visible:= False; dxlytmLayout1Item65.Visible:= False;
     end;
@@ -162,6 +165,7 @@ begin
   FCardData := TStringList.Create;
   AdjustCtrlData(Self);
   LoadFormConfig(Self);
+  EdtKFTime.Date:= Now;
 end;
 
 procedure TfFormPurchaseOrder.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -263,12 +267,19 @@ begin
   end;
 
   {$IFDEF PurchaseOrderChkJingZhong}
-  IF (StrToFloatDef(Trim((edt_YsJz.Text)), 0)<=0) then
+  IF (StrToFloatDef(Trim((edt_YsJz.Text)), -1)<0) then
   begin
     ShowMsg('请输入原始净重、才能开单', sHint);
     Exit;
   end;
+  if EdtKFTime.Date<0 then
+  begin
+    ShowMsg('请输入矿发时间、才能开单', sHint);
+    Exit;
+  end;
   {$ENDIF}
+
+  nCardType:= FormatDateTime('yyyy-MM-dd HH:mm:ss', EdtKFTime.Date);
 
   with FListA do
   begin
@@ -298,6 +309,7 @@ begin
     else  Values['Value']   := '0.00';
 
     Values['YJZValue'] := edt_YsJz.Text;     // 原始净重
+    Values['KFTime'] := FormatDateTime('yyyy-MM-dd HH:mm:ss', EdtKFTime.Date);       // 矿发时间
     //*******
     if FBuDanFlag=sflag_yes then
     begin
@@ -316,11 +328,12 @@ begin
     PrintRCOrderReport(nOrder, True);
   //临时卡提示打印入厂  
 
-  nSQL := MakeSQLByStr([
-              SF('O_YJZValue', edt_YsJz.Text)
-              ], sTable_Order, SF('O_ID', nOrder), False);
-  FDM.ExecuteSQL(nSQL);
-  // 更新原始净重
+//  nSQL := MakeSQLByStr([
+//              SF('O_YJZValue', edt_YsJz.Text)
+//              SF('O_KFtime', FormatDateTime('yyyy-MM-dd HH:mm:ss', EdtKFTime.Date))
+//              ], sTable_Order, SF('O_ID', nOrder), False);
+//  FDM.ExecuteSQL(nSQL);
+  // 更新原始净重 以及矿发时间
 
   if (FBuDanFlag <> sFlag_Yes) then
     SetOrderCard(nOrder, FListA.Values['Truck'], True);

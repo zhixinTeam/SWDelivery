@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, uniGUITypes,
   UFrameBase, Vcl.Menus, uniMainMenu, uniLabel, uniEdit, Data.DB,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameCustomer = class(TfFrameBase)

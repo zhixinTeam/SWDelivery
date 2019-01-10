@@ -34,6 +34,7 @@ type
     procedure IdTCPServer1Execute(AContext: TIdContext);
     procedure BtnConnClick(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
+    procedure GroupBox1Click(Sender: TObject);
   private
     { Private declarations }
     FTrayIcon: TTrayIcon;
@@ -250,17 +251,40 @@ end;
 //Parm: 交货单号;提示;数据对象;打印机
 //Desc: 打印nBill交货单号
 function PrintBillReport(const nBill: string; var nHint: string;
- const nPrinter: string = ''; const nMoney: string = '0'): Boolean;
+ const nPrinter: string = ''; const nMoney: string = '0'; const nPrintStd: Boolean = False): Boolean;
 var nStr: string;
     nDS: TDataSet;
 begin
   nHint := '';
   Result := False;
-  
-  nStr := 'Select *,%s As L_ValidMoney From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
-  nStr := Format(nStr, [nMoney, sTable_Bill, nBill]);
 
-  nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  if not nPrintStd then
+  begin
+    nStr := 'Select *,%s As L_ValidMoney From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
+    {$IFDEF SetStdValue}
+    nStr := nStr + ' Union ' + 
+              ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
+              ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue  L_MValue, ' +
+              ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
+              ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.*,%s As L_ValidMoney ' +
+              ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s'' And L_StdValue>0  ';
+    {$ENDIF}
+
+    nStr := Format(nStr, [nMoney, sTable_Bill, nBill, nMoney, nBill]);
+                                                      //
+    nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  end
+  else
+  begin
+    nStr := ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
+              ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue  L_MValue, ' +
+              ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
+              ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.*,%s As L_ValidMoney ' +
+              ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s'' And L_StdValue>0  ';
+    nStr := Format(nStr, [nMoney, nBill]);
+
+    nDS := FDM.SQLQuery(nStr, FDM.Qry_1);
+  end;
   if not Assigned(nDS) then Exit;
 
   if nDS.RecordCount < 1 then
@@ -282,6 +306,10 @@ begin
   else FDR.Report1.PrintOptions.Printer := nPrinter;
 
   FDR.Dataset1.DataSet := FDM.SQLQuery1;
+  {$IFDEF SetStdValue}
+  if nPrintStd then
+    FDR.Dataset1.DataSet := FDM.Qry_1;
+  {$ENDIF}
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
 
@@ -648,6 +676,12 @@ begin
       begin
         PrintBillReport(nBill, nHint, nPrinter, nMoney);
         if nHint <> '' then WriteLog(nHint);
+        {$IFDEF SetStdValue}
+        //Sleep(500);
+        //PrintBillReport(nBill, nHint, nPrinter, nMoney, True);
+        //if nHint <> '' then WriteLog(nHint);
+        {$ENDIF}
+
 
         {$IFDEF PrintHuaYanDan}
         PrintHuaYanReport(nBill, nHint, nHYPrinter);
@@ -668,6 +702,13 @@ begin
     FIsBusy := False;
     WriteLog('打印结束.');
   end;
+end;
+
+procedure TfFormMain.GroupBox1Click(Sender: TObject);
+var nn:string;
+begin
+  //PrintBillReport('TH180929026', nn, '', '');
+  //PrintBillReport('TH180929026', nn, '', '', True);
 end;
 
 end.

@@ -7,7 +7,9 @@ uses
   UDataModule in 'forms\UDataModule.pas' {FDM: TDataModule},
   UFormMain in 'forms\UFormMain.pas' {fFormMain},
   uReadCardThread in 'uReadCardThread.pas',
-  Util_utf8 in '..\DL_WXService\Common\Util_utf8.pas';
+  Util_utf8 in '..\DL_WXService\Common\Util_utf8.pas',
+  UFormChoseOPType in 'forms\UFormChoseOPType.pas' {FormChoseOPType},
+  UFormBillCardHandl in 'forms\UFormBillCardHandl.pas' {FormBillCardHandl};
 
 {$R *.res}
 
@@ -16,5 +18,7 @@ begin
   InitSystemObject;
   Application.CreateForm(TFDM, FDM);
   Application.CreateForm(TfFormMain, fFormMain);
+  Application.CreateForm(TFormChoseOPType, FormChoseOPType);
+  Application.CreateForm(TFormBillCardHandl, FormBillCardHandl);
   Application.Run;
 end.

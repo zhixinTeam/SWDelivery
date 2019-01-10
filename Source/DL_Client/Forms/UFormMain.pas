@@ -39,6 +39,7 @@ type
     procedure wPagePageChanging(Sender: TObject; NewPage: TcxTabSheet;
       var AllowChange: Boolean);
     procedure wPageChange(Sender: TObject);
+    procedure tmr1Timer(Sender: TObject);
   private
     { Private declarations }
     FTrayIcon: TTrayIcon;
@@ -127,7 +128,7 @@ begin
     nStr := ReplaceGlobalPath(nStr);
     if FileExists(nStr) then PanelBG.LoadBitmap(nStr);
   finally
-    nIni.Free;
+    nIni.Free;  
   end;
 end;
 
@@ -609,6 +610,12 @@ end;
 procedure TfMainForm.wPageChange(Sender: TObject);
 begin
   LockWindowUpdate(0);
+end;
+
+procedure TfMainForm.tmr1Timer(Sender: TObject);
+var nSQL:string;
+begin
+
 end;
 
 end.

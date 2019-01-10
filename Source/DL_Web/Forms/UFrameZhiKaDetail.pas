@@ -11,7 +11,8 @@ uses
   ULibFun, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniMultiItem,
   uniComboBox, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameZhiKaDetail = class(TfFrameBase)
@@ -52,6 +53,8 @@ type
     procedure EditStockChange(Sender: TObject);
     procedure BtnRefreshClick(Sender: TObject);
     procedure MenuItem7Click(Sender: TObject);
+    procedure DBGridMainDrawColumnCell(Sender: TObject; ACol, ARow: Integer;
+      Column: TUniDBGridColumn; Attribs: TUniCellAttribs);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -314,6 +317,24 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+procedure TfFrameZhiKaDetail.DBGridMainDrawColumnCell(Sender: TObject; ACol,
+  ARow: Integer; Column: TUniDBGridColumn; Attribs: TUniCellAttribs);
+begin
+  if (Column.FieldName='Z_TJStatus') then
+  begin
+    if ClientDS.FieldByName('Z_TJStatus').AsString='T' then
+    begin
+      Attribs.Font.Color := $ffcc00;
+      //Attribs.Color := clWhite;
+    end
+  end
+  else
+  begin
+    Attribs.Font.Color := clBlack;
+    //Attribs.Color := clWhite;
+  end;
+end;
+
 procedure TfFrameZhiKaDetail.DBGridMainMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin

@@ -659,7 +659,7 @@ end;
 function TWorkerBusinessDuanDao.SavePostDDItems(var nData: string): Boolean;
 var nVal: Double;
     nNeedP: Boolean;
-    nSQL,nS,nN, nPdLNo: string;
+    nSQL,nS,nN, nPdLNo, nLineId, nLineName: string;
     nInt, nIdx: Integer;
     nPound: TLadingBillItems;
     nOut, nPDOut: TWorkerBusinessCommand;
@@ -868,6 +868,34 @@ begin
     //返回榜单号,用于拍照绑定
     with nPound[0] do
     begin
+      {$IFDEF DuanDaoCanFH}
+      //检查需要放料车辆是否在队列表（给厂内倒料车辆补排队记录）
+      if FIsSale=sFlag_Yes then
+      begin
+        nSQL := 'Select * From %s Where T_Truck=''%s''' ;
+        nSQL := Format(nSQL, [sTable_ZTTrucks, FTruck]);
+        with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+        if RecordCount = 0 then
+        begin
+          nSQL := MakeSQLByStr([
+                SF('T_Truck'   , FTruck),
+                SF('T_StockNo' , FStockNo),
+                SF('T_Stock'   , FStockName),
+                SF('T_Type'    , 'S'),
+                SF('T_InTime'  , sField_SQLServer_Now, sfVal),
+                SF('T_InFact'  , sField_SQLServer_Now, sfVal),
+                SF('T_Bill'    , FID),
+                SF('T_Valid'   , sFlag_Yes),
+                SF('T_Value'   , FValue, sfVal),
+                SF('T_VIP'     , 'C'),
+                SF('T_HKBills' , FID + '.')
+                ], sTable_ZTTrucks, '', True);
+          gDBConnManager.WorkerExec(FDBConn, nSQL);
+        end;
+      end;
+      //*****************************************
+      {$ENDIF}
+
       FStatus := sFlag_TruckBFP;
       FNextStatus := sFlag_TruckBFM;
 
@@ -921,8 +949,8 @@ begin
                                                  gSysLoger.AddLog(TWorkerBusinessDuanDao, '短倒业务', ' 预置皮重情况：'+FPrePData);
       if FPrePData=sFlag_Yes then         // 预置皮重更新皮重数据
       begin
-          nSQL := 'UPDate %s set T_PValue=(ISNULL(T_PValue, 0)+%f)/((Case When ISNULL(T_PValue, 0)=0 then 0 Else 1 End)+1), T_PrePMan=''%s'','+
-                  ' T_PrePTime=%s Where T_Truck=''%s'' And T_PrePUse=''%s''';
+          nSQL := 'UPDate %s Set T_PValue=(ISNULL(T_PValue, 0)*T_PTime+%f)/(ISNULL(T_PTime, 0)+1), T_PrePMan=''%s'','+
+                              '  T_PTime=T_PTime+1, T_PrePTime=%s Where T_Truck=''%s'' And T_PrePUse=''%s''';
           nSQL := Format(nSQL,[sTable_Truck, FPData.FValue, FIn.FBase.FFrom.FUser, sField_SQLServer_Now, FTruck, sFlag_Yes]);
           FListA.Add(nSQL);
       end;
@@ -930,7 +958,7 @@ begin
 
   end else
 
-  {$IFDEF SXSW}
+  {$IFDEF DuanDaoCanFH}
   if FIn.FExtParam = sFlag_TruckFH then           //短倒放灰现场   声威业务
   begin
     with nPound[0] do
@@ -950,26 +978,27 @@ begin
       FListA.Add(nSQL);
 
 
+      nSQL := 'Select * From %s Left Join S_ZTLines On Z_ID=T_Line Where T_Truck=''%s''' ;
+      nSQL := Format(nSQL, [sTable_ZTTrucks, FTruck]);
+      with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+      if RecordCount > 0 then
+      begin
+        nLineId  := FieldByName('Z_ID').AsString;
+        nLineName:= FieldByName('Z_Name').AsString;
+      end;
+
       nSQL := 'Insert Into %S (T_ID, T_Card, T_Truck, T_PID, T_StockNo, T_StockName, T_PValue, T_PDate, T_PMan, T_MValue, '+
                               'T_MDate, T_MMan, T_Status, T_NextStatus, T_Value, T_Man, T_Date, T_InTime, T_InMan, T_OutFact, T_OutMan, '+
-                              'T_LadeLine, T_LineName, T_LadeTime, T_LadeMan, T_CusName) '+
+                              'T_LadeLine, T_LineName, T_LadeTime, T_LadeMan, T_CusName, T_KDValue) '+
               '       Select   T_ID, T_Card, T_Truck, T_PID, T_StockNo, T_StockName, T_PValue, T_PDate, T_PMan, T_MValue, T_MDate, T_MMan, '+
-                              'T_Status, T_NextStatus, T_Value, T_Man, T_Date, T_InTime, T_InMan, T_OutFact, T_OutMan, '''', '''', '+
-                              'T_LadeTime, T_LadeMan, (T_SrcAddr+T_DestAddr)'+
-              '       From    %S '+
-              '       Where   T_ID=''%S''';
+                              'T_Status, T_NextStatus, T_Value, T_Man, T_Date, T_InTime, T_InMan, T_OutFact, T_OutMan, ''%s'', ''%s'', '+
+                              'T_LadeTime, T_LadeMan, (T_DestAddr), %.2f'+
+              '       From    %s '+
+              '       Where   T_ID=''%s''';
 
-      nSQL := Format(nSQL, [sTable_TransferSW, sTable_Transfer, FID]);
+      nSQL := Format(nSQL, [ sTable_TransferSW, nLineId, nLineName, FValue, sTable_Transfer, FID]);
       FListA.Add(nSQL);
       //生成短倒提货记录
-
-      nSQL := 'UPDate %S Set T_LadeLine=T_Line, T_KDValue= b.T_Value, T_LadeTime=GetDate() From S_ZTTrucks b Where T_PId=T_Bill And T_ID=''%S''';
-      nSQL := Format(nSQL, [sTable_TransferSW, FID]);
-      FListA.Add(nSQL);
-
-      nSQL := 'UPDate %S Set T_LineName=Z_Name From S_ZTLines  Where T_LadeLine=Z_ID And T_ID=''%S''';
-      nSQL := Format(nSQL, [sTable_TransferSW, FID]);
-      FListA.Add(nSQL);
     end;
   end else
   {$ENDIF}
@@ -1009,6 +1038,10 @@ begin
                 SF('T_MMan', FMData.FOperator),
                 SF('T_Value', nVal, sfVal)
                 ], sTable_Transfer, SF('T_ID', FID), False);
+        FListA.Add(nSQL);
+
+        nSQL := 'UPDate P_TransferSW Set T_KDValue= B_KDValue From P_TransBase '+
+                'Where B_ID=T_PID And T_PID='''+FZhiKa+''' And T_ID='''+FID+'''';
         FListA.Add(nSQL);
 
         nSQL := MakeSQLByStr([

@@ -21,6 +21,7 @@ inherited fFormZKPrice: TfFormZKPrice
   inherited PanelWork: TUniSimplePanel
     Width = 450
     Height = 194
+    OnClick = PanelWorkClick
     ExplicitWidth = 450
     ExplicitHeight = 194
     object Label1: TUniLabel

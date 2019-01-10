@@ -1,5 +1,5 @@
 inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
-  Width = 1019
+  Width = 1080
   Height = 309
   Font.Height = -15
   object GroupBox1: TGroupBox
@@ -187,9 +187,10 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Properties.Alignment.Horz = taCenter
     Properties.Alignment.Vert = taVCenter
     Properties.LabelStyle = cxlsRaised
+    OnClick = HintLabelClick
     Height = 27
-    Width = 1019
-    AnchorX = 510
+    Width = 1080
+    AnchorX = 540
     AnchorY = 14
   end
   object EditTruck: TcxComboBox
@@ -465,7 +466,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
   object cxLabel2: TcxLabel
     Left = 385
     Top = 211
-    Caption = #20132#36135#21333#21495':'
+    Caption = #31216#37325#29366#24577':'
     ParentFont = False
     Style.Font.Charset = GB2312_CHARSET
     Style.Font.Color = clBlack
@@ -504,7 +505,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
   object cxLabel5: TcxLabel
     Left = 385
     Top = 171
-    Caption = #29289#26009#21517#31216':'
+    Caption = #23458#25143#21517#31216':'
     ParentFont = False
     Style.Font.Charset = GB2312_CHARSET
     Style.Font.Color = clBlack
@@ -593,6 +594,83 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 24
+  end
+  object chk1: TCheckBox
+    Left = 816
+    Top = 29
+    Width = 153
+    Height = 20
+    Caption = #21551#29992#36710#29260#26816#26597
+    TabOrder = 25
+  end
+  object btn1: TButton
+    Left = 1000
+    Top = 48
+    Width = 75
+    Height = 25
+    Caption = #25260#21069#26438
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = #24494#36719#38597#40657
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 26
+    Visible = False
+    OnClick = btn1Click
+  end
+  object cxlbl1: TcxLabel
+    Left = 414
+    Top = 28
+    Caption = #20928#37325#19978#38480#65306'         '#21544' '
+    ParentFont = False
+    Style.Font.Charset = GB2312_CHARSET
+    Style.Font.Color = clBlack
+    Style.Font.Height = -17
+    Style.Font.Name = #23435#20307
+    Style.Font.Style = []
+    Style.IsFontAssigned = True
+    Visible = False
+  end
+  object edt1: TEdit
+    Left = 502
+    Top = 29
+    Width = 68
+    Height = 19
+    BevelEdges = [beBottom]
+    BevelInner = bvNone
+    BevelKind = bkFlat
+    BevelOuter = bvRaised
+    BorderStyle = bsNone
+    Ctl3D = False
+    ParentCtl3D = False
+    TabOrder = 28
+    Text = '49'
+    Visible = False
+  end
+  object btn2: TButton
+    Left = 1000
+    Top = 80
+    Width = 75
+    Height = 25
+    Caption = #25260#21518#26438
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = #24494#36719#38597#40657
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 29
+    Visible = False
+    OnClick = btn2Click
+  end
+  object chk2: TCheckBox
+    Left = 636
+    Top = 29
+    Width = 153
+    Height = 20
+    Caption = #19981#20570#19978#30917#35821#38899#25552#31034
+    TabOrder = 30
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer

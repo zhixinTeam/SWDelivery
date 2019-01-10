@@ -157,7 +157,11 @@ begin
   {$IFDEF ChkPopedomPrintHYD}
   nStr:= 'Select L_ID, L_CusName, C_InstantPrintHYD From $Bill '+
          'Left   Join $Customer On L_CusID=C_ID '+
-         'Where  L_ID=''$ID'' And C_InstantPrintHYD=''Y'' And DATEDIFF(day, L_OutFact, GETDATE())>=3';
+         'Where  L_ID=''$ID'' And DATEDIFF(day, L_OutFact, GETDATE())>=3 ';
+
+    {$IFDEF SWAS}
+      nStr:= nStr + '  And C_InstantPrintHYD=''Y''  ';
+    {$ENDIF}
 
   nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
           MI('$Customer', sTable_Customer), MI('$ID', nBillno)]);

@@ -11,7 +11,8 @@ uses
   Dialogs, UFormNormal, cxGraphics, cxContainer, cxEdit, cxTextEdit,
   cxMaskEdit, cxDropDownEdit, dxLayoutControl, StdCtrls, cxControls,
   ComCtrls, cxListView, cxButtonEdit, cxLabel, cxLookAndFeels,
-  cxLookAndFeelPainters;
+  cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TOrderBaseParam = record
@@ -164,7 +165,7 @@ begin
 
   nStr := MacroValue(nStr , [MI('$TB', sTable_OrderBase),
           MI('$QUERY', nQuery)]);
-
+  nStr := nStr + ' Order by B_Date Desc';
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then

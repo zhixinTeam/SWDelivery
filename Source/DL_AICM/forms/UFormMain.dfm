@@ -201,7 +201,7 @@ object fFormMain: TfFormMain
         Style.Font.Charset = DEFAULT_CHARSET
         Style.Font.Color = clWhite
         Style.Font.Height = -64
-        Style.Font.Name = #23435#20307
+        Style.Font.Name = #24494#36719#38597#40657
         Style.Font.Style = []
         Style.IsFontAssigned = True
         Properties.Alignment.Horz = taCenter
@@ -6321,7 +6321,7 @@ object fFormMain: TfFormMain
         Left = 0
         Top = 158
         Width = 265
-        Height = 109
+        Height = 289
         Align = alClient
         AutoSize = True
         Picture.Data = {

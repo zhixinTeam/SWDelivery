@@ -28,6 +28,8 @@ type
     { Private declarations }
     FWeekBegin,FWeekEnd: TDateTime;
     //周期区间
+    FSqlMx : string;
+  private
     procedure InitFormData;
     //初始化
     procedure ZZAll;
@@ -139,11 +141,11 @@ begin
       ShowMessage(nStr); Exit;
     end;
 
-//    if IsNextWeekEnable(FParam.FParamB, nQuery) then
-//    begin
-//      nStr := '本周期已结束,系统禁止再次扎账!';
-//      ShowMessage(nStr); Exit;
-//    end;
+    if IsWeekCanZZ(FParam.FParamB, nQuery) then
+    begin
+      nStr := '本周期已返利,系统禁止再次扎账!';
+      ShowMessage(nStr); Exit;
+    end;
 
     nInt := IsPreWeekOver(FParam.FParamB, nQuery, nWeek);
     if nInt > 0 then
@@ -187,6 +189,7 @@ begin
     nQuery := LockDBQuery(FDBType);
     ZZ_All(FParam.FParamE = sFlag_Yes, nQuery);
 
+    FSqlMx:= '';
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
     //get list
     
@@ -199,7 +202,7 @@ begin
 
     nFields := 'R_Week,R_ZhiKa,R_CusID,R_Customer,R_CusPY,R_SaleID,R_SaleMan,' +
       'R_Type,R_Stock,R_StockName,R_Price,R_Value,R_YunFei,R_PreHasK,' +
-      'R_ReqValue,R_KPrice,R_KValue,R_KOther,R_Man,R_Date';
+      'R_ReqValue,R_KPrice,R_KValue,R_KOther,R_Man,R_Date,R_LID,R_OutFact';
     //xxxxx
 
     nStr := 'Insert Into %s(%s) Select %s From %s';
@@ -233,7 +236,7 @@ end;
 //Desc: 执行扎帐操作
 procedure TfFormInvoiceZZAll.ZZ_All(const nNeedCombine: Boolean;
   const nQuery: TADOQuery);
-var nStr, nSQL, nCusId, nStockId: string;
+var nStr, nSQL, nSqlMx, nCusId, nStockId: string;
 begin
   nStr := 'Select * From ' + sTable_InvoiceWeek + ' Where W_NO=''%s''';
   nStr := Format(nStr, [FParam.FParamB]);
@@ -249,8 +252,8 @@ begin
   DBExecute(nStr, nQuery);
   //清空临时表
 
-  nSQL := 'Select L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName,L_Price, IsNull(L_YunFei, 0) L_YunFei,Sum(L_Value) as L_Value From $Bill ' +
+  nSQL := 'Select L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,L_StockNo,'+
+          'L_StockName,L_Price, IsNull(L_YunFei, 0) L_YunFei,L_Value,L_ID,L_OutFact From $Bill ' +
           'Where L_OutFact>=''$STime'' And L_OutFact<=''$ETime'' ';
 
   if nCusId<>'' then
@@ -259,14 +262,17 @@ begin
   if nStockId<>'' then
     nSQL := nSQL + ' And L_StockNo=''$StockNo'' ';
 
-  nSQL := nSQL + ' Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-          'L_Type,L_StockNo,L_StockName,L_Price, L_YunFei';
-  //xxxxx
+  FSqlMx:= nSQL;
+  ///发货明细
 
   with TStringHelper,TDateTimeHelper do
     nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),
             MI('$STime', DateTime2Str(FWeekBegin)), MI('$ETime', DateTime2Str(FWeekEnd)+'.999'),
             MI('$CusID', nCusId), MI('$StockNo', nStockId)]);
+
+//  nSQL := nSQL + ' Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+//                           'L_Type,L_StockNo,L_StockName,L_Price, L_YunFei';
+  //xxxxx
   //同客户同品种同单价汇总合并
 
   nStr := 'Select ''$Week'' As R_Week,''$Man'' As R_Man,$Now As R_Date,' +
@@ -279,7 +285,7 @@ begin
 
   nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_SaleMan,' +
     'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,R_Price,R_YunFei,' +
-    'R_Value) Select * From (%s) t';
+    'R_Value,R_LID,R_OutFact) Select * From (%s) t';
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户总提货量...');

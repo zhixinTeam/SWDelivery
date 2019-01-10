@@ -88,6 +88,7 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       end
     end
     inherited DBGridMain: TUniDBGrid
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgAutoRefreshRow]
       OnMouseDown = DBGridMainMouseDown
       Columns = <
         item
@@ -111,6 +112,13 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       OnClick = BtnEditClick
     end
     object N1: TUniMenuItem
+      Caption = '-'
+    end
+    object unmntmN5: TUniMenuItem
+      Caption = #26597#30475#26126#32454#21457#36135#35760#24405
+      OnClick = unmntmN5Click
+    end
+    object unmntmN4: TUniMenuItem
       Caption = '-'
     end
     object N2: TUniMenuItem

@@ -62,6 +62,9 @@ const
   cBC_SavePostBills           = $0031;   //保存岗位交货单
   cBC_MakeSanPreHK            = $0032;   //执行散装预合卡
 
+  cBC_RemoteSnapDisPlay       = $0051;   //抓拍小屏显示
+  cBC_GetPoundReaderInfo      = $0052;   //获取磅站读卡器岗位、部门
+
   cBC_ChangeDispatchMode      = $0053;   //切换调度模式
   cBC_GetPoundCard            = $0054;   //获取磅站卡号
   cBC_GetQueueData            = $0055;   //获取队列数据
@@ -69,6 +72,7 @@ const
   cBC_PrintFixCode            = $0057;   //喷码
   cBC_PrinterEnable           = $0058;   //喷码机启停
   cBC_GetStockBatcode         = $0059;   //获取批次编号
+  //cBC_GetStockBatcodeEx         = $0700;   //获取批次编号    发多个分厂水泥批次
 
   cBC_JSStart                 = $0060;
   cBC_JSStop                  = $0061;
@@ -79,6 +83,7 @@ const
   cBC_ShowLedTxt              = $0066;   //向led屏幕发送内容
   cBC_GetLimitValue           = $0067;   //获取车辆最大限载值
   cBC_LineClose               = $0068;   //关闭放灰
+  cBC_VerifySnapTruck         = $3069;   //车牌比对
 
   cBC_IsTunnelOK              = $0075;
   cBC_TunnelOC                = $0076;
@@ -119,6 +124,22 @@ const
   cBC_WX_DownLoadPic          = $0522;   //微信：下载图片
   cBC_WX_get_shoporderbyTruck = $0523;   //微信：根据车牌号获取订单信息
 
+  cBC_GetStockBatcodeEx       = $0700;   //获取批次编号    发多个分厂水泥批次
+
+  //////////// NC 基础数据同步
+  cBC_NCEditCustomer          = $0780;   //客户档案
+  cBC_NCEditProvider          = $0781;   //供应商档案
+  cBC_NCEditUnit              = $0782;   //计量单位档案
+  cBC_NCEditMate              = $0783;   //物料档案
+  cBC_NCEditCredit            = $0784;   //客户信用
+  cBC_NCEditOrder             = $0785;   //采购单    采购合同
+  cBC_NCEditZhiKa             = $0786;   //销售单    纸卡
+
+  cBC_SendToNcOrdreInfo       = $0787;   //采购单    同步数据到NC
+  cBC_SendToNcBillInfo        = $0788;   //销售单    同步数据到NC
+  cBC_NcStatusChk             = $0789;   //NC服务 状态监测
+
+
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
   TWorkerQueryFieldData = record
@@ -149,6 +170,7 @@ type
     FCusID      : string;          //客户编号
     FCusName    : string;          //客户名称
     FTruck      : string;          //车牌号码
+    FMINUTEDate : Integer;         //开单时间距当前 分钟数
 
     FType       : string;          //品种类型
     FStockNo    : string;          //品种编号
@@ -181,6 +203,14 @@ type
     FCtype      : string;          //卡类型；'L'：临时；'G'：固定
     FPrePData   : string;          //预置皮重
     FIsSale     : string;          //短倒销售
+
+    FSnapTruck  : Boolean;         //车牌识别
+    FIsSample   : string;          //样品
+
+    // 手持机
+    FPlace      : string;          //卸货地点
+    FUnloadingType : string;       //卸货方式
+    FProc       : string;          // NC 操作类型标示  add  update  delete
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -224,6 +254,7 @@ resourcestring
   sBus_BusinessWebchat        = 'Bus_BusinessWebchat';  //Web平台服务
   sBus_BusinessPurchaseOrder  = 'Bus_BusinessPurchaseOrder'; //采购单相关
   sBus_BusinessDuanDao        = 'Bus_BusinessDuanDao';  //短倒业务相关
+  sBus_BusinessNC             = 'Bus_BusinessNC';       //NCService
 
 
   {*client function name*}
@@ -236,6 +267,7 @@ resourcestring
   sCLI_BusinessWebchat        = 'CLI_BusinessWebchat';  //Web平台服务
   sCLI_BusinessPurchaseOrder  = 'CLI_BusinessPurchaseOrder'; //采购单相关
   sCLI_BusinessDuanDao        = 'CLI_BusinessDuanDao';  //短倒业务相关
+  sCLI_BusinessNC             = 'CLI_BusinessNC';       //NC接口服务
 
 implementation
 
@@ -277,7 +309,13 @@ begin
         FIsVIP      := Values['IsVIP'];
         FIsNei      := Values['IsNei'];
         FPrePData   := Values['UsePreP'];
-        FIsSale     := Values['IsSale'];   
+        FIsSale     := Values['IsSale'];
+        FIsSample   := Values['IsSample'];
+
+        FMINUTEDate := StrToIntDef(Values['InTimeOut'], 0);   // 进厂时间差
+
+
+        FSnapTruck := Values['SnapTruck'] = sFlag_Yes;  //车牌识别
 
         FStatus     := Values['Status'];
         FNextStatus := Values['NextStatus'];
@@ -287,7 +325,7 @@ begin
         FPType      := Values['PType'];
         FPoundID    := Values['PoundID'];
         FSelected   := Values['Selected'] = sFlag_Yes;
-
+                                                                   
         with FPData do
         begin
           FStation  := Values['PStation'];
@@ -338,6 +376,11 @@ begin
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
         FLadeTime:= Values['LadeTime'];
+
+        // 手持机参数
+        FPlace:= Values['UnloadingPlace'];
+        FUnloadingType:= Values['UnloadingType'];
+        FProc:= Values['proc'];
       end;
 
       Inc(nInt);
@@ -389,6 +432,9 @@ begin
         Values['IsNei']      := FIsNei;
         Values['UsePreP']    := FPrePData;
         Values['IsSale']     := FIsSale;
+        Values['IsSample']   := FIsSample ;
+
+        Values['InTimeOut']  := IntToStr(FMINUTEDate);    // 进厂时间差
 
         Values['Status']     := FStatus;
         Values['NextStatus'] := FNextStatus;
@@ -426,8 +472,19 @@ begin
         if FPrintHY then
              Values['PrintHY'] := sFlag_Yes
         else Values['PrintHY'] := sFlag_No;
+
         Values['HYDan']    := FHYDan;
         Values['LadeTime'] := FLadeTime;
+
+        if FSnapTruck then
+             Values['SnapTruck'] := sFlag_Yes
+        else Values['SnapTruck'] := sFlag_No;
+
+        //*********
+        Values['UnloadingPlace'] := FPlace;
+        Values['UnloadingType']  := FUnloadingType;
+        Values['JuShou']       := FMemo;
+        Values['proc']       := FProc;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

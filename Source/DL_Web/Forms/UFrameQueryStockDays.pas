@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles, System.StrUtils,
   UFrameBase, uniChart, uniPanel, uniSplitter, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameQueryStockDays = class(TfFrameBase)
@@ -61,9 +62,16 @@ begin
       if Pos('日', DBGridMain.Columns[nIdx].Title.Caption)>0 then
       begin
         nDay:= StrToIntDef(GetLeftStr('日', DBGridMain.Columns[nIdx].Title.Caption), -1);
-        if nDay>StrToIntDef(FormatDateTime('dd',Now), -1) then
-          DBGridMain.Columns[nIdx].Visible:= False
-        else DBGridMain.Columns[nIdx].Visible:= True;
+        if FEnd<now  then
+        begin
+          DBGridMain.Columns[nIdx].Visible:= True;
+        end
+        else
+        begin
+          if nDay>StrToIntDef(FormatDateTime('dd',Now), -1) then
+            DBGridMain.Columns[nIdx].Visible:= False
+          else DBGridMain.Columns[nIdx].Visible:= True;
+        end;
       end;
   finally
     DBGridMain.Columns.EndUpdate;
@@ -117,7 +125,9 @@ begin
     end;
 
     Result := 'Select L_Type, L_StockNo,L_StockName,$F1 From (' +
-      ' Select Case when L_StockName=''(低碱)熟料'' then ''V'' else L_Type end L_Type, L_StockNo,L_StockName,$F2 From (' +
+      ' Select Case when L_StockName like ''%熟%'' then ''U、熟料'' when L_StockName like ''%骨料%'' then ''V、骨料'' '+
+                    'when L_StockName like ''%袋%'' then ''D、袋装'' '+
+              '      when L_StockName like ''%散%'' then ''S、散装'' else L_Type end L_Type, L_StockNo,L_StockName,$F2 From (' +
       '  Select L_Type, L_StockNo,L_StockName,L_Value,DATEPART(day,L_OutFact) as L_Days ' +
       '  From $Bill Where L_OutFact>=''$ST'' And L_OutFact<''$ED''' +
       '	 ) t2 Group By L_Type, L_StockNo,L_StockName,L_Days ' +
@@ -144,7 +154,7 @@ begin
               '	Select L_Type, L_StockName, SUM(ISNULL(L_Value, 0)) as Value  From S_Bill b '+
               '	Where (L_OutFact>='''+FormatDateTime('YYYY-MM-01 00:00:00', FStart)+''' and L_OutFact <='''+FormatDateTime('YYYY-MM-DD 23:59:59', FEnd)+''') '+
               '	Group  by  L_Type, L_StockName) b On c.L_StockName=b.L_StockName '+
-              ') tl2 On tl1.L_StockName= tl2.L_StockName';
+              ') tl2 On tl1.L_StockName= tl2.L_StockName  Order  by  tl1.L_Type Desc, tl1.L_StockName ASC ';
     //xxxxx
   end;
 end;

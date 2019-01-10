@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit USysDataDict;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -119,6 +120,18 @@ begin
       nColumn.Caption := nItem.FTitle;
       nColumn.Width := nItem.FWidth;
       nColumn.HeaderAlignmentHorz := nItem.FAlign;
+
+      {$IFDEF PoundRoundJZ}
+        if ((nItem.FDBItem.FField ='L_Value')And(nEntity='MAIN_L06')) then
+        begin
+          nItem.FDBItem.FField:= 'L_StdMValue';
+        end;
+
+        if ((nItem.FDBItem.FField ='P_NetWeight')And(nEntity='MAIN_E03')) then
+        begin
+          nItem.FDBItem.FField:= 'P_StdNetWeight';
+        end;
+      {$ENDIF}
 
       if nView is TcxGridDBTableView then
         TcxGridDBColumn(nColumn).DataBinding.FieldName := nItem.FDBItem.FField;

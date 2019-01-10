@@ -79,12 +79,6 @@ inherited fFormTransfer: TfFormTransfer
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 22
-      Properties.Items.Strings = (
-        #27902#38451
-        #27014#26519
-        #23433#22622
-        #38108#24029
-        #20964#21439)
       Properties.MaxLength = 0
       TabOrder = 6
       Width = 249

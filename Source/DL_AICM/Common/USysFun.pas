@@ -75,7 +75,8 @@ begin
       FHintText := ReadString(FProgID, 'HintText', '');
       FCopyRight := ReadString(FProgID, 'CopyRight', '');
       FRecMenuMax := ReadInteger(FProgID, 'MaxRecent', cRecMenuMax);
-
+      FTTCEK720ID  := ReadString(FProgID, 'TTCEK720ID', '');
+      
       FIconFile := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
       FIconFile := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
 
@@ -91,7 +92,7 @@ begin
       FReadInsertCard := ReadBool(FProgID,'ReadInsertCard',False);
       FEnablePurchaseMultipleCard := ReadBool(FProgID,'PurchaseMultipleCard',True);
       
-      FProberUser := 0;
+      FProberUser:= 0;
       FVoiceUser := 0;
 
       FIsManual := False;

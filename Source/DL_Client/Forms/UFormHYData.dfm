@@ -1,7 +1,7 @@
 inherited fFormHYData: TfFormHYData
   Left = 561
   Top = 216
-  ClientHeight = 263
+  ClientHeight = 253
   ClientWidth = 473
   Constraints.MinHeight = 245
   Constraints.MinWidth = 460
@@ -11,17 +11,17 @@ inherited fFormHYData: TfFormHYData
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 473
-    Height = 263
+    Height = 253
     inherited BtnOK: TButton
       Left = 327
-      Top = 230
+      Top = 220
       Caption = #30830#23450
-      TabOrder = 8
+      TabOrder = 9
     end
     inherited BtnExit: TButton
       Left = 397
-      Top = 230
-      TabOrder = 9
+      Top = 220
+      TabOrder = 10
     end
     object EditTruck: TcxTextEdit [2]
       Left = 81
@@ -37,7 +37,7 @@ inherited fFormHYData: TfFormHYData
       Top = 156
       ParentFont = False
       Properties.MaxLength = 100
-      TabOrder = 7
+      TabOrder = 8
       Width = 403
     end
     object EditSMan: TcxComboBox [4]
@@ -106,7 +106,16 @@ inherited fFormHYData: TfFormHYData
       Width = 466
       AnchorY = 126
     end
+    object edt_LID: TcxTextEdit [10]
+      Left = 81
+      Top = 181
+      ParentFont = False
+      Properties.MaxLength = 100
+      TabOrder = 7
+      Width = 147
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
+      Caption = '11'
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item13: TdxLayoutItem
           AutoAligns = [aaVertical]
@@ -153,10 +162,20 @@ inherited fFormHYData: TfFormHYData
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
-          object dxLayout1Item7: TdxLayoutItem
-            Caption = #25552#36135#36710#36742':'
-            Control = EditTruck
-            ControlOptions.ShowBorder = False
+          object dxlytgrp_LID: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            ShowBorder = False
+            object dxLayout1Item7: TdxLayoutItem
+              Caption = #25552#36135#36710#36742':'
+              Control = EditTruck
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item10: TdxLayoutItem
+              Caption = #25552#36135#21333#21495':'
+              Control = edt_LID
+              ControlOptions.ShowBorder = False
+            end
           end
           object dxLayout1Item8: TdxLayoutItem
             AutoAligns = [aaVertical]

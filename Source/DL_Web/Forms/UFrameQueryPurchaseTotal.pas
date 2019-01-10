@@ -95,7 +95,7 @@ begin
   begin
     EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-    Result := 'Select D_ProName, D_StockName, SUM(D_Value) D_Value From $POrderDtl ' +
+    Result := 'Select D_ProName, D_StockName, Count(*) D_Count, SUM(D_Value) D_Value, D_YSResult From $POrderDtl ' +
               'Where  D_OutFact>=''$StartTime'' And D_OutFact<''$EndTime'' ';
     //xxxxx
 
@@ -105,7 +105,7 @@ begin
       Result := Result + ' And ' + FJBWhere;
     end;
 
-    Result := Result + 'Group  By D_ProName, D_StockName Order  By D_ProName, D_StockName';
+    Result := Result + 'Group  By D_ProName, D_StockName, D_YSResult  Order  By D_ProName, D_StockName';
 
     Result := MacroValue(Result, [MI('$POrderDtl', sTable_OrderDtl),
               MI('$StartTime', Date2Str(FStart)), MI('$EndTime', Date2Str(FEnd + 1))]);

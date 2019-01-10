@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
+  UFrameNormal, cxGraphics, cxControls, cxLookAndFeels, NativeXml,
   cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter, cxData,
   cxDataStorage, cxEdit, DB, cxDBData, cxContainer, Menus, dxLayoutControl,
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
@@ -54,6 +54,9 @@ type
     procedure BtnEditClick(Sender: TObject);
   private
     { Private declarations }
+    function GetOrderDtlInfo(nId: string): string;
+    function GetProviderPk(nPid: string; Var nProPk:string):Boolean;
+    function GetMaterailPK(nMid: string; Var nMtlPk:string):Boolean;
   protected
     FStart,FEnd: TDate;
     FTimeS,FTimeE: TDate;
@@ -100,7 +103,7 @@ end;
 function TfFrameOrderDetail.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
-  Result := 'Select *,(D_MValue-D_PValue-D_KZValue) as D_NetWeight ' +
+  Result := 'Select *,(D_MValue-D_PValue-IsNull(D_KZValue, 0)) as D_NetWeight ' +
             'From $OD od Left Join $OO oo on od.D_OID=oo.O_ID ';
   //xxxxxx
 
@@ -194,12 +197,104 @@ begin
     FJBWhere := '';
   end;
 end;
+
+function TfFrameOrderDetail.GetProviderPk(nPid: string; Var nProPk:string):Boolean;
+var nStr : string;
+begin
+  Result:= False;
+  try
+    nStr := 'Select * From %s Where P_ID=''%s''';
+    nStr := Format(nStr, [sTable_Provider, nPid]);
+    with FDM.QuerySQL(nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        nProPk:= FieldByName('P_PKPro').AsString;
+        Result:= True;
+      end;
+    end;
+  finally
+  end;
+end;
+
+function TfFrameOrderDetail.GetMaterailPK(nMid: string; Var nMtlPk:string):Boolean;
+var nStr : string;
+begin
+  Result:= False;
+  try
+    nStr := 'Select * From %s Where M_ID=''%s''';
+    nStr := Format(nStr, [sTable_Materails, nMid]);
+    with FDM.QuerySQL(nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        nMtlPk:= FieldByName('M_PK').AsString;
+        Result:= True;
+      end;
+    end;
+  finally
+  end;
+end;
+
+function TfFrameOrderDetail.GetOrderDtlInfo(nId : string): string;
+var nStr, nProPk, nMtlPk, nBid, nBPKDtl: string;
+    FListB : TStrings;
+begin
+  Result:= '';  FListB:= TStringList.Create;
+  ///*********************************************************************
+  nStr := 'Select *, b.R_ID ORID From %s a Left Join %s b On B_ID=O_BID Left Join %s c On O_ID=D_OID ' + 'Where D_ID=''%s'' ';
+  nStr := Format(nStr, [sTable_OrderBase, sTable_Order, sTable_OrderDtl, nId]);
+  try
+    with FDM.QueryTemp(nStr) do
+    begin
+      if RecordCount < 1 then Exit;
+
+      First;
+      FListB.Clear;
+
+        if not GetProviderPk(FieldByName('B_ProId').AsString, nProPk) then
+          Exit;
+        if not GetMaterailPK(FieldByName('O_StockNo').AsString, nMtlPk) then
+          Exit;
+        nBid := FieldByName('B_NCOrderNo').AsString;
+        nBPKDtl := FieldByName('B_PKDtl').AsString;
+        //***********
+        FListB.Values['Proc'] := 'delete';
+        FListB.Values['CreateTime'] := FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('O_Date').AsDateTime);
+        FListB.Values['ProPk'] := nProPk;
+        FListB.Values['creator'] := FieldByName('O_Man').AsString;
+        FListB.Values['OutFact'] := FieldByName('D_OutFact').AsString;
+        FListB.Values['BID'] := nBid;
+        FListB.Values['OID'] := FieldByName('O_ID').AsString;
+        FListB.Values['ORID'] := FieldByName('ORID').AsString;
+        FListB.Values['DID'] := FieldByName('D_ID').AsString;
+        FListB.Values['Value'] := FieldByName('D_Value').AsString;
+
+        FListB.Values['StockPK'] := nMtlPk;
+        FListB.Values['PkDtl'] := nBPKDtl;
+        FListB.Values['CarrierPK'] := nProPk;                              // 承运商PK
+        FListB.Values['KFTime'] := FieldByName('O_KFtime').AsString;       // 矿发时间
+        FListB.Values['KFValue'] := FieldByName('O_YJZValue').AsString;    // 矿发量
+        FListB.Values['MDate'] := FieldByName('D_MDate').AsString;
+        FListB.Values['MValue'] := FieldByName('D_MValue').AsString;
+        FListB.Values['PValue'] := FieldByName('D_PValue').AsString;
+        FListB.Values['KZValue'] := FieldByName('D_KZValue').AsString;
+
+        Result:= EncodeBase64(FListB.Text);
+
+    end;
+  finally
+    FListB.Free;
+  end;
+end;
+
+
 //------------------------------------------------------------------------------
 //Date: 2015/8/13
-//Parm: 
+//Parm:
 //Desc: 删除未完成记录
 procedure TfFrameOrderDetail.N3Click(Sender: TObject);
-var nStr, nSQL, nP, nID, nOrderID,nCardType: string;
+var nStr, nSQL, nP, nID, nOrderID, nCardType, nMsg, nData, nStockNo: string;
     nOutFact : Boolean;
     nIdx: Integer;
     nVal, nFreeze: Double;
@@ -213,9 +308,37 @@ begin
     nP       := SQLQuery.FieldByName('D_MDate').AsString;
     nOrderID := SQLQuery.FieldByName('D_OID').AsString;
     nCardType:= SQLQuery.FieldByName('O_CType').AsString;
+    nStockNo := SQLQuery.FieldByName('D_StockNo').AsString;
 
     nFreeze  := SQLQuery.FieldByName('O_Value').AsFloat;
     nVal     := SQLQuery.FieldByName('D_NetWeight').AsFloat;
+
+    /// 检查是否已经同步NC  如同步则先通知NC 尝试删除
+    nStr := 'Select * From %s Where M_ID=''%s'' And ISNULL(M_Pk, '''')<>'''' ';
+    nStr := Format(nStr, [sTable_Materails, nStockNo, sTable_Materails]);
+    with FDM.QueryTemp(nStr) do
+    begin
+      if RecordCount>0 then
+      begin
+          nStr:= 'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ' +
+                 'Union  ' +
+                 'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ';
+
+          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nID, sTable_UPLoadOrderNcHistory, nID]);
+          with FDM.QueryTemp(nStr) do
+          begin
+            if RecordCount>0 then
+            begin
+              nData:= GetOrderDtlInfo(nID);
+              if Not SendDeleteOrderDtlMsgToNc(nData, nMsg) then
+              begin
+                Exit;
+              end;
+            end;
+          end;
+      end;
+    end;
+
 
     if nP <> '' then
          nOutFact := True

@@ -86,8 +86,10 @@ begin
               'From $Week ';
 
     if nWhere = '' then
-         Result := Result + 'Where (W_Date>=''$S'' and W_Date <''$E'')'
-    else Result := Result + 'Where (' + nWhere + ')';
+         Result := Result + 'Where (W_Date>=''$S'' and W_Date <''$E'') '
+    else Result := Result + 'Where (' + nWhere + ') ';
+
+    Result := Result + 'Order by W_ID Desc ';
 
     Result := MacroValue(Result, [MI('$Week', sTable_InvoiceWeek),
               MI('$S', Date2Str(FStart)), MI('$E', Date2Str(FEnd + 1))]);

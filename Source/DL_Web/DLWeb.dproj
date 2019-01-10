@@ -167,6 +167,16 @@
             <DesignClass>TUniFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Common\USysRemote.pas"/>
+        <DCCReference Include="Forms\UFrameSalePlan.pas">
+            <Form>fFrameSalePlan</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TUniFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Forms\UFormSalePlan.pas">
+            <Form>fFormSalePlan</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TUniForm</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -196,12 +206,6 @@
                 <DeployFile LocalName="..\..\Bin\DL_Web\DLWeb.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>DLWeb.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="1.htm" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

@@ -49,6 +49,7 @@ type
   TZTTruckItems = array of TZTTruckItem;
 
 //------------------------------------------------------------------------------
+function IsCardValid(nCardNo:string):Boolean;
 function AdjustHintToRead(const nHint: string): string;
 //调整提示内容
 function WorkPCHasPopedom: Boolean;
@@ -153,6 +154,8 @@ function ChangeDispatchMode(const nMode: Byte): Boolean;
 function GetHYMaxValue: Double;
 function GetHYValueByStockNo(const nNo: string): Double;
 //获取化验单已开量
+
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印提货单
 function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
@@ -164,9 +167,13 @@ function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
 function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
 //打印现场发运单
 
+
+function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
+//纸卡可用金
+
+
 function getCustomerInfo(const nXmlStr: string): string;
 //获取客户注册信息
-
 function get_Bindfunc(const nXmlStr: string): string;
 //客户与微信账号绑定
 
@@ -201,6 +208,19 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+function IsCardValid(nCardNo:string):Boolean;
+var nStr: string;
+    nInt, nIdx: Integer;
+begin
+  Result:= False;
+  nStr :='Select * From %s Where C_Card=''%s'' or C_Card2=''%s'' or C_Card3=''%s'' ';
+  nStr := Format(nStr, [sTable_Card, nCardNo, nCardNo, nCardNo]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    Result:= (RecordCount > 0);
+  end;
+end;
+
 //Desc: 调整nHint为易读的格式
 function AdjustHintToRead(const nHint: string): string;
 var nIdx: Integer;
@@ -1249,7 +1269,7 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
 
-  nStr := 'Select * From %s b Where L_ID In(%s)';
+  nStr := 'Select * From %s  Where L_ID In(%s)';
   nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
@@ -1480,6 +1500,43 @@ begin
   else Result := '';
 end;
 
+//  打印开单小票     声威
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
+var nStr: string;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印提货小票?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+  
+  nStr := 'Select * From %s Where L_ID = ''%s'' ';
+  nStr := Format(nStr, [sTable_Bill, nBill]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的记录已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + sReportDir + 'LadingBillRt.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.Report1.PrintOptions.Printer := gSysParam.FCardPrinter;
+  FDR.PrintReport;
+  Result := FDR.PrintSuccess;
+end;
+
 //Desc: 打印标识为nID的合格证
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 var nStr,nSR,nBatchNO: string;
@@ -1527,7 +1584,7 @@ begin
   end;
 
   FDR.Dataset1.DataSet := FDM.SqlTemp;
-  FDR.Report1.PrintOptions.Printer := gSysParam.FCardPrinter;
+  FDR.Report1.PrintOptions.Printer := gSysParam.FHYDanPrinter;
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
 end;
@@ -1547,6 +1604,19 @@ begin
   nRFIDCard := nP.FParamB;
   nIsUse    := nP.FParamC;
   Result    := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
+end;
+
+//Date: 2014-09-14
+//Parm: 纸卡号;是否限提
+//Desc: 获取nZhiKa的可用金哦
+function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessCommand(cBC_GetZhiKaMoney, nZhiKa, '', @nOut) then
+  begin
+    Result := StrToFloat(nOut.FData);
+    nFixMoney := nOut.FExtParam = sFlag_Yes;
+  end else Result := 0;
 end;
 
 //获取客户注册信息

@@ -218,8 +218,15 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
     Left = 10
     Top = 280
     object mniN1: TMenuItem
-      Caption = #26102#38388#27573#26597#35810
+      Caption = #26102#38388#27573#26597#35810'('#20986#21378')'
       OnClick = mniN1Click
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object N2: TMenuItem
+      Caption = #26102#38388#27573#26597#35810'('#35013#36710')'
+      OnClick = N2Click
     end
   end
 end

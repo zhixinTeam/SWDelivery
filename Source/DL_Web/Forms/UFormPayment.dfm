@@ -3,7 +3,7 @@ inherited fFormPayment: TfFormPayment
   ClientWidth = 410
   Caption = #36130#21153#22238#27454
   ExplicitWidth = 416
-  ExplicitHeight = 432
+  ExplicitHeight = 436
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton

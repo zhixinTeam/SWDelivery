@@ -60,7 +60,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UFormBase, UMgrControl, USysDB, USysConst, USysBusiness,
-  UFormWait, UDataModule;
+  UFormWait, UDataModule,DB;
 
 class function TfFormZKPrice.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
@@ -177,7 +177,7 @@ begin
 end;
 
 procedure TfFormZKPrice.BtnOKClick(Sender: TObject);
-var nStr,nStatus: string;
+var nStr,nStatus,nP: string;
     nVal,nVal2: Double;
     nIdx: Integer;
     nList: TStrings;
@@ -206,10 +206,89 @@ begin
       ShowWaitForm(Self, '调价中,请稍候');
     nList := TStringList.Create;
 
+    {$IFDEF DelNotInBill}
+    //调价时删除未进厂的相关品种单据
+    if (FZKList.Count-1)>0 then
+    begin
+      if SplitStr(FZKList[0], nList, 5, ';') then
+      begin
+        nStr := 'Delete %s Where T_Bill in (Select L_ID From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'') ';
+        nStr := Format(nStr, [sTable_ZTTrucks, sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 清理所涉及订单的车辆排队信息
+
+        nStr := 'UPDate %s Set A_FreezeMoney=A_FreezeMoney-(BillMoney) From ( ' +
+                'Select L_CusID, L_CusName,Sum(CAST((L_Price+IsNull(L_YunFei, 0))*L_Value AS Decimal(15,2))) BillMoney ' +
+                'From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' Group  by L_CusID, L_CusName ' +
+                ')S_Bill Where A_CID=L_CusID ';
+        nStr := Format(nStr, [sTable_CusAccount, sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 释放相关客户、涉及单据冻结金额
+
+        nStr := 'UPDate %s Set Z_FixedMoney=Z_FixedMoney+(BillMoney) From (     ' +
+                'Select L_ZhiKa,CAST(Sum((L_Price+IsNull(L_YunFei, 0))*L_Value) AS Decimal(15,2)) BillMoney  ' +
+                'From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' And L_ZKMoney=''%s'' Group  by L_ZhiKa  ' +
+                ')S_Bill Where Z_ID=L_ZhiKa ';
+        nStr := Format(nStr, [sTable_ZhiKa, sTable_Bill, sFlag_No, nList[3], sFlag_Yes]);
+        FDM.ExecuteSQL(nStr);
+        // 返还限提纸卡相关单据限提额度
+
+        nStr := 'UPDate %s Set B_HasUse=B_HasUse-(BillValue) From ( ' +
+                'Select L_HYDan,Sum(L_Value) BillValue ' +
+                'From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' Group  by L_HYDan   ' +
+                ')S_Bill Where B_Batcode=L_HYDan ';
+        nStr := Format(nStr, [sTable_StockBatcode, sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 返还相关批次开单量
+
+        nStr := 'UPDate %s Set C_Status=''I'', C_Used= Null    ' +
+                'Where C_Card In (Select L_Card From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' And L_Card Is Not Null) ';
+        nStr := Format(nStr, [sTable_Card, sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 重置涉及单据磁卡状态
+
+        nStr := 'Delete %s Where H_Reporter In ( ' +
+                'Select L_Card From %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' And L_Card Is Not Null) ';
+        nStr := Format(nStr, [sTable_StockHuaYan, sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 删除开单时生成的化验单（安塞）
+
+        nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
+        //only for fields
+        nP := '';
+
+        with FDM.QueryTemp(nStr) do
+        begin
+          for nIdx:=0 to FieldCount - 1 do
+           if (Fields[nIdx].DataType <> ftAutoInc) and
+              (Pos('L_Del', Fields[nIdx].FieldName) < 1) then
+            nP := nP + Fields[nIdx].FieldName + ',';
+          //所有字段,不包括删除
+
+          System.Delete(nP, Length(nP), 1);
+        end;
+        nStr := 'Insert Into $BB($FL,L_DelMan,L_DelDate) ' +
+                'Select $FL,''$User'',$Now From $BI Where L_InTime is Null And L_Status=''N'' And L_StockNo=''$StockNo'' ';
+        nStr := MacroValue(nStr, [MI('$BB', sTable_BillBak),
+                MI('$FL', nP), MI('$User', gSysParam.FUserName+'-调价自动删除'),
+                MI('$Now', sField_SQLServer_Now),
+                MI('$BI', sTable_Bill), MI('$StockNo', nList[3])]);
+        FDM.ExecuteSQL(nStr);
+        // 将所涉及的单据移除s_bill表 到s_billBak表
+
+
+        nStr := 'Delete %s Where L_InTime is Null And L_Status=''%s'' And L_StockNo=''%s'' ' ;
+        nStr := Format(nStr, [sTable_Bill, sFlag_No, nList[3]]);
+        FDM.ExecuteSQL(nStr);
+        // 删除s_bill相关单据
+      end;
+    end;
+    {$ENDIF}
+
     for nIdx:=FZKList.Count - 1 downto 0 do
     begin
       if not SplitStr(FZKList[nIdx], nList, 5, ';') then Continue;
-      //明细记录号;单价;纸卡;品种名称
+      //明细记录号;单价;纸卡;品种ID、名称
 
       nVal := StrToFloat(EditNew.Text);
       if Check2.Checked then
@@ -260,7 +339,7 @@ begin
         nStr := Format(nStr, [sTable_Bill, nVal, DateTime2Str(EditStart.Date),
                 DateTime2Str(EditEnd.Date), FMainZK, FMainStock]);
         //xxxxx
-        
+
         FDM.ExecuteSQL(nStr);
         //更新已开提货单价格
 

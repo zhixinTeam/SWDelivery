@@ -262,13 +262,13 @@ begin
         with TStringHelper do
           cbb_EditCus.ItemIndex := StrListIndex(nStr, cbb_EditCus.Items, 0, '.');
 
-        nStr:= FieldByName('W_StockId').AsString;
+        nStr:= FieldByName('W_StockName').AsString;
         if nStr='' then
           cbb_Stock.ItemIndex := 0
         else
         begin
           with TStringHelper do
-            cbb_Stock.ItemIndex := StrListIndex(nStr, cbb_Stock.Items, 0, '.');
+            cbb_Stock.ItemIndex := StrListIndex(nStr, cbb_Stock.Items, 0, '~');
         end;
       end;
     end;

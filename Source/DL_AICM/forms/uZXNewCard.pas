@@ -59,9 +59,13 @@ type
     btnClear: TcxButton;
     TimerAutoClose: TTimer;
     dxLayout1Group2: TdxLayoutGroup;
-    PrintHY: TcxCheckBox;
     edt_YunFei: TcxTextEdit;
     dxlytmLayout1Item1: TdxLayoutItem;
+    dxlytmFact: TdxLayoutItem;
+    cbb_Factory: TcxComboBox;
+    dxLayout1Item1: TdxLayoutItem;
+    PrintHY: TcxCheckBox;
+    dxLayout1Group3: TdxLayoutGroup;
     procedure BtnExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -88,10 +92,12 @@ type
     procedure Writelog(nMsg:string);
     procedure AddListViewItem(var nWebOrderItem:stMallOrderItem);
     procedure LoadSingleOrder;
-    function IsRepeatCard(const nWebOrderItem:string):Boolean;
+    function IsRepeatCard(const nWebOrderItem:string;var nLId:string):Boolean;
+    function CanUseCard(const nCardNo: string): Boolean;
     function VerifyCtrl(Sender: TObject; var nHint: string): Boolean;
     function SaveBillProxy:Boolean;
     function SaveWebOrderMatch(const nBillID,nWebOrderID,nBillType:string):Boolean;
+    procedure LoadStockFactory;
   public
     { Public declarations }
     procedure SetControlsClear;
@@ -104,7 +110,7 @@ var
 implementation
 uses
   ULibFun,UBusinessPacker,USysLoger,UBusinessConst,UFormMain,USysBusiness,USysDB,
-  UAdjustForm,UFormBase,UDataReport,UDataModule,NativeXml,UMgrK720Reader,UFormWait,
+  UAdjustForm,UFormBase,UDataReport,UDataModule, NativeXml, UMgrTTCEDispenser, UFormWait,
   DateUtils;
 {$R *.dfm}
 
@@ -125,6 +131,7 @@ begin
     end;
   end;
 end;
+
 procedure TfFormNewCard.BtnExitClick(Sender: TObject);
 begin
   Close;
@@ -136,6 +143,33 @@ begin
   FCardData.Free;  nSuccCard:= '';
   Action:=  caFree;
   fFormNewCard := nil;
+end;
+
+// 加载开单工厂
+procedure TfFormNewCard.LoadStockFactory;
+var nStr: string;
+    i,nIdx: integer;
+begin
+  cbb_Factory.Clear;
+  cbb_Factory.Properties.Items.Clear;
+  nStr := ' Select * From Sys_Dict  Where D_Name=''BillFromFactory''';
+  //扩展信息
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    First;
+    while not Eof do
+    begin
+        nStr := FieldByName('D_Value').AsString;
+        cbb_Factory.Properties.Items.Add(nStr);
+        Next;
+    end;
+  end;
+  {$IFNDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+  dxlytmFact.Visible:= False;
+  cbb_Factory.ItemIndex:= 0;
+  {$ENDIF}
 end;
 
 procedure TfFormNewCard.FormShow(Sender: TObject);
@@ -150,6 +184,7 @@ begin
   TimerAutoClose.Enabled := True;
   EditPrice.Properties.Buttons[0].Visible := False;
   dxLayout1Item11.Visible := False;           nSuccCard:= '';
+  LoadStockFactory;
   {$IFDEF PrintHYEach}
   PrintHY.Checked := True;
   {$ELSE}
@@ -244,7 +279,7 @@ begin
 
       FWebOrderItems[i].FYunTianOrderId := nListB.Values['fac_order_no'];
       FWebOrderItems[i].FOrder_id := nListB.Values['order_id'];
-      FWebOrderItems[i].FOrdernumber := nListB.Values['ordernumber'];
+      FWebOrderItems[i].FOrdernumber := nListB.Values['ordernumber'];           
       FWebOrderItems[i].FGoodsID := nListB.Values['goodsID'];
       //*******************************************
       nStr := 'Select D_StockName From %s a Join %s b on a.Z_ID = b.D_ZID ' +
@@ -337,14 +372,14 @@ procedure TfFormNewCard.LoadSingleOrder;
 var
   nOrderItem:stMallOrderItem;
   nRepeat:Boolean;
-  nWebOrderID:string;
+  nWebOrderID, nLid:string;
   nMsg,nStr:string;
 begin
   nOrderItem := FWebOrderItems[FWebOrderIndex];
-  nWebOrderID := nOrderItem.FOrdernumber;
+  nWebOrderID := nOrderItem.FOrdernumber;   nLid:= '';
 
   FBegin := Now;
-  nRepeat := IsRepeatCard(nWebOrderID);
+  nRepeat := IsRepeatCard(nWebOrderID, nLid);
 
   if nRepeat then
   begin
@@ -371,7 +406,7 @@ begin
     begin
       EditCus.Text    := Fields[0].AsString;
       EditPrice.Text  := Fields[1].AsString;
-      edt_YunFei.Text  := Fields[2].AsString;
+      edt_YunFei.Text := Fields[2].AsString;
     end;
   end;
 
@@ -395,20 +430,48 @@ begin
   BtnOK.Enabled := not nRepeat;
 end;
 
-function TfFormNewCard.IsRepeatCard(const nWebOrderItem: string): Boolean;
+function TfFormNewCard.IsRepeatCard(const nWebOrderItem: string;var nLId:string): Boolean;
 var
   nStr:string;
 begin
   Result := False;
-  nStr := 'select * from %s where WOM_WebOrderID=''%s''';
+  nStr := 'Select * From %s Where WOM_WebOrderID=''%s''';
   nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then
     begin
+      nLId:= FieldByName('WOM_LID').AsString;
       Result := True;
     end;
   end;
+end;
+
+function TfFormNewCard.CanUseCard(const nCardNo: string): Boolean;
+var
+  nStr:string;
+begin
+  Result := False;
+  nStr := 'Select * From %s Where L_Card=''%s''';
+  nStr := Format(nStr,[sTable_Bill,nCardNo]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    Result:= RecordCount=0;
+  end;
+
+  nStr := 'Select * From %s Where O_Card=''%s''';
+  nStr := Format(nStr,[sTable_Order,nCardNo]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    Result:= RecordCount=0;
+  end;
+                       {
+  nStr := 'Select * From %s Where O_Card=''%s''';
+  nStr := Format(nStr,[sTable_Card,nCardNo]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    Result:= RecordCount=0;
+  end;                       }
 end;
 
 function TfFormNewCard.VerifyCtrl(Sender: TObject;
@@ -452,7 +515,7 @@ begin
     nSuccCard:= '' ;
     Close;
   finally
-    BtnOK.Enabled := True;
+    BtnOK.Enabled := True;            //PrintBillRt('TH181021311', False);
   end;
 end;
 
@@ -461,10 +524,8 @@ var
   nHint:string;
   nList,nTmp,nStocks: TStrings;
   nPrint,nInFact:Boolean;
-  nBillData:string;
-  nBillID :string;
-  nWebOrderID:string;
-  nNewCardNo:string;
+  nBillData, nFact, nBillID, nWebOrderID:string;
+  nNewCardNo, nLid:string;
   nidx:Integer;
   i:Integer;
   nRet: Boolean;
@@ -472,114 +533,158 @@ var
 begin
   Result := False;
   nOrderItem := FWebOrderItems[FWebOrderIndex];
-  nWebOrderID := editWebOrderNo.Text;
+  nWebOrderID := editWebOrderNo.Text;     nLid:= '';
 
-  if Trim(EditValue.Text) = '' then
-  begin
-    ShowMsg('获取物料价格异常！请联系管理员',sHint);
-    Writelog('获取物料价格异常！请联系管理员');
-    Exit;
-  end;
 
-  if not VerifyCtrl(EditTruck,nHint) then
-  begin
-    ShowMsg(nHint,sHint);
-    Writelog(nHint);
-    Exit;
-  end;
-
-  if not VerifyCtrl(EditValue,nHint) then
-  begin
-    ShowMsg(nHint,sHint);
-    Writelog(nHint);
-    Exit;
-  end;
-
-  nNewCardNo := '';
-  Fbegin := Now;
-                         
-  try
-    //连续三次读卡均失败，则回收卡片，重新发卡
-    for i := 0 to 3 do
+    if Trim(EditValue.Text) = '' then
     begin
-      for nIdx:=0 to 3 do
-      begin
-        if gMgrK720Reader.ReadCard(nNewCardNo) then Break;
-        //连续三次读卡,成功则退出。
-      end;
-      if nNewCardNo<>'' then Break;
-      gMgrK720Reader.RecycleCard;
-    end;
-
-    if nNewCardNo = '' then
-    begin
-      ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
+      ShowMsg('获取物料价格异常！请联系工作人员',sHint);
+      Writelog('获取物料价格异常！请联系工作人员');
       Exit;
     end;
-  except on Ex:Exception do
+
+    {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+    if cbb_Factory.ItemIndex < 0 then
     begin
-      WriteLog('卡箱异常 '+Ex.Message);
-      ShowDlg('卡箱异常, 请联系管理人员.', sWarn, Self.Handle);
+      cbb_Factory.SetFocus;
+      ShowMsg('请选择打印票据的工厂', sHint);
+      Writelog(nHint);
+      Exit;
     end;
-  end;
-  nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
-  WriteLog(nNewCardNo);
-  //解析卡片
-  writelog('TfFormNewCard.SaveBillProxy 发卡机读卡-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+    {$ENDIF}
 
-  //保存提货单
-  nStocks := TStringList.Create;
-  nList := TStringList.Create;
-  nTmp := TStringList.Create;
-  try
-    LoadSysDictItem(sFlag_PrintBill, nStocks);
-    
-    if Pos('袋',EditSName.Text) > 0 then
-      nTmp.Values['Type'] := 'D'
-    else
-      nTmp.Values['Type'] := 'S';
-
-    nTmp.Values['StockNO'] := EditStock.Text;
-    nTmp.Values['StockName'] := EditSName.Text;
-    nTmp.Values['Price'] := EditPrice.Text;
-    nTmp.Values['YunFeiPrice'] := edt_YunFei.Text;
-    nTmp.Values['Value'] := EditValue.Text;
-
-    if PrintHY.Checked  then
-         nTmp.Values['PrintHY'] := sFlag_Yes
-    else nTmp.Values['PrintHY'] := sFlag_No;
-
-    nList.Add(PackerEncodeStr(nTmp.Text));
-    nPrint := nStocks.IndexOf(EditStock.Text) >= 0;
-
-    with nList do
+    if not VerifyCtrl(EditTruck,nHint) then
     begin
-      Values['Bills'] := PackerEncodeStr(nList.Text);
-      Values['ZhiKa'] := nOrderItem.FYunTianOrderId;
-      Values['Truck'] := EditTruck.Text;
-      Values['Lading'] := sFlag_TiHuo;
-      Values['Memo']  := EmptyStr;
-      Values['IsVIP'] := Copy(GetCtrlData(EditType),1,1);
-      Values['Seal'] := '';
-      Values['HYDan'] := '';
-      Values['WebOrderID'] := nWebOrderID;
+      ShowMsg(nHint,sHint);
+      Writelog(nHint);
+      Exit;
     end;
-    Writelog('单据内容：'+nList.Text);
-    nBillData := PackerEncodeStr(nList.Text);
-    FBegin := Now;
-    nBillID := SaveBill(nBillData);
-    if nBillID = '' then Exit;
-    writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
-    FBegin := Now;
-    SaveWebOrderMatch(nBillID,nWebOrderID,sFlag_Sale);
-    writelog('TfFormNewCard.SaveBillProxy 保存商城订单号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
-  finally
-    nStocks.Free;
-    nList.Free;
-    nTmp.Free;
-  end;
 
-  ShowMsg('提货单保存成功', sHint);
+    if not VerifyCtrl(EditValue,nHint) then
+    begin
+      ShowMsg(nHint,sHint);
+      Writelog(nHint);
+      Exit;
+    end;
+
+    nNewCardNo := '';
+    Fbegin := Now;
+                         
+    try
+      //连续三次读卡均失败，则回收卡片，重新发卡
+      for i := 0 to 3 do
+      begin
+        for nIdx:=0 to 3 do
+        begin
+          nNewCardNo:= gDispenserManager.GetCardNo(gSysParam.FTTCEK720ID, nHint, False);
+          if nNewCardNo<>'' then Break;
+          Sleep(500);
+        end;
+        //连续三次读卡,成功则退出。
+        if nNewCardNo<>'' then
+          if IsCardValid(nNewCardNo) then Break;
+      end;
+
+      if nNewCardNo = '' then
+      begin
+        ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
+        Exit;
+      end
+      else WriteLog(nNewCardNo);
+    except on Ex:Exception do
+      begin
+        WriteLog('卡箱异常 '+Ex.Message);
+        ShowDlg('卡箱异常, 请联系管理人员.', sWarn, Self.Handle);
+      end;
+    end;
+
+    if Not CanUseCard(nNewCardNo) then
+    begin
+      gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
+      ShowDlg('发卡失败、请新扫描开卡.', sWarn, Self.Handle);
+      Exit;
+    end;
+    WriteLog('TfFormNewCard.SaveBillProxy 发卡机读卡-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+
+  if Not IsRepeatCard(nWebOrderID, nLid) then
+  begin
+    //保存提货单
+    nStocks := TStringList.Create;
+    nList := TStringList.Create;
+    nTmp := TStringList.Create;
+    try
+      LoadSysDictItem(sFlag_PrintBill, nStocks);
+
+      if Pos('袋',EditSName.Text) > 0 then
+        nTmp.Values['Type'] := 'D'
+      else
+        nTmp.Values['Type'] := 'S';
+
+      nTmp.Values['StockNO'] := EditStock.Text;
+      nTmp.Values['StockName'] := EditSName.Text;
+      nTmp.Values['Price'] := EditPrice.Text;
+      nTmp.Values['YunFeiPrice'] := edt_YunFei.Text;
+      nTmp.Values['Value'] := EditValue.Text;
+
+      if PrintHY.Checked  then
+           nTmp.Values['PrintHY'] := sFlag_Yes
+      else nTmp.Values['PrintHY'] := sFlag_No;
+
+      nList.Add(PackerEncodeStr(nTmp.Text));
+      nPrint := nStocks.IndexOf(EditStock.Text) >= 0;
+
+      with nList do
+      begin
+        Values['Bills'] := PackerEncodeStr(nList.Text);
+        Values['ZhiKa'] := nOrderItem.FYunTianOrderId;
+        Values['Truck'] := EditTruck.Text;
+        Values['Lading'] := sFlag_TiHuo;
+        Values['Memo']  := EmptyStr;
+        Values['IsVIP'] := Copy(GetCtrlData(EditType),1,1);
+        Values['Seal'] := '';
+        Values['HYDan'] := '';
+        Values['WebOrderID'] := nWebOrderID;
+
+        {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
+        nFact:= GetCtrlData(cbb_Factory);
+
+        if nFact='' then
+        begin
+          {$IFDEF SWYL}
+          Values['SendFactory'] := '榆林';
+          {$ENDIF}
+
+          {$IFDEF SWAS}
+          Values['SendFactory'] := '安塞';
+          {$ENDIF}
+        end
+        else Values['SendFactory'] := nFact;
+        {$ENDIF}
+      end;
+      Writelog('单据内容：'+nList.Text);
+      nBillData := PackerEncodeStr(nList.Text);
+      FBegin := Now;
+      nBillID := SaveBill(nBillData);
+      if nBillID = '' then Exit;
+      Writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+      FBegin := Now;
+      SaveWebOrderMatch(nBillID,nWebOrderID,sFlag_Sale);
+      Writelog('TfFormNewCard.SaveBillProxy 保存商城订单号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+    finally
+      nStocks.Free;
+      nList.Free;
+      nTmp.Free;
+    end;
+
+    ShowMsg('提货单保存成功', sHint);
+  end
+  else nBillID:= nLid;
+
+  if (nBillID = '') or (nNewCardNo = '') then
+  begin
+    Writelog('生成提货单失败、请到柜台开单');
+    Exit;
+  end;
 
   FBegin := Now;
   nRet := SaveBillCard(nBillID,nNewCardNo);
@@ -588,8 +693,9 @@ begin
     nRet := False;
     for nIdx := 0 to 3 do
     begin
-      nRet := gMgrK720Reader.SendReaderCmd('FC0');
+      nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
       if nRet then Break;
+      Sleep(500);
     end;
     //发卡
   end;
@@ -600,7 +706,7 @@ begin
     ShowMsg(nHint,sWarn);
   end
   else begin
-    gMgrK720Reader.RecycleCard;
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
 
     nHint := '商城订单号['+editWebOrderNo.Text+'],卡号['+nNewCardNo+']关联订单失败，请到开票窗口重新关联。';
     WriteLog(nHint);
@@ -613,6 +719,10 @@ begin
   //print report
   {$IFDEF AICMPrintHGZ}
   PrintHeGeReport(nBillID, False);
+  {$ENDIF}
+  {$IFDEF SWTC}
+  PrintBillRt(nBillID, False);
+  // 声威开单小票
   {$ENDIF}
 
   if nRet then Close;
@@ -641,6 +751,7 @@ begin
     fdm.ADOConn.RollbackTrans;
   end;
 end;
+
 procedure TfFormNewCard.lvOrdersClick(Sender: TObject);
 var
   nSelItem:TListItem;

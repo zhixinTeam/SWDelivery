@@ -15,7 +15,8 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameBillFactIn = class(TfFrameNormal)
@@ -142,7 +143,7 @@ end;
 
 //Desc: 删除
 procedure TfFrameBillFactIn.BtnDelClick(Sender: TObject);
-var nStr: string;
+var nStr, nReason: string;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
@@ -153,7 +154,19 @@ begin
   nStr := Format(nStr, [SQLQuery.FieldByName('L_ID').AsString]);
   if not QueryDlg(nStr, sAsk) then Exit;
 
-  if DeleteBill(SQLQuery.FieldByName('L_ID').AsString) then
+  begin
+    nReason:= '';
+    if not ShowInputBox('删除原因:', '删除', nReason, 200) then Exit;
+
+    if (nReason = '') then
+    begin
+      ShowMsg('您未填写删除原因、操作失败', sHint);
+      Exit;
+    end;
+    //无效或一致
+  end;
+
+  if DeleteBill(SQLQuery.FieldByName('L_ID').AsString, nReason) then
   begin
     InitFormData(FWhere);
     ShowMsg('提货单已删除', sHint);

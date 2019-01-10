@@ -160,6 +160,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       Height = 406
       Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow]
       OnMouseDown = DBGridMainMouseDown
+      OnDrawColumnCell = DBGridMainDrawColumnCell
       Columns = <
         item
           Width = 64
@@ -168,6 +169,11 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
           Font.Name = #23435#20307
         end>
     end
+  end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
   end
   object PMenu1: TUniPopupMenu
     Left = 42

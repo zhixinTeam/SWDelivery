@@ -157,13 +157,13 @@ begin
     nList.Add(nStr);
     //合并入金
 
-    nStr := 'Update #qichu Set C_Init=C_Init-IsNull((Select Sum(L_Price*' +
+    nStr := 'Update #qichu Set C_Init=C_Init-IsNull((Select Sum((L_Price+IsNull(L_YunFei, 0))*' +
             'L_Value) From %s Where L_CusID=''%s'' And L_OutFact<''$ST''), 0)';
     nStr := Format(nStr, [sTable_Bill, FCusID]);
     nList.Add(nStr);
     //合并出金
 
-    nStr := 'Update #qichu Set C_Init=C_Init-IsNull((Select Sum(S_Price*' +
+    nStr := 'Update #qichu Set C_Init=C_Init+IsNull((Select Sum((S_Price+IsNull(S_YunFei, 0))*' +
             'S_Value) From %s Where S_CusID=''%s'' And S_Date<''$ST''), 0)';
     nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
@@ -178,7 +178,7 @@ begin
       'R_Type Integer, R_Desc varChar(32), R_Stock varChar(80),' +
       'R_Init decimal(15,5) default 0, R_Shou decimal(15,5) default 0,' +
       'R_Value decimal(15,5) default 0, R_Price decimal(15,5) default 0,' +
-      'R_Money decimal(15,5) default 0, R_YunFei decimal(15,5) default 0,' +
+      'R_Money decimal(15,2) default 0, R_YunFei decimal(15,5) default 0,' +
       'R_End decimal(15,5) default 0)';
     nList.Add(nStr);
     //记录号,日期,类型,品种,期初结存,收款,发货量,单价,应收金额,运费,结存
@@ -190,8 +190,8 @@ begin
     //期初金额
 
     nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Value,' +
-      'R_Price,R_Money) Select L_ID,L_OutFact,2,''发货凭证'',L_StockName,' +
-      'L_Value,L_Price,L_Price*L_Value From %s ' +
+      'R_Price,R_Money,R_YunFei) Select L_ID,L_OutFact,2,''发货凭证'',L_StockName,' +
+      'L_Value,L_Price,CONVERT(Decimal(15,2), (L_Price+IsNull(L_YunFei, 0))*L_Value),IsNull(L_YunFei, 0)*L_Value From %s ' +
       'Where L_CusID=''%s'' And L_OutFact>=''$ST'' and L_OutFact<''$ED''';
     nStr := Format(nStr, [sTable_Bill, FCusID]);
     nList.Add(nStr);
@@ -209,18 +209,10 @@ begin
     nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,R_Value,' +
       'R_Money,R_YunFei) Select S_Bill,S_Date,4,''结算返利'',S_StockName,' +
       'S_Price*(-1),S_Value,(S_Price)*S_Value*(-1),S_YunFei*S_Value*(-1) From %s ' +
-      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED'' And S_Price<>0 ';
+      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED''  ';  //And S_Price<>0
     nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
-    //   水泥返利
-
-    nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,R_Value,' +
-      'R_Money,R_YunFei) Select S_Bill,S_Date,4,''运费返利'',S_StockName,' +
-      'S_YunFei*(-1),S_Value,(S_YunFei)*S_Value*(-1),S_YunFei*S_Value*(-1) From %s ' +
-      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED'' And S_YunFei<>0 ';
-    nStr := Format(nStr, [sTable_InvSettle, FCusID]);
-    nList.Add(nStr);
-    //运费返利
+    //返利
     //************************结算返利
 
     nList.Text := MacroValue(nList.Text, [MI('$ST', Date2Str(FStart)),
@@ -272,6 +264,7 @@ var nType: Integer;
     with ClientDS,TFloatHelper do
     begin
       Edit; //to change
+      FieldByName('R_YunFei').AsFloat := Float2Float(FieldByName('R_YunFei').AsFloat, cPrecision, True);
       FieldByName('R_End').AsFloat := Float2Float(nVal, cPrecision, True);
       Post; //apply
     end;
@@ -302,7 +295,7 @@ begin
       if nType = 2 then
       begin
         nInit := nInit - FieldByName('R_Money').AsFloat;
-        ApplyData(nInit);
+        ApplyData(nInit);                              // - FieldByName('R_YunFei').AsFloat
       end else
 
       if nType = 3 then
@@ -313,7 +306,7 @@ begin
 
       if nType = 4 then
       begin
-        nInit := nInit - FieldByName('R_Money').AsFloat;
+        nInit := nInit - FieldByName('R_Money').AsFloat- FieldByName('R_YunFei').AsFloat;
         ApplyData(nInit);
       end;
 
