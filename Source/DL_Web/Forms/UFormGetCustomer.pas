@@ -136,7 +136,7 @@ begin
             'Where C_PY like ''%$ID%'' or C_Name like ''%$ID%'' or ' +
             '  C_ID like ''%$ID%''';
     nStr := MacroValue(nStr, [MI('$Cus', sTable_Customer),
-            MI('$SM', sTable_Salesman), MI('$ID', nCusName)]);
+            MI('$SM', sTable_Salesman), MI('$ID', nCusName));
     //xxxxx
 
     nQuery := LockDBQuery(FDBType);

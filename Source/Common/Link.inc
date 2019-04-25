@@ -50,13 +50,25 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SWJY}
+{$DEFINE SWTC}
 //特定系统       SWJY  SWTC  SWAS  SWYL  SWFX      CQJJ
 
 //陕西声威集团 铜川工厂
 {$IFDEF SWTC}
+  {.$DEFINE OnleBF}
+  {$DEFINE AllowMultiM}
+  //散装允许多次过重车
+  {$DEFINE NCPurchase}
+  {$DEFINE NCSale}
+  {$DEFINE ProberMidChk} // 车检4通道光栅检查 (磅2端+磅中间)
+  {$DEFINE BasisWeight}
+  //启用定量装车
+  {$DEFINE BasisWeightWithPM}
+  //库底计量: 定量装车时过皮毛重
   {$DEFINE PRINT3dHY}
-  {$DEFINE DelNotInBill}
+  {$DEFINE DelNotInBill} // 调价删除未进厂单据 
+  {.$DEFINE NCSale}	// NC销售开关
+  {$DEFINE DelBillNeedReson}
   {$DEFINE ChkSaleCardInTimeOut}
   {$DEFINE MsgPoundVoice} //通知磅房虚拟读卡器
   {$DEFINE SXSW}
@@ -76,10 +88,9 @@
 
   {.$DEFINE UseUTFDecode}
   //使用UTF解包函数
-
   {.$DEFINE ChkCardFHTime}  
   // 声威泾阳工厂  时间控制散装放灰 
-  {$DEFINE FixLoad}
+  {.$DEFINE FixLoad}
   // 地磅控制散装放灰 	
   {$DEFINE ChkPopedomPrintHYD}
   // 检查随车打印化验单特权 
@@ -118,8 +129,10 @@
   //退款时不校验资金余额
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseCustomertMoney}
+  {.$DEFINE UseCustomertMoney}
   //订单量使用客户余额计算
+  {$DEFINE USE_NC}
+  //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
 {$ENDIF}
@@ -127,8 +140,14 @@
 
 //声威安塞工厂
 {$IFDEF SWAS}
+  {$DEFINE NCPurchase}
+  {$DEFINE NCSale}	// NC销售开关
+  {$DEFINE ChkPurTruc}
+  {$DEFINE PoundMPrintOrder}
+  //二次过磅后打印出厂小票
   {$DEFINE SalePlanCheck}
   //销售计划限量检查
+  {$DEFINE DelBillNeedReson}
   {$DEFINE CheckTruckNo}
   //开单检查是否输入的车号有正在进行中的单子做2次提醒
   {$DEFINE ChkSaleCardInTimeOut}
@@ -190,8 +209,10 @@
   //退款时不校验资金余额
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseCustomertMoney}
+  {.$DEFINE UseCustomertMoney}
   //订单量使用客户余额计算
+  {$DEFINE USE_NC}
+  //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
 {$ENDIF}
@@ -199,7 +220,9 @@
 
 //声威泾阳工厂
 {$IFDEF SWJY}
-  {.$DEFINE NCSale}	// NC销售开关
+  {$DEFINE NCPurchase}
+  {$DEFINE NCSale}	// NC销售开关
+  {$DEFINE DelBillNeedReson}
   {$DEFINE SXSW}
   //声威批次号  年月日 + 水泥批次号
   {$DEFINE PurchaseOrderChkJingZhong}
@@ -240,8 +263,8 @@
   //退款时不校验资金余额
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseCustomertMoney}
-  //订单量使用客户余额计算
+  {$DEFINE USE_NC}
+  //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
 {$ENDIF}
@@ -249,6 +272,8 @@
 
 //声威榆林工厂
 {$IFDEF SWYL}
+  {$DEFINE NCPurchase}
+  {$DEFINE NCSale}	// NC销售开关
   {$DEFINE SXSW}
   //声威批次号  年月日 + 水泥批次号
   {$DEFINE SendMorefactoryStock}
@@ -270,6 +295,7 @@
 
   {$DEFINE CreateBillByICCard}
   //销售单开单强制依据身份证（铜川、安塞）
+  {$DEFINE DelBillNeedReson}
 
   {$DEFINE COMMON}
   {$DEFINE HYRFID201}
@@ -302,8 +328,10 @@
   //退款时不校验资金余额
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseCustomertMoney}
+  {.$DEFINE UseCustomertMoney}
   //订单量使用客户余额计算
+  {$DEFINE USE_NC}
+  //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
 {$ENDIF}
@@ -311,6 +339,8 @@
 
 //声威凤县工厂
 {$IFDEF SWFX}
+  {.$IFDEF NCPurchase}
+  {.$DEFINE NCSale}	// NC销售开关
   {$DEFINE ChkZTMatch}
   //检查同组通道装车状态
   {$DEFINE SetStdValue}

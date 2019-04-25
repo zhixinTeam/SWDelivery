@@ -24,7 +24,7 @@ inherited fFormGetYTBatch: TfFormGetYTBatch
       Top = 240
       TabOrder = 4
     end
-    object EditCus: TcxButtonEdit [2]
+    object EditCus: TcxButtonEdit [2
       Left = 84
       Top = 29
       ParentFont = False
@@ -41,7 +41,7 @@ inherited fFormGetYTBatch: TfFormGetYTBatch
       OnKeyPress = OnCtrlKeyPress
       Width = 121
     end
-    object ListQuery: TcxListView [3]
+    object ListQuery: TcxListView [3
       Left = 24
       Top = 79
       Width = 417
@@ -71,13 +71,13 @@ inherited fFormGetYTBatch: TfFormGetYTBatch
       ParentFont = False
       ReadOnly = True
       RowSelect = True
-      Style.Edges = [bLeft, bTop, bRight, bBottom]
+      Style.Edges = [bLeft, bTop, bRight, bBottom
       TabOrder = 2
       ViewStyle = vsReport
       OnDblClick = ListQueryDblClick
       OnKeyPress = ListQueryKeyPress
     end
-    object cxLabel1: TcxLabel [4]
+    object cxLabel1: TcxLabel [4
       Left = 24
       Top = 56
       Caption = #26597#35810#32467#26524':'

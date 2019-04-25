@@ -80,6 +80,7 @@ type
     FSrvRemote  : string;                            //微信:远程服务
     FSrvMIT     : string;                            //微信:本地服务
     FErrorNum   : integer;                           //访问服务出错次数   如累计达
+    FRe  : string;
   end;
   //系统参数
 

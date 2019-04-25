@@ -745,7 +745,7 @@ begin
 
   nVal := FDM.QueryTemp(nStr).Fields[0].AsFloat;
   nVal := GetCustomerValidMoney(nCusID) - nVal;
-  
+
   if nVal < 0 then
        Result := '0'
   else Result := Format('%.2f', [nVal]);

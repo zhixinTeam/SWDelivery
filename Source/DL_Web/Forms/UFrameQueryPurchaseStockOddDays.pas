@@ -71,7 +71,7 @@ begin
   try
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
     begin
-      with DBGridMain.Columns[nIdx] do
+      with DBGridMain.Columns[nIdx do
       begin
         Sortable:= not DBGridMain.Grouping.Enabled;
       end;
@@ -121,7 +121,7 @@ begin
     Result := MacroValue(nStr, [MI('$OrderDtl', sTable_OrderDtl), MI('$YearSTime', FormatDateTime('yyyy-01-01 00:00:00', FSearchDate)),
                                   MI('$MounthSTime', FormatDateTime('yyyy-MM-01 00:00:00', FSearchDate)),
                                   MI('$DaySTime', FormatDateTime('yyyy-MM-DD 00:00:00', FSearchDate)),
-                                  MI('$ETime', Date2Str(FSearchDate + 1))]);
+                                  MI('$ETime', Date2Str(FSearchDate + 1)));
     //xxxxx
   end;
 end;

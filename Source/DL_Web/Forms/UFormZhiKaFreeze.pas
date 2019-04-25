@@ -84,7 +84,7 @@ begin
     FixedCols := 3;
     RowCount := 0;
     ColCount := 5;
-    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick];
+    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick;
   end;
 
   UserDefineStringGrid(Name, Grid1, True);
@@ -107,7 +107,7 @@ begin
     nQuery := LockDBQuery(FDBType);
     nStr := 'Select D_Memo as S_Type,D_ParamB as S_NO,D_Value as S_Name From %s ' +
             'Where D_Name=''%s'' Order By D_Memo ASC,D_Value ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -120,12 +120,12 @@ begin
       begin
         nStr := FieldByName('S_Type').AsString;
         if nStr = sFlag_Dai then
-             Grid1.Cells[giMemo, nIdx] := 'D.袋装'
-        else Grid1.Cells[giMemo, nIdx] := 'S.散装';
+             Grid1.Cells[giMemo, nIdx := 'D.袋装'
+        else Grid1.Cells[giMemo, nIdx := 'S.散装';
 
-        Grid1.Cells[giType, nIdx] := nStr;
-        Grid1.Cells[giID, nIdx] := FieldByName('S_NO').AsString;
-        Grid1.Cells[giName, nIdx] := FieldByName('S_Name').AsString;
+        Grid1.Cells[giType, nIdx := nStr;
+        Grid1.Cells[giID, nIdx := FieldByName('S_NO').AsString;
+        Grid1.Cells[giName, nIdx := FieldByName('S_Name').AsString;
 
         Inc(nIdx);
         Next;
@@ -140,9 +140,9 @@ procedure TfFormZKFreeze.Grid1Click(Sender: TObject);
 begin
   if Grid1.Col = giCheck then
   begin
-    if Grid1.Cells[giCheck, Grid1.Row] = sCheckFlag then
-         Grid1.Cells[giCheck, Grid1.Row] := ''
-    else Grid1.Cells[giCheck, Grid1.Row] := sCheckFlag;
+    if Grid1.Cells[giCheck, Grid1.Row = sCheckFlag then
+         Grid1.Cells[giCheck, Grid1.Row := ''
+    else Grid1.Cells[giCheck, Grid1.Row := sCheckFlag;
   end;
 end;
 
@@ -155,18 +155,18 @@ begin
     case nTag of
      10:
       begin
-        if Grid1.Cells[giType, nIdx] = sFlag_Dai then
+        if Grid1.Cells[giType, nIdx = sFlag_Dai then
           if Check1.Checked then
-               Grid1.Cells[giCheck, nIdx] := sCheckFlag
-          else Grid1.Cells[giCheck, nIdx] := '';
+               Grid1.Cells[giCheck, nIdx := sCheckFlag
+          else Grid1.Cells[giCheck, nIdx := '';
         //xxxxx
       end;
      20:
       begin
-        if Grid1.Cells[giType, nIdx] = sFlag_San then
+        if Grid1.Cells[giType, nIdx = sFlag_San then
           if Check2.Checked then
-               Grid1.Cells[giCheck, nIdx] := sCheckFlag
-          else Grid1.Cells[giCheck, nIdx] := '';
+               Grid1.Cells[giCheck, nIdx := sCheckFlag
+          else Grid1.Cells[giCheck, nIdx := '';
         //xxxxx
       end;
     end;
@@ -178,10 +178,10 @@ var nIdx: Integer;
 begin
   Result := '';
   for nIdx := Grid1.RowCount-1 downto 0 do
-   if Grid1.Cells[giCheck, nIdx] = sCheckFlag then
+   if Grid1.Cells[giCheck, nIdx = sCheckFlag then
     if Result = '' then
-         Result := '''' + Grid1.Cells[giID, nIdx] + ''''
-    else Result := Result + ',''' + Grid1.Cells[giID, nIdx] + ''''
+         Result := '''' + Grid1.Cells[giID, nIdx + ''''
+    else Result := Result + ',''' + Grid1.Cells[giID, nIdx + ''''
   //xxxxx
 end;
 
@@ -197,8 +197,8 @@ begin
 
   nStr := '确定要%s所有包含被选中品种的纸卡吗?';
   if Radio1.Checked then
-       nStr := Format(nStr, ['冻结'])
-  else nStr := Format(nStr, ['解冻']);
+       nStr := Format(nStr, ['冻结')
+  else nStr := Format(nStr, ['解冻');
 
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
@@ -224,7 +224,7 @@ begin
       nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$Stock', nStock),
               MI('$Dtl', sTable_ZhiKaDtl), MI('$Frz', sFlag_TJing),
               MI('$Ovr', sFlag_TJOver), MI('$Yes', sFlag_Yes),
-              MI('$Now', sField_SQLServer_Now)]);
+              MI('$Now', sField_SQLServer_Now));
       //xxxxx
 
       DBExecute(nStr, nil, FDBType);

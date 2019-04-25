@@ -179,7 +179,7 @@ var nErr, nSuccessCount, nFailCount: Integer;
     nOut: TWorkerBusinessCommand;
 begin
   FNumOutFactMsg := 0;       
-
+                                  
   while not Terminated do
   try
     FWaiter.EnterWait;

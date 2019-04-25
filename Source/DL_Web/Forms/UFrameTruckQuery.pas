@@ -80,7 +80,7 @@ function TfFrameTruckQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
     //xxxxx
     Result := 'Select * from $Bill b ';
 
@@ -102,7 +102,7 @@ begin
     end;
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -139,7 +139,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end;
 end;

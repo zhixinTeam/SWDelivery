@@ -196,7 +196,6 @@ const
   sFlag_NCServiceMIT  = 'NCServiceMIT';              //NC工厂服务
   sFlag_NCSrvRemote   = 'NCServiceRemote';           //NC远程服务
 
-
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差
   sFlag_PDaiPercent   = 'PoundDaiPercent';           //按比例计算误差
@@ -205,6 +204,7 @@ const
   sFlag_PoundWuCha    = 'PoundWuCha';                //过磅误差分组
   sFlag_PoundIfDai    = 'PoundIFDai';                //袋装是否过磅
   sFlag_NFStock       = 'NoFaHuoStock';              //现场无需发货
+  sFlag_NoYSStock     = 'NoYSStock';                 //现场无需验收
   sFlag_StrictSanVal  = 'StrictSanVal';              //严格控制散装超发
   sFlag_PEmpTWuCha    = 'EmpTruckWuCha';             //空车出厂误差
 
@@ -850,7 +850,7 @@ const
        'L_DelMan varChar(32), L_DelDate DateTime, L_ICCardNo varChar(32) not null default(''''),'+
        'L_SnapTruck Char(1) Not Null Default ''Y'', L_SendFactory Varchar(60) Not Null  Default '''' ,'+
        'L_StdValue Decimal(15, 2) Not Null Default 0, L_PKzk varChar(50), L_PKDtl varChar(50), '+
-       'L_RefundPrice Decimal(15, 2) Not Null Default 0 )';
+       'L_RefundPrice Decimal(15, 2) Not Null Default 0, L_Refuse char(1) not null default(''N'') )';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号

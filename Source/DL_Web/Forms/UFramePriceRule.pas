@@ -84,7 +84,7 @@ function TfFramePriceRule.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
     //xxxxx
     Result := 'Select * from $R r ';
 
@@ -102,7 +102,7 @@ begin
 
     Result := MacroValue(Result, [MI('$R', sTable_PriceRule),
               MI('$Yes', sFlag_Yes),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -158,7 +158,7 @@ begin
   if DBGridMain.SelectedRows.Count > 0 then
   begin
     nStr := 'R_StockNo=''%s''';
-    nStr := Format(nStr, [ClientDS.FieldByName('R_StockNo').AsString]);
+    nStr := Format(nStr, [ClientDS.FieldByName('R_StockNo').AsString);
     InitFormData(nStr);
   end;
 end;

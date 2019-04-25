@@ -117,6 +117,7 @@ end;
 
 //------------------------------------------------------------------------------
 function TfFrameSaleDetailTotal.InitFormDataSQL(const nWhere: string): string;
+var nStrWh:string;
 begin
   FEnableBackDB := True;
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
@@ -147,6 +148,13 @@ begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
 
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((L_SaleMan=''' + gSysParam.FUserID + ''') or (L_CusName=''' +
+            gSysParam.FUserID + '''))';
+  end;
+
   if Radio1.Checked then
   begin
     Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY';
@@ -169,16 +177,23 @@ begin
   begin
     Result := ' Select a.L_Type, a.L_StockName, ISNULL(b.Value, 0) DayValue, a.Value MonthValue From ( '+
               ' Select L_Type, L_StockName, SUM(L_Value) as Value  From %s b  '+
-              ' Where (L_OutFact>=''%s'' and L_OutFact <''%s'')       '+
+              ' Where (L_OutFact>=''%s'' and L_OutFact <''%s'') $WH  '+
               ' Group  by  L_Type, L_StockName) a                                 '+
               ' left Join (                                                       '+
               ' Select L_Type, L_StockName, SUM(L_Value) as Value  From %s b  '+
-              ' Where (L_OutFact>=''%s'' and L_OutFact <=''%s'')       '+
+              ' Where (L_OutFact>=''%s'' and L_OutFact <=''%s'') $WH  '+
               ' Group  by  L_Type, L_StockName) b On a.L_StockName=b.L_StockName  '+
               ' Order  by  a.L_Type, b.L_StockName Desc ';
 
     Result := Format(Result, [sTable_Bill, Date2Str(FStart), Date2Str(FEnd + 1),
                               sTable_Bill, Date2Str(Now)+' 00:00:00', Date2Str(FEnd)+' 23:59:59']);
+
+    if (not gSysParam.FIsAdmin) then
+    begin
+      nStrWh:= ' And ((L_SaleMan=''' + gSysParam.FUserID + ''') or (L_CusName=''' + gSysParam.FUserID + '''))';
+      Result := MacroValue(Result, [MI('$WH', nStrWh)]);
+    end;
+
   end;
 end;
 

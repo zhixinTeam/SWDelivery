@@ -126,8 +126,8 @@ begin
   with DBGridMain do
   begin
     if UniMainModule.FGridColumnAdjust then
-         Options := Options + [dgMultiSelect]
-    else Options := Options + [dgMultiSelect, dgCheckSelect];
+         Options := Options + [dgMultiSelect
+    else Options := Options + [dgMultiSelect, dgCheckSelect;
   end;
 end;
 
@@ -156,7 +156,7 @@ var nNo: string;
 begin
   with TStringHelper,TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
     //xxxxx
 
     Result := 'Select sm.*,zk.*,zd.*,ht.*,zd.R_ID as D_RID,' +
@@ -189,7 +189,7 @@ begin
               MI('$ZD', sTable_ZhiKaDtl), MI('$SM', sTable_Salesman),
               MI('$Cus', sTable_Customer), MI('$Now', sField_SQLServer_Now),
               MI('$STT', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)),
-              MI('$HT', sTable_SaleContract), MI('$No', nNo)]);
+              MI('$HT', sTable_SaleContract), MI('$No', nNo));
     //xxxxx
   end;
 end;
@@ -220,7 +220,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -231,7 +231,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx] do
+        with FStockList[nIdx do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -244,7 +244,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      EditStock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
+      EditStock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
     EditStock.ItemIndex := 0;
   finally
     EditStock.Items.EndUpdate;
@@ -265,8 +265,8 @@ begin
 //    Exit;
 //  end;
 
-  nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex]);
-  Result := FStockList[nIdx].FKey;
+  nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex);
+  Result := FStockList[nIdx.FKey;
 end;
 
 procedure TfFrameZhiKaDetail.BtnRefreshClick(Sender: TObject);
@@ -301,7 +301,7 @@ begin
     FDateFilte := Length(EditID.Text) <= 3;
     FValidFilte := False;
 
-    FWhere := Format('Z_ID Like ''%%%s%%''', [EditID.Text]);
+    FWhere := Format('Z_ID Like ''%%%s%%''', [EditID.Text);
     InitFormData(FWhere);
   end else
 
@@ -311,7 +311,7 @@ begin
     if EditCus.Text = '' then Exit;
 
     FWhere := Format('C_PY Like ''%%%s%%'' or C_Name Like ''%%%s%%''',
-              [EditCus.Text, EditCus.Text]);
+              [EditCus.Text, EditCus.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -350,7 +350,7 @@ begin
    30: begin
          FValidFilte := False;
          FWhere := 'Z_InValid=''$Yes'' Or Z_ValidDays<=%s';
-         FWhere := Format(FWhere, [sField_SQLServer_Now]);
+         FWhere := Format(FWhere, [sField_SQLServer_Now);
        end;
    40: begin
          FValidFilte := False;
@@ -359,7 +359,7 @@ begin
    50: begin
          FDateFilte := False;
          FValidFilte := False;
-         FWhere := Format('Z_TJStatus=''%s''', [sFlag_TJing]);
+         FWhere := Format('Z_TJStatus=''%s''', [sFlag_TJing);
        end else Exit;
   end;
 
@@ -389,12 +389,12 @@ begin
 
     for nIdx:=DBGridMain.SelectedRows.Count - 1 downto 0 do
     begin
-      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx];
+      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx;
       nRID := ClientDS.FieldByName('D_RID').AsString;
       if nRID = '' then Continue;
 
       nStr := 'Update %s Set D_TPrice=''%s'' Where R_ID=%s';
-      nStr := Format(nStr, [sTable_ZhiKaDtl, nFlag, nRID]);
+      nStr := Format(nStr, [sTable_ZhiKaDtl, nFlag, nRID);
       nList.Add(nStr);
     end;
 
@@ -437,7 +437,7 @@ begin
 
     for nIdx:=DBGridMain.SelectedRows.Count - 1 downto 0 do
     begin
-      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx];
+      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx;
       nList.Add(ClientDS.FieldByName('Z_ID').AsString);
     end;
   finally
@@ -474,15 +474,15 @@ begin
       begin
         nStr := 'Update %s Set Z_TJStatus=''%s'' Where Z_ID=''%s'' and ' +
                 'IsNull(Z_InValid,'''')<>''%s'' And Z_ValidDays>%s';
-        nStr := Format(nStr, [sTable_ZhiKa, sFlag_TJing, nListA[nIdx],
-                sFlag_Yes, sField_SQLServer_Now]);
+        nStr := Format(nStr, [sTable_ZhiKa, sFlag_TJing, nListA[nIdx,
+                sFlag_Yes, sField_SQLServer_Now);
         nListB.Add(nStr); //调价中
       end else
       begin
         nStr := 'Update %s Set Z_TJStatus=''%s'' Where Z_ID=''%s'' and ' +
                 'Z_TJStatus=''%s''';
-        nStr := Format(nStr, [sTable_ZhiKa, sFlag_TJOver, nListA[nIdx],
-                sFlag_TJing]);
+        nStr := Format(nStr, [sTable_ZhiKa, sFlag_TJOver, nListA[nIdx,
+                sFlag_TJing);
         nListB.Add(nStr); //调价结束
       end;
     end;
@@ -517,7 +517,7 @@ begin
 
     for nIdx:= 0 to nLen do
     begin
-      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx];
+      ClientDS.Bookmark := DBGridMain.SelectedRows[nIdx;
       nRID := ClientDS.FieldByName('D_RID').AsString;
       nZID := ClientDS.FieldByName('Z_ID').AsString;
       if (nRID = '') or (nZID = '') then Continue;
@@ -525,8 +525,8 @@ begin
       nStr := ClientDS.FieldByName('Z_TJStatus').AsString;
       if nStr <> sFlag_TJing then
       begin
-        nStr := '调价前需要冻结纸卡,记录[ %s ]不符合要求.';
-        nStr := Format(nStr, [nRID]);
+        nStr := '调价前需要冻结纸卡,记录[ %s 不符合要求.';
+        nStr := Format(nStr, [nRID);
         ShowMessage(nStr); Exit;
       end;
 
@@ -539,15 +539,15 @@ begin
         if (ClientDS.FieldByName('D_Type').AsString <> nType) or
            (ClientDS.FieldByName('D_StockNO').AsString <> nStock) then
         begin
-          nStr := '只有同品种的水泥才能统一调价,记录[ %s ]不符合要求.';
-          nStr := Format(nStr, [nRID]);
+          nStr := '只有同品种的水泥才能统一调价,记录[ %s 不符合要求.';
+          nStr := Format(nStr, [nRID);
           ShowMessage(nStr); Exit;
         end;
       end;
 
       nStr := Format('%s;%s;%s;%s;%s', [nRID,
               ClientDS.FieldByName('D_Price').AsString,
-              nZID, nStock, ClientDS.FieldByName('D_StockName').AsString]);
+              nZID, nStock, ClientDS.FieldByName('D_StockName').AsString);
       nList.Add(nStr);
     end;
 
@@ -588,7 +588,7 @@ begin
     nStr := 'L_Group=''$Group'' And L_ItemID=''$ID''';
     with TStringHelper do
     nParam.FParamD := MacroValue(nStr, [MI('$Group', sFlag_ZhiKaItem),
-                      MI('$ID', nParam.FParamC)]);
+                      MI('$ID', nParam.FParamC));
     //检索条件
 
     ShowSystemLog(nParam);

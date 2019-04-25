@@ -176,7 +176,7 @@ begin
           'Where Z_Customer=''%s'' And Z_ValidDays>%s And ' +
           'IsNull(Z_InValid, '''')<>''%s'' And ' +
           'IsNull(Z_Freeze, '''')<>''%s'' Order By Z_ID';
-  nStr := Format(nStr, [sTable_ZhiKa, nCusId, sField_SQLServer_Now, sFlag_Yes, sFlag_Yes]);
+  nStr := Format(nStr, [sTable_ZhiKa, nCusId, sField_SQLServer_Now, sFlag_Yes, sFlag_Yes);
 
   with cbb_ZK.Properties do
   begin
@@ -198,7 +198,7 @@ begin
   SetLength(gStockList, 0);
   cbb_Stocks.Properties.Items.Clear;
   nStr := 'Select * From %s Where D_ZID=''%s''';
-  nStr := Format(nStr, [sTable_ZhiKaDtl, nZkId]);
+  nStr := Format(nStr, [sTable_ZhiKaDtl, nZkId);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
@@ -209,7 +209,7 @@ begin
 
     First;  
     while not Eof do
-    with gStockList[nIdx] do
+    with gStockList[nIdx do
     begin
       FType := FieldByName('D_Type').AsString;
       FStockNO := FieldByName('D_StockNo').AsString;
@@ -220,7 +220,7 @@ begin
       FValue := 0;
       FSelecte := False;
 
-      cbb_Stocks.Properties.Items.Add(gStockList[nIdx].FStockName);
+      cbb_Stocks.Properties.Items.Add(gStockList[nIdx.FStockName);
 
       Inc(nIdx);
       Next;
@@ -278,7 +278,7 @@ begin
   Result:= False;
   //*************
   nStr := 'Select * From %s Where T_Truck=''%s'' And T_CID=''%s''';
-  nStr := Format(nStr, [sTable_TruckCus, nTruck, nCid]);
+  nStr := Format(nStr, [sTable_TruckCus, nTruck, nCid);
 
   with FDM.QuerySQLChk(nStr) do
     Result:= (RecordCount>0)
@@ -331,7 +331,7 @@ begin
     Exit;
   end;
 
-  with gStockList[cbb_Stocks.ItemIndex] do
+  with gStockList[cbb_Stocks.ItemIndex do
   begin
     if FPrice=0 then
     begin
@@ -395,35 +395,35 @@ begin
     try
       LoadSysDictItem(sFlag_PrintBill, nStocks);
 
-      nTmp.Values['Type'] := gStockList[cbb_Stocks.ItemIndex].FType;
+      nTmp.Values['Type' := gStockList[cbb_Stocks.ItemIndex.FType;
 
-      nTmp.Values['StockNO'] := gStockList[cbb_Stocks.ItemIndex].FStockNO;
-      nTmp.Values['StockName'] := gStockList[cbb_Stocks.ItemIndex].FStockName;
-      nTmp.Values['Price'] := FloatToStr(gBill.FPrice);
-      nTmp.Values['YunFeiPrice'] := FloatToStr(gStockList[cbb_Stocks.ItemIndex].FYfPrice);
-      nTmp.Values['Value'] := FloatToStr(gBill.FValue);
+      nTmp.Values['StockNO' := gStockList[cbb_Stocks.ItemIndex.FStockNO;
+      nTmp.Values['StockName' := gStockList[cbb_Stocks.ItemIndex.FStockName;
+      nTmp.Values['Price' := FloatToStr(gBill.FPrice);
+      nTmp.Values['YunFeiPrice' := FloatToStr(gStockList[cbb_Stocks.ItemIndex.FYfPrice);
+      nTmp.Values['Value' := FloatToStr(gBill.FValue);
 
-      nTmp.Values['PrintHY'] := sFlag_No;
+      nTmp.Values['PrintHY' := sFlag_No;
       //****************
       nList.Add(PackerEncodeStr(nTmp.Text));
 
       with nList do
       begin
-        Values['Bills'] := PackerEncodeStr(nList.Text);
-        Values['ZhiKa'] := gBill.FZhiKaId;
-        Values['Truck'] := gBill.FTruck;
-        Values['Lading'] := sFlag_TiHuo;
-        Values['Memo']  := EmptyStr;
-        Values['IsVIP'] := 'C';
-        Values['Seal']  := '';
-        Values['HYDan'] := '';
+        Values['Bills' := PackerEncodeStr(nList.Text);
+        Values['ZhiKa' := gBill.FZhiKaId;
+        Values['Truck' := gBill.FTruck;
+        Values['Lading' := sFlag_TiHuo;
+        Values['Memo'  := EmptyStr;
+        Values['IsVIP' := 'C';
+        Values['Seal'  := '';
+        Values['HYDan' := '';
       end;
       Writelog('单据内容：'+nList.Text);
       nBillData := PackerEncodeStr(nList.Text);
       FBegin := Now;
       nBillID := SaveBill(nBillData);
       if nBillID = '' then Exit;
-      Writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+      Writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+'-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
       FBegin := Now;
       Writelog('TfFormNewCard.SaveBillProxy 保存商城订单号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
     finally
@@ -456,14 +456,14 @@ begin
   end;
   if nRet then
   begin
-    nHint := '自助申请发卡成功,卡号['+nNewCardNo+'],请收好您的卡片';
+    nHint := '自助申请发卡成功,卡号['+nNewCardNo+',请收好您的卡片';
     WriteLog(nHint);
     ShowMsg(nHint,sWarn);
   end
   else begin
     gMgrK720Reader.RecycleCard;
 
-    nHint := '自助申请卡号['+nNewCardNo+']关联订单失败，请到开票窗口重新关联。';
+    nHint := '自助申请卡号['+nNewCardNo+'关联订单失败，请到开票窗口重新关联。';
     WriteLog(nHint);
     ShowDlg(nHint,sHint,Self.Handle);
   end;
@@ -493,7 +493,7 @@ begin
     if cbb_Stocks.ItemIndex<0 then Exit;
     gBill.FMoney := GetZhikaValidMoney(gBill.FZhiKaId, gBill.FOnlyMoney);
 
-    with gStockList[cbb_Stocks.ItemIndex] do
+    with gStockList[cbb_Stocks.ItemIndex do
     if FPrice > 0 then
     begin
       nInt := Float2PInt(gBill.FMoney / FPrice, cPrecision, False);
@@ -506,7 +506,7 @@ end;
 procedure TFormBillCardHandl.edt_ValueKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if not (key in ['0'..'9','.',#8]) then
+  if not (key in ['0'..'9','.',#8) then
     key:=#0;
   if (key='.') and (Pos('.',edt_Value.Text)>0)   then
     key:=#0;

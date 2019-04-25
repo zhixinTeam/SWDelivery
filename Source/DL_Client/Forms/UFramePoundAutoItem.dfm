@@ -1,5 +1,5 @@
 inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
-  Width = 1080
+  Width = 1137
   Height = 309
   Font.Height = -15
   object GroupBox1: TGroupBox
@@ -189,8 +189,8 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Properties.LabelStyle = cxlsRaised
     OnClick = HintLabelClick
     Height = 27
-    Width = 1080
-    AnchorX = 540
+    Width = 1137
+    AnchorX = 569
     AnchorY = 14
   end
   object EditTruck: TcxComboBox
@@ -596,9 +596,9 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     TabOrder = 24
   end
   object chk1: TCheckBox
-    Left = 816
+    Left = 805
     Top = 29
-    Width = 153
+    Width = 121
     Height = 20
     Caption = #21551#29992#36710#29260#26816#26597
     TabOrder = 25
@@ -671,6 +671,14 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Height = 20
     Caption = #19981#20570#19978#30917#35821#38899#25552#31034
     TabOrder = 30
+  end
+  object chk3: TCheckBox
+    Left = 926
+    Top = 29
+    Width = 179
+    Height = 20
+    Caption = #19978#30917#19981#26816#26597#22320#30917#29366#24577
+    TabOrder = 31
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer

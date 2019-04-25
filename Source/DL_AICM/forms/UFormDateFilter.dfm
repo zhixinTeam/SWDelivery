@@ -1,7 +1,7 @@
 object fFormDateFilter: TfFormDateFilter
   Left = 361
   Top = 321
-  BorderIcons = [biSystemMenu, biMinimize]
+  BorderIcons = [biSystemMenu, biMinimize
   BorderStyle = bsSingle
   ClientHeight = 133
   ClientWidth = 263
@@ -10,7 +10,7 @@ object fFormDateFilter: TfFormDateFilter
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #23435#20307
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   Position = poMainFormCenter
   PixelsPerInch = 96
@@ -84,7 +84,7 @@ object fFormDateFilter: TfFormDateFilter
         LayoutDirection = ldHorizontal
         ShowBorder = False
         object dxLayoutControl1Item3: TdxLayoutItem
-          AutoAligns = [aaVertical]
+          AutoAligns = [aaVertical
           AlignHorz = ahRight
           Caption = 'Button1'
           ShowCaption = False
@@ -92,7 +92,7 @@ object fFormDateFilter: TfFormDateFilter
           ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item4: TdxLayoutItem
-          AutoAligns = [aaVertical]
+          AutoAligns = [aaVertical
           AlignHorz = ahRight
           Caption = 'Button2'
           ShowCaption = False

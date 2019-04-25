@@ -224,7 +224,7 @@ begin
   begin
     if recordcount > 0 then
     begin
-      ShowMsg('磁卡在短倒单['+fieldbyname('B_ID').asstring+']完成前禁止开单.',sHint);
+      ShowMsg('磁卡在短倒单 '+fieldbyname('B_ID').asstring+' 完成前禁止开单.',sHint);
       exit;
     end;
   end;

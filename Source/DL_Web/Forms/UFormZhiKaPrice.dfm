@@ -47,7 +47,7 @@ inherited fFormZKPrice: TfFormZKPrice
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 2
       ReadOnly = True
     end
@@ -74,7 +74,7 @@ inherited fFormZKPrice: TfFormZKPrice
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 4
       ReadOnly = True
     end
@@ -101,7 +101,7 @@ inherited fFormZKPrice: TfFormZKPrice
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 6
     end
     object Check1: TUniCheckBox

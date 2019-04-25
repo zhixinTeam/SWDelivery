@@ -62,7 +62,8 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UFormBase, UMgrControl, USysConst, USysDB, UDataModule, USysBusiness;
+  ULibFun, UFormBase, UMgrControl, USysConst, USysDB, USysPopedom, UDataModule,
+  USysBusiness;
 
 
 class function TfFrameCusAccount.FrameID: integer;
@@ -82,6 +83,13 @@ begin
   if nWhere = '' then
        Result := Result + 'Where IsNull(C_XuNi, '''')<>''$Yes'''
   else Result := Result + 'Where (' + nWhere + ')';
+
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((S_Name=''' + gSysParam.FUserID + ''') or (C_Name=''' +
+            gSysParam.FUserID + '''))';
+  end;
 
   Result := MacroValue(Result, [MI('$CA', sTable_CusAccount),
             MI('$Cus', sTable_Customer), MI('$SM', sTable_Salesman),

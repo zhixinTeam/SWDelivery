@@ -106,19 +106,26 @@ end;
 procedure TfFramePoundQuery.UPDateXSql;
 var nSQL: string;
 begin
-  nSQL := ' UPDate S_Bill Set L_StdMValue=Cast(FLOOR(RAND(checksum(newid()))*5)+46 + (ceiling(rand(checksum(newid()))*100))/100.00 as decimal(15,2)) ' +
-          ' Where  L_Value>=50 And L_StdMValue = 0 And L_Date>='''+Date2Str(Now)+'''  ';
+  nSQL := ' UPDate S_Bill Set L_StdValue=Cast(FLOOR(RAND(checksum(newid()))*5)+46 + L_Value-Cast(L_Value as int) as decimal(15,2)) ' +
+          ' Where  L_Value>=50 And L_StdValue = 0 '; ///  And L_Date>='''+Date2Str(Now)+'''  ';
   FDM.ExecuteSQL(nSQL);
 
-  nSQL := ' UPDate S_Bill Set L_StdMValue=L_Value Where  L_Value<50 And L_StdMValue = 0  ';
+  nSQL := ' UPDate S_Bill Set L_StdValue=L_Value Where  L_Value<50 And L_StdValue = 0 ';
   FDM.ExecuteSQL(nSQL);
 
-  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL((Select L_StdMValue From S_Bill Where L_ID=P_Bill And P_StdNetWeight=0), 0) '+
-          ' Where P_StdNetWeight=0 And P_Type=''S'' ';
+  nSQL := ' UPDate S_Bill Set L_StdMValue=L_PValue+L_StdValue Where L_StdMValue = 0 ';
   FDM.ExecuteSQL(nSQL);
 
-  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL(P_MValue-P_PValue, 0) Where P_StdNetWeight=0 And P_Type=''P''';
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=P_StdNetWeight=ISNULL(L_StdValue, 0) From S_Bill '+
+          ' Where L_ID=P_Bill And P_StdNetWeight=0 And P_Type=''S'' ';
   FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL(P_MValue-P_PValue-IsNull(P_KZValue), 0) Where P_StdNetWeight=0 And P_Type=''P''';
+  FDM.ExecuteSQL(nSQL);
+
+  nSQL := ' UPDate Sys_PoundLog Set P_StdMValue=P_PValue+P_StdNetWeight+ISNULL(P_KZValue, 0) Where P_StdMValue=0 ';
+  FDM.ExecuteSQL(nSQL);
+
 end;
 
 function TfFramePoundQuery.InitFormDataSQL(const nWhere: string): string;
@@ -131,7 +138,7 @@ begin
 
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select pl.*,(P_MValue-P_PValue) As P_NetWeight,' +
+  Result := 'Select pl.*,(P_MValue-P_PValue-IsNull(P_KZValue, 0)) As P_NetWeight,' +
             'ABS((P_MValue-P_PValue)-P_LimValue) As P_Wucha From $PL pl';
   //xxxxx
 

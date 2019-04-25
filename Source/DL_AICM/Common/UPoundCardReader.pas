@@ -157,7 +157,7 @@ begin
       nTunnels := '';
       for nIdx:=0 to FCardReads.Count-1 do
       begin
-        nPItem := FCardReads[nIdx];
+        nPItem := FCardReads[nIdx;
         nTunnels := nTunnels + nPItem.FTunnel + ',';
       end;
 
@@ -171,11 +171,11 @@ begin
 
       for nIdx:=0 to FCardReads.Count-1 do
       begin
-        nPItem := FCardReads[nIdx];
+        nPItem := FCardReads[nIdx;
 
         with nPItem^ do
         begin
-          nReadCard := FCards.Values[FTunnel];
+          nReadCard := FCards.Values[FTunnel;
 
           if (nReadCard <> FCardLast) or
           (GetTickCount-FTimeLast > ICardReadKeepalive * 1000) then
@@ -195,7 +195,7 @@ begin
   except
     On E:Exception do
     begin
-      WriteLog(Format('“Ï≥£%s', [E.Message]));
+      WriteLog(Format('“Ï≥£%s', [E.Message));
     end;
   end;
 end;
@@ -235,7 +235,7 @@ begin
 
     for nIdx:=FCardReads.Count - 1 downto 0 do
     begin
-      nPItem := FCardReads[nIdx];
+      nPItem := FCardReads[nIdx;
       if nPItem.FID <> nCardReadIdx then continue;
 
       Dispose(nPItem);
@@ -259,7 +259,7 @@ begin
 
     for nIdx:=FCardReads.Count - 1 downto 0 do
     begin
-      nPItem := FCardReads[nIdx];
+      nPItem := FCardReads[nIdx;
 
       with nPItem^ do
       if FID=nCardReadIdx then

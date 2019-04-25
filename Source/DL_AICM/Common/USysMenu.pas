@@ -110,7 +110,7 @@ begin
 
   for i:=0 to nCount do
   begin
-    nItem := nList[i];
+    nItem := nList[i;
     if nItem.FProgID = gSysParam.FProgID then
     begin
       Result := True; Break;
@@ -162,7 +162,7 @@ begin
   nCount := nSub.Count - 1;
   for i:=0 to nCount do
   begin
-    nData := nSub[i];
+    nData := nSub[i;
     if (nData.FMenuID = '') or (nData.FTitle = '-') then Continue;
     
     if Assigned(nData.FSubMenu) then
@@ -191,7 +191,7 @@ begin
   nCount := nSub.Count  - 1;
   for i:=0 to nCount do
   begin
-    nData := nSub[i];
+    nData := nSub[i;
     nStr := MenuName(nData.FEntity, nData.FMenuID);
     if nData.FTitle <> '-' then
       if not gPopedomManager.HasPopedom(nStr, sPopedom_Read) then Continue;
@@ -228,7 +228,7 @@ begin
       nCount := nList.Count - 1;
       for i:=0 to nCount do
       begin
-        nData := nList[i];
+        nData := nList[i;
         nStr := MenuName(nData.FEntity, nData.FMenuID);
         if nData.FTitle <> '-' then
           if not gPopedomManager.HasPopedom(nStr, sPopedom_Read) then Continue;

@@ -107,7 +107,7 @@ var
 begin
   Result := False;
   nStr := 'select * from %s where WOM_WebOrderID=''%s'' ';  // and WOM_deleted=''%s''   , sFlag_No
-  nStr := Format(nStr,[sTable_WebOrderMatch, nwebOrderid]);
+  nStr := Format(nStr,[sTable_WebOrderMatch, nwebOrderid);
 
   with fdm.QueryTemp(nStr) do
   begin
@@ -125,7 +125,7 @@ begin
           ' Left Join S_StockHuaYan On H_Reporter=L_ID' +
           ' Where L_ID=''%s''';
 
-  nStr := Format(nStr, [sTable_Bill, nBillno]);
+  nStr := Format(nStr, [sTable_Bill, nBillno);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount<1 then
@@ -164,7 +164,7 @@ begin
     {$ENDIF}
 
   nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
-          MI('$Customer', sTable_Customer), MI('$ID', nBillno)]);
+          MI('$Customer', sTable_Customer), MI('$ID', nBillno));
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -181,7 +181,7 @@ begin
           ' Left Join S_StockParam sp on sp.P_ID=sr.R_PID) sr on sr.R_SerialNo=H_SerialNo     '+
           ' Where H_Reporter=''%s''';
 
-  nStr := Format(nStr, [nBillno]);
+  nStr := Format(nStr, [nBillno);
   with FDM.QueryTemp(nStr) do
   begin
     if (RecordCount<1)or(FieldByName('P_Stock').AsString='') then
@@ -211,8 +211,8 @@ procedure TfFormBarcodePrint.Writelog(nMsg: string);
 var
   nStr:string;
 begin
-  nStr := 'weborder[%s]';
-  nStr := Format(nStr,[editWebOrderNo.Text]);
+  nStr := 'weborder[%s';
+  nStr := Format(nStr,[editWebOrderNo.Text);
   gSysLoger.AddLog(nStr+nMsg);
 end;
 

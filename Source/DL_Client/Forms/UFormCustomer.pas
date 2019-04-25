@@ -277,6 +277,7 @@ begin
     nStr := Format(nStr, [sTable_Customer, sTable_CusAccount, nID]);
     LoadDataToCtrl(FDM.QueryTemp(nStr), Self, '', SetData);
 
+
     InfoList1.Clear;
     nStr := MacroValue(sQuery_ExtInfo, [MI('$Table', sTable_ExtInfo),
                        MI('$Group', sFlag_CustomerItem), MI('$ID', nID)]);

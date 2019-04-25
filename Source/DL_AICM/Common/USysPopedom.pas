@@ -75,7 +75,7 @@ function TPopedomManager.GetUserIdentity(const nUser: string): integer;
 var nSQL: string;
 begin
   nSQL := 'Select U_IDENTITY,U_STATE,U_GROUP From $a Where U_NAME=''$b''';
-  nSQL := MacroValue(nSQL, [MI('$a', sTable_User), MI('$b',nUser)]);
+  nSQL := MacroValue(nSQL, [MI('$a', sTable_User), MI('$b',nUser));
 
   FDM.SqlQuery.Close;
   FDM.SqlQuery.SQL.Text := nSQL;

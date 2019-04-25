@@ -79,7 +79,7 @@ procedure TfFormInvoiceSettle.InitFormData;
 begin
   if FNowWeek = '' then
        EditWeek.Text := '请选择结算周期'
-  else EditWeek.Text := Format('%s 年份:[ %s ]', [FWeekName, FNowYear]);
+  else EditWeek.Text := Format('%s 年份:[ %s ', [FWeekName, FNowYear);
 end;
 
 procedure TfFormInvoiceSettle.ShowHintText(const nText: string);
@@ -103,7 +103,7 @@ begin
     nQuery := LockDBQuery(FDBType);
 
     nStr := 'Select * From ' + sTable_InvoiceWeek + ' Where W_NO=''%s''';
-    nStr := Format(nStr, [FNowWeek]);
+    nStr := Format(nStr, [FNowWeek);
     with DBQuery(nStr, nQuery) do
       if RecordCount > 0 then
       begin
@@ -114,7 +114,7 @@ begin
     nQuery.SQL.Clear;
     //***************************************************
     nStr := 'Select * From ' + sTable_InvSettle + ' Where S_Week=''%s''';
-    nStr := Format(nStr, [FNowWeek]);
+    nStr := Format(nStr, [FNowWeek);
     with DBQuery(nStr, nQuery) do
       if RecordCount > 0 then
       begin
@@ -131,18 +131,18 @@ begin
 
     nSQL := 'Select S_CusID, IsNull(Sum(S_Value*IsNull((S_Price+IsNull(S_YunFei, 0)), 0)*(-1)), 0) as S_Money From %s ' +
             'Where S_Week=''%s'' Group By S_CusID';
-    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
+    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek);
 
     nStr := 'Update $T Set $T.A_Compensation=IsNull($T.A_Compensation, 0)-IsNull(t.S_Money, 0) ' +
             'From ($S) t Where $T.A_CID=t.S_CusID';
     //xxxxx
 
     with TStringHelper do
-     nStr := MacroValue(nStr, [MI('$T', sTable_CusAccount), MI('$S', nSQL)]);
+     nStr := MacroValue(nStr, [MI('$T', sTable_CusAccount), MI('$S', nSQL));
     nList.Add(nStr);
 
     nStr := 'Delete From %s Where S_Week=''%s''';
-    nStr := Format(nStr, [sTable_InvSettle, FNowWeek]);
+    nStr := Format(nStr, [sTable_InvSettle, FNowWeek);
     nList.Add(nStr);
 
     ShowHintText('恢复上次结算数据完毕.');                    }
@@ -159,7 +159,7 @@ begin
     nStr := MacroValue(nStr, [MI('$ST', sTable_InvSettle), MI('$WK', FNowWeek),
             MI('$SM', UniMainModule.FUserConfig.FUserID),
             MI('$SD', sField_SQLServer_Now), MI('$RQT', sTable_InvoiceReq),
-            MI('$SS', DateTime2Str(FWeekBegin)), MI('$ED', DateTime2Str(FWeekEnd))]);
+            MI('$SS', DateTime2Str(FWeekBegin)), MI('$ED', DateTime2Str(FWeekEnd)));
     nList.Add(nStr);
 
     ShowHintText('新结算数据生成完毕.');
@@ -173,11 +173,11 @@ begin
 
     with TStringHelper do
     nStr := MacroValue(nStr, [MI('$T', sTable_InvSettle),
-            MI('$R', sTable_InvoiceReq), MI('$WK', FNowWeek)]);
+            MI('$R', sTable_InvoiceReq), MI('$WK', FNowWeek));
     nList.Add(nStr);              }
 
     nStr := 'Delete From %s Where S_Week=''%s'' And S_Price=0 And S_YunFei=0';
-    nStr := Format(nStr, [sTable_InvSettle, FNowWeek]);
+    nStr := Format(nStr, [sTable_InvSettle, FNowWeek);
     nList.Add(nStr);
 
     ShowHintText('返利价格合并完毕.');
@@ -185,14 +185,14 @@ begin
     ShowHintText('开始计算返利...');
     nSQL := 'Select S_CusID,Sum(ISNULL(S_Value, 0)*ISNULL((S_Price+IsNull(S_YunFei, 0)), 0)*(-1)) as S_Money From %s ' +
             'Where S_Week=''%s'' Group By S_CusID';
-    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
+    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek);
 
     nStr := 'Update $T Set $T.A_Compensation=IsNull($T.A_Compensation, 0)+IsNull(t.S_Money, 0) ' +
             'From ($S) t Where $T.A_CID=t.S_CusID';
     //xxxxx
 
     with TStringHelper do
-     nStr := MacroValue(nStr, [MI('$T', sTable_CusAccount), MI('$S', nSQL)]);
+     nStr := MacroValue(nStr, [MI('$T', sTable_CusAccount), MI('$S', nSQL));
     nList.Add(nStr);
 
     ShowHintText('返利计算完毕.');
@@ -200,7 +200,7 @@ begin
     ShowHintText('开始生成最终结算报表...');
     nSQL := 'Select S_Bill,S_ZhiKa,S_Stock,S_SalePrice,S_Value From %s ' +
             'Where S_Week=''%s'' ';
-    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
+    nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek);
 
     nStr := 'Update $T Set $T.R_KValue=t.S_Value,R_KMan=''$KM'',R_KDate=$DT ' +
             'From ($S) t Where $T.R_Week=''$WK'' And $T.R_LID=t.S_Bill ' ;
@@ -209,7 +209,7 @@ begin
     with TStringHelper do
     nStr := MacroValue(nStr, [MI('$T', sTable_InvoiceReq), MI('$S', nSQL),
             MI('$WK', FNowWeek), MI('$KM', UniMainModule.FUserConfig.FUserID),
-            MI('$DT', sField_SQLServer_Now)]);
+            MI('$DT', sField_SQLServer_Now));
     nList.Add(nStr);
     nList.Add(nStr);
 

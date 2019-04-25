@@ -9,7 +9,7 @@ inherited fFrameNormal: TfFrameNormal
     Height = 37
     ButtonHeight = 35
     ButtonWidth = 79
-    EdgeBorders = []
+    EdgeBorders = [
     Flat = True
     Images = FDM.ImageBar
     ShowCaptions = True
@@ -128,7 +128,7 @@ inherited fFrameNormal: TfFrameNormal
     Width = 602
     Height = 100
     Align = alTop
-    BevelEdges = [beLeft, beRight, beBottom]
+    BevelEdges = [beLeft, beRight, beBottom
     TabOrder = 2
     TabStop = False
     LayoutLookAndFeel = FDM.dxLayoutWeb1
@@ -175,12 +175,12 @@ inherited fFrameNormal: TfFrameNormal
       Caption = 'title'
       ParentFont = False
       Style.BorderStyle = ebsNone
-      Style.Edges = [bBottom]
+      Style.Edges = [bBottom
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.TextColor = clGray
       Style.IsFontAssigned = True
       Properties.Alignment.Horz = taCenter

@@ -242,7 +242,6 @@ inherited fFormCustomer: TfFormCustomer
     object EditWX: TcxComboBox
       Left = 81
       Top = 211
-      Hint = 'T.C_WeiXin'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
@@ -381,6 +380,7 @@ inherited fFormCustomer: TfFormCustomer
           end
           object dxLayoutControl1Item22: TdxLayoutItem
             Caption = #24494#20449#36134#21495':'
+            Visible = False
             Control = EditWX
             ControlOptions.ShowBorder = False
           end

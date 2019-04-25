@@ -1,6 +1,6 @@
 object fMainForm: TfMainForm
-  Left = 554
-  Top = 260
+  Left = 439
+  Top = 214
   Width = 638
   Height = 454
   Color = clWhite

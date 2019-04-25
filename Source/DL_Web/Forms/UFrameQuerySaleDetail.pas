@@ -104,7 +104,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -115,7 +115,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx] do
+        with FStockList[nIdx do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -128,7 +128,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
+      cbb_Stock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
     cbb_Stock.ItemIndex := 0;
   finally
     cbb_Stock.Items.EndUpdate;
@@ -158,8 +158,8 @@ begin
   Result := '';
   if cbb_Stock.ItemIndex < 1 then Exit;
 
-  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
-  Result := FStockList[nIdx].FKey;
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex);
+  Result := FStockList[nIdx.FKey;
 end;
 
 function TfFrameQuerySaleDetail.InitFormDataSQL(const nWhere: string): string;
@@ -168,7 +168,7 @@ begin
   with TStringHelper, TDateTimeHelper do
   begin
     nWH := '';
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
 
     Result := 'Select L_Price,L_Value,Convert(Decimal(15,2), L_Value*(L_Price+IsNull(L_YunFei, 0))) as L_Money,' +
       'L_YunFei,b.* from $Bill b $WH union all ' +
@@ -201,13 +201,13 @@ begin
                             UniMainModule.FUserConfig.FUserID+'''))';
     end;
 
-    nWR:= StringReplace(nWH, 'L_OutFact', 'S_Date', [rfReplaceAll]);
+    nWR:= StringReplace(nWH, 'L_OutFact', 'S_Date', [rfReplaceAll);
 
-    Result := MacroValue(Result, [MI('$WH', nWH)]);
-    Result := MacroValue(Result, [MI('$WR', nWR)]);
+    Result := MacroValue(Result, [MI('$WH', nWH));
+    Result := MacroValue(Result, [MI('$WR', nWR));
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$ST', sTable_InvSettle), MI('$No', nNo),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -229,7 +229,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text,EditBill.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text,EditBill.Text);
     InitFormData(FWhere);
   end else
 
@@ -239,7 +239,7 @@ begin
     if EditTruck.Text = '' then Exit;
 
     FWhere := 'b.L_Truck like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditTruck.Text]);
+    FWhere := Format(FWhere, [EditTruck.Text);
     InitFormData(FWhere);
   end;
 
@@ -249,7 +249,7 @@ begin
     if EditBill.Text = '' then Exit;
 
     FWhere := 'b.L_ID like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditBill.Text]);
+    FWhere := Format(FWhere, [EditBill.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -280,7 +280,7 @@ begin
 
     FJBWhere := '(L_OutFact>=''%s'' and L_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
-                sFlag_BillPick, sFlag_BillPost]);
+                sFlag_BillPick, sFlag_BillPost);
     InitFormData('');
   finally
     FJBWhere := '';

@@ -84,7 +84,7 @@ begin
     nCount := nList.Count - 1;
     for i:=0 to nCount do
     begin
-      nItem := nList[i];
+      nItem := nList[i;
       if nItem.FClass.InheritsFrom(TBaseForm) then
         Result := Result or TBaseFormClass(nItem.FClass).DealCommand(Sender, nCmd);
       //broadcast command and combine then result

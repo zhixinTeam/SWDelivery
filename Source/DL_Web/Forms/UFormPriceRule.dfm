@@ -95,10 +95,10 @@ inherited fFormPriceRule: TfFormPriceRule
       Height = 346
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
       LoadMask.Message = 'Loading data...'
       Align = alBottom
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 8
       Columns = <
         item

@@ -79,7 +79,7 @@ function TfFrameInvoiceWeek.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
     Result := 'Select W_ID, W_NO, W_Name, W_Begin, W_End, W_Man, W_Date, W_Memo, ' +
                     'Case When IsNull(W_CusName, '''')='''' then ''全部客户'' else W_CusName End W_CusName, ' +
                     'Case When IsNull(W_StockName, '''')='''' then ''全部品种'' else W_StockName End W_StockName ' +
@@ -92,7 +92,7 @@ begin
     Result := Result + 'Order by W_ID Desc ';
 
     Result := MacroValue(Result, [MI('$Week', sTable_InvoiceWeek),
-              MI('$S', Date2Str(FStart)), MI('$E', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$E', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -170,20 +170,20 @@ begin
   try
     nID := ClientDS.FieldByName('W_NO').AsString;
     nStr := 'Select Count(*) From %s Where I_Week=''%s'' And I_Status=''%s''';
-    nStr := Format(nStr, [sTable_Invoice, nID, sFlag_InvHasUsed]);
+    nStr := Format(nStr, [sTable_Invoice, nID, sFlag_InvHasUsed);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
     begin
-      if Fields[0].AsInteger > 0 then
+      if Fields[0.AsInteger > 0 then
       begin
-        nStr := '已有[ %d ]张发票在本周期内开出,不允许删除!';
-        nStr := Format(nStr, [Fields[0].AsInteger]);
+        nStr := '已有[ %d 张发票在本周期内开出,不允许删除!';
+        nStr := Format(nStr, [Fields[0.AsInteger);
         ShowMessage(nStr); Exit;
       end;
     end;
 
-    nStr := Format('确定要删除名称为[ %s ]的记录吗?', [nID]);
+    nStr := Format('确定要删除名称为[ %s 的记录吗?', [nID);
     MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
@@ -193,7 +193,7 @@ begin
         try
           nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
           nStr := 'Delete From %s Where W_NO=''%s''';
-          nStr := Format(nStr, [sTable_InvoiceWeek, nID]);
+          nStr := Format(nStr, [sTable_InvoiceWeek, nID);
           nList.Add(nStr);
 
           DBExecute(nList, nil, FDBType);

@@ -25,16 +25,16 @@ inherited fFormOptions: TfFormOptions
     Caption = '('#35831#36755#20837#23567#25968#20540'.'#20363#22914#35823#24046'1%'#23601#26159'0.01)'
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 532
-    Height = 396
+    Width = 524
+    Height = 384
     inherited BtnOK: TButton
-      Left = 386
-      Top = 363
+      Left = 378
+      Top = 351
       TabOrder = 1
     end
     inherited BtnExit: TButton
-      Left = 456
-      Top = 363
+      Left = 448
+      Top = 351
       TabOrder = 2
     end
     object wPage: TcxPageControl [2]
@@ -42,7 +42,7 @@ inherited fFormOptions: TfFormOptions
       Top = 36
       Width = 289
       Height = 193
-      ActivePage = Sheet2
+      ActivePage = cxtbsht1
       ParentColor = False
       ShowFrame = True
       Style = 9
@@ -54,7 +54,7 @@ inherited fFormOptions: TfFormOptions
       ClientRectRight = 288
       ClientRectTop = 19
       object Sheet1: TcxTabSheet
-        Caption = #26080#38656#21457#36135#21697#31181
+        Caption = #38144#21806#26080#38656#21457#36135#21697#31181
         ImageIndex = 3
         object Label8: TLabel
           Left = 12
@@ -79,11 +79,11 @@ inherited fFormOptions: TfFormOptions
           HeaderSections = <
             item
               Text = #32534#21495
-              Width = 240
+              Width = 160
             end
             item
               Text = #21517#31216
-              Width = 240
+              Width = 290
             end>
           ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
           ItemHeight = 18
@@ -250,6 +250,78 @@ inherited fFormOptions: TfFormOptions
           Caption = #21024#38500
           TabOrder = 11
           OnClick = BtnDel4Click
+        end
+      end
+      object cxtbsht1: TcxTabSheet
+        Caption = #37319#36141#26080#38656#39564#25910#21697#31181
+        ImageIndex = 2
+        object lbl1: TLabel
+          Left = 12
+          Top = 210
+          Width = 54
+          Height = 12
+          Caption = #21697#31181#32534#21495':'
+        end
+        object lbl2: TLabel
+          Left = 12
+          Top = 235
+          Width = 54
+          Height = 12
+          Caption = #21697#31181#21517#31216':'
+        end
+        object ListStockNYS: TcxMCListBox
+          Left = 0
+          Top = 0
+          Width = 287
+          Height = 195
+          Align = alTop
+          HeaderSections = <
+            item
+              Text = #32534#21495
+              Width = 160
+            end
+            item
+              Text = #21517#31216
+              Width = 290
+            end>
+          ImeName = #20013#25991'('#31616#20307') - '#25628#29399#25340#38899#36755#20837#27861
+          ItemHeight = 18
+          ParentFont = False
+          TabOrder = 0
+        end
+        object edt_Id: TcxTextEdit
+          Left = 70
+          Top = 208
+          ParentFont = False
+          Properties.MaxLength = 50
+          TabOrder = 1
+          Width = 180
+        end
+        object edt_Name: TcxTextEdit
+          Left = 78
+          Top = 232
+          ParentFont = False
+          Properties.MaxLength = 50
+          TabOrder = 2
+          Width = 180
+        end
+        object btn_Del: TcxButton
+          Left = 250
+          Top = 209
+          Width = 55
+          Height = 22
+          Caption = #21024#38500
+          TabOrder = 3
+          OnClick = btn_DelClick
+        end
+        object btn_Add: TcxButton
+          Left = 250
+          Top = 230
+          Width = 55
+          Height = 22
+          Caption = #28155#21152
+          TabOrder = 4
+          OnClick = btn_AddClick
         end
       end
     end

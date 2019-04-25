@@ -33,10 +33,10 @@ inherited fFormCreditDetail: TfFormCreditDetail
       Height = 397
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
       LoadMask.Message = 'Loading data...'
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 1
       OnMouseDown = DBGrid1MouseDown
     end

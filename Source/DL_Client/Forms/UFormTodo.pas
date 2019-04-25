@@ -176,7 +176,7 @@ begin
   begin
     nItem := gEventList[nIdx];
     nItem.FEnable := False;
-  end;
+  end;                                      
 
   with ADOQuery1 do
   try                            

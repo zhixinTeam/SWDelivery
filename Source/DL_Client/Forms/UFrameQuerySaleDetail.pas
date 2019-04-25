@@ -143,7 +143,7 @@ begin
     UPDateXSql;
    {$ENDIF}
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
-  Result := 'Select *,(L_Value*L_Price) as L_Money From $Bill b ';
+  Result := 'Select *,(L_Value*L_Price) as L_Money, L_StdMValue, L_Value L_ValueX From $Bill b ';
 
   if FJBWhere = '' then
   begin
@@ -155,6 +155,13 @@ begin
   end else
   begin
     Result := Result + ' Where (' + FJBWhere + ')';
+  end;
+
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((L_SaleMan=''' + gSysParam.FUserID + ''') or (L_CusName=''' +
+            gSysParam.FUserID + '''))';
   end;
 
   Result := MacroValue(Result, [MI('$Bill', sTable_Bill),

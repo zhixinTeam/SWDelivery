@@ -60,9 +60,9 @@ begin
   
   with FStrBuilder,PBWDataBase(nData)^ do
   begin
-    Values['Worker'] := PackerName;
-    Values['MSGNO'] := PackerEncode(FMsgNo);
-    Values['KEY']   := PackerEncode(FKey);
+    Values['Worker' := PackerName;
+    Values['MSGNO' := PackerEncode(FMsgNo);
+    Values['KEY'   := PackerEncode(FKey);
 
     PackWorkerInfo(FStrBuilder, FFrom, 'Frm');
     PackWorkerInfo(FStrBuilder, FVia, 'Via');
@@ -79,8 +79,8 @@ begin
 
   with FStrBuilder,PBWDataBase(nData)^ do
   begin
-    PackerDecode(Values['MSGNO'], FMsgNO);
-    PackerDecode(Values['KEY'], FKey);
+    PackerDecode(Values['MSGNO', FMsgNO);
+    PackerDecode(Values['KEY', FKey);
 
     PackWorkerInfo(FStrBuilder, FFrom, 'Frm', False);
     PackWorkerInfo(FStrBuilder, FVia, 'Via', False);
@@ -97,10 +97,10 @@ begin
 
   with FStrBuilder,PBWDataBase(nData)^ do
   begin
-    Values['Worker'] := PackerName;
-    Values['Result'] := BoolToStr(FResult);
-    Values['ErrCode'] := PackerEncode(FErrCode);
-    Values['ErrDesc'] := PackerEncode(FErrDesc);
+    Values['Worker' := PackerName;
+    Values['Result' := BoolToStr(FResult);
+    Values['ErrCode' := PackerEncode(FErrCode);
+    Values['ErrDesc' := PackerEncode(FErrDesc);
 
     PackWorkerInfo(FStrBuilder, FFrom, 'Frm');
     PackWorkerInfo(FStrBuilder, FVia, 'Via');
@@ -117,12 +117,12 @@ begin
 
   with FStrBuilder,PBWDataBase(nData)^ do
   begin
-    if Values['Result'] = '' then
+    if Values['Result' = '' then
          FResult := False
-    else FResult := StrToBool(Values['Result']);
+    else FResult := StrToBool(Values['Result');
     
-    PackerDecode(Values['ErrCode'], FErrCode);
-    PackerDecode(Values['ErrDesc'], FErrDesc);
+    PackerDecode(Values['ErrCode', FErrCode);
+    PackerDecode(Values['ErrDesc', FErrDesc);
 
     PackWorkerInfo(FStrBuilder, FFrom, 'Frm', False);
     PackWorkerInfo(FStrBuilder, FVia, 'Via', False);
@@ -142,8 +142,8 @@ begin
 
   with FStrBuilder,PWorkerQueryFieldData(nData)^ do
   begin
-    Values['Type'] := IntToStr(FType);
-    Values['Data']   := PackerEncode(FData);
+    Values['Type' := IntToStr(FType);
+    Values['Data'   := PackerEncode(FData);
   end;
 end;
 
@@ -153,8 +153,8 @@ begin
 
   with FStrBuilder,PWorkerQueryFieldData(nData)^ do
   begin
-    PackerDecode(Values['Type'], FType);
-    PackerDecode(Values['Data'], FData);
+    PackerDecode(Values['Type', FType);
+    PackerDecode(Values['Data', FData);
   end;
 end;
 
@@ -164,8 +164,8 @@ begin
 
   with FStrBuilder,PWorkerQueryFieldData(nData)^ do
   begin
-    Values['Type']   := IntToStr(FType);
-    Values['Data']   := PackerEncode(FData);
+    Values['Type'   := IntToStr(FType);
+    Values['Data'   := PackerEncode(FData);
   end;
 end;
 
@@ -175,8 +175,8 @@ begin
 
   with FStrBuilder,PWorkerQueryFieldData(nData)^ do
   begin
-    PackerDecode(Values['Type'], FType);
-    PackerDecode(Values['Data'], FData);
+    PackerDecode(Values['Type', FType);
+    PackerDecode(Values['Data', FData);
   end;
 end;
 
@@ -192,9 +192,9 @@ begin
 
   with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
-    Values['Command'] := IntToStr(FCommand);
-    Values['Data']    := PackerEncode(FData);
-    Values['ExtParam']  := PackerEncode(FExtParam);
+    Values['Command' := IntToStr(FCommand);
+    Values['Data'    := PackerEncode(FData);
+    Values['ExtParam'  := PackerEncode(FExtParam);
   end;
 end;
 
@@ -204,9 +204,9 @@ begin
 
   with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
-    PackerDecode(Values['Command'], FCommand);
-    PackerDecode(Values['Data'], FData);
-    PackerDecode(Values['ExtParam'], FExtParam);
+    PackerDecode(Values['Command', FCommand);
+    PackerDecode(Values['Data', FData);
+    PackerDecode(Values['ExtParam', FExtParam);
   end;
 end;
 
@@ -216,9 +216,9 @@ begin
 
   with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
-    Values['Command'] := IntToStr(FCommand);
-    Values['Data']    := PackerEncode(FData);
-    Values['ExtParam']  := PackerEncode(FExtParam);
+    Values['Command' := IntToStr(FCommand);
+    Values['Data'    := PackerEncode(FData);
+    Values['ExtParam'  := PackerEncode(FExtParam);
   end;
 end;
 
@@ -228,9 +228,9 @@ begin
 
   with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
-    PackerDecode(Values['Command'], FCommand);
-    PackerDecode(Values['Data'], FData);
-    PackerDecode(Values['ExtParam'], FExtParam);
+    PackerDecode(Values['Command', FCommand);
+    PackerDecode(Values['Data', FData);
+    PackerDecode(Values['ExtParam', FExtParam);
   end;
 end;
 
@@ -246,10 +246,10 @@ begin
 
   with FStrBuilder,PWorkerWebChatData(nData)^ do
   begin
-    Values['Command'] := IntToStr(FCommand);
-    Values['Data']    := PackerEncode(FData);
-    Values['ExtParam']  := PackerEncode(FExtParam);
-    Values['RemoteUL']  := PackerEncode(FRemoteUL);
+    Values['Command' := IntToStr(FCommand);
+    Values['Data'    := PackerEncode(FData);
+    Values['ExtParam'  := PackerEncode(FExtParam);
+    Values['RemoteUL'  := PackerEncode(FRemoteUL);
   end;
 end;
 
@@ -259,10 +259,10 @@ begin
 
   with FStrBuilder,PWorkerWebChatData(nData)^ do
   begin
-    PackerDecode(Values['Command'], FCommand);
-    PackerDecode(Values['Data'], FData);
-    PackerDecode(Values['ExtParam'], FExtParam);
-    PackerDecode(Values['RemoteUL'], FRemoteUL);
+    PackerDecode(Values['Command', FCommand);
+    PackerDecode(Values['Data', FData);
+    PackerDecode(Values['ExtParam', FExtParam);
+    PackerDecode(Values['RemoteUL', FRemoteUL);
   end;
 end;
 
@@ -272,10 +272,10 @@ begin
 
   with FStrBuilder,PWorkerWebChatData(nData)^ do
   begin
-    Values['Command'] := IntToStr(FCommand);
-    Values['Data']    := PackerEncode(FData);
-    Values['ExtParam']  := PackerEncode(FExtParam);
-    Values['RemoteUL']  := PackerEncode(FRemoteUL);
+    Values['Command' := IntToStr(FCommand);
+    Values['Data'    := PackerEncode(FData);
+    Values['ExtParam'  := PackerEncode(FExtParam);
+    Values['RemoteUL'  := PackerEncode(FRemoteUL);
   end;
 end;
 
@@ -285,10 +285,10 @@ begin
 
   with FStrBuilder,PWorkerWebChatData(nData)^ do
   begin
-    PackerDecode(Values['Command'], FCommand);
-    PackerDecode(Values['Data'], FData);
-    PackerDecode(Values['ExtParam'], FExtParam);
-    PackerDecode(Values['RemoteUL'], FRemoteUL);
+    PackerDecode(Values['Command', FCommand);
+    PackerDecode(Values['Data', FData);
+    PackerDecode(Values['ExtParam', FExtParam);
+    PackerDecode(Values['RemoteUL', FRemoteUL);
   end;
 end;
 

@@ -59,18 +59,18 @@ begin
     DBGridMain.Columns.BeginUpdate;
 
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
-      if Pos('日', DBGridMain.Columns[nIdx].Title.Caption)>0 then
+      if Pos('日', DBGridMain.Columns[nIdx.Title.Caption)>0 then
       begin
-        nDay:= StrToIntDef(GetLeftStr('日', DBGridMain.Columns[nIdx].Title.Caption), -1);
+        nDay:= StrToIntDef(GetLeftStr('日', DBGridMain.Columns[nIdx.Title.Caption), -1);
         if FEnd<now  then
         begin
-          DBGridMain.Columns[nIdx].Visible:= True;
+          DBGridMain.Columns[nIdx.Visible:= True;
         end
         else
         begin
           if nDay>StrToIntDef(FormatDateTime('dd',Now), -1) then
-            DBGridMain.Columns[nIdx].Visible:= False
-          else DBGridMain.Columns[nIdx].Visible:= True;
+            DBGridMain.Columns[nIdx.Visible:= False
+          else DBGridMain.Columns[nIdx.Visible:= True;
         end;
       end;
   finally
@@ -110,17 +110,17 @@ var nStr,nF1,nF2: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
     nF1 := '';
     nF2 := '';
 
     for nIdx := 1 to 31 do
     begin
-      nF1 := nF1 + Format('Sum(L_Day%d)  As L_Day%d', [nIdx, nIdx]);
+      nF1 := nF1 + Format('Sum(L_Day%d)  As L_Day%d', [nIdx, nIdx);
       if nIdx < 31 then nF1 := nF1 + ',';
 
       nStr := 'case L_Days when %d then Sum(L_Value) else 0 end as L_Day%d';
-      nF2 := nF2 + Format(nStr, [nIdx, nIdx]);
+      nF2 := nF2 + Format(nStr, [nIdx, nIdx);
       if nIdx < 31 then nF2 := nF2 + ',';
     end;
 
@@ -136,7 +136,7 @@ begin
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$F1', nF1), MI('$F2', nF2),
-              MI('$ST', Date2Str(FStart)), MI('$ED', Date2Str(FEnd+1))]);
+              MI('$ST', Date2Str(FStart)), MI('$ED', Date2Str(FEnd+1)));
 
     //添加汇总
 //    Result := 'Select case when (tl1.L_Type IS not NULL)and(tl1.L_StockNo IS not NULL)and(tl1.L_StockName IS not NULL)  then tl1.L_StockName ' +
@@ -188,7 +188,7 @@ begin
 
   for nIdx := 1 to 31 do
   begin
-    nStr := Format('L_Day%d', [nIdx]);
+    nStr := Format('L_Day%d', [nIdx);
     Series1.Add(ClientDS.FieldByName(nStr).AsFloat, IntToStr(nIdx));
   end;
 end;

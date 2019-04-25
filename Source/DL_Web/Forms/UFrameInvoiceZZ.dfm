@@ -88,7 +88,7 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       end
     end
     inherited DBGridMain: TUniDBGrid
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgAutoRefreshRow
       OnMouseDown = DBGridMainMouseDown
       Columns = <
         item

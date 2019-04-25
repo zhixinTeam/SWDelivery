@@ -343,8 +343,8 @@ begin
             end;
             //----------------------
             nIdx:= EditStock.ItemIndex;
-            nStrSql := 'Insert Into %s (C_StockNo,C_StockName,C_SManNo,C_SManName,C_CusNo,C_CusName,C_MaxValue)' +
-                      ' Select ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s ';
+            nStrSql := 'Insert Into %s (C_StockNo,C_StockName,C_SManNo,C_SManName,C_CusNo,C_CusName,C_MaxValue,C_Date)' +
+                      ' Select ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s, Convert(Varchar(19),GetDate(),121) ';
             nStrSql := Format(nStrSql, [sTable_SalePlanCustomer, gStockItems[nIdx].FID, gStockItems[nIdx].FName,
                                           cbbEditSalesMan.Text,
                                           GetRightStr('.', cbbEditSalesMan.Text), GetLeftStr('.', cbbEditName.Text),

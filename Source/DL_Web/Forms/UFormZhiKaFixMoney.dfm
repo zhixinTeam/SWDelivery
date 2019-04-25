@@ -57,7 +57,7 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
       Hint = ''
       ParentColor = False
       Border = True
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 3
     end
     object Label3: TUniLabel
@@ -138,7 +138,7 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
       Hint = ''
       ParentColor = False
       Border = True
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 10
     end
     object EditZK: TUniEdit

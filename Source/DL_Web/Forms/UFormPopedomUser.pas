@@ -97,7 +97,7 @@ begin
 
     nStr := 'Select G_ID,G_NAME From %s ' +
             'Where G_Flag Like ''%%%s%%'' Order By G_ID';
-    nStr := Format(nStr, [sTable_Group, sWebFlag]);
+    nStr := Format(nStr, [sTable_Group, sWebFlag);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -105,7 +105,7 @@ begin
       First;
       while not Eof do
       begin
-        nStr := Fields[0].AsString + '.' + Fields[1].AsString;
+        nStr := Fields[0.AsString + '.' + Fields[1.AsString;
         EditGroup.Items.Add(nStr);
         Next;
       end;
@@ -114,7 +114,7 @@ begin
     if nID <> '' then
     begin
       nStr := 'Select * From %s Where U_Name=''%s''';
-      nStr := Format(nStr, [sTable_User, nID]);
+      nStr := Format(nStr, [sTable_User, nID);
 
       with DBQuery(nStr, nQuery) do
       if RecordCount > 0 then
@@ -163,13 +163,13 @@ begin
     if nBool then
     begin
       nStr := 'Select Count(*) From %s Where U_Name=''%s''';
-      nStr := Format(nStr, [sTable_User, EditName.Text]);
+      nStr := Format(nStr, [sTable_User, EditName.Text);
 
       with DBQuery(nStr, nQuery) do
-      if Fields[0].AsInteger > 0 then
+      if Fields[0.AsInteger > 0 then
       begin
-        nStr := '用户[ %s ]已存在,请填写其它名字';
-        nStr := Format(nStr, [EditName.Text]);
+        nStr := '用户[ %s 已存在,请填写其它名字';
+        nStr := Format(nStr, [EditName.Text);
         ShowMessage(nStr); Exit;
       end;
       FParam.FParamA := EditName.Text;
@@ -181,7 +181,7 @@ begin
       SF('U_Mail', EditMail.Text), SF('U_Phone', EditPhone.Text),
       SF('U_VerifyCredit', BoolToStr(Chk_VerifyCredit.Checked)),
       SF('U_Group', GetIDFromBox(EditGroup), sfVal)
-      ], sTable_User, SF('U_Name', nID), nBool);
+      , sTable_User, SF('U_Name', nID), nBool);
     //xxxxx
 
     DBExecute(nStr, nQuery);

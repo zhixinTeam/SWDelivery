@@ -356,9 +356,9 @@ begin
 
   case FIn.FCommand of
    cBC_GetCardUsed         : Result := GetCardUsed(nData);
-   cBC_ServerNow           : Result := GetServerNow(nData);                 
+   cBC_ServerNow           : Result := GetServerNow(nData);
    cBC_GetSerialNO         : Result := GetSerailID(nData);
-                                                                             
+
    cBC_IsSystemExpired     : Result := IsSystemExpired(nData);
    cBC_GetCustomerMoney    : Result := GetCustomerValidMoney(nData);
    cBC_GetZhiKaMoney       : Result := GetZhiKaValidMoney(nData);
@@ -372,9 +372,7 @@ begin
    cBC_GetStockBatcode     : Result := GetStockBatcode(nData);
    cBC_GetStockBatcodeEx   : Result := GetStockBatcodeEx(nData);   //  多厂批次
 
-
    cBC_VerifySnapTruck     : Result := VerifySnapTruck(nData);
-
    {$IFDEF UseERP_K3}
    cBC_SyncCustomer        : Result := SyncRemoteCustomer(nData);
    cBC_SyncSaleMan         : Result := SyncRemoteSaleMan(nData);
@@ -715,7 +713,6 @@ begin
     else gSysParam.FProportion:= 0.8;
   end;
 
-
   nSQL := 'Select * From %s Where D_Name=''SysParam'' And D_Memo=''NCServiceStatus''  ';
   nSQL := Format(nSQL, [sTable_SysDict]);
   with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
@@ -724,11 +721,15 @@ begin
     begin
       gSysParam.FNcIsOnLine:= FieldByName('D_Value').AsString='OnLine';
 
-      IF not gSysParam.FNcIsOnLine then
-      begin
-        nTime:= FieldByName('D_ParamB').AsDateTime;
-        UPDateZhiKaMinRetentionMoney;
-        //  更新纸卡保留 20% 金额
+      try
+        IF not gSysParam.FNcIsOnLine then
+        begin
+          nTime:= FieldByName('D_ParamB').AsDateTime;
+          //UPDateZhiKaMinRetentionMoney;
+          //  更新纸卡保留 20% 金额
+        end;
+      except
+        nTime:= Now;
       end;
     end;
   end;
@@ -757,7 +758,7 @@ var nStr, nCusId: string;
 begin
   {$IFDEF NCSale}
   CheckNcOnLine;
-
+  
   nBillsMoney:= 0;
   if FIn.FExtParam='GetOutMoney' then
   begin     // 纸卡已出厂单据合计金额
@@ -767,7 +768,7 @@ begin
   else
   begin     // 纸卡已开单合计金额
     nStr := 'Select L_ZhiKa, Sum((L_Price+ISNULL(L_YunFei, 0))*L_Value) BillsMoney From S_Bill ' +
-            'Where L_ZhiKa=''%s'' Group by L_ZhiKa ';
+            'Where L_ZhiKa=''$ZID'' Group by L_ZhiKa ';
   end;
 
   nStr := MacroValue(nStr, [MI('$Bill', sTable_Bill), MI('$ZID', FIn.FData)]);
@@ -779,7 +780,7 @@ begin
     end;
   end;
   {$ENDIF}
-                                                  // , (Z_FixedMoney-Z_MinRetentionMoney) MinRtMoney
+                                                 
   nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney From $ZK,$CA ca ' +
           'Where Z_ID=''$ZID'' and A_CID=Z_Customer';
   nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$ZID', FIn.FData),
@@ -812,6 +813,7 @@ begin
     if nMoney<0 then nMoney:= 0;
     {$ENDIF}
 
+    {$IFNDEF NCSale}
     nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
@@ -834,6 +836,7 @@ begin
       nVal := nVal + nCredit;
       //信用未过期
     end;
+    {$ENDIF}
 
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     //total money
@@ -846,7 +849,7 @@ begin
       {$ENDIF}
       //enough money
     end else nMoney := nVal;
-    
+
     FOut.FData := FloatToStr(nMoney);
     Result := True;
   end;
@@ -1394,7 +1397,7 @@ begin
   begin
     if RecordCount < 1 then
     begin
-      nData := '物料[%s %s ] 未配置批次号规则、请先通知化验室设置批次规则.';
+      nData := '物料 [%s %s ]未配置批次号规则、请先通知化验室设置批次规则.';
       nData := Format(nData, [FListA.Values['Factory'], FListA.Values['StockNO']]);
       Exit;
     end;

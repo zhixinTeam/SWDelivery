@@ -1,5 +1,5 @@
 inherited fFrameManualPoundItem: TfFrameManualPoundItem
-  Width = 1019
+  Width = 1133
   Height = 309
   Font.Height = -15
   object GroupBox1: TGroupBox
@@ -188,8 +188,8 @@ inherited fFrameManualPoundItem: TfFrameManualPoundItem
     Properties.Alignment.Vert = taVCenter
     Properties.LabelStyle = cxlsRaised
     Height = 27
-    Width = 1019
-    AnchorX = 510
+    Width = 1133
+    AnchorX = 567
     AnchorY = 14
   end
   object EditTruck: TcxComboBox
@@ -649,6 +649,22 @@ inherited fFrameManualPoundItem: TfFrameManualPoundItem
     Style.Font.Style = []
     Style.TextColor = clBlack
     Style.IsFontAssigned = True
+  end
+  object btn1: TButton
+    Left = 1003
+    Top = 49
+    Width = 75
+    Height = 25
+    Caption = #25260#26438#27979#35797
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = #24494#36719#38597#40657
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 28
+    Visible = False
+    OnClick = btn1Click
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer

@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
-  UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, USysLoger,
+  UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, UMgrRemotePrint, USysLoger,
   USysDB, UMITConst;
 
 type
@@ -56,6 +56,7 @@ type
   end;
 
 implementation
+
 
 class function TWorkerBusinessOrders.FunctionName: string;
 begin
@@ -314,7 +315,7 @@ end;
 //Date: 2015-8-5
 //Desc: 保存采购单
 function TWorkerBusinessOrders.SaveOrder(var nData: string): Boolean;
-var nStr, nOId, nKfTime: string;
+var nStr, nOId, nKfTime, nYJz: string;
     nIdx: Integer;
     nVal: Double;
     nOut: TWorkerBusinessCommand;
@@ -326,6 +327,8 @@ begin
   nStr := FListA.Values['Truck'];
   TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo,nStr, '',@nOut);
   //保存车牌号
+  nYJz:= FListA.Values['YJZValue'];
+  if nYJz='' then nYJz:= '0';
 
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
@@ -368,7 +371,7 @@ begin
             SF('O_StockName', FListA.Values['StockName']),
 
             SF('O_Truck', FListA.Values['Truck']),
-            SF('O_YJZValue', FListA.Values['YJZValue']),
+            SF('O_YJZValue', nYJz),
             SF('O_KFtime', nKfTime),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
@@ -410,31 +413,24 @@ begin
               SF('D_NextStatus', ''),
               SF('D_InMan', ''),
               SF('D_InTime', sField_SQLServer_Now, sfVal),
+
               SF('D_PMan', FListA.Values['PMan']),
               SF('D_MMan', FListA.Values['MMan']),
-              SF('D_YMan', ''),
+              SF('D_YMan', FListA.Values['YMan']),
               SF('D_PValue', FListA.Values['PValue']),
               SF('D_MValue', FListA.Values['MValue']),
-              SF('D_KZValue', '0')
+              SF('D_KZValue', FListA.Values['KZValue']),
+              SF('D_MDate', FListA.Values['MTime']),
+              SF('D_PDate', FListA.Values['PTime']),
+              SF('D_YTime', FListA.Values['YTime']),
+
+              SF('D_OutFact', FListA.Values['OutTime'])
               ], sTable_OrderDtl, '', True);
 
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_KZValue, D_InTime= DATEADD(MI, 2, D_InTime), D_YSResult=''Y'' Where D_ID='''+nOut.FData+'''';
+      nStr:= 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_KZValue, D_YSResult=''Y'' Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
-
-      nStr:= 'UPDate P_OrderDtl Set D_MDate= DATEADD(MI, 3, D_InTime) Where D_ID='''+nOut.FData+'''';
-      gDBConnManager.WorkerExec(FDBConn, nStr);
-
-      nStr:= 'UPDate P_OrderDtl Set D_YTime= DATEADD(MI, 2, D_MDate)  Where D_ID='''+nOut.FData+'''';
-      gDBConnManager.WorkerExec(FDBConn, nStr);
-
-      nStr:= 'UPDate P_OrderDtl Set D_PDate= DATEADD(MI, 3, D_YTime)  Where D_ID='''+nOut.FData+'''';
-      gDBConnManager.WorkerExec(FDBConn, nStr);
-
-      nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 3, D_PDate) Where D_ID='''+nOut.FData+'''';
-      gDBConnManager.WorkerExec(FDBConn, nStr);
-
       ///****************************************************
       ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
       AddUPLoadOrderToNcMsg(FListA.Values['StockNO'], nOut.FData, 'add');
@@ -459,8 +455,8 @@ begin
   Result:= False;
   ///*********************************************************************
   ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
-  nStr := 'Select * From %s Where M_ID=''%s'' And And ISNULL(M_Pk, '''')<>'''' ';
-  nStr := Format(nStr, [sTable_Materails, nMid, sTable_Materails]);
+  nStr := 'Select * From %s Where M_ID=''%s'' And ISNULL(M_Pk, '''')<>'''' ';
+  nStr := Format(nStr, [sTable_Materails, nMid]);
   try
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     if RecordCount > 0 then
@@ -468,7 +464,7 @@ begin
       nStr:= MakeSQLByStr([SF('N_OrderNo', nOrderNo), SF('N_Type', 'P'),
                            SF('N_Status', '-1'), SF('N_Proc', nProc),
                            SF('N_SyncNum', '0')
-                            ], sTable_UPLoadOrderNc, '', True);
+                           ] , sTable_UPLoadOrderNc, '', True);
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
     Result:= True;
@@ -863,7 +859,6 @@ var nVal: Double;
     nPrePValue:Double;
     nPrePMan:string;
     nPrePTime:TDateTime;
-    nNextStatus : string;
 begin
   Result := False;  nIsPreTruck:= False;    nFYSValid:= '';
   AnalyseBillItems(FIn.FData, nPound);
@@ -913,7 +908,7 @@ begin
   begin
     FListB.Clear;
     nStr := 'Select D_Value From %s Where D_Name=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_NFStock]);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_NoYSStock]);
 
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     if RecordCount > 0 then
@@ -1132,10 +1127,11 @@ begin
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL); //更新采购单
 
+      {$IFDEF NCPurchase}
       ///****************************************************
       ///***********    插入 采购单 待推送 NC 消息   厂内倒料 厂内采购模式销售物料不上传
       nStr := 'Select * From %s Where M_ID=''%s'' And ISNULL(M_Pk, '''')<>'''' ';
-      nStr := Format(nStr, [sTable_Materails, FStockNo, sTable_Materails]);
+      nStr := Format(nStr, [sTable_Materails, FStockNo]);
       with gDBConnManager.WorkerQuery(FDBConn, nStr) do
       if RecordCount > 0 then
       begin
@@ -1145,6 +1141,7 @@ begin
                               ], sTable_UPLoadOrderNc, '', True);
         FListA.Add(nSQL);
       end;
+      {$ENDIF}
     end;
 
     {$IFDEF UseERP_K3}
@@ -1189,6 +1186,16 @@ begin
 
   if FIn.FExtParam = sFlag_TruckBFM then //称量毛重
   begin
+    {$IFDEF PoundMPrintOrder}
+    // 声威安塞工厂 原料车卸料后过重打票出厂不再打票
+    nStr := #7 + sFlag_Provide;
+
+    if gSysParam.FPoundMPrinter = '' then
+      gRemotePrinter.PrintBill(nPound[0].FID + nStr)
+    else gRemotePrinter.PrintBill(nPound[0].FID + #9 + gSysParam.FPoundMPrinter + nStr);
+
+    gSysLoger.AddLog(TWorkerBusinessOrders, '', Format('采购车辆 %s 回皮称重完成  添加打印任务，单号：%s', [nPound[0].FTruck ,nPound[0].FID]));
+    {$ENDIF}
     if Assigned(gHardShareData) then
       gHardShareData('TruckOut:' + nPound[0].FCard);
     //磅房处理自动出厂

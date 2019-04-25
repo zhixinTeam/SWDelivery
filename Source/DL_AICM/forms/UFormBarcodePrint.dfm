@@ -30,7 +30,7 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
       ParentFont = False
       TabOrder = 5
     end
-    object editWebOrderNo: TcxTextEdit [2]
+    object editWebOrderNo: TcxTextEdit [2
       Left = 24
       Top = 29
       ParentFont = False
@@ -41,14 +41,14 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = #23435#20307
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.HotTrack = False
       Style.IsFontAssigned = True
       TabOrder = 0
       OnKeyPress = editWebOrderNoKeyPress
       Width = 121
     end
-    object cxLabel1: TcxLabel [3]
+    object cxLabel1: TcxLabel [3
       Left = 271
       Top = 76
       Caption = #65288#21487#25195#25551#25110#24405#20837#20108#32500#30721#65289
@@ -57,12 +57,12 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
       Style.Font.Color = clRed
       Style.Font.Height = -24
       Style.Font.Name = #23435#20307
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.HotTrack = False
       Style.IsFontAssigned = True
       Transparent = True
     end
-    object cxLabel2: TcxLabel [4]
+    object cxLabel2: TcxLabel [4
       Left = 24
       Top = 110
       Align = alBottom
@@ -72,14 +72,14 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
       Style.Font.Color = clRed
       Style.Font.Height = -24
       Style.Font.Name = #23435#20307
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.HotTrack = False
       Style.IsFontAssigned = True
       Properties.WordWrap = True
       Transparent = True
       Width = 462
     end
-    object btnClear: TcxButton [5]
+    object btnClear: TcxButton [5
       Left = 11
       Top = 192
       Width = 129
@@ -89,7 +89,7 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
       Font.Color = clWindowText
       Font.Height = -32
       Font.Name = #23435#20307
-      Font.Style = []
+      Font.Style = [
       ParentFont = False
       TabOrder = 3
       OnClick = btnClearClick
@@ -102,7 +102,7 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          AutoAligns = [aaVertical]
+          AutoAligns = [aaVertical
           AlignHorz = ahRight
           Control = cxLabel1
           ControlOptions.ShowBorder = False
@@ -113,7 +113,7 @@ inherited fFormBarcodePrint: TfFormBarcodePrint
         end
       end
       inherited dxLayout1Group1: TdxLayoutGroup
-        object dxLayout1Item6: TdxLayoutItem [0]
+        object dxLayout1Item6: TdxLayoutItem [0
           Control = btnClear
           ControlOptions.ShowBorder = False
         end

@@ -39,6 +39,7 @@ type
     procedure EditCustomerPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure btn1Click(Sender: TObject);
+    procedure BtnDelClick(Sender: TObject);
   private
     { Private declarations }
     FStart, FEnd: TDate;
@@ -79,6 +80,12 @@ begin
   FTimeS := Str2DateTime(Date2Str(Now) + ' 00:00:00');
   FTimeE := Str2DateTime(Date2Str(Now) + ' 00:00:00');
 
+  if (not gSysParam.FIsAdmin) then
+  begin
+    btn1.Visible:= False;
+    BtnDel.Visible:= False;
+  end;
+
   FJBWhere := '';
   InitDateRange(Name, FStart, FEnd);
 end;
@@ -110,10 +117,10 @@ end;
 
 //------------------------------------------------------------------------------
 function TfFrameQuerySyncOrderForNC.InitFormDataSQL(const nWhere: string): string;
-const nFields1 = ' x.R_ID, N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum, L_CusID CusId,'+
-                       'L_CusName CusName, L_OutFact OutFact, L_Value Value ';
-      nFields2 = ' x.R_ID, N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum, D_ProID CusId, '+
-                       'D_ProName CusName, D_OutFact OutFact, D_Value Value ';
+const nFields1 = ' x.R_ID, N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum, N_ErrorMsg, L_CusID CusId,'+
+                       'L_CusName CusName, L_OutFact OutFact, L_Value Value, L_Truck ';
+      nFields2 = ' x.R_ID, N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum, N_ErrorMsg, D_ProID CusId, '+
+                       'D_ProName CusName, D_OutFact OutFact, D_Value Value, D_Truck ';
 var nStr, nWherex, nTableName : string;
 begin
   FEnableBackDB := True;
@@ -130,8 +137,8 @@ begin
 
   if Trim(EditCustomer.Text)<>'' then
   begin
-    FBillCus := Format(' And (L_CusPY like ''%%%s%%'')', [Trim(EditCustomer.Text)]);
-    FOrderCus:= Format(' And (D_ProName like ''%%%s%%'')', [Trim(EditCustomer.Text)]);
+    FBillCus := Format(' And (L_CusPY like ''%%%s%%'' or N_OrderNo = ''%s'')', [Trim(EditCustomer.Text), Trim(EditCustomer.Text)]);
+    FOrderCus:= Format(' And (D_ProName like ''%%%s%%'' or N_OrderNo = ''%s'')', [Trim(EditCustomer.Text), Trim(EditCustomer.Text)]);
   end
   else
   begin
@@ -162,19 +169,19 @@ begin
                                 MI('$W1', FBillOutTime),MI('$W2', FOrderOutTime),
                                 MI('$BCus', FBillCus),MI('$OrderCus', FOrderCus),
                                 MI('$OrderDtl', sTable_OrderDtl),
-                                MI('$where', nWherex) ]);
+                                MI('$where', nWherex)] );
   Result:= Result + nWhere;
   //xxxxx
-end;
+end;                               
 
 procedure TfFrameQuerySyncOrderForNC.GetDate;
 var nS, nE : string;
 begin
   nS := FormatDateTime('yyyy-MM-dd HH:mm:ss', FStart);
-  nE := FormatDateTime('yyyy-MM-dd HH:mm:ss', FEnd);
+  nE := FormatDateTime('yyyy-MM-dd HH:mm:ss', FEnd + 1);
 
-  FBillOutTime := Format(' And (L_OutFact>''%s'' And L_OutFact>''%s'')', [nS, nE]);
-  FOrderOutTime := Format(' And (D_OutFact>''%s'' And D_OutFact>''%s'')', [nS, nE]);
+  FBillOutTime := Format(' And (L_OutFact>=''%s'' And L_OutFact<''%s'')', [nS, nE]);
+  FOrderOutTime := Format(' And (D_OutFact>=''%s'' And D_OutFact<''%s'')', [nS, nE]);
 end;
 
 procedure TfFrameQuerySyncOrderForNC.EditDatePropertiesButtonClick(
@@ -235,20 +242,42 @@ procedure TfFrameQuerySyncOrderForNC.btn1Click(Sender: TObject);
 var nStr : string;
     nReStatus:Boolean;
 begin
+  nReStatus:= False;
   if not QueryDlg('确认要进入离线模式么（离线模式将暂停上传采购、销售出厂单到NC系统）?', sAsk) then Exit;
   try
     nReStatus:= ChkNcStatus('', nStr);
   except
-    Exit;
   end;
   if Not nReStatus then
   begin
-    ShowMessage('将进入离线模式');
+    ShowMessage('将进入离线模式、离线模式下【发货量、发货时长将会有所限制】');
 
-    nStr := 'UPDate Sys_Dict Set D_Value=''OffLine'' Where D_Memo=''NCServiceStatus'' And D_Name= ''SysParam'' ';
+    nStr := 'UPDate Sys_Dict Set D_Value=''OffLine'', D_ParamB=Convert(Varchar(19),GetDate(),121) '+
+            'Where D_Memo=''NCServiceStatus'' And D_Name=''SysParam'' ';
     FDM.ExecuteSQL(nStr);
+
+    nStr := '切换系统进入离线模式 [ %s ].';
+    nStr := Format(nStr, [FormatDateTime('yyyy-MM-dd HH:mm:ss', Now)]);
+    FDM.WriteSysLog('SysItemsInfo', FormatDateTime('yyyy-MM-dd HH:mm:ss', Now), nStr, False);
   end
   else ShowMessage('当前连接NC系统正常、不能进入离线模式');
+end;
+
+procedure TfFrameQuerySyncOrderForNC.BtnDelClick(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('N_OrderNo').AsString;
+    nStr := Format('确定要删除该同步记录么[ %s ]吗?', [nStr]);
+    if not QueryDlg(nStr, sAsk) then Exit;
+
+    nStr := 'Delete From %s Where R_ID=%s';
+    nStr := Format(nStr, [sTable_UPLoadOrderNc, SQLQuery.FieldByName('R_ID').AsString]);
+
+    FDM.ExecuteSQL(nStr);
+    InitFormData(FWhere);
+  end;
 end;
 
 initialization

@@ -51,7 +51,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormDateFilter;
+  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, USysPopedom, UFormDateFilter;
 
 class function TfFrameCusInOutMoney.FrameID: integer;
 begin
@@ -87,7 +87,14 @@ begin
   if nWhere = '' then
        Result := Result + 'Where (M_Date>=''$Start'' And M_Date<''$End'')'
   else Result := Result + 'Where (' + nWhere + ')';
-  
+
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((S_Name=''' + gSysParam.FUserID + ''') or (M_CusName=''' +
+            gSysParam.FUserID + '''))';
+  end;
+
   Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
             MI('$IOM', sTable_InOutMoney),
             MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);

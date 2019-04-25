@@ -86,7 +86,7 @@ begin
     FixedCols := 1;
     RowCount := 0;
     ColCount := 4;
-    Options := [goVertLine,goHorzLine, goColSizing, goEditing,goFixedColClick];
+    Options := [goVertLine,goHorzLine, goColSizing, goEditing,goFixedColClick;
   end;
 
   UserDefineStringGrid(Name, Grid1, True);
@@ -109,13 +109,13 @@ begin
     nStr := 'Select Z_Name,Z_Verified,C_Name From %s ' +
             ' Left Join %s on C_ID=Z_Customer ' +
             'Where Z_ID=''%s''';
-    nStr := Format(nStr, [sTable_ZhiKa, sTable_Customer, nZhiKa]);
+    nStr := Format(nStr, [sTable_ZhiKa, sTable_Customer, nZhiKa);
 
     with DBQuery(nStr, nQuery) do
     begin
       if RecordCount < 1 then
       begin
-        nStr := Format('纸卡[ %s ]已丢失.', [nZhiKa]);
+        nStr := Format('纸卡[ %s 已丢失.', [nZhiKa);
         ShowMessage(nStr);
         Exit;
       end;
@@ -135,7 +135,7 @@ begin
 
     SetLength(gStocks, 0);
     nStr := 'Select D_StockNo,D_StockName,D_Price From %s Where D_ZID=''%s''';
-    nStr := Format(nStr, [sTable_ZhikaDtl, nZhiKa]);
+    nStr := Format(nStr, [sTable_ZhikaDtl, nZhiKa);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -146,7 +146,7 @@ begin
 
       while not Eof do
       begin
-        with gStocks[nIdx] do
+        with gStocks[nIdx do
         begin
           FID := FieldByName('D_StockNo').AsString;
           FName := FieldByName('D_StockName').AsString;
@@ -167,7 +167,7 @@ begin
     nQuery := LockDBQuery(ctMain);
 
     nStr := 'Select R_StockNo,R_Low,R_High From %s Where R_Valid=''%s''';
-    nStr := Format(nStr, [sTable_PriceRule, sFlag_Yes]);
+    nStr := Format(nStr, [sTable_PriceRule, sFlag_Yes);
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
@@ -176,10 +176,10 @@ begin
       begin
         nStr := FieldByName('R_StockNo').AsString;
         for nIdx := Low(gStocks) to High(gStocks) do
-        if gStocks[nIdx].FID = nStr then
+        if gStocks[nIdx.FID = nStr then
         begin
-          gStocks[nIdx].FLow := FieldByName('R_Low').AsFloat;
-          gStocks[nIdx].FHigh := FieldByName('R_High').AsFloat;
+          gStocks[nIdx.FLow := FieldByName('R_Low').AsFloat;
+          gStocks[nIdx.FHigh := FieldByName('R_High').AsFloat;
           Break;
         end;
 
@@ -195,10 +195,10 @@ begin
 
   for nIdx := Low(gStocks) to High(gStocks) do
   begin
-    Grid1.Cells[giName, nIdx] := gStocks[nIdx].FName;
-    Grid1.Cells[giLow, nIdx] := Format('%.2f', [gStocks[nIdx].FLow]);
-    Grid1.Cells[giPrice, nIdx] := Format('%.2f', [gStocks[nIdx].FPrice]);
-    Grid1.Cells[giHigh, nIdx] := Format('%.2f', [gStocks[nIdx].FHigh]);
+    Grid1.Cells[giName, nIdx := gStocks[nIdx.FName;
+    Grid1.Cells[giLow, nIdx := Format('%.2f', [gStocks[nIdx.FLow);
+    Grid1.Cells[giPrice, nIdx := Format('%.2f', [gStocks[nIdx.FPrice);
+    Grid1.Cells[giHigh, nIdx := Format('%.2f', [gStocks[nIdx.FHigh);
   end;
 end;
 
@@ -208,16 +208,16 @@ var nStr: string;
 begin
   nStr := '';
   for nIdx := Low(gStocks) to High(gStocks) do
-  with gStocks[nIdx],TFloatHelper do
+  with gStocks[nIdx,TFloatHelper do
   begin
     if (FLow > 0) and FloatRelation(FLow, FPrice, rtGreater, cPrecision) then
     begin
-      nStr := nStr + Format('※.品种[ %s ]价格低于下限.', [FName]) + #13#10;
+      nStr := nStr + Format('※.品种[ %s 价格低于下限.', [FName) + #13#10;
     end;
 
     if (FHigh > 0) and FloatRelation(FHigh, FPrice, rtLess, cPrecision) then
     begin
-      nStr := nStr + Format('※.品种[ %s ]价格高于上限.', [FName]) + #13#10;
+      nStr := nStr + Format('※.品种[ %s 价格高于上限.', [FName) + #13#10;
     end;
   end;
 
@@ -232,7 +232,7 @@ begin
   nStr := MakeSQLByStr([SF('Z_Verified', sFlag_Yes),
        SF('Z_VerifyMan', UniMainModule.FUserConfig.FUserID),
        SF('Z_VerifyDate', sField_SQLServer_Now, sfVal)
-       ], sTable_ZhiKa, SF('Z_ID', FParam.FParamA), False);
+       , sTable_ZhiKa, SF('Z_ID', FParam.FParamA), False);
   //xxxxx
 
   DBExecute(nStr, nil, FDBType);

@@ -14,7 +14,8 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameSaleContract = class(TfFrameNormal)
@@ -65,7 +66,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl,UDataModule, UFrameBase, UFormBase, USysBusiness,
-  USysConst, USysDB;
+  USysConst, USysDB, USysPopedom;
 
 //------------------------------------------------------------------------------
 class function TfFrameSaleContract.FrameID: integer;
@@ -85,6 +86,13 @@ begin
   if nWhere = '' then
        Result := Result + ' Where IsNull(C_Freeze, '''')<>''$Yes'''
   else Result := Result + ' Where (' + nWhere + ')';
+
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((S_Name=''' + gSysParam.FUserID + ''') or (C_Name=''' +
+            gSysParam.FUserID + '''))';
+  end;
 
   Result := MacroValue(Result, [MI('$Con', sTable_SaleContract),
             MI('$SM', sTable_Salesman),

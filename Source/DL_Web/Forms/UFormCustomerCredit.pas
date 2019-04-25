@@ -99,7 +99,7 @@ begin
   try
     nQuery := LockDBQuery(FDBType);
     nStr := 'Select C_ID,C_Name,C_SaleMan From %s Where C_ID=''%s''';
-    nStr := Format(nStr, [sTable_Customer, nParam.FParamA]);
+    nStr := Format(nStr, [sTable_Customer, nParam.FParamA);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -131,7 +131,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr]);
+  nStr := Format('C_SaleMan=''%s''', [nStr);
   LoadCustomer(EditCus.Items, nStr);
 end;
 

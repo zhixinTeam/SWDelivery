@@ -174,6 +174,7 @@ end;
 procedure TfFrameTransfer.BtnDelClick(Sender: TObject);
 var nStr: string;
 begin
+  if CheckDelete.Checked then Exit;
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
     ShowMsg('请选择要删除的记录', sHint); Exit;

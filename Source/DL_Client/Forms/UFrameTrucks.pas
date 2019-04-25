@@ -298,6 +298,7 @@ begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nP.FParamB := SQLQuery.FieldByName('T_Truck').AsString;
+    nP.FParamC:= 'Truck';
     CreateBaseFormItem(cFI_FormCtlCusbd, '', @nP);
   end;
 end;

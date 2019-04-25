@@ -68,19 +68,16 @@ end;
 procedure TFrmShowOrderInfo.BtnOKClick(Sender: TObject);
 begin
   inherited;
-  if not chk_JuShou.IsChecked then
+  if cbb_Place.ItemIndex=-1 then
   begin
-    if cbb_Place.ItemIndex=-1 then
-    begin
-      ShowMessage('请选择卸货地点');
-      Exit;
-    end;
+    ShowMessage('请选择卸货地点');
+    Exit;
+  end;
 
-    if ( not rb_ZX.IsChecked)and( not rb_RGXH.IsChecked) then
-    begin
-      ShowMessage('请选择卸货方式');
-      Exit;
-    end;
+  if ( not rb_ZX.IsChecked)and( not rb_RGXH.IsChecked) then
+  begin
+    ShowMessage('请选择卸货方式');
+    Exit;
   end;
   ///********************
   ///
@@ -95,7 +92,7 @@ begin
     //卸货方式
 
     FKZValue := StrToFloatDef(EditKZValue.Text, 0);
-    FMemo    := cbb_KZMemo.items[cbb_KZMemo.ItemIndex];           //扣杂备注
+    FMemo       := cbb_KZMemo.items[cbb_KZMemo.ItemIndex];           //扣杂备注
 
     if chk_JuShou.IsChecked then
       FYSValid:= 'N'         //拒收

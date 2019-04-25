@@ -86,7 +86,7 @@ begin
       Continue;
     end;
 
-    nStr := '¡ù.µ¥ºÅ:[ %s ] ×´Ì¬:[ %-6s -> %-6s ]   ';
+    nStr := '¡ù.µ¥ºÅ:[ %s ] ×´Ì¬:[ %-6s -> %-6s ]';
     if nIdx < High(gBills) then nStr := nStr + #13#10;
 
     nStr := Format(nStr, [FID,

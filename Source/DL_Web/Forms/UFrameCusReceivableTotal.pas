@@ -77,11 +77,11 @@ procedure TfFrameCusReceivableTotal.OnInitFormData(var nDefault: Boolean;
   const nWhere: string; const nQuery: TADOQuery);
 begin
   with TDateTimeHelper do
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
   //xxxxx
 
   nDefault := False;
-  BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad]);
+  BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad);
 end;
 
 procedure TfFrameCusReceivableTotal.OnDateFilter(const nStart,nEnd: TDate);
@@ -105,7 +105,7 @@ begin
   try
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
     begin
-      with DBGridMain.Columns[nIdx] do
+      with DBGridMain.Columns[nIdx do
       begin
         nstr:= FieldName;
         if (FieldName='C_InMoney')or (FieldName='C_SaleMoney')or(FieldName='C_FLMoney') then
@@ -140,7 +140,7 @@ var nStr: string;
     nQuery: TADOQuery;
 begin
   with TDateTimeHelper do
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
 
   nList := nil;
   nQuery := nil;
@@ -160,7 +160,7 @@ begin
     nStr := 'Select A_CID as C_ID, CONVERT(Varchar(200), '''') As C_CusName,CONVERT(Decimal(15,2), A_InitMoney) as C_Init, CONVERT(Decimal(15,2), 0) C_InMoney,  ' +
             '	CONVERT(Decimal(15,2), 0) C_SaleMoney, CONVERT(Decimal(15,2), 0) C_FLMoney, CONVERT(Decimal(15,2), 0) C_AvailableMoney ' +
             ' into #qichu From %s';
-    nStr := Format(nStr, [sTable_CusAccount]);
+    nStr := Format(nStr, [sTable_CusAccount);
     nList.Add(nStr);
     //期初金额
 
@@ -168,7 +168,7 @@ begin
             'Select M_CusID, IsNull(Sum(M_Money), 0) CusInMoney From %s ' +
             'Where M_Date<''$ST''  ' +
             'Group  by M_CusID ) a  Where M_CusID=C_ID ';
-    nStr := Format(nStr, [sTable_InOutMoney]);
+    nStr := Format(nStr, [sTable_InOutMoney);
     nList.Add(nStr);
     //合并入金
 
@@ -176,7 +176,7 @@ begin
             'Select L_CusID, IsNull(Sum((L_Price+IsNull(L_YunFei, 0))*L_Value), 0) L_Money From %s ' +
             'Where L_OutFact<''$ST''  ' +
             'Group  by L_CusID ) a  Where L_CusID=C_ID ';
-    nStr := Format(nStr, [sTable_Bill]);
+    nStr := Format(nStr, [sTable_Bill);
     nList.Add(nStr);
     //合并出金 发货金额
 
@@ -185,7 +185,7 @@ begin
             'Select S_CusID, -1*IsNull(Sum((S_Price+IsNull(S_YunFei, 0))*S_Value), 0) xMoney From %s ' +
             'Where S_Date<''$ST''  ' +
             'Group  by S_CusID ) a  Where S_CusID=C_ID ' ;
-    nStr := Format(nStr, [sTable_InvSettle]);
+    nStr := Format(nStr, [sTable_InvSettle);
     nList.Add(nStr);
     //合并返还
 
@@ -194,7 +194,7 @@ begin
             'Select M_CusID, IsNull(Sum(M_Money), 0) CusInMoney From %s  ' +
             'Where M_Date>=''$ST'' And M_Date<''$ED''  ' +
             'Group  by M_CusID ) a  Where M_CusID=C_ID  ';
-    nStr := Format(nStr, [sTable_InOutMoney]);
+    nStr := Format(nStr, [sTable_InOutMoney);
     nList.Add(nStr);
     //期初金额
 
@@ -202,7 +202,7 @@ begin
             'Select L_CusID, Sum(CONVERT(Decimal(15,2), (L_Price+ISNULL(L_YunFei,0))*L_Value)) L_Money From %s ' +
             'Where L_OutFact>=''$ST'' And L_OutFact<''$ED''  ' +
             'Group  by L_CusID ) a  Where L_CusID=C_ID  ';
-    nStr := Format(nStr, [sTable_Bill]);
+    nStr := Format(nStr, [sTable_Bill);
     nList.Add(nStr);
     //出金记录
 
@@ -211,7 +211,7 @@ begin
             'Select S_CusID, Sum((ISNULL(S_Price,0)+ISNULL(S_YunFei,0))*ISNULL(S_Value, 0)*(-1)) xMoney From %s ' +
             'Where S_Date>=''$ST'' And S_Date<''$ED'' ' +
             'Group  by S_CusID ) a  Where S_CusID=C_ID ';
-    nStr := Format(nStr, [sTable_InvSettle]);
+    nStr := Format(nStr, [sTable_InvSettle);
     nList.Add(nStr);
     //结算返利
 
@@ -223,7 +223,7 @@ begin
     //计算结余
 
     nList.Text := MacroValue(nList.Text, [MI('$ST', Date2Str(FStart)),
-                  MI('$ED', Date2Str(FEnd + 1))]);
+                  MI('$ED', Date2Str(FEnd + 1)));
     //xxxxx
 
     nQuery := LockDBQuery(FDBType);

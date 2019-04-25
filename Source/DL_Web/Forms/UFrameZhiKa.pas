@@ -95,7 +95,7 @@ end;
 function TfFrameZhiKa.InitFormDataSQL(const nWhere: string): string;
 begin
   with TDateTimeHelper do
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
   //xxxxx
 
   Result := 'Select zk.*,sm.S_Name,sm.S_PY,cus.C_Name,cus.C_PY From $ZK zk ' +
@@ -112,7 +112,7 @@ begin
   Result := MacroValue(Result, [MI('$ZK', sTable_ZhiKa),
              MI('$Con', sTable_SaleContract), MI('$SM', sTable_Salesman),
              MI('$Cus', sTable_Customer), MI('$Yes', sFlag_Yes),
-             MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+             MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
   //xxxxx
 end;
 
@@ -185,17 +185,17 @@ begin
   try
     nID := ClientDS.FieldByName('Z_ID').AsString;
     nStr := 'Select Count(*) From %s Where L_ZhiKa=''%s''';
-    nStr := Format(nStr, [sTable_Bill, nID]);
+    nStr := Format(nStr, [sTable_Bill, nID);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
-    if Fields[0].AsInteger > 0 then
+    if Fields[0.AsInteger > 0 then
     begin
       ShowMessage('该纸卡已提货,不能删除.');
       Exit;
     end;
 
-    nStr := Format('确定要删除编号为[ %s ]的纸卡吗?', [nID]);
+    nStr := Format('确定要删除编号为[ %s 的纸卡吗?', [nID);
     MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
@@ -205,15 +205,15 @@ begin
         try
           nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
           nStr := 'Delete From %s Where Z_ID=''%s''';
-          nStr := Format(nStr, [sTable_ZhiKa, nID]);
+          nStr := Format(nStr, [sTable_ZhiKa, nID);
           nList.Add(nStr);
 
           nStr := 'Delete From %s Where D_ZID=''%s''';
-          nStr := Format(nStr, [sTable_ZhiKaDtl, nID]);
+          nStr := Format(nStr, [sTable_ZhiKaDtl, nID);
           nList.Add(nStr);
 
           nStr := 'Update %s Set M_ZID=M_ZID+''_d'' Where M_ZID=''%s''';
-          nStr := Format(nStr, [sTable_InOutMoney, nID]);
+          nStr := Format(nStr, [sTable_InOutMoney, nID);
           nList.Add(nStr);
 
           DBExecute(nList, nil, FDBType);
@@ -257,7 +257,7 @@ begin
     if EditCus.Text = '' then Exit;
 
     FWhere := 'C_Name like ''%%%s%%'' Or C_PY like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCus.Text, EditCus.Text]);
+    FWhere := Format(FWhere, [EditCus.Text, EditCus.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -292,7 +292,7 @@ begin
 
     nStr := 'Update %s Set Z_Freeze=''%s'' Where Z_ID=''%s''';
     nStr := Format(nStr, [sTable_ZhiKa, nFlag,
-      ClientDS.FieldByName('Z_ID').AsString]);
+      ClientDS.FieldByName('Z_ID').AsString);
     //xxxxx
 
     DBExecute(nStr, nil, FDBType);
@@ -329,8 +329,8 @@ end;
 procedure TfFrameZhiKa.MenuItem6Click(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
-    10: FWhere := Format('Z_Freeze=''%s''', [sFlag_Yes]);
-    20: FWhere := Format('Z_InValid=''%s''', [sFlag_Yes]);
+    10: FWhere := Format('Z_Freeze=''%s''', [sFlag_Yes);
+    20: FWhere := Format('Z_InValid=''%s''', [sFlag_Yes);
     30: FWhere := '1=1';
   end;
 

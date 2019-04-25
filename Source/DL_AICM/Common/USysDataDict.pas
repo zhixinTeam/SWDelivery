@@ -107,7 +107,7 @@ begin
     nCount := nList.Count - 1;
     for i:=0 to nCount do
     begin
-      nItem := nList[i];
+      nItem := nList[i;
       if not nItem.FVisible then Continue;
 
       if Assigned(nSList) and (nSList.IndexOf(nItem.FDBItem.FField) >= 0) then
@@ -180,17 +180,17 @@ begin
         nStr := nItem.FFormat.FFormat;
         for i:=0 to nCount do
         begin
-          nTemp := Trim(FDM.SQLTemp.Fields[i].AsString);
+          nTemp := Trim(FDM.SQLTemp.Fields[i.AsString);
           //field data
 
           if nItem.FFormat.FFormat <> '' then
           begin
-            nStr := MacroValue(nStr, [MI(FDM.SQLTemp.Fields[i].FieldName, nTemp)]);
+            nStr := MacroValue(nStr, [MI(FDM.SQLTemp.Fields[i.FieldName, nTemp));
             Continue;
           end;
           //Ex: FFormat = 'ID Is (FID) and Name is (FName)' 
 
-          if CompareText(FDM.SQLTemp.Fields[i].FieldName, nPrefix) <> 0 then
+          if CompareText(FDM.SQLTemp.Fields[i.FieldName, nPrefix) <> 0 then
           begin
             if nStr = '' then
                  nStr := nTemp
@@ -207,7 +207,7 @@ begin
 
     if nItem.FFormat.FStyle = fsFixed then
     begin
-      nList.Text := StringReplace(nItem.FFormat.FData, ';', #13, [rfReplaceAll]);
+      nList.Text := StringReplace(nItem.FFormat.FData, ';', #13, [rfReplaceAll);
     end;
 
     if nList.Count < 1 then Exit;
@@ -217,12 +217,12 @@ begin
     nCount := nList.Count - 1;
     for i:=0 to nCount do
     begin
-      nPos := Pos('=', nList[i]);
+      nPos := Pos('=', nList[i);
       if nPos > 1 then
       with nComboBox.Items.Add do
       begin
-        Value := Copy(nList[i], 1, nPos - 1);
-        Description := Copy(nList[i], nPos + 1, MaxInt);
+        Value := Copy(nList[i, 1, nPos - 1);
+        Description := Copy(nList[i, nPos + 1, MaxInt);
       end;
     end;
   finally

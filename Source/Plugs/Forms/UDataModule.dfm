@@ -1,7 +1,7 @@
 object FDM: TFDM
   OldCreateOrder = False
-  Left = 891
-  Top = 296
+  Left = 594
+  Top = 197
   Height = 254
   Width = 449
   object ImageBig: TcxImageList

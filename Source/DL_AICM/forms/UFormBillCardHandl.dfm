@@ -10,7 +10,7 @@ object FormBillCardHandl: TFormBillCardHandl
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #24494#36719#38597#40657
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   OnCreate = FormCreate
   DesignSize = (
@@ -28,7 +28,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = [fsBold]
+    Font.Style = [fsBold
     ParentFont = False
   end
   object lbl2: TLabel
@@ -41,7 +41,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWhite
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl3: TLabel
@@ -54,7 +54,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWhite
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl4: TLabel
@@ -67,7 +67,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl5: TLabel
@@ -80,7 +80,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl6: TLabel
@@ -93,7 +93,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl7: TLabel
@@ -106,7 +106,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl8: TLabel
@@ -119,7 +119,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl9: TLabel
@@ -132,7 +132,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
   end
   object lbl10: TLabel
@@ -145,7 +145,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWhite
     Font.Height = -21
     Font.Name = #24494#36719#38597#40657
-    Font.Style = [fsBold]
+    Font.Style = [fsBold
     ParentFont = False
   end
   object dbgrd1: TDBGrid
@@ -153,15 +153,15 @@ object FormBillCardHandl: TFormBillCardHandl
     Top = 57
     Width = 889
     Height = 433
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight
     Ctl3D = False
     DataSource = Ds_Mx1
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
-    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+    Font.Style = [
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit
     ParentCtl3D = False
     ParentFont = False
     ReadOnly = True
@@ -170,7 +170,7 @@ object FormBillCardHandl: TFormBillCardHandl
     TitleFont.Color = clWindowText
     TitleFont.Height = -21
     TitleFont.Name = #24494#36719#38597#40657
-    TitleFont.Style = []
+    TitleFont.Style = [
     OnCellClick = dbgrd1CellClick
     Columns = <
       item
@@ -193,7 +193,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Top = 14
     Width = 251
     Height = 33
-    BevelEdges = [beBottom]
+    BevelEdges = [beBottom
     BevelKind = bkFlat
     BevelOuter = bvRaised
     BiDiMode = bdLeftToRight
@@ -202,7 +202,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentBiDiMode = False
     ParentFont = False
     TabOrder = 1
@@ -218,7 +218,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = [fsBold]
+    Font.Style = [fsBold
     ParentFont = False
     TabOrder = 2
     OnClick = btn1Click
@@ -243,7 +243,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Style.Font.Color = clWindowText
     Style.Font.Height = -27
     Style.Font.Name = #23435#20307
-    Style.Font.Style = []
+    Style.Font.Style = [
     Style.TextColor = clWindowText
     Style.ButtonStyle = btsDefault
     Style.PopupBorderStyle = epbsSingle
@@ -275,7 +275,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Style.Font.Color = clWindowText
     Style.Font.Height = -27
     Style.Font.Name = #23435#20307
-    Style.Font.Style = []
+    Style.Font.Style = [
     Style.TextColor = clWindowText
     Style.ButtonStyle = btsDefault
     Style.PopupBorderStyle = epbsSingle
@@ -298,7 +298,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Style.Font.Color = clWindowText
     Style.Font.Height = -27
     Style.Font.Name = #23435#20307
-    Style.Font.Style = []
+    Style.Font.Style = [
     Style.IsFontAssigned = True
     TabOrder = 5
     OnKeyPress = edt_ValueKeyPress
@@ -314,7 +314,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
     TabOrder = 6
     OnClick = btnOKClick
@@ -329,7 +329,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Font.Color = clWindowText
     Font.Height = -24
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
     TabOrder = 7
     OnClick = btnBtnExitClick
@@ -354,7 +354,7 @@ object FormBillCardHandl: TFormBillCardHandl
     Style.Font.Color = clWindowText
     Style.Font.Height = -27
     Style.Font.Name = #23435#20307
-    Style.Font.Style = []
+    Style.Font.Style = [
     Style.TextColor = clWindowText
     Style.ButtonStyle = btsDefault
     Style.PopupBorderStyle = epbsSingle

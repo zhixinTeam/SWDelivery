@@ -110,7 +110,7 @@ begin
     nLen := nList.Count - 1;
     for i:=0 to nLen do
     begin
-      nObj := TObject(nList[i]);
+      nObj := TObject(nList[i);
       if not OnVerifyCtrl(nObj, nStr) then
       begin
         if nObj is TWinControl then

@@ -20,6 +20,7 @@ type
 
 var
   gTNCStatusChker: TNCStatusChkThread = nil;
+  FNcIsOnLine : Boolean;
 
 implementation
 
@@ -61,8 +62,9 @@ begin
   while not Terminated do
   try
     if xSecsBetween(Now, LastTime)>5 then
-    begin          WriteLog('检测NC服务状态');
+    begin
       TBusWorkerBusinessNC.CallMe(cBC_NcStatusChk, '','',@nOut);
+      WriteLog('检测NC服务状态：'+nOut.FData);
       LastTime:= Now;
     end;
   except on E:Exception do

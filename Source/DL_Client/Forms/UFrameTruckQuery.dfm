@@ -159,6 +159,24 @@ inherited fFrameTruckQuery: TfFrameTruckQuery
     AutoHotkeys = maManual
     Left = 10
     Top = 280
+    object N9: TMenuItem
+      Caption = #20801#35768#35813#36710#36742#36229#26102#36827#21378
+      OnClick = N9Click
+    end
+    object N8: TMenuItem
+      Caption = '-'
+    end
+    object N7: TMenuItem
+      Caption = #20801#35768#35813#36710#36742#19978#30917
+      OnClick = N7Click
+    end
+    object N6: TMenuItem
+      Caption = #31105#27490#35813#36710#36742#19978#30917
+      OnClick = N6Click
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
     object N4: TMenuItem
       Tag = 10
       Caption = #26174#31034#20840#37096

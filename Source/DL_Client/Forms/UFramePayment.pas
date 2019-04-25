@@ -78,7 +78,7 @@ function TfFramePayment.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
   
-  Result := 'Select iom.*,sm.S_Name From $IOM iom ' +
+  Result := 'Select iom.*,sm.S_ID,sm.S_Name From $IOM iom ' +
             ' Left Join $SM sm On sm.S_ID=iom.M_SaleMan ' +
             'Where M_Type=''$HK'' ';
             
@@ -86,7 +86,7 @@ begin
        Result := Result + 'And (M_Date>=''$Start'' And M_Date <''$End'')'
   else Result := Result + 'And (' + nWhere + ')';
 
-  Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
+  Result := MacroValue(Result, [MI('$SM', sTable_Salesman), 
             MI('$IOM', sTable_InOutMoney), MI('$HK', sFlag_MoneyHuiKuan),
             MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx

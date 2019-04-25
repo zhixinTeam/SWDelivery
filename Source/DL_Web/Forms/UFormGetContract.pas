@@ -164,7 +164,7 @@ begin
     nStr := MacroValue(nStr, [MI('$SC', sTable_SaleContract),
           MI('$SM', sTable_Salesman), MI('$Cus', sTable_Customer),
           MI('$CID', EditContract.Text), MI('$CN', EditCustomer.Text),
-          MI('$Yes', sFlag_Yes)]);
+          MI('$Yes', sFlag_Yes));
     //xxxxx
 
     nQuery := LockDBQuery(FDBType);

@@ -336,7 +336,7 @@ begin
 end;
 
 //Date: 2018-08-03
-//Parm: 读卡器ID[FIn.FData];
+//Parm: 读卡器ID[FIn.FData;
 //Desc: 获取指定磅站读卡器上的岗位、部门
 function THardwareCommander.PoundReaderInfo(var nData: string): Boolean;
 var nStr, nPoundID: string;
@@ -691,7 +691,7 @@ begin
 end;
 
 //Date: 2018-02-27
-//Parm: 通道号[FIn.FData] 发送内容[FIn.FExt]
+//Parm: 通道号[FIn.FData 发送内容[FIn.FExt
 //Desc: 向指定通道的显示屏发送内容
 function THardwareCommander.TruckProbe_ShowTxt(var nData: string): Boolean;
 begin
@@ -768,7 +768,7 @@ begin
 end;
 
 //Date: 2018-08-14
-//Parm: 岗位[FIn.FData] 发送内容[FIn.FExt]
+//Parm: 岗位[FIn.FData 发送内容[FIn.FExt
 //Desc: 向指定通道的显示屏发送内容
 function THardwareCommander.RemoteSnap_DisPlay(var nData: string): Boolean;
 var nInt: Integer;

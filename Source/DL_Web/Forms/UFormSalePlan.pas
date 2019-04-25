@@ -138,7 +138,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -149,7 +149,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx] do
+        with FStockList[nIdx do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -162,7 +162,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
+      cbb_Stock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
     cbb_Stock.ItemIndex := 0;
   finally
     cbb_Stock.Items.EndUpdate;
@@ -199,7 +199,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr]);
+  nStr := Format('C_SaleMan=''%s''', [nStr);
   LoadCustomer(cbb_Customer.Items, nStr);
 end;
 
@@ -214,7 +214,7 @@ begin
   begin
     nIdx := cbb_Stock.ItemIndex;
     //----------------------
-    nStr := ' Select * From X_SalePlanStock Where S_StockName=''' + FStockList[nIdx].FValue + '''';
+    nStr := ' Select * From X_SalePlanStock Where S_StockName=''' + FStockList[nIdx.FValue + '''';
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
     begin
@@ -269,7 +269,7 @@ begin
             //*******************************
             if (StrToIntDef(Trim(unEdt_Num.Text), 0) >= 0) then
             begin
-                nStrSql := ' Select * From X_SalePlanStock Where S_StockName='''+FStockList[cbb_Stock.ItemIndex].FValue+'''';
+                nStrSql := ' Select * From X_SalePlanStock Where S_StockName='''+FStockList[cbb_Stock.ItemIndex.FValue+'''';
                 nQuery := LockDBQuery(FDBType);
                 with DBQuery(nStrSql, nQuery) do
                 begin
@@ -283,9 +283,9 @@ begin
 
                 nStrSql := 'Insert Into $SalePlanStk (S_StockNo, S_StockName, S_Value, S_ProhibitCreateBill)' +
                           ' Select ''$StockNo'', ''$StockName'', $Value, ''$PrCBill''';
-                nStrSql := MacroValue(nStrSql, [MI('$SalePlanStk', sTable_SalePlanStock), MI('$StockNo', FStockList[cbb_Stock.ItemIndex ].FKey),
-                                                MI('$StockName', FStockList[cbb_Stock.ItemIndex ].FValue), MI('$Value', Trim(unEdt_Num.Text)),
-                                                MI('$PrCBill', Trim(nPrCBill))]);
+                nStrSql := MacroValue(nStrSql, [MI('$SalePlanStk', sTable_SalePlanStock), MI('$StockNo', FStockList[cbb_Stock.ItemIndex .FKey),
+                                                MI('$StockName', FStockList[cbb_Stock.ItemIndex .FValue), MI('$Value', Trim(unEdt_Num.Text)),
+                                                MI('$PrCBill', Trim(nPrCBill)));
               DBExecute(nStrSql);
             end
             else ShowMessage('请输入选中品种限量吨数！');
@@ -300,10 +300,10 @@ begin
           begin
               nStrSql := 'UPDate $SalePlan Set S_StockNo=''$StockNo'' ,S_StockName=''$StockName'', S_Value=''$Value'',S_ProhibitCreateBill=''$PrCBill'' '+
                                 ' Where R_Id=$Rid ';
-              nStrSql := MacroValue(nStrSql, [MI('$SalePlan', sTable_SalePlanStock), MI('$StockNo', FStockList[cbb_Stock.ItemIndex ].FKey),
-                                              MI('$StockName', FStockList[cbb_Stock.ItemIndex ].fValue), MI('$Value', Trim(unEdt_Num.Text)),
+              nStrSql := MacroValue(nStrSql, [MI('$SalePlan', sTable_SalePlanStock), MI('$StockNo', FStockList[cbb_Stock.ItemIndex .FKey),
+                                              MI('$StockName', FStockList[cbb_Stock.ItemIndex .fValue), MI('$Value', Trim(unEdt_Num.Text)),
                                               MI('$PrCBill', Trim(nPrCBill)),
-                                              MI('$Rid', FnParam.FParamB)]);
+                                              MI('$Rid', FnParam.FParamB));
               DBExecute(nStrSql);
           end
           else ShowMessage('请输入选中品种限量吨数！');
@@ -334,7 +334,7 @@ begin
             begin
                 nIdx:= cbb_Stock.ItemIndex;
                 //----------------------
-                nStrSql := ' Select * From X_SalePlanStock Where S_StockName='''+FStockList[nIdx].FValue+'''';
+                nStrSql := ' Select * From X_SalePlanStock Where S_StockName='''+FStockList[nIdx.FValue+'''';
                 nQuery := LockDBQuery(FDBType);
                 with DBQuery(nStrSql, nQuery) do
                 begin
@@ -348,8 +348,8 @@ begin
                 end;
 
                 //----------------------
-                nStrSql := ' Select * From X_SalePlanCustomer Where C_StockName='''+FStockList[nIdx].FValue+
-                                    ''' And C_CusNo='''+GetLeftStr('.', FStockList[nIdx].FKey)+''' ';
+                nStrSql := ' Select * From X_SalePlanCustomer Where C_StockName='''+FStockList[nIdx.FValue+
+                                    ''' And C_CusNo='''+GetLeftStr('.', FStockList[nIdx.FKey)+''' ';
                 nQuery:= nil;
                 nQuery := LockDBQuery(FDBType);
                 with DBQuery(nStrSql, nQuery) do
@@ -364,10 +364,10 @@ begin
                 nIdx:= cbb_Stock.ItemIndex;
                 nStrSql := 'Insert Into %s (C_StockNo,C_StockName,C_SManNo,C_SManName,C_CusNo,C_CusName,C_MaxValue)' +
                           ' Select ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s ';
-                nStrSql := Format(nStrSql, [sTable_SalePlanCustomer, FStockList[nIdx].FKey, FStockList[nIdx].FValue,
+                nStrSql := Format(nStrSql, [sTable_SalePlanCustomer, FStockList[nIdx.FKey, FStockList[nIdx.FValue,
                                               cbb_SaleMan.Text,
                                               GetRightStr('.', cbb_SaleMan.Text), GetLeftStr('.', cbb_Customer.Text),
-                                              GetRightStr('.', cbb_Customer.Text), Trim(unEdt_CusNum.Text), FnParam.FParamB]);
+                                              GetRightStr('.', cbb_Customer.Text), Trim(unEdt_CusNum.Text), FnParam.FParamB);
                 DBExecute(nStrSql, nil, FDBType);
             end
             else ShowMessage('请输入选中品种限量吨数！');
@@ -384,11 +384,11 @@ begin
             //----------------------
             nStrSql := 'UPDate $SalePlanStkCus Set C_StockNo =''$StkNo'' ,C_StockName =''$StkName'', C_SManNo =''$SManNo'', C_SManName =''$SManName'' ,  ' +
                             'C_CusNo =''$CusNo''  ,C_CusName =''$CusName'' ,C_MaxValue =$Value  Where R_Id=$Rid ';
-            nStrSql := MacroValue(nStrSql, [MI('$SalePlanStkCus', sTable_SalePlanCustomer), MI('$StkNo', FStockList[nIdx].FKey),
-                                            MI('$StkName', FStockList[nIdx].FValue), MI('$SManNo', cbb_SaleMan.Text),
+            nStrSql := MacroValue(nStrSql, [MI('$SalePlanStkCus', sTable_SalePlanCustomer), MI('$StkNo', FStockList[nIdx.FKey),
+                                            MI('$StkName', FStockList[nIdx.FValue), MI('$SManNo', cbb_SaleMan.Text),
                                             MI('$SManName', GetRightStr('.', cbb_SaleMan.Text)), MI('$CusNo', GetLeftStr('.', cbb_Customer.Text)),
                                             MI('$CusName', GetRightStr('.', cbb_Customer.Text)),MI('$Value', Trim(unEdt_CusNum.Text)),
-                                            MI('$Rid', FnParam.FParamB)]);
+                                            MI('$Rid', FnParam.FParamB));
             DBExecute(nStrSql);
           end
           else ShowMessage('请输入选中品种限量吨数！');

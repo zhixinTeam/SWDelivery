@@ -121,7 +121,10 @@ begin
       nColumn.Width := nItem.FWidth;
       nColumn.HeaderAlignmentHorz := nItem.FAlign;
 
+
       {$IFDEF PoundRoundJZ}
+      if nView.Tag=789 then  // 启用随机净重  应对检查
+      begin
         if ((nItem.FDBItem.FField ='L_Value')And(nEntity='MAIN_L06')) then
         begin
           nItem.FDBItem.FField:= 'L_StdMValue';
@@ -131,6 +134,7 @@ begin
         begin
           nItem.FDBItem.FField:= 'P_StdNetWeight';
         end;
+      end;
       {$ENDIF}
 
       if nView is TcxGridDBTableView then

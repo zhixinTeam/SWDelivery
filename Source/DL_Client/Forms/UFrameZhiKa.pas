@@ -14,7 +14,8 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameZhiKa = class(TfFrameNormal)
@@ -77,7 +78,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, UDataModule, UFormBase, USysConst, USysDB, USysBusiness,
-  UFormDateFilter;
+  UFormDateFilter, USysPopedom;
 
 //------------------------------------------------------------------------------
 class function TfFrameZhiKa.FrameID: integer;
@@ -111,6 +112,13 @@ begin
        Result := Result + ' Where (zk.Z_Date>=''$ST'' and zk.Z_Date <''$End'')' +
                  ' and (Z_InValid Is Null or Z_InValid<>''$Yes'')'
   else Result := Result + ' Where (' + nWhere + ')';
+
+  if (not gSysParam.FIsAdmin)And
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData) ) then
+  begin
+      Result := Result + ' And ((S_Name=''' + gSysParam.FUserID + ''') or (C_Name=''' +
+            gSysParam.FUserID + '''))';
+  end;
 
   Result := MacroValue(Result, [MI('$ZK', sTable_ZhiKa), 
              MI('$Con', sTable_SaleContract), MI('$SM', sTable_Salesman),

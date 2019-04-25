@@ -140,16 +140,16 @@ type
 // GUID:      {695B970A-2F2C-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   IStructure = dispinterface
-    ['{695B970A-2F2C-11CF-9AE5-0800096E19F4}']
-    property Value[index: OleVariant]: OleVariant dispid 9;
-    property ColumnSAPType[index: Integer]: CRFCType readonly dispid 13;
-    property ColumnLength[index: Integer]: Smallint readonly dispid 12;
-    property _Value[index: OleVariant]: OleVariant dispid 0; default;
+    ['{695B970A-2F2C-11CF-9AE5-0800096E19F4}'
+    property Value[index: OleVariant: OleVariant dispid 9;
+    property ColumnSAPType[index: Integer: CRFCType readonly dispid 13;
+    property ColumnLength[index: Integer: Smallint readonly dispid 12;
+    property _Value[index: OleVariant: OleVariant dispid 0; default;
     procedure Clear; dispid 7;
-    property ColumnOffset[index: Integer]: Smallint readonly dispid 11;
-    property ColumnName[index: Smallint]: WideString readonly dispid 10;
+    property ColumnOffset[index: Integer: Smallint readonly dispid 11;
+    property ColumnName[index: Smallint: WideString readonly dispid 10;
     function Clone: IDispatch; dispid 6;
-    property ColumnDecimals[index: Integer]: Smallint readonly dispid 14;
+    property ColumnDecimals[index: Integer: Smallint readonly dispid 14;
     function IsStructure: WordBool; dispid 8;
     property Width: Integer dispid 5;
     property Name: WideString dispid 4;
@@ -164,7 +164,7 @@ type
 // GUID:      {5B076C01-2F26-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   ISAPFunctions = dispinterface
-    ['{5B076C01-2F26-11CF-9AE5-0800096E19F4}']
+    ['{5B076C01-2F26-11CF-9AE5-0800096E19F4}'
     function CreateStructure(const StructName: WideString): IStructure; dispid 12;
     function CreateTransactionID: WideString; dispid 11;
     function Item(index: OleVariant): IDispatch; dispid 5;
@@ -186,7 +186,7 @@ type
 // GUID:      {5B076C02-2F26-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   SAPFunctionsEvents = dispinterface
-    ['{5B076C02-2F26-11CF-9AE5-0800096E19F4}']
+    ['{5B076C02-2F26-11CF-9AE5-0800096E19F4}'
   end;
 
 // *********************************************************************//
@@ -195,10 +195,10 @@ type
 // GUID:      {695B9700-2F2C-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   IFunction = dispinterface
-    ['{695B9700-2F2C-11CF-9AE5-0800096E19F4}']
+    ['{695B9700-2F2C-11CF-9AE5-0800096E19F4}'
     function CallIndirect(const tranID: WideString): WordBool; dispid 11;
-    property Imports[index: OleVariant]: IDispatch readonly dispid 10;
-    property Exports_[index: OleVariant]: IDispatch readonly dispid 9;
+    property Imports[index: OleVariant: IDispatch readonly dispid 10;
+    property Exports_[index: OleVariant: IDispatch readonly dispid 9;
     function Call: WordBool; dispid 6;
     property Description: WideString readonly dispid 5;
     property Exception: WideString readonly dispid 1;
@@ -216,7 +216,7 @@ type
 // GUID:      {695B9702-2F2C-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   IParameter = dispinterface
-    ['{695B9702-2F2C-11CF-9AE5-0800096E19F4}']
+    ['{695B9702-2F2C-11CF-9AE5-0800096E19F4}'
     property Decimals: Smallint readonly dispid 10;
     procedure Clear; dispid 9;
     function IsStructure: WordBool; dispid 8;
@@ -236,12 +236,12 @@ type
 // GUID:      {695B9704-2F2C-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   IExports = dispinterface
-    ['{695B9704-2F2C-11CF-9AE5-0800096E19F4}']
+    ['{695B9704-2F2C-11CF-9AE5-0800096E19F4}'
     procedure RemoveAll; dispid 4;
     function Remove(index: OleVariant): WordBool; dispid 3;
     function Insert(where: OleVariant; what: OleVariant): IDispatch; dispid 8;
     function Unload(index: OleVariant): IDispatch; dispid 6;
-    property Item[idx: OleVariant]: IDispatch readonly dispid 7;
+    property Item[idx: OleVariant: IDispatch readonly dispid 7;
     property Parent: IDispatch dispid 2;
     property Count: Integer dispid 1;
   end;
@@ -252,12 +252,12 @@ type
 // GUID:      {695B9706-2F2C-11CF-9AE5-0800096E19F4}
 // *********************************************************************//
   IImports = dispinterface
-    ['{695B9706-2F2C-11CF-9AE5-0800096E19F4}']
+    ['{695B9706-2F2C-11CF-9AE5-0800096E19F4}'
     procedure RemoveAll; dispid 4;
     function Remove(index: OleVariant): WordBool; dispid 3;
     function Insert(where: OleVariant; what: OleVariant): IDispatch; dispid 8;
     function Unload(index: OleVariant): IDispatch; dispid 6;
-    property Item[idx: OleVariant]: IDispatch readonly dispid 7;
+    property Item[idx: OleVariant: IDispatch readonly dispid 7;
     property Parent: IDispatch dispid 2;
     property Count: Integer dispid 1;
   end;
@@ -500,7 +500,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents(dtlOcxPage, [TSAPFunctions]);
+  RegisterComponents(dtlOcxPage, [TSAPFunctions);
 end;
 
 end.

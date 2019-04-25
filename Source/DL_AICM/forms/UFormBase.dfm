@@ -8,7 +8,7 @@ object BaseForm: TBaseForm
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #23435#20307
-  Font.Style = []
+  Font.Style = [
   KeyPreview = True
   OldCreateOrder = False
   PixelsPerInch = 96

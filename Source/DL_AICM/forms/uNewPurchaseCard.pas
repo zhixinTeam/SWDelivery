@@ -99,8 +99,8 @@ procedure TfFormNewPurchaseCard.Writelog(nMsg:string);
 var
   nStr:string;
 begin
-//  nStr := 'weborder[%s]clientid[%s]clientname[%s]sotckno[%s]stockname[%s]';
-//  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text]);
+//  nStr := 'weborder[%sclientid[%sclientname[%ssotckno[%sstockname[%s';
+//  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text);
   gSysLoger.AddLog(nStr+nMsg);
 end;
 
@@ -126,7 +126,7 @@ procedure TfFormNewPurchaseCard.FormShow(Sender: TObject);
 begin
   SetControlsReadOnly;
 
-  EditTruck.Properties.Buttons[0].Visible := False;
+  EditTruck.Properties.Buttons[0.Visible := False;
   ActiveControl := editWebOrderNo;
   btnOK.Enabled := False;
   FAutoClose := gSysParam.FAutoClose_Mintue;
@@ -199,14 +199,14 @@ begin
             +'</head>'
             +'</DATA>';
 
-  nXmlStr := Format(nXmlStr,[gSysParam.FFactory,nIDCard]);
+  nXmlStr := Format(nXmlStr,[gSysParam.FFactory,nIDCard);
   nXmlStr := PackerEncodeStr(nXmlStr);
 
   nData := get_shopPurchaseByno(nXmlStr);
   if nData='' then
   begin
-    ShowMsg('未查询到网上商城货单['+nIDCard+']详细信息，请检查货单号是否正确',sHint);
-    Writelog('未查询到网上商城货单['+nIDCard+']详细信息，请检查货单号是否正确');
+    ShowMsg('未查询到网上商城货单['+nIDCard+'详细信息，请检查货单号是否正确',sHint);
+    Writelog('未查询到网上商城货单['+nIDCard+'详细信息，请检查货单号是否正确');
     Exit;
   end;
 
@@ -219,7 +219,7 @@ begin
     nListA.Text := nData;
     for i := nListA.Count-1 downto 0 do
     begin
-      if Trim(nListA.Strings[i])='' then
+      if Trim(nListA.Strings[i)='' then
       begin
         nListA.Delete(i);
       end;
@@ -228,16 +228,16 @@ begin
     SetLength(FWebPurchaseItems,FWebOrderCount);
     for i := 0 to nListA.Count-1 do
     begin
-      nListB.CommaText := nListA.Strings[i];
-      FWebPurchaseItems[i].FOrder_id := nListB.Values['order_id'];
-      FWebPurchaseItems[i].FProvID := nListB.Values['ProvID '];
-      FWebPurchaseItems[i].FProvName := nListB.Values['ProvName'];
-      FWebPurchaseItems[i].FGoodsID := nListB.Values['GoodsID'];
-      FWebPurchaseItems[i].FGoodsname := nListB.Values['Goodsname'];
-      FWebPurchaseItems[i].FData := nListB.Values['Data'];
-      FWebPurchaseItems[i].Ftracknumber := nListB.Values['tracknumber'];
-      FWebPurchaseItems[i].Fpurchasecontract_no := nListB.Values['purchasecontract_no'];
-      AddListViewItem(FWebPurchaseItems[i]);
+      nListB.CommaText := nListA.Strings[i;
+      FWebPurchaseItems[i.FOrder_id := nListB.Values['order_id';
+      FWebPurchaseItems[i.FProvID := nListB.Values['ProvID ';
+      FWebPurchaseItems[i.FProvName := nListB.Values['ProvName';
+      FWebPurchaseItems[i.FGoodsID := nListB.Values['GoodsID';
+      FWebPurchaseItems[i.FGoodsname := nListB.Values['Goodsname';
+      FWebPurchaseItems[i.FData := nListB.Values['Data';
+      FWebPurchaseItems[i.Ftracknumber := nListB.Values['tracknumber';
+      FWebPurchaseItems[i.Fpurchasecontract_no := nListB.Values['purchasecontract_no';
+      AddListViewItem(FWebPurchaseItems[i);
     end;
   finally
     nListB.Free;
@@ -290,33 +290,33 @@ begin
   try
     LoadSysDictItem(sFlag_PrintBill, nStocks);
 
-    nTmp.Values['Type'] := FCardData.Values['XCB_CementType'];
-    nTmp.Values['StockNO'] := FCardData.Values['XCB_Cement'];
-    nTmp.Values['StockName'] := FCardData.Values['XCB_CementName'];
-    nTmp.Values['Price'] := '0.00';
-    nTmp.Values['Value'] := EditValue.Text;
+    nTmp.Values['Type' := FCardData.Values['XCB_CementType';
+    nTmp.Values['StockNO' := FCardData.Values['XCB_Cement';
+    nTmp.Values['StockName' := FCardData.Values['XCB_CementName';
+    nTmp.Values['Price' := '0.00';
+    nTmp.Values['Value' := EditValue.Text;
 
     nList.Add(PackerEncodeStr(nTmp.Text));
-    nPrint := nStocks.IndexOf(FCardData.Values['XCB_Cement']) >= 0;
+    nPrint := nStocks.IndexOf(FCardData.Values['XCB_Cement') >= 0;
 
     with nList do
     begin
-      Values['Bills'] := PackerEncodeStr(nList.Text);
-      Values['ZhiKa'] := PackerEncodeStr(FCardData.Text);
-      Values['Truck'] := EditTruck.Text;
-      Values['Lading'] := sFlag_TiHuo;
-      Values['Memo']  := EmptyStr;
-      Values['Seal'] := FCardData.Values['XCB_CementCodeID'];
-      Values['BuDan'] := sFlag_No;
-      Values['Status'] := sFlag_TruckIn;
-      Values['NextStatus'] := sFlag_TruckZT;
+      Values['Bills' := PackerEncodeStr(nList.Text);
+      Values['ZhiKa' := PackerEncodeStr(FCardData.Text);
+      Values['Truck' := EditTruck.Text;
+      Values['Lading' := sFlag_TiHuo;
+      Values['Memo'  := EmptyStr;
+      Values['Seal' := FCardData.Values['XCB_CementCodeID';
+      Values['BuDan' := sFlag_No;
+      Values['Status' := sFlag_TruckIn;
+      Values['NextStatus' := sFlag_TruckZT;
 
       nInFactT := Now;
       nInFact := TruckInFact(EditTruck.Text, nInFactT);
-      if nInFact then Values['InFact'] := sFlag_Yes;
-      Values['InFact'] := sFlag_Yes;
-      Values['Status'] := sFlag_TruckIn;
-      Values['NextStatus'] := sFlag_TruckZT;
+      if nInFact then Values['InFact' := sFlag_Yes;
+      Values['InFact' := sFlag_Yes;
+      Values['Status' := sFlag_TruckIn;
+      Values['NextStatus' := sFlag_TruckZT;
     end;
     nBillData := PackerEncodeStr(nList.Text);
     FNewBillID := SaveBill(nBillData);
@@ -331,14 +331,14 @@ begin
   //发卡
   if not FSzttceApi.IssueOneCard(nNewCardNo) then
   begin
-    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s]';
-    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s';
+    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg);
     Writelog(nHint);
     ShowMsg(nHint,sHint);
   end
   else begin
-    ShowMsg('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片',sHint);
-    Writelog('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片');
+    ShowMsg('发卡成功,卡号['+nNewCardNo+',请收好您的卡片',sHint);
+    Writelog('发卡成功,卡号['+nNewCardNo+',请收好您的卡片');
     SetBillCard(FNewBillID, EditTruck.Text,nNewCardNo, True);
   end;
 
@@ -401,7 +401,7 @@ var
   nStr:string;
 begin
   nStr := 'insert into %s(WOM_WebOrderID,WOM_LID) values(''%s'',''%s'')';
-  nStr := Format(nStr,[sTable_WebOrderMatch,FWebOrderID,FNewBillID]);
+  nStr := Format(nStr,[sTable_WebOrderMatch,FWebOrderID,FNewBillID);
   fdm.ADOConn.BeginTrans;
   try
     fdm.ExecuteSQL(nStr);
@@ -419,7 +419,7 @@ begin
   editWebOrderNo.Clear;
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i];
+    nComp := dxLayout1.Components[i;
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Clear;
@@ -434,7 +434,7 @@ var
 begin
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i];
+    nComp := dxLayout1.Components[i;
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Properties.ReadOnly := True;
@@ -477,7 +477,7 @@ end;
 //  nOrderItem:stMallPurchaseItem;
 //  nRepeat:Boolean;
 //begin
-//  nOrderItem := FWebpurchaseItems[FWebOrderIndex];
+//  nOrderItem := FWebpurchaseItems[FWebOrderIndex;
 //  FWebOrderID := nOrderItem.FOrdernumber;
 //  nRepeat := IsRepeatCard(FWebOrderID);
 //
@@ -490,9 +490,9 @@ end;
 //
 //  //填充界面信息
 //  //基本信息
-//  EditID.Text     := FCardData.Values['XCB_ID'];
-//  EditCard.Text   := FCardData.Values['XCB_CardId'];
-//  EditCus.Text    := FCardData.Values['XCB_Client'];
+//  EditID.Text     := FCardData.Values['XCB_ID';
+//  EditCard.Text   := FCardData.Values['XCB_CardId';
+//  EditCus.Text    := FCardData.Values['XCB_Client';
 //
 //  EditValue.Text := nOrderItem.FData;
 //  EditTruck.Text := nOrderItem.Ftracknumber;
@@ -524,7 +524,7 @@ begin
   begin
     for i := 0 to lvOrders.Items.Count-1 do
     begin
-      if nSelItem = lvOrders.Items[i] then
+      if nSelItem = lvOrders.Items[i then
       begin
         FWebOrderIndex := i;
 //        LoadSingleOrder;
@@ -540,7 +540,7 @@ var
 begin
   Result := False;
   nStr := 'select * from %s where WOM_WebOrderID=''%s'' and WOM_deleted=''%s''';
-  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem,sFlag_No]);
+  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem,sFlag_No);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then

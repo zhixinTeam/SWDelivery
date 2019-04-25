@@ -68,6 +68,7 @@ begin
   try
     with gSysParam, nTmp do
     begin
+      FPound  := ReadString('OtherExtParam', 'IsPound', '')='Y';
       FProgID := ReadString(sConfigSec, 'ProgID', sProgID);
       //程序标识决定以下所有参数
       FAppTitle := ReadString(FProgID, 'AppTitle', sAppTitle);

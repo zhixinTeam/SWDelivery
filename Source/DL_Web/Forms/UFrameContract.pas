@@ -70,7 +70,7 @@ begin
   with TStringHelper do
   Result := MacroValue(Result, [MI('$Con', sTable_SaleContract),
             MI('$SM', sTable_Salesman),
-            MI('$Cus', sTable_Customer), MI('$Yes', sFlag_Yes)]);
+            MI('$Cus', sTable_Customer), MI('$Yes', sFlag_Yes));
   //xxxxx
 end;
 
@@ -137,17 +137,17 @@ begin
   try
     nStr := ClientDS.FieldByName('C_ID').AsString;
     nSQL := 'Select Count(*) From %s Where Z_CID=''%s''';
-    nSQL := Format(nSQL, [sTable_ZhiKa, nStr]);
+    nSQL := Format(nSQL, [sTable_ZhiKa, nStr);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nSQL, nQuery) do
-    if Fields[0].AsInteger > 0 then
+    if Fields[0.AsInteger > 0 then
     begin
       ShowMessage('该合同已办纸卡,不允许删除.');
       Exit;
     end;
 
-    nSQL := Format('确定要删除编号为[ %s ]的合同吗?', [nStr]);
+    nSQL := Format('确定要删除编号为[ %s 的合同吗?', [nStr);
     MessageDlg(nSQL, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
@@ -159,11 +159,11 @@ begin
           nStr := ClientDS.FieldByName('C_ID').AsString;
 
           nSQL := 'Delete From %s Where C_ID=''%s''';
-          nSQL := Format(nSQL, [sTable_SaleContract, nStr]);
+          nSQL := Format(nSQL, [sTable_SaleContract, nStr);
           nList.Add(nSQL);
 
           nSQL := 'Delete From %s Where E_CID=''%s'' ';
-          nSQL := Format(nSQL, [sTable_SContractExt, nStr]);
+          nSQL := Format(nSQL, [sTable_SContractExt, nStr);
           nList.Add(nSQL);
 
           DBExecute(nList, nil, FDBType);
@@ -206,7 +206,7 @@ begin
     if EditCus.Text = '' then Exit;
 
     FWhere := 'C_PY like ''%%%s%%'' Or C_Name like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCus.Text, EditCus.Text]);
+    FWhere := Format(FWhere, [EditCus.Text, EditCus.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -237,7 +237,7 @@ begin
 
     nSQL := 'Update %s Set C_Freeze=''%s'' Where C_ID=''%s''';
     nSQL := Format(nSQL, [sTable_SaleContract, nStr,
-                          ClientDS.FieldByName('C_ID').AsString]);
+                          ClientDS.FieldByName('C_ID').AsString);
     //xxxxx
 
     DBExecute(nSQL, nil, FDBType);

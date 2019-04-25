@@ -10,7 +10,7 @@ object FormChoseOPType: TFormChoseOPType
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #24494#36719#38597#40657
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnShow = FormShow
@@ -478,7 +478,7 @@ object FormChoseOPType: TFormChoseOPType
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
     OnClick = btn3Click
   end
@@ -493,7 +493,7 @@ object FormChoseOPType: TFormChoseOPType
     Font.Color = clWindowText
     Font.Height = -29
     Font.Name = #24494#36719#38597#40657
-    Font.Style = []
+    Font.Style = [
     ParentFont = False
     OnClick = btn1Click
   end

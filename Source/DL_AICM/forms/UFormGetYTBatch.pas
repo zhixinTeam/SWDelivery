@@ -67,7 +67,7 @@ begin
   with TfFormGetYTBatch.Create(Application) do
   try
     gCementData.Text := nP.FParamA;
-    EditCus.Text := gCementData.Values['XCB_CementName'];
+    EditCus.Text := gCementData.Values['XCB_CementName';
 
     Caption := '选择批次';
     dxLayout1Item5.Caption := '批次号选择';
@@ -131,18 +131,18 @@ begin
   nListA := TStringList.Create;
   nListB := TStringList.Create;
   try
-    nListA.Text := PackerDecodeStr(gCementData.Values['XCB_CementRecords']);
+    nListA.Text := PackerDecodeStr(gCementData.Values['XCB_CementRecords');
     if nListA.Count < 1 then Exit;
 
     for nIdx := 0 to nListA.Count - 1 do
     with ListQuery.Items.Add do
     begin
-      nListB.Text := PackerDecodeStr(nListA[nIdx]);
-      Caption := gCementData.Values['XCB_Cement'];
-      SubItems.Add(nListB.Values['XCB_CementCode']);
-      SubItems.Add(nListB.Values['XCB_CementValue']);
-      SubItems.Add(nListB.Values['XCB_OutASH']);
-      SubItems.Add(nListB.Values['XCB_CementCodeID']);
+      nListB.Text := PackerDecodeStr(nListA[nIdx);
+      Caption := gCementData.Values['XCB_Cement';
+      SubItems.Add(nListB.Values['XCB_CementCode');
+      SubItems.Add(nListB.Values['XCB_CementValue');
+      SubItems.Add(nListB.Values['XCB_OutASH');
+      SubItems.Add(nListB.Values['XCB_CementCodeID');
       ImageIndex := cItemIconIndex;
     end;
   finally
@@ -168,8 +168,8 @@ procedure TfFormGetYTBatch.GetResult;
 begin
   with ListQuery.Selected do
   begin
-    gCementData.Values['XCB_CementCode'] := SubItems[0];
-    gCementData.Values['XCB_CementCodeID'] := SubItems[3];
+    gCementData.Values['XCB_CementCode' := SubItems[0;
+    gCementData.Values['XCB_CementCodeID' := SubItems[3;
   end;
 end;
 
@@ -221,17 +221,17 @@ begin
   nListB := TStringList.Create;
   try
     nCementData.Text := YT_GetBatchCode(nCementData);
-    nListA.Text := PackerDecodeStr(nCementData.Values['XCB_CementRecords']);
+    nListA.Text := PackerDecodeStr(nCementData.Values['XCB_CementRecords');
     if nListA.Count < 1 then Exit;
 
     for nIdx := 0 to nListA.Count - 1 do
     begin
-      nListB.Text := PackerDecodeStr(nListA[nIdx]);
-      nBatchValue := StrToFloat(nListB.Values['XCB_CementValue']);
+      nListB.Text := PackerDecodeStr(nListA[nIdx);
+      nBatchValue := StrToFloat(nListB.Values['XCB_CementValue');
       if nBatchValue-ndOrderValue>0.001 then
       begin
-        Result := nListB.Values['XCB_CementCode'];
-        nCementCodeID := nListB.Values['XCB_CementCodeID'];
+        Result := nListB.Values['XCB_CementCode';
+        nCementCodeID := nListB.Values['XCB_CementCodeID';
         Break;
       end;
     end;

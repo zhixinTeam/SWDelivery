@@ -10,7 +10,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, Menus, cxCheckBox, cxLabel,
-  cxButtons, cxTextEdit, cxMCListBox, cxPC, StdCtrls, dxLayoutControl;
+  cxButtons, cxTextEdit, cxMCListBox, cxPC, StdCtrls, dxLayoutControl,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter,
+  dxSkinscxPCPainter;
 
 type
   TfFormOptions = class(TfFormNormal)
@@ -39,6 +41,14 @@ type
     EditPercent: TcxCheckBox;
     BtnAdd4: TcxButton;
     BtnDel4: TcxButton;
+    cxtbsht1: TcxTabSheet;
+    ListStockNYS: TcxMCListBox;
+    edt_Id: TcxTextEdit;
+    lbl1: TLabel;
+    lbl2: TLabel;
+    edt_Name: TcxTextEdit;
+    btn_Del: TcxButton;
+    btn_Add: TcxButton;
     procedure wPageChange(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     procedure BtnDel2Click(Sender: TObject);
@@ -47,6 +57,8 @@ type
     procedure BtnDel4Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btn_AddClick(Sender: TObject);
+    procedure btn_DelClick(Sender: TObject);
   private
     { Private declarations }
     procedure InitFormData;
@@ -54,11 +66,16 @@ type
     procedure LoadNFStock;
     procedure SaveNFStock;
     procedure LoadNFStockList;
-    //无需发货
+    //销售无需发货品种
     procedure LoadDaiPoundWC;
     procedure SaveDaiPoundWC;
     procedure LoadDaiPoundWCList;
     //袋装误差设置
+
+    procedure LoadNYSStock;
+    procedure SaveNYSStock;
+    procedure LoadNYSStockList;
+    //采购无需验收品种
   public
     { Public declarations }
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
@@ -108,8 +125,8 @@ type
   end;
 
 var
-  gNFStock: TNoFangHuiStock;
-  //无需放灰品种
+  gNFStock, gNYSStock: TNoFangHuiStock;
+  //无需放灰、无需验收品种
   gPoundDaiWCParam: TPoundDaiWCParam;
   //袋装误差配置
 
@@ -150,6 +167,7 @@ procedure TfFormOptions.InitFormData;
 begin
   gNFStock.FLoaded := False;
   gPoundDaiWCParam.FLoaded := False;
+  gNYSStock.FLoaded := False;
 
   wPage.ActivePage := Sheet1;
   LoadNFStock;
@@ -195,6 +213,45 @@ begin
   end;
 end;
 
+procedure TfFormOptions.LoadNYSStock;
+var nStr: string;
+    nIdx: Integer;
+begin
+  with gNYSStock do
+  begin
+    FLoaded := True;
+    FSaved := True;
+    SetLength(FItems, 0);
+
+    nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_NoYSStock]);
+
+    with FDM.QueryTemp(nStr) do
+    begin
+      if RecordCount < 1 then Exit;
+      SetLength(FItems, RecordCount);
+
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        with FItems[nIdx] do
+        begin
+          FID := Fields[0].AsString;
+          FName := Fields[1].AsString;
+          FEnabled := True;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+
+      LoadNYSStockList;
+    end;
+  end;
+end;
+
 procedure TfFormOptions.SaveNFStock;
 var nStr: string;
     nIdx: Integer;
@@ -220,6 +277,31 @@ begin
   end;
 end;
 
+procedure TfFormOptions.SaveNYSStock;
+var nStr: string;
+    nIdx: Integer;
+begin
+  with gNYSStock do
+  begin
+    nStr := 'Delete From %s Where D_Name=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_NoYSStock]);
+    FDM.ExecuteSQL(nStr);
+
+    for nIdx:=Low(FItems) to High(FItems) do
+    with FItems[nIdx] do
+    begin
+      if not FEnabled then Continue;
+      nStr := MakeSQLByStr([SF('D_Name', sFlag_NoYSStock),
+              SF('D_Desc', '原料无需验收品种'),
+              SF('D_Value', FID), SF('D_Memo', FName)
+              ], sTable_SysDict, '', True);
+      FDM.ExecuteSQL(nStr);
+    end;
+
+    FSaved := True;
+  end;
+end;
+
 procedure TfFormOptions.LoadNFStockList;
 var nIdx: Integer;
 begin
@@ -230,6 +312,20 @@ begin
      with FItems[nIdx] do
       if FEnabled then
        ListStockNF.Items.AddObject(FID + ListStockNF.Delimiter + FName, Pointer(nIdx));
+    //items
+  end;
+end;
+
+procedure TfFormOptions.LoadNYSStockList;
+var nIdx: Integer;
+begin
+  with gNYSStock do
+  begin
+    ListStockNYS.Clear;
+    for nIdx:=Low(FItems) to High(FItems) do
+     with FItems[nIdx] do
+      if FEnabled then
+       ListStockNYS.Items.AddObject(FID + ListStockNYS.Delimiter + FName, Pointer(nIdx));
     //items
   end;
 end;
@@ -336,6 +432,7 @@ begin
   case wPage.ActivePageIndex of
    0: if not gNFStock.FLoaded then LoadNFStock;
    1: if not gPoundDaiWCParam.FLoaded then LoadDaiPoundWC;
+   2: if not gNYSStock.FLoaded then LoadNYSStock;
   end;
 end;
 
@@ -504,8 +601,57 @@ begin
     if FLoaded and (not FSaved) then SaveDaiPoundWC;
   //xxxxx
 
+  with gNYSStock do
+    if FLoaded and (not FSaved) then SaveNYSStock;
+  //xxxxx
+
   ModalResult := mrOk;
   ShowMsg('保存完毕', sHint);
+end;
+
+procedure TfFormOptions.btn_AddClick(Sender: TObject);
+var nIdx: Integer;
+begin
+  edt_Id.Text := Trim(edt_Id.Text);
+  edt_Name.Text := Trim(edt_Name.Text);
+
+  with gNYSStock do
+  begin
+    for nIdx:=Low(FItems) to High(FItems) do
+    if (CompareText(FItems[nIdx].FID, edt_Id.Text) = 0) and
+       (FItems[nIdx].FEnabled) then
+    begin
+      edt_Id.SetFocus;
+      ShowMsg('编号已存在', sHint); Exit;
+    end;
+
+    nIdx := Length(FItems);
+    SetLength(FItems, nIdx + 1);
+
+    with FItems[nIdx] do
+    begin
+      FID := edt_Id.Text;
+      FName := edt_Name.Text;
+      FEnabled := True;
+    end;
+
+    FSaved := False;
+    LoadNYSStockList;
+  end;
+end;
+
+procedure TfFormOptions.btn_DelClick(Sender: TObject);
+var nIdx: Integer;
+begin
+  if ListStockNYS.ItemIndex > -1 then
+  with gNFStock do
+  begin
+    nIdx := Integer(ListStockNYS.Items.Objects[ListStockNYS.ItemIndex]);
+    FItems[nIdx].FEnabled := False;
+
+    FSaved := False;
+    LoadNYSStockList;
+  end;
 end;
 
 initialization

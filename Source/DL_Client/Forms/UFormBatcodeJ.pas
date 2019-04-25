@@ -115,8 +115,14 @@ begin
     cbb_Factory.Visible:= False;
     {$endif}
 
-    LoadStockFactory;
-    LoadFormData(FRecordID); 
+    {$IFDEF SendMorefactoryStock}
+    dxlytm_Fact.Visible:= False;
+    {$ENDIF}
+
+    if dxlytm_Fact.Visible then
+      LoadStockFactory;
+      
+    LoadFormData(FRecordID);
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
   finally
@@ -217,7 +223,9 @@ var nStr: string;
 begin
   Result := True;
 
+  dxlytm_Fact.Visible:= False;
   {$IFDEF SendMorefactoryStock}
+  dxlytm_Fact.Visible:= True;
   if Sender = cbb_Factory then
   begin
     Result := cbb_Factory.ItemIndex >= 0;
@@ -306,7 +314,7 @@ begin
 
   if Check3.Checked then
        nY := sFlag_Yes
-  else nY := sFlag_No;
+  else nY := sFlag_No;                             
 
   if FRecordID = '' then
        nStr := ''

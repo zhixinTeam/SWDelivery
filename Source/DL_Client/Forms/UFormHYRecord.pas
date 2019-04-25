@@ -156,6 +156,8 @@ type
     //前缀长度
     procedure InitFormData(const nID: string);
     //载入数据
+    procedure LoadZMJParam;
+    procedure SaveZMJParam;
     procedure GetData(Sender: TObject; var nData: string);
     function SetData(Sender: TObject; const nData: string): Boolean;
     //数据处理
@@ -233,6 +235,28 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+procedure TfFormHYRecord.LoadZMJParam;
+var nStr: string;
+begin
+  nStr := 'Select D_Value, D_Memo From %s Where D_Name=''HYZMJParam''';
+  nStr := Format(nStr, [sTable_SysDict]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    edt6.text:= Fields[0].AsString;
+    edt7.text:= Fields[1].AsString;
+  end;
+end;
+
+procedure TfFormHYRecord.SaveZMJParam;
+var nStr: string;
+begin
+  nStr := 'UPDate %s Set D_Value=''%s'', D_Memo=''%s''  Where D_Name=''HYZMJParam''';
+  nStr := Format(nStr, [sTable_SysDict, Trim(edt6.text), Trim(edt7.text)]);
+
+  FDM.ExecuteSQL(nStr);
+end;
+
 procedure TfFormHYRecord.FormCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
@@ -244,6 +268,7 @@ begin
     LoadFormConfig(Self, nIni);
     FPrefixID := nIni.ReadString(Name, 'IDPrefix', 'SN');
     FIDLength := nIni.ReadInteger(Name, 'IDLength', 8);
+    LoadZMJParam;
   finally
     nIni.Free;
   end;
@@ -470,6 +495,8 @@ begin
     nSQL:= nSQL + ' R_SerialNo='''+Trim(EditID.Text)+''''
   else nSQL:= nSQL + ' R_ID='''+FRecordID+'''';
   FDM.ExecuteSQL(nSQL);
+
+  SaveZMJParam;
 
   ModalResult := mrOK;
   ShowMsg('数据已保存', sHint);

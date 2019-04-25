@@ -84,7 +84,7 @@ procedure TFDR.DataModuleCreate(Sender: TObject);
 begin
   {$IFDEF TrialVersion}
   with Report1.PreviewOptions do
-    Buttons := Buttons - [pbPrint];
+    Buttons := Buttons - [pbPrint;
   //trial version no print
   {$ENDIF}
 
@@ -116,7 +116,7 @@ var nIdx: integer;
 begin
   for nIdx:=FParamList.Count - 1 downto 0 do
   begin
-    DisposeParamItem(FParamList[nIdx]);
+    DisposeParamItem(FParamList[nIdx);
     FParamList.Delete(nIdx);
   end;
 
@@ -140,7 +140,7 @@ begin
     Result := FParamList.Add(nP);
   end;
 
-  with PReportParamItem(FParamList[Result])^ do
+  with PReportParamItem(FParamList[Result)^ do
   begin
     FName := nItem.FName;
     FValue := nItem.FValue;
@@ -153,7 +153,7 @@ begin
   Result := GetParamItemIndex(nName);
   if Result > -1 then
   begin
-    DisposeParamItem(FParamList[Result]);
+    DisposeParamItem(FParamList[Result);
     FParamList.Delete(Result);
   end;
 end;
@@ -166,7 +166,7 @@ begin
   nLen := FParamList.Count - 1;
 
   for nIdx:=0 to nLen do
-  if CompareText(nName, PReportParamItem(FParamList[nIdx]).FName) = 0 then
+  if CompareText(nName, PReportParamItem(FParamList[nIdx).FName) = 0 then
   begin
     Result := nIdx; Break;
   end;
@@ -227,7 +227,7 @@ begin
     Value := '-';
   end else
   begin
-    Value := PReportParamItem(FParamList[nIdx]).FValue;
+    Value := PReportParamItem(FParamList[nIdx).FValue;
   end;
 end;
 

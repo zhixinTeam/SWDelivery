@@ -86,7 +86,7 @@ begin
   try
     nQuery := LockDBQuery(FDBType);
     nStr := 'Select * From %s Where G_ID=%s';
-    nStr := Format(nStr, [sTable_Group, nID]);
+    nStr := Format(nStr, [sTable_Group, nID);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -122,20 +122,20 @@ begin
     if nBool then
     begin
       nStr := 'Select Max(G_ID)+1 From ' + sTable_Group;
-      nID := DBQuery(nStr, nQuery).Fields[0].AsString;
+      nID := DBQuery(nStr, nQuery).Fields[0.AsString;
       FParam.FParamA := nID;
     end else nID := FParam.FParamA;
 
     with TSQLBuilder do
     nStr := MakeSQLByStr([
-      SF_IF([SF('G_ID', nID, sfVal), ''], nBool),
+      SF_IF([SF('G_ID', nID, sfVal), '', nBool),
       SF_IF([SF('G_CANDEL', 0, sfVal),
-             SF('G_CANDEL', 1, sfVal)], Check1.Checked),
+             SF('G_CANDEL', 1, sfVal), Check1.Checked),
       //xxxxx
 
       SF('G_NAME', EditName.Text), SF('G_DESC', EditDesc.Text),
       SF('G_PROGID', gSysParam.FProgID), SF('G_Flag', sWebFlag)
-      ], sTable_Group, SF('G_ID', nID, sfVal), nBool);
+      , sTable_Group, SF('G_ID', nID, sfVal), nBool);
     //xxxxx
 
     DBExecute(nStr, nQuery);

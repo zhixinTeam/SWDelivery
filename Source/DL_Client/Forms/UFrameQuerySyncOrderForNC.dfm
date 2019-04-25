@@ -1,8 +1,8 @@
 inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
-  Width = 896
-  Height = 489
+  Width = 1047
+  Height = 498
   inherited ToolBar1: TToolBar
-    Width = 896
+    Width = 1047
     inherited BtnAdd: TToolButton
       Visible = False
     end
@@ -10,20 +10,20 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       Visible = False
     end
     inherited BtnDel: TToolButton
-      Visible = False
+      OnClick = BtnDelClick
     end
   end
   inherited cxGrid1: TcxGrid
     Top = 153
-    Width = 896
-    Height = 336
+    Width = 1047
+    Height = 345
     PopupMenu = pmPMenu1
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 896
+    Width = 1047
     Height = 86
     object cxLabel1: TcxLabel [0]
-      Left = 487
+      Left = 511
       Top = 36
       Caption = '   '#35746#21333#29366#24577': '
       ParentFont = False
@@ -32,7 +32,7 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       Transparent = True
     end
     object Radio1: TcxRadioButton [1]
-      Left = 574
+      Left = 598
       Top = 36
       Width = 90
       Height = 17
@@ -42,7 +42,7 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       OnClick = Radio1Click
     end
     object Radio2: TcxRadioButton [2]
-      Left = 669
+      Left = 693
       Top = 36
       Width = 90
       Height = 17
@@ -54,7 +54,7 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       OnClick = Radio1Click
     end
     object Radio3: TcxRadioButton [3]
-      Left = 764
+      Left = 788
       Top = 36
       Width = 90
       Height = 17
@@ -64,7 +64,7 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       OnClick = Radio3Click
     end
     object EditDate: TcxButtonEdit [4]
-      Left = 297
+      Left = 321
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -72,13 +72,14 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
           Default = True
           Kind = bkEllipsis
         end>
+      Properties.MaxLength = 0
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
       TabOrder = 1
       Width = 185
     end
     object EditCustomer: TcxButtonEdit [5]
-      Left = 87
+      Left = 111
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -86,12 +87,13 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
           Default = True
           Kind = bkEllipsis
         end>
+      Properties.MaxLength = 0
       Properties.OnButtonClick = EditCustomerPropertiesButtonClick
       TabOrder = 0
       Width = 165
     end
     object btn1: TcxButton [6]
-      Left = 859
+      Left = 884
       Top = 36
       Width = 123
       Height = 25
@@ -102,7 +104,7 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item6: TdxLayoutItem
-          Caption = #23458#25143#21517#31216#65306
+          Caption = #23458#25143#21517#25110#21333#21495#65306
           Control = EditCustomer
           ControlOptions.ShowBorder = False
         end
@@ -144,15 +146,15 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
   end
   inherited cxSplitter1: TcxSplitter
     Top = 145
-    Width = 896
+    Width = 1047
   end
   inherited TitlePanel1: TZnBitmapPanel
-    Width = 896
+    Width = 1047
     inherited TitleBar: TcxLabel
       Caption = 'NC'#35746#21333#21516#27493#24773#20917
       Style.IsFontAssigned = True
-      Width = 896
-      AnchorX = 448
+      Width = 1047
+      AnchorX = 524
       AnchorY = 11
     end
   end

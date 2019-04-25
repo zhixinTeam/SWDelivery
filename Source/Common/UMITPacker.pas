@@ -338,12 +338,11 @@ procedure TMITBusinessNC.DoPackOut(const nData: Pointer);
 begin
   inherited;
 
-  with FStrBuilder,PWorkerWebChatData(nData)^ do
+  with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
     Values['Command'] := IntToStr(FCommand);
     Values['Data']    := PackerEncode(FData);
     Values['ExtParam']  := PackerEncode(FExtParam);
-    //Values['RemoteUL']  := PackerEncode(FRemoteUL);
   end;
 end;
 
@@ -351,12 +350,11 @@ procedure TMITBusinessNC.DoUnPackOut(const nData: Pointer);
 begin
   inherited;
 
-  with FStrBuilder,PWorkerWebChatData(nData)^ do
+  with FStrBuilder,PWorkerBusinessCommand(nData)^ do
   begin
     PackerDecode(Values['Command'], FCommand);
     PackerDecode(Values['Data'], FData);
     PackerDecode(Values['ExtParam'], FExtParam);
-    //PackerDecode(Values['RemoteUL'], FRemoteUL);
   end;
 end;
 

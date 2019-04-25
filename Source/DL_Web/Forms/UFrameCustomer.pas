@@ -61,7 +61,7 @@ begin
     else Result := Result + ' Where (' + nWhere + ')';
 
     Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
-              MI('$Sale', sTable_Salesman), MI('$Yes', sFlag_Yes)]);
+              MI('$Sale', sTable_Salesman), MI('$Yes', sFlag_Yes));
     //xxxxx
   end;
 end;
@@ -124,7 +124,7 @@ begin
   end;
 
   nStr := ClientDS.FieldByName('C_Name').AsString;
-  nStr := Format('确定要删除名称为[ %s ]的客户吗?', [nStr]);
+  nStr := Format('确定要删除名称为[ %s 的客户吗?', [nStr);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
     begin
@@ -137,11 +137,11 @@ begin
         nStr := ClientDS.FieldByName('C_ID').AsString;
 
         nSQL := 'Delete From %s Where C_ID=''%s''';
-        nSQL := Format(nSQL, [sTable_Customer, nStr]);
+        nSQL := Format(nSQL, [sTable_Customer, nStr);
         nList.Add(nSQL);
 
         nSQL := 'Delete From %s Where I_Group=''%s'' and I_ItemID=''%s''';
-        nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nStr]);
+        nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nStr);
         nList.Add(nSQL);
 
         DBExecute(nList, nil, FDBType);
@@ -170,7 +170,7 @@ begin
     if EditName.Text = '' then Exit;
 
     FWhere := 'C_Name like ''%%%s%%'' Or C_PY like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
+    FWhere := Format(FWhere, [EditName.Text, EditName.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -186,7 +186,7 @@ end;
 procedure TfFrameCustomer.N1Click(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
-    10: FWhere := Format('C_XuNi=''%s''', [sFlag_Yes]);
+    10: FWhere := Format('C_XuNi=''%s''', [sFlag_Yes);
     20: FWhere := '1=1';
   end;
 
@@ -207,7 +207,7 @@ begin
   nAccount := ClientDS.FieldByName('C_WeiXin').AsString;
   if nAccount <> '' then
   begin
-    ShowMessage('商城账户[' + nAccount + ']已存在');
+    ShowMessage('商城账户[' + nAccount + '已存在');
     Exit;
   end;
 
@@ -223,19 +223,19 @@ begin
 
         with nList do
         begin
-          Values['Action']   := 'add';
-          Values['BindID']   := nBindID;
-          Values['Account']  := nAccount;
-          Values['CusID']    := nID;
-          Values['CusName']  := ClientDS.FieldByName('C_Name').AsString;
-          Values['Memo']     := sFlag_Sale;
+          Values['Action'   := 'add';
+          Values['BindID'   := nBindID;
+          Values['Account'  := nAccount;
+          Values['CusID'    := nID;
+          Values['CusName'  := ClientDS.FieldByName('C_Name').AsString;
+          Values['Memo'     := sFlag_Sale;
         end;
 
         if edit_shopclients(PackerEncodeStr(nList.Text)) <> sFlag_Yes then Exit;
         //call remote
 
         nStr := 'update %s set C_WeiXin=''%s'' where C_ID=''%s''';
-        nStr := Format(nStr,[sTable_Customer, nAccount, nID]);
+        nStr := Format(nStr,[sTable_Customer, nAccount, nID);
         DBExecute(nStr, nil, FDBType);
 
         ShowMessage('关联商城账户成功');
@@ -259,7 +259,7 @@ begin
   end;
 
   nName := ClientDS.FieldByName('C_Name').AsString;
-  nStr := Format('确定要取消[ %s ]的商城账户吗?', [nName]);
+  nStr := Format('确定要取消[ %s 的商城账户吗?', [nName);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
     begin
@@ -274,18 +274,18 @@ begin
 
         with nList do
         begin
-          Values['Action']   := 'del';
-          Values['Account']  := nAccount;
-          Values['CusID']    := nID;
-          Values['CusName']  := nName;
-          Values['Memo']     := sFlag_Sale;
+          Values['Action'   := 'del';
+          Values['Account'  := nAccount;
+          Values['CusID'    := nID;
+          Values['CusName'  := nName;
+          Values['Memo'     := sFlag_Sale;
         end;
 
         if edit_shopclients(PackerEncodeStr(nList.Text)) <> sFlag_Yes then Exit;
         //call remote
 
         nStr := 'update %s set C_WeiXin=Null where C_ID=''%s''';
-        nStr := Format(nStr,[sTable_Customer, nID]);
+        nStr := Format(nStr,[sTable_Customer, nID);
         DBExecute(nStr, nil, FDBType);
 
         ShowMessage('取消商城关联成功！');

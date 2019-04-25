@@ -345,7 +345,7 @@ var nIdx: integer;
 begin
   for nIdx:=gMenuModule.Count - 1 downto 0 do
   begin
-    Dispose(PMenuModuleItem(gMenuModule[nIdx]));
+    Dispose(PMenuModuleItem(gMenuModule[nIdx));
     gMenuModule.Delete(nIdx);
   end;
 

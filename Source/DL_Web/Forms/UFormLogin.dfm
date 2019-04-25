@@ -5,7 +5,7 @@ object fFormLogin: TfFormLogin
   ClientWidth = 358
   Caption = #30331#24405
   OldCreateOrder = False
-  BorderIcons = [biSystemMenu]
+  BorderIcons = [biSystemMenu
   MonitoredKeys.Keys = <>
   OnCreate = UniLoginFormCreate
   PixelsPerInch = 96
@@ -17,7 +17,7 @@ object fFormLogin: TfFormLogin
     Height = 132
     Hint = ''
     Align = alTop
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight
   end
   object UniSimplePanel1: TUniSimplePanel
     Left = 8

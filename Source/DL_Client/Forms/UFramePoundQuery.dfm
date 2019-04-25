@@ -1,6 +1,6 @@
 inherited fFramePoundQuery: TfFramePoundQuery
   Width = 976
-  Height = 582
+  Height = 496
   inherited ToolBar1: TToolBar
     Width = 976
     inherited BtnAdd: TToolButton
@@ -19,7 +19,7 @@ inherited fFramePoundQuery: TfFramePoundQuery
   inherited cxGrid1: TcxGrid
     Top = 205
     Width = 976
-    Height = 377
+    Height = 291
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
     end

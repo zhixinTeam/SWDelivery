@@ -37,7 +37,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 1
     end
     object UniLabel1: TUniLabel
@@ -77,7 +77,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 5
     end
     object EditMemo: TUniMemo
@@ -90,7 +90,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 8
     end
     object UniLabel13: TUniLabel
@@ -130,7 +130,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 3
     end
     object Check1: TUniCheckBox
@@ -140,7 +140,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Height = 17
       Hint = ''
       Caption = #26080#25928#20154#21592': '#27491#24120#26597#35810#26102#19981#20104#26174#31034'.'
-      Anchors = [akLeft, akBottom]
+      Anchors = [akLeft, akBottom
       TabOrder = 9
     end
   end

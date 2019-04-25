@@ -29,15 +29,15 @@ begin
   nCard := '';
   if not FSzttceApi.IsInsertedCard then
   begin
-    nStr := '∂¡»°ø®∫≈ ß∞‹£∫[Errorcode=%d,ErrorMsg=%s]';
-    nStr := Format(nStr,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    nStr := '∂¡»°ø®∫≈ ß∞‹£∫[Errorcode=%d,ErrorMsg=%s';
+    nStr := Format(nStr,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg);
     Exit;
   end;
 //  fFormMain.TimerInsertCard.Enabled := False;
   if not FSzttceApi.ReadCardSerialNo(nCard) then
   begin
-    nStr := '∂¡»°ø®∫≈ ß∞‹£∫[Errorcode=%d,ErrorMsg=%s],«Î…‘∫Û÷ÿ ‘';
-    nStr := Format(nStr,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    nStr := '∂¡»°ø®∫≈ ß∞‹£∫[Errorcode=%d,ErrorMsg=%s,«Î…‘∫Û÷ÿ ‘';
+    nStr := Format(nStr,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg);
     ShowMsg(nStr,sHint);
 //    fFormMain.TimerInsertCard.Enabled := True;
     Exit;

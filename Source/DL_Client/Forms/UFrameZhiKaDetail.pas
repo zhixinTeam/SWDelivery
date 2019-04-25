@@ -97,7 +97,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormDateFilter,
-  UFormBase, UFrameBase, UFormBaseInfo;
+  UFormBase, UFrameBase, UFormBaseInfo, USysPopedom;
 
 //------------------------------------------------------------------------------
 class function TfFrameZhiKaDetail.FrameID: integer;
@@ -143,6 +143,13 @@ begin
   if FDateFilte then
     Result := Result + ' and (Z_Date>=''$STT'' and Z_Date<''$End'')';
   //xxxxx
+
+  if (not gSysParam.FIsAdmin)And
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData) ) then
+  begin
+      Result := Result + ' And ((S_Name=''' + gSysParam.FUserID + ''') or (C_Name=''' +
+            gSysParam.FUserID + '''))';
+  end;
 
   Result := MacroValue(Result, [MI('$ZK', sTable_ZhiKa), MI('$Yes', sFlag_Yes),
             MI('$ZD', sTable_ZhiKaDtl), MI('$SM', sTable_Salesman),

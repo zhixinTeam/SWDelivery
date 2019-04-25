@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  IdContext, IdBaseComponent, IdComponent, IdCustomTCPServer, IdTCPServer,
+  IdContext, IdBaseComponent, IdComponent, IdCustomTCPServer, IdTCPServer, Printers,
   IdGlobal, UMgrRemotePrint, SyncObjs, UTrayIcon, StdCtrls, ExtCtrls,
   ComCtrls;
 
@@ -260,13 +260,15 @@ begin
 
   if not nPrintStd then
   begin
-    nStr := 'Select *,%s As L_ValidMoney From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
+    nStr := 'Select *,%s As L_ValidMoney, (Case When L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan '+
+            'From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
     {$IFDEF SetStdValue}
     nStr := nStr + ' Union ' + 
               ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
               ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue  L_MValue, ' +
               ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
               ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.*,%s As L_ValidMoney ' +
+              ', (Case When L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan ' +
               ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s'' And L_StdValue>0  ';
     {$ENDIF}
 
@@ -280,6 +282,7 @@ begin
               ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue  L_MValue, ' +
               ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
               ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.*,%s As L_ValidMoney ' +
+              ', (Case When L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan ' +
               ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s'' And L_StdValue>0  ';
     nStr := Format(nStr, [nMoney, nBill]);
 
@@ -339,7 +342,8 @@ begin
   nHint := '';
   Result := False;
   
-  nStr := 'Select * From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
+  nStr := 'Select *,(Case when D_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan '+
+          'From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
   nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nOrder]);
 
   nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
@@ -347,7 +351,7 @@ begin
 
   if nDS.RecordCount < 1 then
   begin
-    nHint := '采购单[ %s ] 已无效!!';
+    nHint := '采购单[ %s  已无效!!';
     nHint := Format(nHint, [nOrder]);
     Exit;
   end;
@@ -358,7 +362,7 @@ begin
     nHint := '无法正确加载报表文件: ' + nStr;
     Exit;
   end;
-
+  
   if nPrinter = '' then
        FDR.Report1.PrintOptions.Printer := 'My_Default_Printer'
   else FDR.Report1.PrintOptions.Printer := nPrinter;
@@ -390,7 +394,7 @@ begin
 
   if nDS.RecordCount < 1 then
   begin
-    nHint := '短倒单[ %s ] 已无效!!';
+    nHint := '短倒单[ %s  已无效!!';
     nHint := Format(nHint, [nOrder]);
     Exit;
   end;
@@ -452,13 +456,13 @@ begin
          'Where  L_ID=''$ID'' And C_InstantPrintHYD=''Y''';
 
   nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
-          MI('$Customer', sTable_Customer), MI('$ID', nBill)]);
+          MI('$Customer', sTable_Customer), MI('$ID', nBill));
   //xxxxx
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin
-    nHint := '提货单[ %s ]没有提前随车打印化验单的特权';
-    nHint := Format(nHint, [nBill]);
+    nHint := '提货单[ %s 没有提前随车打印化验单的特权';
+    nHint := Format(nHint, [nBill);
     Exit;
   end;
   {$ENDIF}
@@ -479,7 +483,7 @@ begin
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin
-    nHint := '提货单[ %s ]没有对应的化验单';
+    nHint := '提货单[ %s 没有对应的化验单';
     nHint := Format(nHint, [nBill]);
     Exit;
   end;
@@ -513,7 +517,7 @@ begin
 
   {$IFDEF SWTC}    // 声威铜川工厂 熟料 骨料出厂不需要打印合格证
   nSR := ' Select * From %s Where L_ID=''%s''  ';
-  nSR := Format(nSR, [sTable_Bill, nBill]);
+  nSR := Format(nSR, [sTable_Bill, nBill);
   with FDM.QuerySQL(nSR) do
   begin
     if RecordCount >0 then
@@ -521,7 +525,7 @@ begin
       if (Pos('骨料', FieldByName('L_StockName').AsString) >0)OR
           (Pos('熟料', FieldByName('L_StockName').AsString) >0) then
       begin
-        WriteLog(Format('铜川 骨料、熟料不需打合格证: %s', [nBill]));
+        WriteLog(Format('铜川 骨料、熟料不需打合格证: %s', [nBill));
         Exit;
       end;
     end;
@@ -533,13 +537,13 @@ begin
 //  nSR  := 'Select * from %s b ' +
 //          ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
 //          'Where b.L_ID=''%s'' And b.L_HYDan=''%s'' ';
-//  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill, nBatchNO]);
+//  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill, nBatchNO);
   nSR  := 'Select * From  %s  Where L_ID=''%s''  ';
   nStr := Format(nSR, [sTable_Bill, nBill]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
-  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam);
 
   nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
@@ -548,13 +552,13 @@ begin
   //xxxxx
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
-          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nBill)]);
+          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nBill));
   //xxxxx
   {$ENDIF}
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin
-    nHint := '提货单[ %s ]没有对应的合格证';
+    nHint := '提货单[ %s 没有对应的合格证';
     nHint := Format(nHint, [nBill]);
     Exit;
   end;
@@ -564,8 +568,8 @@ begin
 //    nField := FindField('L_PrintHY');
 //    if Assigned(nField) and (nField.AsString <> sFlag_Yes) then
 //    begin
-//      nHint := '交货单[ %s ]无需打印合格证.';
-//      nHint := Format(nHint, [nBill]);
+//      nHint := '交货单[ %s 无需打印合格证.';
+//      nHint := Format(nHint, [nBill);
 //      Exit;
 //    end;
 //  end;

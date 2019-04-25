@@ -35,7 +35,11 @@ type
     BtnOK: TButton;
     dxLayoutControl1Item8: TdxLayoutItem;
     dxLayoutControl1Group2: TdxLayoutGroup;
+    chk1: TCheckBox;
+    dxlytmLayoutControl1Item9: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
+    procedure chk1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
     procedure InitFormData;
@@ -67,6 +71,12 @@ begin
     InitFormData;
     BtnOK.Enabled := gPopedomManager.HasPopedom(nPopedom, sPopedom_Edit);
 
+    if (not gSysParam.FIsAdmin) then
+    begin
+      BtnOK.Visible:= False;
+      BtnExit.Visible:= False;
+    end;
+
     ShowModal;
     Free;
   end;
@@ -91,6 +101,7 @@ end;
 //Desc: 初始化界面数据
 procedure TfFormIncInfo.InitFormData;
 var nIni: TIniFile;
+    nX  : string;
 begin
   nIni := TIniFile.Create(gPath + sConfigFile);
   try
@@ -100,6 +111,9 @@ begin
     EditMail.Text := nIni.ReadString(sCompany, 'Mail', '');
     EditAddr.Text := nIni.ReadString(sCompany, 'Address', '');
     EditMemo.Text := RegularStr(nIni.ReadString(sCompany, 'Memo', ''), False);
+    nX := (nIni.ReadString('OtherExtParam', 'IsPound', 'N'));
+
+    chk1.Checked:= nX='Y';
   finally
     nIni.Free;
   end;
@@ -108,6 +122,7 @@ end;
 //Desc: 保存
 procedure TfFormIncInfo.BtnOKClick(Sender: TObject);
 var nIni: TIniFile;
+    nX  : string;
 begin
   EditName.Text := Trim(EditName.Text);
   if EditName.Text = '' then
@@ -115,6 +130,7 @@ begin
     EditName.SetFocus;
     ShowMsg('请输入公司名称', sHint); Exit;
   end;
+  if chk1.Checked then nX:= 'Y' else nX:= 'N';
 
   nIni := TIniFile.Create(gPath + sConfigFile);
   try
@@ -127,6 +143,8 @@ begin
     nIni.WriteString(sCompany, 'Mail', EditMail.Text);
     nIni.WriteString(sCompany, 'Address', EditAddr.Text);
     nIni.WriteString(sCompany, 'Memo', RegularStr(EditMemo.Text, True));
+
+    nIni.WriteString('OtherExtParam', 'IsPound', nX);
   finally
     nIni.Free;
   end;
@@ -134,6 +152,18 @@ begin
   ModalResult := mrOK;
   AddVerifyData(gPath + sConfigFile, gSysParam.FProgID);
   ShowMsg('信息已保存', sHint);
+end;
+
+procedure TfFormIncInfo.chk1Click(Sender: TObject);
+begin
+  inherited;
+  gSysParam.FPound:= True;
+end;
+
+procedure TfFormIncInfo.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  gSysParam.FPound:= chk1.Checked;
 end;
 
 initialization

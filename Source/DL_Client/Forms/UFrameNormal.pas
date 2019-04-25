@@ -183,6 +183,8 @@ begin
 
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
+    IF gSysParam.FPound then cxView1.Tag:= 789 else cxView1.Tag:= 0;
+
     gSysEntityManager.BuildViewColumn(cxView1, PopedomItem, FilterColumnField);
     //初始化表头
     InitTableView(Name, cxView1, nIni);

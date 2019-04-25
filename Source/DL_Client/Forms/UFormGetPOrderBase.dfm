@@ -1,6 +1,6 @@
 inherited fFormGetPOrderBase: TfFormGetPOrderBase
-  Left = 401
-  Top = 134
+  Left = 620
+  Top = 226
   Width = 616
   Height = 384
   BorderStyle = bsSizeable
@@ -59,6 +59,9 @@ inherited fFormGetPOrderBase: TfFormGetPOrderBase
         item
           Caption = #35746#21333#21097#20313
           Width = 90
+        end
+        item
+          Caption = 'NC'#35746#21333#21495
         end>
       HideSelection = False
       ParentFont = False

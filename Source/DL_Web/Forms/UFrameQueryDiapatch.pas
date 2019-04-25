@@ -53,7 +53,7 @@ begin
     end;
 
     Result := MacroValue(Result, [MI('$ZT', sTable_ZTTrucks),
-              MI('$ZL', sTable_ZTLines), MI('$Bill', sTable_Bill)]);
+              MI('$ZL', sTable_ZTLines), MI('$Bill', sTable_Bill));
     //xxxxx
   end;
 end;
@@ -68,7 +68,7 @@ begin
     EditTruck.Text := Trim(EditTruck.Text);
     if EditTruck.Text = '' then Exit;
 
-    FWhere := Format('zt.T_Truck like ''%%%s%%''', [EditTruck.Text]);
+    FWhere := Format('zt.T_Truck like ''%%%s%%''', [EditTruck.Text);
     InitFormData(FWhere);
   end;
 end;

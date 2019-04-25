@@ -112,7 +112,7 @@ begin
     ColCount := 0;
 
     ShowColumnTitles := True;
-    Options := [goVertLine,goHorzLine,goColSizing,goFixedColClick];
+    Options := [goVertLine,goHorzLine,goColSizing,goFixedColClick;
   end;
 
   LoadGroupList(True);
@@ -184,7 +184,7 @@ begin
     nQuery := LockDBQuery(FDBType);
 
     nStr := 'Select * From %s Where G_Flag like ''%%%s%%''';
-    nStr := Format(nStr, [sTable_Group, sWebFlag]);
+    nStr := Format(nStr, [sTable_Group, sWebFlag);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -195,7 +195,7 @@ begin
 
       while not Eof do
       begin
-        with FGroups[nIdx] do
+        with FGroups[nIdx do
         begin
           FID       := FieldByName('G_ID').AsString;
           FName     := FieldByName('G_NAME').AsString;
@@ -218,7 +218,7 @@ begin
     if RecordCount > 0 then
     begin
       for nIdx := Low(FGroups) to High(FGroups) do
-      with FGroups[nIdx] do
+      with FGroups[nIdx do
       begin
         nInt := 0;
         First;
@@ -238,7 +238,7 @@ begin
         begin
           if FieldByName('P_Group').AsString = FID then
           begin
-            with FPopedom[nInt] do
+            with FPopedom[nInt do
             begin
               FItem := FieldByName('P_Item').AsString;
               FPopedom := FieldByName('P_Popedom').AsString;
@@ -262,7 +262,7 @@ begin
       begin
         nStr := FieldByName('U_Group').AsString;
         for nIdx := Low(FGroups) to High(FGroups) do
-        with FGroups[nIdx] do
+        with FGroups[nIdx do
         begin
           if FID <> nStr then Continue;
           if not Assigned(FUser) then
@@ -291,9 +291,9 @@ var nIdx: Integer;
 begin
   for nIdx := Low(FGroups)  to High(FGroups) do
   begin
-    if Assigned(FGroups[nIdx].FUser) then
-      FGroups[nIdx].FUser.Free;
-    FGroups[nIdx].FUser := nil;
+    if Assigned(FGroups[nIdx.FUser) then
+      FGroups[nIdx.FUser.Free;
+    FGroups[nIdx.FUser := nil;
   end;
 
   FGroupSelected := -1;
@@ -315,9 +315,9 @@ var nStr: string;
       Inc(nIdx);
       i := NativeInt(nChild.Data);
 
-      Grid1.Cells[giID, nIdx] := gAllMenus[i].FMenuID;
-      nStr := '|' + StringOfChar('-', 3 * nLevel) + gAllMenus[i].FTitle;
-      Grid1.Cells[giName, nIdx] := nStr;
+      Grid1.Cells[giID, nIdx := gAllMenus[i.FMenuID;
+      nStr := '|' + StringOfChar('-', 3 * nLevel) + gAllMenus[i.FTitle;
+      Grid1.Cells[giName, nIdx := nStr;
 
       if nChild.HasChildren then
         EnumChild(nChild, nLevel + 1);
@@ -339,8 +339,8 @@ begin
       while Assigned(nItem) do
       begin
         i := NativeInt(nItem.Data);
-        Grid1.Cells[giID, nIdx] := gAllMenus[i].FMenuID;
-        Grid1.Cells[giName, nIdx] := gAllMenus[i].FTitle;
+        Grid1.Cells[giID, nIdx := gAllMenus[i.FMenuID;
+        Grid1.Cells[giName, nIdx := gAllMenus[i.FTitle;
 
         if nItem.HasChildren then
           EnumChild(nItem, 1);
@@ -354,7 +354,7 @@ begin
 
     TreeGroup.Items.Clear;
     for nIdx := Low(FGroups) to High(FGroups) do
-    with FGroups[nIdx] do
+    with FGroups[nIdx do
     begin
       nItem := TreeGroup.Items.Add(nil, FName);
       nItem.Data := Pointer(nIdx+1);
@@ -362,7 +362,7 @@ begin
 
       for i := 0 to FUser.Count-1 do
       begin
-        nChild := TreeGroup.Items.Add(nItem, FUser[i]);
+        nChild := TreeGroup.Items.Add(nItem, FUser[i);
         nChild.Data := nil;
       end;
     end;
@@ -385,7 +385,7 @@ begin
     begin
       Title.Caption := '模块标识';
       Width := 100;
-      Grid1.ColWidths[0]:= 100;
+      Grid1.ColWidths[0:= 100;
     end;
 
     nCol := Grid1.Columns.Add as TUniGridColumn;
@@ -393,7 +393,7 @@ begin
     begin
       Title.Caption := '模块名称';
       Width := 200;
-      Grid1.ColWidths[1]:= 200;
+      Grid1.ColWidths[1:= 200;
     end;
 
     nStr := 'Select * From ' + sTable_PopItem;
@@ -407,14 +407,14 @@ begin
         with nCol do
         begin
           nStr := FieldByName('P_Name').AsString;
-          Title.Caption := Format('%s[%s]', [nStr, FieldByName('P_ID').AsString]);
+          Title.Caption := Format('%s[%s', [nStr, FieldByName('P_ID').AsString);
           Width := 92;
 
           if nCol.Index=9 then
-            Grid1.ColWidths[9]:= 100;
+            Grid1.ColWidths[9:= 100;
 
           if nCol.Index=10 then
-            Grid1.ColWidths[10]:= 137;
+            Grid1.ColWidths[10:= 137;
         end;
 
         Next;
@@ -427,9 +427,9 @@ begin
     for nIdx := 0 to Grid1.Columns.Count-1 do
     begin
       if nIdx=9 then
-        Grid1.ColWidths[nIdx]:= 100
+        Grid1.ColWidths[nIdx:= 100
       else if nIdx=10 then
-        Grid1.ColWidths[nIdx]:= 137
+        Grid1.ColWidths[nIdx:= 137
     end;
 
     Grid1.EndUpdate;
@@ -442,9 +442,9 @@ end;
 function TfFramePopedom.GetItemByColumn(const nCol: Integer): string;
 var nL,nR: Integer;
 begin
-  Result := Grid1.Columns[nCol].Title.Caption;
+  Result := Grid1.Columns[nCol.Title.Caption;
   nL := Pos('[', Result);
-  nR := Pos(']', Result);
+  nR := Pos('', Result);
 
   if (nL > 1) and (nR > 1) and (nR > nL) then
        Result := Copy(Result, nL + 1, nR - nL - 1)
@@ -460,9 +460,9 @@ begin
     if Col < 2 then Exit;
     //system col
     
-    if Grid1.Cells[Col, Row] = sCheckFlag then
-         Grid1.Cells[Col, Row] := ''
-    else Grid1.Cells[Col, Row] := sCheckFlag;
+    if Grid1.Cells[Col, Row = sCheckFlag then
+         Grid1.Cells[Col, Row := ''
+    else Grid1.Cells[Col, Row := sCheckFlag;
   end;
 end;
 
@@ -483,13 +483,13 @@ begin
      for nCol := Grid1.ColCount - 1 downto 2 do
      begin
        case nTag of
-        10: Grid1.Cells[nCol, nRow] := sCheckFlag;
-        20: Grid1.Cells[nCol, nRow] := '';
+        10: Grid1.Cells[nCol, nRow := sCheckFlag;
+        20: Grid1.Cells[nCol, nRow := '';
         30:
          begin
-           if Grid1.Cells[nCol, nRow] = sCheckFlag then
-                Grid1.Cells[nCol, nRow] := ''
-           else Grid1.Cells[nCol, nRow] := sCheckFlag;
+           if Grid1.Cells[nCol, nRow = sCheckFlag then
+                Grid1.Cells[nCol, nRow := ''
+           else Grid1.Cells[nCol, nRow := sCheckFlag;
          end;
        end;
      end;
@@ -510,13 +510,13 @@ begin
     for nRow := Grid1.RowCount - 1 downto 0 do
     begin
      case nTag of
-      10: Grid1.Cells[Grid1.Col, nRow] := sCheckFlag;
-      20: Grid1.Cells[Grid1.Col, nRow] := '';
+      10: Grid1.Cells[Grid1.Col, nRow := sCheckFlag;
+      20: Grid1.Cells[Grid1.Col, nRow := '';
       30:
        begin
-         if Grid1.Cells[Grid1.Col, nRow] = sCheckFlag then
-              Grid1.Cells[Grid1.Col, nRow] := ''
-         else Grid1.Cells[Grid1.Col, nRow] := sCheckFlag;
+         if Grid1.Cells[Grid1.Col, nRow = sCheckFlag then
+              Grid1.Cells[Grid1.Col, nRow := ''
+         else Grid1.Cells[Grid1.Col, nRow := sCheckFlag;
        end;
      end;
     end;
@@ -535,9 +535,9 @@ begin
   //invalid group
   
   FGroupSelected := NativeInt(TreeGroup.Selected.Data) - 1;
-  with FGroups[FGroupSelected] do
+  with FGroups[FGroupSelected do
   try
-    LabelHint.Caption := Format('当前组:[ %s ] 描述:[ %s ]', [FName, FDesc]);
+    LabelHint.Caption := Format('当前组:[ %s  描述:[ %s ', [FName, FDesc);
     N1Click(N2); //全部取消
     Grid1.BeginUpdate;
 
@@ -546,8 +546,8 @@ begin
       nRow := -1;
       for i := Grid1.RowCount-1 downto 0 do
       begin
-        nStr := MakeMenuID('MAIN', Grid1.Cells[0, i]);
-        if CompareText(nStr, FPopedom[nIdx].FItem) = 0 then
+        nStr := MakeMenuID('MAIN', Grid1.Cells[0, i);
+        if CompareText(nStr, FPopedom[nIdx.FItem) = 0 then
         begin
           nRow := i; Break;
         end;
@@ -559,8 +559,8 @@ begin
       for nCol := Grid1.ColCount-1 downto 2 do
       begin
         nStr := GetItemByColumn(nCol);
-        if Pos(nStr, FPopedom[nIdx].FPopedom) > 0 then
-          Grid1.Cells[nCol, nRow] := sCheckFlag;
+        if Pos(nStr, FPopedom[nIdx.FPopedom) > 0 then
+          Grid1.Cells[nCol, nRow := sCheckFlag;
         //xxxxx
       end;
     end;
@@ -590,7 +590,7 @@ begin
     Exit;
   end;
 
-  ShowPopedomGroupForm(FGroups[FGroupSelected].FID,
+  ShowPopedomGroupForm(FGroups[FGroupSelected.FID,
     procedure(const nResult: Integer; const nParam: PFormCommandParam)
     begin
       LoadGroupList(False);
@@ -610,8 +610,8 @@ begin
     Exit;
   end;
 
-  nStr := FGroups[FGroupSelected].FName;
-  nStr := Format('确定要删除名称为[ %s ]的组吗?', [nStr]);
+  nStr := FGroups[FGroupSelected.FName;
+  nStr := Format('确定要删除名称为[ %s 的组吗?', [nStr);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
     begin
@@ -622,31 +622,31 @@ begin
       try
         nQuery := LockDBQuery(FDBType);
         nStr := 'Select Count(*) From %s Where U_Group=%s';
-        nStr := Format(nStr, [sTable_User, FGroups[FGroupSelected].FID]);
+        nStr := Format(nStr, [sTable_User, FGroups[FGroupSelected.FID);
 
         with DBQuery(nStr, nQuery) do
-        if Fields[0].AsInteger > 0 then
+        if Fields[0.AsInteger > 0 then
         begin
-          nStr := '该组中有[ %d ]名用户,不能删除.';
-          nStr := Format(nStr, [Fields[0].AsInteger]);
+          nStr := '该组中有[ %d 名用户,不能删除.';
+          nStr := Format(nStr, [Fields[0.AsInteger);
           ShowMessage(nStr);
           Exit;
         end;
 
         nStr := 'Select G_CANDEL From %s Where G_ID=%s';
-        nStr := Format(nStr, [sTable_Group, FGroups[FGroupSelected].FID]);
+        nStr := Format(nStr, [sTable_Group, FGroups[FGroupSelected.FID);
 
         with DBQuery(nStr, nQuery) do
         if RecordCount > 0 then
         begin
-          if Fields[0].AsInteger = 1 then
+          if Fields[0.AsInteger = 1 then
           begin
             ShowMessage('管理员设置该组不允许删除');
             Exit;
           end;
 
           nStr := 'Delete From %s Where G_ID=%s';
-          nStr := Format(nStr, [sTable_Group, FGroups[FGroupSelected].FID]);
+          nStr := Format(nStr, [sTable_Group, FGroups[FGroupSelected.FID);
           DBExecute(nStr, nQuery);
 
           LoadGroupList(False);
@@ -712,7 +712,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('确定要删除名称为[ %s ]的用户吗?', [nID]);
+  nStr := Format('确定要删除名称为[ %s 的用户吗?', [nID);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
     begin
@@ -720,7 +720,7 @@ begin
       //cancel
 
       nStr := 'Delete From %s Where U_Name=''%s''';
-      nStr := Format(nStr, [sTable_User, nID]);
+      nStr := Format(nStr, [sTable_User, nID);
       DBExecute(nStr, nil, FDBType);
 
       LoadGroupList(False);
@@ -745,21 +745,21 @@ begin
   try
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
     nStr := 'Delete From %s Where P_Group=%s';
-    nStr := Format(nStr, [sTable_Popedom, FGroups[FGroupSelected].FID]);
+    nStr := Format(nStr, [sTable_Popedom, FGroups[FGroupSelected.FID);
     nList.Add(nStr); //clear all
 
     for nRow := 0 to Grid1.RowCount - 1 do
     begin
       nP := '';
       for nCol := 2 to Grid1.ColCount - 1 do
-       if Grid1.Cells[nCol, nRow] = sCheckFlag then
+       if Grid1.Cells[nCol, nRow = sCheckFlag then
         nP := nP + GetItemByColumn(nCol);
       if nP = '' then Continue; //no selected
 
       with TSQLBuilder do
-      nStr := MakeSQLByStr([SF('P_Group', FGroups[FGroupSelected].FID, sfVal),
-        SF('P_Item', MakeMenuID('MAIN', Grid1.Cells[giID, nRow])),
-        SF('P_Popedom', nP)], sTable_Popedom, '', True);
+      nStr := MakeSQLByStr([SF('P_Group', FGroups[FGroupSelected.FID, sfVal),
+        SF('P_Item', MakeMenuID('MAIN', Grid1.Cells[giID, nRow)),
+        SF('P_Popedom', nP), sTable_Popedom, '', True);
       nList.Add(nStr);
     end;
 

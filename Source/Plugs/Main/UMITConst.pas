@@ -69,6 +69,8 @@ type
     FlastSaleTime:TDateTime;                         //离线后最后发货截止时间
     FProportion : Double;                            //可发金额比例（在线状态 默认为 1 离线后默认为 0.8 即80%）
     FAllowSale  : Boolean;
+
+    FPoundMPrinter : string;                         //程序标识
   end;
   //系统参数
 

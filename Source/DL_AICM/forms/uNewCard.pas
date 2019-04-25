@@ -149,8 +149,8 @@ procedure TfFormNewCard.Writelog(nMsg:string);
 var
   nStr:string;
 begin
-  nStr := 'weborder[%s]clientid[%s]clientname[%s]sotckno[%s]stockname[%s]';
-  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text]);
+  nStr := 'weborder[%sclientid[%sclientname[%ssotckno[%sstockname[%s';
+  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text);
   gSysLoger.AddLog(nStr+nMsg);
 end;
 
@@ -170,7 +170,7 @@ begin
   FCardData.Free;
   for i := FWorkshopList.Count-1 downto 0 do
   begin
-    nItem := PWorkshop(FWorkshopList.Items[i]);
+    nItem := PWorkshop(FWorkshopList.Items[i);
     nItem.WarehouseList.Free;
     Dispose(nItem);
   end;
@@ -195,10 +195,10 @@ begin
 //  dxlytmLayout1Item11.Visible := False;
   dxlytmLayout1Item13.Visible := False;
 //  dxLayout1Item12.Visible := False;
-  EditTruck.Properties.Buttons[0].Visible := False;
+  EditTruck.Properties.Buttons[0.Visible := False;
   if not fFormMain.FCursorShow then
   begin
-    EditFQ.Properties.Buttons[0].Visible := False;
+    EditFQ.Properties.Buttons[0.Visible := False;
   end;
   ActiveControl := editWebOrderNo;
   btnOK.Enabled := False;
@@ -277,14 +277,14 @@ begin
             +'</head>'
             +'</DATA>';
 
-  nXmlStr := Format(nXmlStr,[gSysParam.FFactory,nIDCard]);
+  nXmlStr := Format(nXmlStr,[gSysParam.FFactory,nIDCard);
   nXmlStr := PackerEncodeStr(nXmlStr);
 
   nData := get_shoporderbyno(nXmlStr);
   if nData='' then
   begin
-    ShowMsg('未查询到网上商城订单['+nIDCard+']详细信息，请检查订单号是否正确',sHint);
-    Writelog('未查询到网上商城订单['+nIDCard+']详细信息，请检查订单号是否正确');
+    ShowMsg('未查询到网上商城订单['+nIDCard+'详细信息，请检查订单号是否正确',sHint);
+    Writelog('未查询到网上商城订单['+nIDCard+'详细信息，请检查订单号是否正确');
     Exit;
   end;
 
@@ -297,7 +297,7 @@ begin
     nListA.Text := nData;
     for i := nListA.Count-1 downto 0 do
     begin
-      if Trim(nListA.Strings[i])='' then
+      if Trim(nListA.Strings[i)='' then
       begin
         nListA.Delete(i);
       end;
@@ -306,16 +306,16 @@ begin
     SetLength(FWebOrderItems,FWebOrderCount);
     for i := 0 to nListA.Count-1 do
     begin
-      nListB.CommaText := nListA.Strings[i];
-      FWebOrderItems[i].FOrder_id := nListB.Values['order_id'];
-      FWebOrderItems[i].FOrdernumber := nListB.Values['ordernumber'];
-      FWebOrderItems[i].FGoodsID := nListB.Values['goodsID'];
-      FWebOrderItems[i].FGoodstype := nListB.Values['goodstype'];
-      FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
-      FWebOrderItems[i].FData := nListB.Values['data'];
-      FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
-      FWebOrderItems[i].FYunTianOrderId := nListB.Values['fac_order_no'];
-      AddListViewItem(FWebOrderItems[i]);
+      nListB.CommaText := nListA.Strings[i;
+      FWebOrderItems[i.FOrder_id := nListB.Values['order_id';
+      FWebOrderItems[i.FOrdernumber := nListB.Values['ordernumber';
+      FWebOrderItems[i.FGoodsID := nListB.Values['goodsID';
+      FWebOrderItems[i.FGoodstype := nListB.Values['goodstype';
+      FWebOrderItems[i.FGoodsname := nListB.Values['goodsname';
+      FWebOrderItems[i.FData := nListB.Values['data';
+      FWebOrderItems[i.Ftracknumber := nListB.Values['tracknumber';
+      FWebOrderItems[i.FYunTianOrderId := nListB.Values['fac_order_no';
+      AddListViewItem(FWebOrderItems[i);
     end;
   finally
     nListB.Free;
@@ -349,24 +349,24 @@ begin
 
   FCardData.Text := PackerDecodeStr(nCardDataStr);
 
-  nYuntianOrderItem.FGoodsID := FCardData.Values['XCB_Cement'];
-  nYuntianOrderItem.FGoodsname := FCardData.Values['XCB_CementName'];
-  nYuntianOrderItem.FOrdernumber := FCardData.Values['XCB_RemainNum'];
-  nYuntianOrderItem.FCusID := FCardData.Values['XCB_Client'];
-  nYuntianOrderItem.FCusName := FCardData.Values['XCB_ClientName'];
+  nYuntianOrderItem.FGoodsID := FCardData.Values['XCB_Cement';
+  nYuntianOrderItem.FGoodsname := FCardData.Values['XCB_CementName';
+  nYuntianOrderItem.FOrdernumber := FCardData.Values['XCB_RemainNum';
+  nYuntianOrderItem.FCusID := FCardData.Values['XCB_Client';
+  nYuntianOrderItem.FCusName := FCardData.Values['XCB_ClientName';
 
   if nWebOrderItem.FGoodsID<>nYuntianOrderItem.FGoodsID then
   begin
-    ShowMsg('商城订单中产品型号['+nWebOrderItem.FOrder_id+']有误。',sError);
-    Writelog('商城订单中产品型号['+nWebOrderItem.FOrder_id+']有误。');
+    ShowMsg('商城订单中产品型号['+nWebOrderItem.FOrder_id+'有误。',sError);
+    Writelog('商城订单中产品型号['+nWebOrderItem.FOrder_id+'有误。');
     Result := False;
     Exit;
   end;
 
   if nWebOrderItem.FGoodsname<>nYuntianOrderItem.FGoodsname then
   begin
-    ShowMsg('商城订单中产品名称['+nWebOrderItem.FGoodsname+']有误。',sError);
-    Writelog('商城订单中产品名称['+nWebOrderItem.FGoodsname+']有误。');
+    ShowMsg('商城订单中产品名称['+nWebOrderItem.FGoodsname+'有误。',sError);
+    Writelog('商城订单中产品名称['+nWebOrderItem.FGoodsname+'有误。');
     Result := False;
     Exit;
   end;
@@ -384,8 +384,8 @@ begin
 
   if nOrderNumberWeb>nOrderNumberYT then
   begin
-    ShowMsg('商城订单中提货数量有误，最多可提货数量为['+FloattoStr(nOrderNumberYT)+']。',sError);
-    Writelog('商城订单中提货数量有误，最多可提货数量为['+FloattoStr(nOrderNumberYT)+']。');
+    ShowMsg('商城订单中提货数量有误，最多可提货数量为['+FloattoStr(nOrderNumberYT)+'。',sError);
+    Writelog('商城订单中提货数量有误，最多可提货数量为['+FloattoStr(nOrderNumberYT)+'。');
     Result := False;
     Exit;
   end;
@@ -466,46 +466,46 @@ begin
   try
     LoadSysDictItem(sFlag_PrintBill, nStocks);
 
-    nTmp.Values['Type'] := FCardData.Values['XCB_CementType'];
-    nTmp.Values['StockNO'] := FCardData.Values['XCB_Cement'];
-    nTmp.Values['StockName'] := FCardData.Values['XCB_CementName'];
-    nTmp.Values['Price'] := '0.00';
-    nTmp.Values['Value'] := EditValue.Text;
+    nTmp.Values['Type' := FCardData.Values['XCB_CementType';
+    nTmp.Values['StockNO' := FCardData.Values['XCB_Cement';
+    nTmp.Values['StockName' := FCardData.Values['XCB_CementName';
+    nTmp.Values['Price' := '0.00';
+    nTmp.Values['Value' := EditValue.Text;
 
     nList.Add(PackerEncodeStr(nTmp.Text));
-    nPrint := nStocks.IndexOf(FCardData.Values['XCB_Cement']) >= 0;
+    nPrint := nStocks.IndexOf(FCardData.Values['XCB_Cement') >= 0;
 
     with nList do
     begin
-      Values['Bills'] := PackerEncodeStr(nList.Text);
-      Values['ZhiKa'] := PackerEncodeStr(FCardData.Text);
-      Values['Truck'] := EditTruck.Text;
-      Values['Lading'] := sFlag_TiHuo;
+      Values['Bills' := PackerEncodeStr(nList.Text);
+      Values['ZhiKa' := PackerEncodeStr(FCardData.Text);
+      Values['Truck' := EditTruck.Text;
+      Values['Lading' := sFlag_TiHuo;
       nStr := GetCtrlData(EditGroup);
-      Values['LineGroup'] := GetCtrlData(EditGroup);
-      Values['Memo']  := EmptyStr;
-      Values['IsVIP'] := Copy(GetCtrlData(EditType),1,1);
-      Values['Seal'] := FCardData.Values['XCB_CementCodeID'];
-      Values['HYDan'] := EditFQ.Text;
-      Values['BuDan'] := sFlag_No;
-      nType := GetStockType(FCardData.Values['XCB_Cement']);
+      Values['LineGroup' := GetCtrlData(EditGroup);
+      Values['Memo'  := EmptyStr;
+      Values['IsVIP' := Copy(GetCtrlData(EditType),1,1);
+      Values['Seal' := FCardData.Values['XCB_CementCodeID';
+      Values['HYDan' := EditFQ.Text;
+      Values['BuDan' := sFlag_No;
+      nType := GetStockType(FCardData.Values['XCB_Cement');
 //      if nType=sFlag_Dai then
 //      begin
-        Values['Status'] := sFlag_TruckIn;
-        Values['NextStatus'] := sFlag_TruckZT;
+        Values['Status' := sFlag_TruckIn;
+        Values['NextStatus' := sFlag_TruckZT;
 //      end;
 
       nInFactT := Now;
       nInFact := TruckInFact(EditTruck.Text, nInFactT);
-      if nInFact then Values['InFact'] := sFlag_Yes;
-      if PrintFH.Checked  then Values['PrintFH'] := sFlag_Yes;
-//      if PrintHGZ.Checked then Values['PrintHGZ'] := sFlag_Yes;
+      if nInFact then Values['InFact' := sFlag_Yes;
+      if PrintFH.Checked  then Values['PrintFH' := sFlag_Yes;
+//      if PrintHGZ.Checked then Values['PrintHGZ' := sFlag_Yes;
       //袋装车辆直接置为进厂状态
 //      if nType=sFlag_Dai then
 //      begin
-      Values['InFact'] := sFlag_Yes;
-      Values['Status'] := sFlag_TruckIn;
-      Values['NextStatus'] := sFlag_TruckZT;
+      Values['InFact' := sFlag_Yes;
+      Values['Status' := sFlag_TruckIn;
+      Values['NextStatus' := sFlag_TruckZT;
 //      end;
     end;
     nBillData := PackerEncodeStr(nList.Text);
@@ -521,14 +521,14 @@ begin
   //发卡
   if not FSzttceApi.IssueOneCard(nNewCardNo) then
   begin
-    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s]';
-    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s';
+    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg);
     Writelog(nHint);
     ShowMsg(nHint,sHint);
   end
   else begin
-    ShowMsg('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片',sHint);
-    Writelog('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片');
+    ShowMsg('发卡成功,卡号['+nNewCardNo+',请收好您的卡片',sHint);
+    Writelog('发卡成功,卡号['+nNewCardNo+',请收好您的卡片');
     SetBillCard(FNewBillID, EditTruck.Text,nNewCardNo, True);
   end;
 
@@ -594,7 +594,7 @@ var
   nStr:string;
 begin
   nStr := 'insert into %s(WOM_WebOrderID,WOM_LID) values(''%s'',''%s'')';
-  nStr := Format(nStr,[sTable_WebOrderMatch,FWebOrderID,FNewBillID]);
+  nStr := Format(nStr,[sTable_WebOrderMatch,FWebOrderID,FNewBillID);
   fdm.ADOConn.BeginTrans;
   try
     fdm.ExecuteSQL(nStr);
@@ -612,7 +612,7 @@ begin
   editWebOrderNo.Clear;
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i];
+    nComp := dxLayout1.Components[i;
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Clear;
@@ -628,7 +628,7 @@ begin
 //  editIdCard.Properties.ReadOnly := True;
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i];
+    nComp := dxLayout1.Components[i;
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Properties.ReadOnly := True;
@@ -665,7 +665,7 @@ var
   nOrderItem:stMallOrderItem;
   nRepeat:Boolean;
 begin
-  nOrderItem := FWebOrderItems[FWebOrderIndex];
+  nOrderItem := FWebOrderItems[FWebOrderIndex;
   FWebOrderID := nOrderItem.FOrdernumber;
   nRepeat := IsRepeatCard(FWebOrderID);
 
@@ -684,20 +684,20 @@ begin
 
   //填充界面信息
   //基本信息
-  EditID.Text     := FCardData.Values['XCB_ID'];
-  EditCard.Text   := FCardData.Values['XCB_CardId'];
-  EditCus.Text    := FCardData.Values['XCB_Client'];
-  EditCName.Text  := FCardData.Values['XCB_ClientName'];
-  EditMan.Text    := FCardData.Values['XCB_CreatorNM'];
-  EditDate.Text   := FCardData.Values['XCB_CDate'];
-  EditFirm.Text   := FCardData.Values['XCB_FirmName'];
-  EditArea.Text   := FCardData.Values['pcb_name'];
-  EditTrans.Text  := FCardData.Values['XCB_TransName'];
-  EditWorkAddr.Text:= FCardData.Values['XCB_WorkAddr'];
+  EditID.Text     := FCardData.Values['XCB_ID';
+  EditCard.Text   := FCardData.Values['XCB_CardId';
+  EditCus.Text    := FCardData.Values['XCB_Client';
+  EditCName.Text  := FCardData.Values['XCB_ClientName';
+  EditMan.Text    := FCardData.Values['XCB_CreatorNM';
+  EditDate.Text   := FCardData.Values['XCB_CDate';
+  EditFirm.Text   := FCardData.Values['XCB_FirmName';
+  EditArea.Text   := FCardData.Values['pcb_name';
+  EditTrans.Text  := FCardData.Values['XCB_TransName';
+  EditWorkAddr.Text:= FCardData.Values['XCB_WorkAddr';
 
   //提单信息
   //加载栈台分组
-  if not LoadValidZTLineGroupSpec(FCardData.Values['XCB_Cement'],EditGroup.Properties.Items) then
+  if not LoadValidZTLineGroupSpec(FCardData.Values['XCB_Cement',EditGroup.Properties.Items) then
   begin
     ShowMsg(FErrorMsg,sHint);
     BtnOK.Enabled := False;
@@ -705,10 +705,10 @@ begin
   end;
 
   EditType.ItemIndex := 0;
-  EditStock.Text  := FCardData.Values['XCB_Cement'];
-  EditSName.Text  := FCardData.Values['XCB_CementName'];
-  EditMax.Text    := FCardData.Values['XCB_RemainNum'];
-  EditFQ.Text     := FCardData.Values['XCB_CementCode'];
+  EditStock.Text  := FCardData.Values['XCB_Cement';
+  EditSName.Text  := FCardData.Values['XCB_CementName';
+  EditMax.Text    := FCardData.Values['XCB_RemainNum';
+  EditFQ.Text     := FCardData.Values['XCB_CementCode';
   EditValue.Text := nOrderItem.FData;
   EditTruck.Text := nOrderItem.Ftracknumber;
   FRequireCementcode := Pos('熟料',EditSName.Text) = 0;
@@ -755,7 +755,7 @@ begin
   begin
     for i := 0 to lvOrders.Items.Count-1 do
     begin
-      if nSelItem = lvOrders.Items[i] then
+      if nSelItem = lvOrders.Items[i then
       begin
         FWebOrderIndex := i;
         LoadSingleOrder;
@@ -771,7 +771,7 @@ var
 begin
   Result := False;
   nStr := 'select * from %s where WOM_WebOrderID=''%s'' and WOM_deleted=''%s''';
-  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem,sFlag_No]);
+  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem,sFlag_No);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then
@@ -792,8 +792,8 @@ begin
   Result := False;
   for i := 0 to nList.Count-1 do
   begin
-    Dispose(Pointer(nList.Objects[i]));
-    nList.Objects[i] := nil;
+    Dispose(Pointer(nList.Objects[i));
+    nList.Objects[i := nil;
   end;
   nList.Clear;
 
@@ -801,7 +801,7 @@ begin
   nworkshopNameList := TStringList.Create;
   try
     nSQL := 'select * from %s where d_name=''%s'' and d_paramb=''%s''';
-    nSQL := Format(nSQL,[sTable_SysDict,sFlag_AICMWorkshop,nStockno]);
+    nSQL := Format(nSQL,[sTable_SysDict,sFlag_AICMWorkshop,nStockno);
     with FDM.QueryTemp(nSql) do
     begin
       if RecordCount<1 then
@@ -817,12 +817,12 @@ begin
 
     for i := 0 to nworkshopList.Count-1 do
     begin
-      nCode := nworkshopList.Strings[i];
-      nName := nworkshopNameList.Strings[i];
+      nCode := nworkshopList.Strings[i;
+      nName := nworkshopNameList.Strings[i;
       New(nData);
       nList.Add(nName+'.');
       nData.FString := nCode;
-      nList.Objects[i] := TObject(nData);
+      nList.Objects[i := TObject(nData);
     end;
   finally
     nworkshopList.Free;
@@ -845,8 +845,8 @@ begin
   if not FileExists(nFileName) then
   begin
     FErrorCode := 1000;
-    FErrorMsg := '系统配置文件['+nFileName+']不存在';
-    Writelog('系统配置文件['+nFileName+']不存在');
+    FErrorMsg := '系统配置文件['+nFileName+'不存在';
+    Writelog('系统配置文件['+nFileName+'不存在');
     Exit;
   end;
 
@@ -857,7 +857,7 @@ begin
     nworkshopCount := nRoot.NodeCount;
     for i := 0 to nworkshopCount-1 do
     begin
-      nworkshopNode := nRoot.Nodes[i];
+      nworkshopNode := nRoot.Nodes[i;
       New(nPWorkshopItem);
       nPWorkshopItem.code := UTF8Decode(nworkshopNode.ReadAttributeString('code'));
       nPWorkshopItem.desc := UTF8Decode(nworkshopNode.ReadAttributeString('desc'));
@@ -867,7 +867,7 @@ begin
       nWarehouseCount := nworkshopNode.NodeCount;
       for j := 0 to nWarehouseCount-1 do
       begin
-        nWarehouseNode := nworkshopNode.Nodes[j];
+        nWarehouseNode := nworkshopNode.Nodes[j;
         nStr := UTF8Decode(nWarehouseNode.ValueAsString);
         nPWorkshopItem.WarehouseList.Add(nStr);
       end;
@@ -896,7 +896,7 @@ var
 begin
   Result := '';
   nSql := 'select D_Memo from %s where d_name = ''%s'' and d_paramB=''%s''';
-  nSql := Format(nSql,[sTable_SysDict,sFlag_StockItem,nStockno]);
+  nSql := Format(nSql,[sTable_SysDict,sFlag_StockItem,nStockno);
 
   with FDM.QueryTemp(nSql) do
   begin
@@ -948,8 +948,8 @@ var
   nCementCodeID:string;//最终出厂编号ID值
   nFoundSuccess:Boolean;//是否找到合适的出厂编号
 begin
-  FCardData.Values['XCB_CementCode'] := '';
-  FCardData.Values['XCB_CementCodeID'] := '';
+  FCardData.Values['XCB_CementCode' := '';
+  FCardData.Values['XCB_CementCodeID' := '';
   EditFQ.Text     := '';
   BtnOK.Enabled := True;
   if not FRequireCementcode then Exit;
@@ -962,7 +962,7 @@ begin
   try
     //begin获取特殊客户水泥编号
     nSQL := 'select * from %s where SCC_CusID=''%s''';
-    nSQL := Format(nSQL,[sTable_SpecialCustomerCementcode,FCardData.Values['XCB_Client']]);
+    nSQL := Format(nSQL,[sTable_SpecialCustomerCementcode,FCardData.Values['XCB_Client');
     with FDM.QuerySQL(nSQL) do
     begin
       if RecordCount>0 then
@@ -975,7 +975,7 @@ begin
     //begin获取当前发货车间对应的xml配置信息
     for i := 0 to FWorkshopList.Count-1 do
     begin
-      nPWorkshop := PWorkshop(FWorkshopList.Items[i]);
+      nPWorkshop := PWorkshop(FWorkshopList.Items[i);
       if nPWorkshop.code=nGroupCode then Break;
     end;
     //end获取当前发货车间对应的xml配置信息
@@ -986,17 +986,17 @@ begin
     nListB := TStringList.Create;
     try
       nStr := GetOutASH(EditGroup.Text);
-      FCardData.Values['XCB_OutASH'] := nStr;
+      FCardData.Values['XCB_OutASH' := nStr;
        nCementData.Text := YT_GetBatchCode(FCardData);
-      nListA.Text := PackerDecodeStr(nCementData.Values['XCB_CementRecords']);
+      nListA.Text := PackerDecodeStr(nCementData.Values['XCB_CementRecords');
       for nIdxBatchItem := 0 to nListA.Count - 1 do
       begin
-        nListB.Text := PackerDecodeStr(nListA[nIdxBatchItem]);
-        nBatchValue := StrToFloat(nListB.Values['XCB_CementValue']);
+        nListB.Text := PackerDecodeStr(nListA[nIdxBatchItem);
+        nBatchValue := StrToFloat(nListB.Values['XCB_CementValue');
         if nBatchValue-ndOrderValue>0.001 then
         begin
-          nCementCode := nListB.Values['XCB_CementCode'];
-          nCementCodeID := nListB.Values['XCB_CementCodeID'];
+          nCementCode := nListB.Values['XCB_CementCode';
+          nCementCodeID := nListB.Values['XCB_CementCodeID';
           if Pos('#',nCementCode)=0 then
           begin
             nPostfix_str := Copy(nCementCode,Pos('＃',nCementCode),Length(nCementCode));
@@ -1062,9 +1062,9 @@ begin
     Exit;
   end;
 
-  FCardData.Values['XCB_CementCode'] := nCementCode;
-  FCardData.Values['XCB_CementCodeID'] := nCementCodeID;
-  EditFQ.Text     := FCardData.Values['XCB_CementCode'];
+  FCardData.Values['XCB_CementCode' := nCementCode;
+  FCardData.Values['XCB_CementCodeID' := nCementCodeID;
+  EditFQ.Text     := FCardData.Values['XCB_CementCode';
 end;
 
 end.

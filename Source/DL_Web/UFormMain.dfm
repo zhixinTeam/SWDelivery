@@ -22,7 +22,7 @@ object fFormMain: TfFormMain
     Panels = <>
     SizeGrip = False
     Align = alBottom
-    Anchors = [akLeft, akRight, akBottom]
+    Anchors = [akLeft, akRight, akBottom
     ParentColor = False
     Color = clWindow
   end
@@ -34,7 +34,7 @@ object fFormMain: TfFormMain
     Hint = ''
     ParentColor = False
     Align = alTop
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight
     TabOrder = 1
     object ImageRight: TUniImage
       Left = 583
@@ -44,7 +44,7 @@ object fFormMain: TfFormMain
       Hint = ''
       AutoSize = True
       Align = alRight
-      Anchors = [akTop, akRight, akBottom]
+      Anchors = [akTop, akRight, akBottom
     end
     object ImageLeft: TUniImage
       Left = 0
@@ -53,7 +53,7 @@ object fFormMain: TfFormMain
       Height = 80
       Hint = ''
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
     end
     object LabelHint: TUniLabel
       Left = 15
@@ -78,7 +78,7 @@ object fFormMain: TfFormMain
     Hint = ''
     ActivePage = SheetMemory
     Align = alClient
-    Anchors = [akLeft, akTop, akRight, akBottom]
+    Anchors = [akLeft, akTop, akRight, akBottom
     TabOrder = 2
     OnChange = PageWorkChange
     object SheetWelcome: TUniTabSheet
@@ -95,7 +95,7 @@ object fFormMain: TfFormMain
         Height = 464
         Hint = ''
         Align = alClient
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Anchors = [akLeft, akTop, akRight, akBottom
         ParentFont = False
         Font.Charset = GB2312_CHARSET
         Font.Height = -20
@@ -116,7 +116,7 @@ object fFormMain: TfFormMain
         Hint = ''
         ScrollBars = ssBoth
         Align = alClient
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Anchors = [akLeft, akTop, akRight, akBottom
         TabOrder = 0
       end
       object UniSimplePanel1: TUniSimplePanel
@@ -127,7 +127,7 @@ object fFormMain: TfFormMain
         Hint = ''
         ParentColor = False
         Align = alTop
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akLeft, akTop, akRight
         TabOrder = 1
         DesignSize = (
           534
@@ -139,7 +139,7 @@ object fFormMain: TfFormMain
           Height = 25
           Hint = ''
           Caption = #21047#26032
-          Anchors = [akTop, akRight]
+          Anchors = [akTop, akRight
           TabOrder = 1
           OnClick = BtnFreshClick
         end
@@ -151,7 +151,7 @@ object fFormMain: TfFormMain
           Hint = ''
           Checked = True
           Caption = #21451#22909#26684#24335#26174#31034
-          Anchors = [akTop, akRight]
+          Anchors = [akTop, akRight
           TabOrder = 2
         end
         object BtnUpdateMemory: TUniButton
@@ -174,7 +174,7 @@ object fFormMain: TfFormMain
     Height = 492
     Hint = ''
     Align = alLeft
-    Anchors = [akLeft, akTop, akBottom]
+    Anchors = [akLeft, akTop, akBottom
     TabOrder = 3
     BorderStyle = ubsNone
     ShowCaption = False
@@ -191,7 +191,7 @@ object fFormMain: TfFormMain
       ParentColor = False
       Border = True
       Align = alTop
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 1
       DesignSize = (
         256
@@ -209,7 +209,7 @@ object fFormMain: TfFormMain
           'cc'
           'dd'
           'ee')
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akLeft, akTop, akRight
         TabOrder = 1
         EmptyText = #24037#21378#21015#34920
         FieldLabelFont.Charset = GB2312_CHARSET
@@ -251,7 +251,7 @@ object fFormMain: TfFormMain
         0103000000FFFFFFFF02000000FFFFFFFF00000000FFFFFFFF00000000FFFFFF
         FF00000000FFFFFFFF00000000}
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 2
       Color = clWindow
       OnClick = TreeMenuClick

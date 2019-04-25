@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
+  UFormNormal, cxGraphics, cxControls, cxLookAndFeels, DateUtils,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxButtonEdit,
   cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter, cxCalendar;
@@ -59,6 +59,26 @@ type
     dxLayout1Item6: TdxLayoutItem;
     EdtKFTime: TcxDateEdit;
     dxLayout1Group3: TdxLayoutGroup;
+    dxlytmLayout1Item71: TdxLayoutItem;
+    DateEdt_InTime: TcxDateEdit;
+    dxlytmLayout1Item72: TdxLayoutItem;
+    DateEdt_MTime: TcxDateEdit;
+    dxLayout1Group5: TdxLayoutGroup;
+    dxlytmLayout1Item73: TdxLayoutItem;
+    DateEdt_PTime: TcxDateEdit;
+    dxlytgrpLayout1Group6: TdxLayoutGroup;
+    dxlytmLayout1Item74: TdxLayoutItem;
+    DateEdt_OutTime: TcxDateEdit;
+    dxLayout1Group6: TdxLayoutGroup;
+    dxLayout1Group7: TdxLayoutGroup;
+    dxlytmLayout1Item75: TdxLayoutItem;
+    edt_KZValue: TcxTextEdit;
+    dxlytmLayout1Item76: TdxLayoutItem;
+    DateEdt_YTime: TcxDateEdit;
+    dxlytmLayout1Item77: TdxLayoutItem;
+    Edt_YMan: TcxTextEdit;
+    dxLayout1Group8: TdxLayoutGroup;
+    dxLayout1Group9: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -124,14 +144,18 @@ begin
     if nBuDan then //补单
     begin
       FBuDanFlag := sFlag_Yes;
-      Height:= 480;                Caption := '采购补单';
+      Height:= 490;  Width:= 617;  Caption := '采购补单';
     end
     else
     begin
-      FBuDanFlag := sFlag_No;      Caption := '开采购单';
-      Height:= 408;
+      FBuDanFlag := sFlag_No;  Caption := '开采购单';
+      Height:= 408;  Width:= 493;
       dxlytmLayout1Item61.Visible:= False; dxlytmLayout1Item62.Visible:= False; dxlytmLayout1Item63.Visible:= False;
       dxlytmLayout1Item64.Visible:= False; dxlytmLayout1Item65.Visible:= False;
+
+      dxlytmLayout1Item71.Visible:= False;
+      dxlytmLayout1Item72.Visible:= False; dxlytmLayout1Item73.Visible:= False; dxlytmLayout1Item74.Visible:= False;
+      dxlytmLayout1Item75.Visible:= False; dxlytmLayout1Item76.Visible:= False; dxlytmLayout1Item77.Visible:= False;
     end;
 
     ActiveControl := EditTruck;
@@ -223,6 +247,14 @@ begin
     EditProject.Text  := Values['SQ_Project'];
     //EditValue.Text    := Values['SQ_RestValue'];
     EditValue.Text    := '0.00';
+
+    DateEdt_MTime.Date:= Now;
+    EdtKFTime.Date    := IncHour(Now, -5);
+    DateEdt_InTime.Date := Now;
+    DateEdt_YTime.Date  := Now;
+    DateEdt_PTime.Date  := Now;
+    DateEdt_OutTime.Date:= Now;
+    edt_KZValue.Text  := '0.00';
   end;
 end;
 
@@ -265,6 +297,20 @@ begin
       Exit;
     end;
   end;
+
+  {$IFDEF ChkPurTruc}
+  nSQL:= 'Select * From P_Order Left Join P_OrderDtl On O_ID=D_OID '+
+         'Where D_OutFact is null And  O_Truck='''+Trim(EditTruck.Text)+''' ';
+  with FDM.QuerySQL(nSQL) do
+  begin
+    if recordCount>0 then
+    begin
+      ShowMsg('该车辆当前有未完成订单、禁止再次开单', sHint);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
+
 
   {$IFDEF PurchaseOrderChkJingZhong}
   IF (StrToFloatDef(Trim((edt_YsJz.Text)), -1)<0) then
@@ -316,8 +362,17 @@ begin
       Values['Man']    := Edt_Man.Text;
       Values['MMan']   := Edt_MMan.Text;
       Values['PMan']   := Edt_PMan.Text;
+      Values['YMan']   := Edt_YMan.Text;
+
       Values['MValue'] := Edt_MValue.Text;
       Values['PValue'] := Edt_PValue.Text;
+      Values['KZValue'] := Edt_KZValue.Text;
+
+      Values['MTime'] := DateEdt_MTime.Text;
+      Values['PTime'] := DateEdt_PTime.Text;
+      Values['YTime'] := DateEdt_YTime.Text;
+      Values['InTime'] := DateEdt_InTime.Text; //FormatDateTime('yyyy-MM-dd HH:mm:ss', IncMinute(DateEdt_MTime.Date, -5));
+      Values['OutTime'] := DateEdt_OutTime.Text;
     end;
   end;
 

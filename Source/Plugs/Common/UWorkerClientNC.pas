@@ -195,7 +195,7 @@ begin
            (gChannelChoolser.GetChannelURL = FHttp.TargetURL) then
         begin
           nData := Format('%s(BY %s ).', [E.Message, gSysParam.FLocalName]);
-          WriteLog('Function:[ ' + FunctionName + ' ]' + E.Message);
+          WriteLog('Function:[ ' + FunctionName + ' ' + E.Message);
           Exit;
         end;
       end;
@@ -216,7 +216,7 @@ begin
   Result := inherited GetFlagStr(nFlag);
 
   case nFlag of
-   cWorker_GetPackerName : Result := sBus_BusinessNC;
+   cWorker_GetPackerName : Result := sBus_BusinessCommand;
    cWorker_GetMITName    : Result := sBus_BusinessNC;
   end;
 end;

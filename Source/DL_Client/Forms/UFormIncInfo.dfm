@@ -1,12 +1,13 @@
 inherited fFormIncInfo: TfFormIncInfo
-  Left = 270
-  Top = 173
+  Left = 703
+  Top = 256
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 249
   ClientWidth = 358
   OldCreateOrder = True
   Position = poMainFormCenter
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 12
   object dxLayoutControl1: TdxLayoutControl
@@ -82,6 +83,19 @@ inherited fFormIncInfo: TfFormIncInfo
       TabOrder = 6
       OnClick = BtnOKClick
     end
+    object chk1: TCheckBox
+      Left = 12
+      Top = 215
+      Width = 97
+      Height = 17
+      BiDiMode = bdLeftToRight
+      Caption = '-_-'
+      Color = clWindow
+      ParentBiDiMode = False
+      ParentColor = False
+      TabOrder = 8
+      OnClick = chk1Click
+    end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
       Hidden = True
@@ -121,7 +135,7 @@ inherited fFormIncInfo: TfFormIncInfo
       end
       object dxLayoutControl1Group2: TdxLayoutGroup
         AutoAligns = [aaVertical]
-        AlignHorz = ahRight
+        AlignHorz = ahClient
         ShowCaption = False
         Hidden = True
         LayoutDirection = ldHorizontal
@@ -141,6 +155,16 @@ inherited fFormIncInfo: TfFormIncInfo
           Caption = 'Button1'
           ShowCaption = False
           Control = BtnExit
+          ControlOptions.ShowBorder = False
+        end
+        object dxlytmLayoutControl1Item9: TdxLayoutItem
+          AutoAligns = []
+          AlignVert = avCenter
+          Caption = 'CheckBox1'
+          Offsets.Left = 1
+          ShowCaption = False
+          Control = chk1
+          ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
       end

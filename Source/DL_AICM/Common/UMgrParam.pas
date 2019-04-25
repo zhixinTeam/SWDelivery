@@ -11,7 +11,7 @@ uses
   USysLoger;
 
 const
-  cParamIDCharacters = ['a'..'z','A'..'Z','0'..'9','_',Char(VK_BACK)];
+  cParamIDCharacters = ['a'..'z','A'..'Z','0'..'9','_',Char(VK_BACK);
   //ID标识可用字符
 
 type
@@ -158,10 +158,10 @@ begin
   for nIdx:=nList.Count - 1 downto 0 do
   begin
     case nType of
-     ptPack      : Dispose(PParamItemPack(nList[nIdx]));
-     ptSAP       : Dispose(PSAPParam(nList[nIdx]));
-     ptDB        : Dispose(PDBParam(nList[nIdx]));
-     ptPerform   : Dispose(PPerformParam(nList[nIdx]));
+     ptPack      : Dispose(PParamItemPack(nList[nIdx));
+     ptSAP       : Dispose(PSAPParam(nList[nIdx));
+     ptDB        : Dispose(PDBParam(nList[nIdx));
+     ptPerform   : Dispose(PPerformParam(nList[nIdx));
     end;
 
     nList.Delete(nIdx);
@@ -199,8 +199,8 @@ begin
       if not (Assigned(nXML.Root.NodeByName('Param')) and
               Assigned(nXML.Root.NodeByName('Packs'))) then
       begin
-        nStr := '参数文件[ %s ]未找到"Param,Packs"节点,无法加载.';
-        WriteLog(Format(nStr, [ExtractFileName(FFileName)]));
+        nStr := '参数文件[ %s 未找到"Param,Packs"节点,无法加载.';
+        WriteLog(Format(nStr, [ExtractFileName(FFileName)));
         Exit;
       end;
 
@@ -211,12 +211,12 @@ begin
         begin
           New(nDB);
           FItemDB.Add(nDB);
-          nTmp := nNode.Nodes[nIdx];
+          nTmp := nNode.Nodes[nIdx;
 
           with nDB^,nTmp do
           begin
-            FID        := AttributeByName['ID'];
-            FName      := AttributeByName['Name'];
+            FID        := AttributeByName['ID';
+            FName      := AttributeByName['Name';
             FHost      := NodeByName('Host').ValueAsString;
             FPort      := NodeByName('Port').ValueAsInteger;
             FDB        := NodeByName('DBName').ValueAsString;
@@ -239,12 +239,12 @@ begin
         begin
           New(nSAP);
           FItemSAP.Add(nSAP);
-          nTmp := nNode.Nodes[nIdx];
+          nTmp := nNode.Nodes[nIdx;
 
           with nSAP^,nTmp do
           begin
-            FID       := AttributeByName['ID'];
-            FName     := AttributeByName['Name'];
+            FID       := AttributeByName['ID';
+            FName     := AttributeByName['Name';
             FHost     := NodeByName('Host').ValueAsString;
             FUser     := NodeByName('User').ValueAsString;
             FPwd      := NodeByName('Password').ValueAsString;
@@ -267,12 +267,12 @@ begin
         begin
           New(nPerform);
           FItemPerform.Add(nPerform);
-          nTmp := nNode.Nodes[nIdx];
+          nTmp := nNode.Nodes[nIdx;
 
           with nPerform^,nTmp do
           begin
-            FID               := AttributeByName['ID'];
-            FName             := AttributeByName['Name'];
+            FID               := AttributeByName['ID';
+            FName             := AttributeByName['Name';
             FPortTCP          := NodeByName('PortTCP').ValueAsInteger;
             FPortHttp         := NodeByName('PortHttp').ValueAsInteger;
             FPoolSizeSAP      := NodeByName('PoolSizeSAP').ValueAsInteger;
@@ -299,12 +299,12 @@ begin
         begin
           New(nPack);
           FPacks.Add(nPack);
-          nTmp := nNode.Nodes[nIdx];
+          nTmp := nNode.Nodes[nIdx;
 
           with nPack^,nTmp do
           begin
-            FID          := AttributeByName['ID'];
-            FName        := AttributeByName['Name'];
+            FID          := AttributeByName['ID';
+            FName        := AttributeByName['Name';
             FNameSAP     := NodeByName('SAP').ValueAsString;
             FSAP         := GetSAP(FNameSAP);
             FNameDB      := NodeByName('DB').ValueAsString;
@@ -321,7 +321,7 @@ begin
       begin
         for nIdx:=0 to nNode.NodeCount - 1 do
         begin
-          nStr := DecodeBase64(nNode[nIdx].ValueAsString);
+          nStr := DecodeBase64(nNode[nIdx.ValueAsString);
           FURLRemote.Add(nStr);
         end;
       end; //remote url list
@@ -331,7 +331,7 @@ begin
       begin
         for nIdx:=0 to nNode.NodeCount - 1 do
         begin
-          nStr := DecodeBase64(nNode[nIdx].ValueAsString);
+          nStr := DecodeBase64(nNode[nIdx.ValueAsString);
           FURLLocal.Add(nStr);
         end;
       end; //local url list
@@ -343,13 +343,13 @@ begin
 
       for nIdx:=0 to FPacks.Count - 1 do
       begin
-        nPack := FPacks[nIdx];
+        nPack := FPacks[nIdx;
         if not nPack.FEnable then Continue;
 
         with nPack^,nTmp.NodeNew('Pack') do
         begin
-          AttributeByName['ID'] := FID;
-          AttributeByName['Name'] := FName;
+          AttributeByName['ID' := FID;
+          AttributeByName['Name' := FName;
           NodeNew('SAP').ValueAsString := FNameSAP;
           NodeNew('DB').ValueAsString  := FNameDB;
           NodeNew('Perform').ValueAsString := FNamePerform;
@@ -361,13 +361,13 @@ begin
 
       for nIdx:=0 to FItemDB.Count - 1 do
       begin
-        nDB := FItemDB[nIdx];
+        nDB := FItemDB[nIdx;
         if not nDB.FEnable then Continue;
 
         with nDB^,nTmp.NodeNew('DB') do
         begin
-          AttributeByName['ID'] := FID;
-          AttributeByName['Name'] := FName;
+          AttributeByName['ID' := FID;
+          AttributeByName['Name' := FName;
           NodeNew('Host').ValueAsString := FHost;
           NodeNew('Port').ValueAsInteger := FPort;
           NodeNew('DBName').ValueAsString := FDB;
@@ -382,13 +382,13 @@ begin
       nTmp := nNode.NodeNew('SAPList');
       for nIdx:=0 to FItemSAP.Count - 1 do
       begin
-        nSAP := FItemSAP[nIdx];
+        nSAP := FItemSAP[nIdx;
         if not nSAP.FEnable then Continue;
 
         with nSAP^,nTmp.NodeNew('SAP') do
         begin
-          AttributeByName['ID'] := FID;
-          AttributeByName['Name'] := FName;
+          AttributeByName['ID' := FID;
+          AttributeByName['Name' := FName;
           NodeNew('Host').ValueAsString := FHost;
           NodeNew('User').ValueAsString := FUser;
           NodeNew('Password').ValueAsString := EncodeBase64(FPwd);
@@ -404,13 +404,13 @@ begin
       nTmp := nNode.NodeNew('PerformList');
       for nIdx:=0 to FItemPerform.Count - 1 do
       begin
-        nPerform := FItemPerform[nIdx];
+        nPerform := FItemPerform[nIdx;
         if not nPerform.FEnable then Continue;
 
         with nPerform^,nTmp.NodeNew('Perform') do
         begin
-          AttributeByName['ID'] := FID;
-          AttributeByName['Name'] := FName;
+          AttributeByName['ID' := FID;
+          AttributeByName['Name' := FName;
           NodeNew('PortTCP').ValueAsInteger := FPortTCP;
           NodeNew('PortHttp').ValueAsInteger := FPortHttp;
           NodeNew('PoolSizeSAP').ValueAsInteger := FPoolSizeSAP;
@@ -426,12 +426,12 @@ begin
 
       nTmp := nNode.NodeNew('URLLocal');
       for nIdx:=0 to FURLLocal.Count - 1 do
-        nTmp.NodeNew('URL').ValueAsString := EncodeBase64(FURLLocal[nIdx]);
+        nTmp.NodeNew('URL').ValueAsString := EncodeBase64(FURLLocal[nIdx);
       //xxxxx
 
       nTmp := nNode.NodeNew('URLRemote');
       for nIdx:=0 to FURLRemote.Count - 1 do
-        nTmp.NodeNew('URL').ValueAsString := EncodeBase64(FURLRemote[nIdx]);
+        nTmp.NodeNew('URL').ValueAsString := EncodeBase64(FURLRemote[nIdx);
       //xxxxx
 
       nXML.VersionString := '1.0';
@@ -504,7 +504,7 @@ begin
 
   for nIdx:=FItemPerform.Count - 1 downto 0 do
   begin
-    nP := FItemPerform[nIdx];
+    nP := FItemPerform[nIdx;
     if nP.FEnable and (CompareText(nID, nP.FID) = 0) then
     begin
       Result := nP;
@@ -579,7 +579,7 @@ begin
 
   for nIdx:=FItemSAP.Count - 1 downto 0 do
   begin
-    nP := FItemSAP[nIdx];
+    nP := FItemSAP[nIdx;
     if nP.FEnable and (CompareText(nID, nP.FID) = 0) then
     begin
       Result := nP;
@@ -651,7 +651,7 @@ begin
 
   for nIdx:=FItemDB.Count - 1 downto 0 do
   begin
-    nP := FItemDB[nIdx];
+    nP := FItemDB[nIdx;
     if nP.FEnable and (CompareText(nID, nP.FID) = 0) then
     begin
       Result := nP;
@@ -724,26 +724,26 @@ begin
    ptPack:
     begin
       for nIdx:=0 to FPacks.Count - 1 do
-       if PParamItemPack(FPacks[nIdx]).FEnable then
-        nList.Add(PParamItemPack(FPacks[nIdx]).FID);
+       if PParamItemPack(FPacks[nIdx).FEnable then
+        nList.Add(PParamItemPack(FPacks[nIdx).FID);
     end;
    ptSAP:
     begin
       for nIdx:=0 to FItemSAP.Count - 1 do
-       if PSAPParam(FItemSAP[nIdx]).FEnable then
-        nList.Add(PSAPParam(FItemSAP[nIdx]).FID);
+       if PSAPParam(FItemSAP[nIdx).FEnable then
+        nList.Add(PSAPParam(FItemSAP[nIdx).FID);
     end;
    ptDB:
     begin
       for nIdx:=0 to FItemDB.Count - 1 do
-       if PDBParam(FItemDB[nIdx]).FEnable then
-        nList.Add(PDBParam(FItemDB[nIdx]).FID);
+       if PDBParam(FItemDB[nIdx).FEnable then
+        nList.Add(PDBParam(FItemDB[nIdx).FID);
     end;
    ptPerform:
     begin
       for nIdx:=0 to FItemPerform.Count - 1 do
-       if PPerformParam(FItemPerform[nIdx]).FEnable then
-        nList.Add(PPerformParam(FItemPerform[nIdx]).FID);
+       if PPerformParam(FItemPerform[nIdx).FEnable then
+        nList.Add(PPerformParam(FItemPerform[nIdx).FID);
     end;
   end;
 
@@ -762,7 +762,7 @@ begin
 
   for nIdx:=FPacks.Count - 1 downto 0 do
   begin
-    nP := FPacks[nIdx];
+    nP := FPacks[nIdx;
     if nP.FEnable and (CompareText(nID, nP.FID) = 0) then
     begin
       Result := nP;

@@ -65,7 +65,7 @@ begin
 
   for i:=0 to nCount do
   begin
-    nData := nList[i];
+    nData := nList[i;
     if nData.FID = nID then
          Result := nData
     else Result := FindBaseInfoData(nData.FSub, nID);
@@ -88,7 +88,7 @@ begin
     nStr := nStr + ' Where B_Group=''$Group''';
   nStr := nStr + ' Order By B_Index';
 
-  nStr := MacroValue(nStr, [MI('$Base', sTable_BaseInfo), MI('$Group', nGroup)]);
+  nStr := MacroValue(nStr, [MI('$Base', sTable_BaseInfo), MI('$Group', nGroup));
   FDM.QueryTemp(nStr);
   if FDM.SqlTemp.RecordCount < 1 then Exit;
 
@@ -114,7 +114,7 @@ begin
   nIdx := 0;
   while nIdx < nInfoList.Count do
   begin
-    nData := nInfoList[nIdx];
+    nData := nInfoList[nIdx;
     nData := FindBaseInfoData(nInfoList, nData.FPID);
     if (not Assigned(nData)) or (nData.FID = nData.FPID) then
     begin
@@ -123,9 +123,9 @@ begin
 
     if not Assigned(nData.FSub) then
       nData.FSub := TList.Create;
-    nData.FSub.Add(nInfoList[nIdx]);
+    nData.FSub.Add(nInfoList[nIdx);
     
-    PBaseInfoData(nInfoList[nIdx]).FPText := nData.FText;
+    PBaseInfoData(nInfoList[nIdx).FPText := nData.FText;
     nInfoList.Delete(nIdx);
   end;
 
@@ -140,7 +140,7 @@ begin
   begin
     nCount := nData.FSub.Count - 1;
     for i:=0 to nCount do
-      FreeBaseInfoData(nData.FSub[i]);
+      FreeBaseInfoData(nData.FSub[i);
     nData.FSub.Free;
   end;
   Dispose(nData);
@@ -151,7 +151,7 @@ procedure DisposeBaseInfolist(const nInfoList: TList; const nFree: Boolean);
 begin
   while nInfoList.Count > 0 do
   begin
-     FreeBaseInfoData(nInfoList[nInfoList.Count - 1]);
+     FreeBaseInfoData(nInfoList[nInfoList.Count - 1);
      nInfoList.Delete(nInfoList.Count - 1);
   end;
   if nFree then nInfoList.Free;
@@ -175,7 +175,7 @@ var nSID: integer;
       nLen := nSub.Count - 1;
       for m:=0 to nLen do
       begin
-        nSData := nSub[m];
+        nSData := nSub[m;
         nSNode := nTree.Items.AddChild(nPNode, nSData.FText);
 
         nSNode.Data := nSData;
@@ -201,9 +201,9 @@ begin
   try
     nCount := nTree.Items.Count - 1;
     for i:=0 to nCount do
-    if nTree.Items[i].Expanded then
+    if nTree.Items[i.Expanded then
     begin
-      nData := nTree.Items[i].Data;
+      nData := nTree.Items[i.Data;
       nList.Add(IntToStr(nData.FID));
     end;
 
@@ -219,7 +219,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      nData := nInfoList[i];
+      nData := nInfoList[i;
       if (nFilter <> '') and NotSubStr(nFilter, nData.FPY) then
       begin
         FreeBaseInfoData(nData); Continue;

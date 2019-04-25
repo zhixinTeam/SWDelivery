@@ -38,7 +38,7 @@ uses
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
   UMgrRFID102, UMgrVoiceNet, UBlueReader,{$IFDEF HKVDVR} UMgrCamera,{$ENDIF}
-  UMgrRemoteSnap,
+  UMgrRemoteSnap, UMgrBasisWeight,
   UMgrSendCardNo;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -123,10 +123,16 @@ begin
     end;
 
     {$IFDEF FixLoad}
-    nStr := '定置装车';
+    nStr := '定置装车散装放灰控制';
     gSendCardNo.LoadConfig(nCfg + 'PLCController.xml');
     {$ENDIF}
-                                      
+
+    {$IFDEF BasisWeight}
+    nStr := '定量装车业务';
+    gBasisWeightManager := TBasisWeightManager.Create;
+    gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
+    {$ENDIF}
+
     {$IFDEF RemoteSnap}
     nStr := '海康威视远程抓拍';
     if FileExists(nCfg + 'RemoteSnap.xml') then
@@ -238,12 +244,18 @@ begin
   end; //三合一读卡器
   {$ENDIF}
 
-  {$IFDEF FixLoad}
+  {$IFDEF FixLoad}       // 普通版散装装车控制
   if Assigned(gSendCardNo) then
   gSendCardNo.StartPrinter;
   //sendcard
   {$ENDIF}
-                           
+                                            
+  {$IFDEF BasisWeight}  //  定量装车控制
+  //gBasisWeightManager.TunnelManager.OnUserParseWeight := WhenParsePoundWeight;  //特殊地磅解析
+  gBasisWeightManager.OnStatusChange := WhenBasisWeightStatusChange;
+  gBasisWeightManager.StartService;
+  {$ENDIF}
+
   {$IFDEF RemoteSnap}
   gHKSnapHelper.StartSnap;
   //remote snap   车牌识别远程抓拍
@@ -305,6 +317,11 @@ begin
   if Assigned(gSendCardNo) then
   gSendCardNo.StopPrinter;
   //sendcard
+  {$ENDIF}
+
+  {$IFDEF BasisWeight}
+  gBasisWeightManager.StopService;
+  gBasisWeightManager.OnStatusChange := nil;
   {$ENDIF}
 
   {$IFDEF RemoteSnap}

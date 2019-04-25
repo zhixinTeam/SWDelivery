@@ -4,8 +4,8 @@ object ROModule: TROModule
   OnDestroy = DataModuleDestroy
   Left = 345
   Top = 450
-  Height = 268
-  Width = 262
+  Height = 178
+  Width = 327
   object ROBinMsg: TROBinMessage
     Envelopes = <>
     Left = 96

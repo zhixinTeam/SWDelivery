@@ -340,7 +340,7 @@ begin
     ShowMsg(nStr, sHint); Exit;
   end;
 
-  BtnOK.Enabled := IsCustomerCreditValid(gInfo.FCusID);
+  BtnOK.Enabled := true;//IsCustomerCreditValid(gInfo.FCusID);
   if not BtnOK.Enabled then Exit;
   //to verify credit
 
@@ -503,11 +503,11 @@ begin
   with gStockList[StrToInt(GetCtrlData(EditStock))] do
   if FPrice > 0 then
   begin
-    nInt := Float2PInt(gInfo.FMoney / FPrice, cPrecision, False);
+    nInt := Float2PInt(gInfo.FMoney / (FPrice+FYfPrice), cPrecision, False);
     EditValue.Text := FloatToStr(nInt / cPrecision);
 
     if gInfo.FShowPrice then
-      dxGroup2.Caption := Format('提单明细 单价:%.2f元/吨', [FPrice]);
+      dxGroup2.Caption := Format('提单明细 单价:%.2f元/吨 运费:%.2f元/吨', [FPrice, FYfPrice]);
     //xxxxx
   end;
 
@@ -563,12 +563,12 @@ begin
     begin
       nVal := StrToFloat(EditValue.Text);
       nVal := Float2Float(nVal, cPrecision, False);
-      Result := FloatRelation(gInfo.FMoney / FPrice, nVal, rtGE, cPrecision);
+      Result := FloatRelation(gInfo.FMoney / (FPrice+FYfPrice), nVal, rtGE, cPrecision);
 
       nHint := '已超出可办理量';
       if not Result then Exit;
 
-      if FloatRelation(gInfo.FMoney / FPrice, nVal, rtEqual, cPrecision) then
+      if FloatRelation(gInfo.FMoney / (FPrice+FYfPrice), nVal, rtEqual, cPrecision) then
       begin
         nHint := '';
         Result := QueryDlg('确定要按最大可提货量全部开出吗?', sAsk);
@@ -637,7 +637,7 @@ begin
       FSelecte := True;
 
       EditTruck.Properties.ReadOnly := True;
-      gInfo.FMoney := gInfo.FMoney - FPrice * FValue;
+      gInfo.FMoney := gInfo.FMoney - (FPrice+FYfPrice) * FValue;
     end;
 
     LoadStockList;
@@ -655,7 +655,7 @@ begin
     with gStockList[nIdx] do
     begin
       FSelecte := False;
-      gInfo.FMoney := gInfo.FMoney + FPrice * FValue;
+      gInfo.FMoney := gInfo.FMoney + (FPrice+FYfPrice) * FValue;
     end;
 
     LoadStockList;
@@ -684,6 +684,10 @@ begin
     ShowMsg('请先办理提货单的品种', sHint); Exit;
   end;
 
+  if CheckTruckIsIN(EditTruck.Text) then
+  begin
+    ShowMsg('该车辆当前已开单、上一订单未出厂前禁止再次开单', sHint); Exit;
+  end;
   {$IFDEF CheckTruckNo}           // 查询是否有车辆已存在 声威
   if CheckTruckIsIN(EditTruck.Text) then
   begin
@@ -903,8 +907,11 @@ end;
 
 procedure TfFormBill.edt_StdValueKeyPress(Sender: TObject; var Key: Char);
 begin
-  if not (Key in ['0'..'9',#8, '.']) then Key := #0;
-
+  if (Key in [ '.']) And (Pos('.', Trim(EditValue.Text))>0) then
+    Key := #0;
+    
+  if not (Key in [#8, #13, #127, '.', '0'..'9', #22, #17]) then
+    Key := #0;
 end;
 
 procedure TfFormBill.edt_StdValueExit(Sender: TObject);

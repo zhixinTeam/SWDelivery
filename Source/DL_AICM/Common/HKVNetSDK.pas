@@ -14,13 +14,13 @@ const
   
 type
   PIPItems = ^TIPItems;
-  TIPItems = array[0..15, 0..15] of Char;
+  TIPItems = array[0..15, 0..15 of Char;
 
   {设备信息}
   PNET_DVR_DEVICEINFO = ^TNET_DVR_DEVICEINFO;
   {$EXTERNALSYM NET_DVR_DEVICEINFO}
   NET_DVR_DEVICEINFO = Record
-    sSerialNumber: Array[0..SERIALNO_LEN - 1] of Char ;  //序列号
+    sSerialNumber: Array[0..SERIALNO_LEN - 1 of Char ;  //序列号
     byAlarmInPortNum: BYTE ;	 //DVR报警输入个数
     byAlarmOutPortNum: BYTE ;	 //DVR报警输出个数
     byDiskNum: BYTE;	         //DVR 硬盘个数

@@ -62,6 +62,7 @@ type
     cxLabel9: TcxLabel;
     cxLabel10: TcxLabel;
     Timer2: TTimer;
+    btn1: TButton;
     procedure Timer1Timer(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure N3Click(Sender: TObject);
@@ -76,6 +77,7 @@ type
     procedure EditMIDPropertiesChange(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure BtnReadCardClick(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
   private
     { Private declarations }
     FCardUsed: string;
@@ -1014,6 +1016,12 @@ begin
      (CompareText('NET', FPoundTunnel.FOptions.Values['Voice']) = 0) then
        gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
   else gVoiceHelper.PlayVoice(nStrtext);
+end;
+
+procedure TfFrameManualPoundItem.btn1Click(Sender: TObject);
+begin
+  if Trim(EditBill.Text)='' then Exit;
+  OpenDoorByReader(Trim(EditBill.Text), 'Y');
 end;
 
 end.

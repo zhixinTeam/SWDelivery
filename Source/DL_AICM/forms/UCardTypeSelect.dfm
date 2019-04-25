@@ -10,7 +10,7 @@ object fFormCardTypeSelect: TfFormCardTypeSelect
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   Position = poScreenCenter
   PixelsPerInch = 96
@@ -32,7 +32,7 @@ object fFormCardTypeSelect: TfFormCardTypeSelect
     Style.Font.Color = clWindowText
     Style.Font.Height = -32
     Style.Font.Name = #23435#20307
-    Style.Font.Style = []
+    Style.Font.Style = [
     Style.IsFontAssigned = True
     TabOrder = 0
     Height = 137

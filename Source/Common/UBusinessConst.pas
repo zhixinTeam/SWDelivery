@@ -83,6 +83,7 @@ const
   cBC_ShowLedTxt              = $0066;   //向led屏幕发送内容
   cBC_GetLimitValue           = $0067;   //获取车辆最大限载值
   cBC_LineClose               = $0068;   //关闭放灰
+  cBC_MakeSoundByCard         = $0300;   //播报语音
   cBC_VerifySnapTruck         = $3069;   //车牌比对
 
   cBC_IsTunnelOK              = $0075;
@@ -170,7 +171,8 @@ type
     FCusID      : string;          //客户编号
     FCusName    : string;          //客户名称
     FTruck      : string;          //车牌号码
-    FMINUTEDate : Integer;         //开单时间距当前 分钟数
+    FMinuteDate : Integer;         //开单时间距当前 分钟数
+    FIsBasisWeight:Boolean;        //（称皮、装车、称毛）三合一 定制装车订单
 
     FType       : string;          //品种类型
     FStockNo    : string;          //品种编号
@@ -309,13 +311,13 @@ begin
         FIsVIP      := Values['IsVIP'];
         FIsNei      := Values['IsNei'];
         FPrePData   := Values['UsePreP'];
-        FIsSale     := Values['IsSale'];
+        FIsSale     := Values['IsSale'];  
         FIsSample   := Values['IsSample'];
 
-        FMINUTEDate := StrToIntDef(Values['InTimeOut'], 0);   // 进厂时间差
+        FMINUTEDate := StrToIntDef(Values['InTimeOut'], 0);     // 进厂时间差
 
-
-        FSnapTruck := Values['SnapTruck'] = sFlag_Yes;  //车牌识别
+        FSnapTruck := Values['SnapTruck'] = sFlag_Yes;          //车牌识别
+        FIsBasisWeight := Values['IsBasisWeight'] = sFlag_Yes;  //（称皮、装车、称毛）三合一 定制装车订单
 
         FStatus     := Values['Status'];
         FNextStatus := Values['NextStatus'];
@@ -479,6 +481,10 @@ begin
         if FSnapTruck then
              Values['SnapTruck'] := sFlag_Yes
         else Values['SnapTruck'] := sFlag_No;
+
+        if FIsBasisWeight then
+             Values['IsBasisWeight'] := sFlag_Yes
+        else Values['IsBasisWeight'] := sFlag_No;
 
         //*********
         Values['UnloadingPlace'] := FPlace;

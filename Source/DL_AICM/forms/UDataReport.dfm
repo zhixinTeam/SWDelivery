@@ -11,7 +11,7 @@ object FDR: TFDR
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
     PreviewOptions.AllowEdit = False
-    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator, pbExportQuick]
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbNavigator, pbExportQuick
     PreviewOptions.Zoom = 1.000000000000000000
     PrintOptions.Printer = #39044#35774
     PrintOptions.PrintOnSheet = 0
@@ -63,7 +63,7 @@ object FDR: TFDR
     DefaultFont.Color = clWindowText
     DefaultFont.Height = -13
     DefaultFont.Name = 'Arial'
-    DefaultFont.Style = []
+    DefaultFont.Style = [
     DefaultLeftMargin = 10.000000000000000000
     DefaultRightMargin = 10.000000000000000000
     DefaultTopMargin = 10.000000000000000000
@@ -71,7 +71,7 @@ object FDR: TFDR
     DefaultPaperSize = 9
     DefaultOrientation = poPortrait
     TemplatesExt = 'fr3'
-    Restrictions = []
+    Restrictions = [
     RTLLanguage = False
     MemoParentFont = False
     Left = 86

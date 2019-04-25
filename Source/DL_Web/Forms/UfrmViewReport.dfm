@@ -10,7 +10,7 @@ object frmViewReport: TfrmViewReport
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
@@ -21,7 +21,7 @@ object frmViewReport: TfrmViewReport
     Height = 667
     Hint = ''
     Align = alClient
-    Anchors = [akLeft, akTop, akRight, akBottom]
+    Anchors = [akLeft, akTop, akRight, akBottom
     TabOrder = 0
     ParentColor = False
     Color = clBtnFace

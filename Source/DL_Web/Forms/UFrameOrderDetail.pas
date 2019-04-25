@@ -90,7 +90,7 @@ function TfFrameOrderDetail.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
     Result := 'Select *,(D_MValue-D_PValue-D_KZValue) as D_NetWeight ' +
               'From $OD od Left Join $OO oo on od.D_OID=oo.O_ID ';
     //xxxxxx
@@ -108,11 +108,11 @@ begin
     end;
 
     if Check1.Checked then
-         Result := MacroValue(Result, [MI('$OD', sTable_OrderDtlBak)])
-    else Result := MacroValue(Result, [MI('$OD', sTable_OrderDtl)]);
+         Result := MacroValue(Result, [MI('$OD', sTable_OrderDtlBak))
+    else Result := MacroValue(Result, [MI('$OD', sTable_OrderDtl));
 
     Result := MacroValue(Result, [MI('$OD', sTable_OrderDtl),MI('$OO', sTable_Order),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -135,7 +135,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'D_ProPY like ''%%%s%%'' Or D_ProName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end else
 
@@ -145,7 +145,7 @@ begin
     if EditTruck.Text = '' then Exit;
 
     FWhere := 'oo.O_Truck like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditTruck.Text]);
+    FWhere := Format(FWhere, [EditTruck.Text);
     InitFormData(FWhere);
   end;
 
@@ -155,7 +155,7 @@ begin
     if EditBill.Text = '' then Exit;
 
     FWhere := 'od.D_ID like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditBill.Text]);
+    FWhere := Format(FWhere, [EditBill.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -181,7 +181,7 @@ begin
 
     //FJBWhere := '(D_InTime>=''%s'' and D_InTime <''%s'')';
     FJBWhere := '(D_OutFact>=''%s'' and D_OutFact <''%s'')';
-    FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE)]);
+    FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE));
     InitFormData('');
   finally
     FJBWhere := '';

@@ -81,8 +81,8 @@ begin
   GlobalSyncLock;
   try
     //for nIdx := gAllUsers.Count-1 downto 0 do
-    // if PSysParam(gAllUsers[nIdx]).FLocalIP = FUserConfig.FLocalIP then
-    //  FUserConfig := PSysParam(gAllUsers[nIdx])^;
+    // if PSysParam(gAllUsers[nIdx).FLocalIP = FUserConfig.FLocalIP then
+    //  FUserConfig := PSysParam(gAllUsers[nIdx)^;
     //restore
 
     gAllUsers.Add(@FUserConfig);
@@ -92,7 +92,7 @@ begin
 
   SetLength(FMenuModule, gMenuModule.Count);
   for nIdx := 0 to gMenuModule.Count-1 do
-    FMenuModule[nIdx] := PMenuModuleItem(gMenuModule[nIdx])^;
+    FMenuModule[nIdx := PMenuModuleItem(gMenuModule[nIdx)^;
   //准备菜单模块映射
 end;
 
@@ -136,7 +136,7 @@ var nStr: string;
 begin
   GlobalSyncLock;
   try
-    with gAllEntitys[Sender.DataSet.Tag].FDictItem[Sender.Tag] do
+    with gAllEntitys[Sender.DataSet.Tag.FDictItem[Sender.Tag do
     begin
       nStr := Trim(Sender.AsString) + '=';
       if nStr = '=' then Exit;
@@ -182,7 +182,7 @@ procedure TUniMainModule.DoColumnSummary(Column: TUniDBGridColumn;
 begin
   GlobalSyncLock;
   try
-    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    with gAllEntitys[Column.Grid.Tag.FDictItem[Column.Tag do
     begin
       if FFooter.FKind = fkSum then //sum
       begin
@@ -191,9 +191,9 @@ begin
         else Column.AuxValue := Column.AuxValue + Column.Field.AsFloat;
 
         //***********************
-        if Column.AuxValues[1] = NULL then
-             Column.AuxValues[1]:= Column.Field.AsFloat
-        else Column.AuxValues[1] := Column.AuxValues[1] + Column.Field.AsFloat;
+        if Column.AuxValues[1 = NULL then
+             Column.AuxValues[1:= Column.Field.AsFloat
+        else Column.AuxValues[1 := Column.AuxValues[1 + Column.Field.AsFloat;
       end else
 
       if FFooter.FKind = fkCount then //count
@@ -204,8 +204,8 @@ begin
 
         //***********************
         if Column.AuxValue = NULL then
-             Column.AuxValues[1] := 1
-        else Column.AuxValues[1] := Column.AuxValues[1] + 1;
+             Column.AuxValues[1 := 1
+        else Column.AuxValues[1 := Column.AuxValues[1 + 1;
       end;
     end;
   finally
@@ -221,7 +221,7 @@ var nF: Double;
 begin
   GlobalSyncLock;
   try
-    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    with gAllEntitys[Column.Grid.Tag.FDictItem[Column.Tag do
     begin
       if FFooter.FKind = fkSum then //sum
       begin
@@ -229,7 +229,7 @@ begin
         nF := Column.AuxValue;
         Result := FormatFloat(FFooter.FFormat, nF );
 
-        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Style := [fsBold;
         Attribs.Font.Color := clNavy;
       end else
 
@@ -239,7 +239,7 @@ begin
         nI := Column.AuxValue;
         Result := FormatFloat(FFooter.FFormat, nI);
 
-        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Style := [fsBold;
         Attribs.Font.Color := clNavy;
       end;
     end;
@@ -257,34 +257,34 @@ var nF: Double;
 begin
   GlobalSyncLock;
   try
-    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    with gAllEntitys[Column.Grid.Tag.FDictItem[Column.Tag do
     begin
       Attribs.Color := $E0FFE0;
 
       if FFooter.FKind = fkSum then //sum
       begin
-        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Style := [fsBold;
         Attribs.Font.Color := clGreen;
         Attribs.Color := $E0FFE0;
 
-        if Column.AuxValues[1] = Null then Exit;
-        nF := Column.AuxValues[1];
+        if Column.AuxValues[1 = Null then Exit;
+        nF := Column.AuxValues[1;
         Result := FormatFloat(FFooter.FFormat, nF );
       end else
 
       if FFooter.FKind = fkCount then //count
       begin
-        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Style := [fsBold;
         Attribs.Font.Color := clGreen;
         Attribs.Color := $E0FFE0;
 
-        if Column.AuxValues[1] = Null then Exit;
-        nI := Column.AuxValues[1];
+        if Column.AuxValues[1 = Null then Exit;
+        nI := Column.AuxValues[1;
         Result := FormatFloat(FFooter.FFormat, nI);
       end;
     end;
 
-    Column.AuxValues[1] := NULL;
+    Column.AuxValues[1 := NULL;
   finally
     GlobalSyncRelease;
   end;

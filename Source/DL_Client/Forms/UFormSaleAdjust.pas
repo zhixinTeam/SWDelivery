@@ -247,7 +247,7 @@ begin
     
     if EditName.ItemIndex < 0 then
     begin
-      nStr := Format('%s=%s.%s', [nP.FParamB, nP.FParamB, nP.FParamC]);
+      nStr := Format('%s=%s.%s', [nP.FParamB, nP.FParamB, nP.FParamC);
       InsertStringsItem(EditName.Properties.Items, nStr);
       SetCtrlData(EditName, nP.FParamB);
     end;

@@ -31,10 +31,10 @@ inherited fFormGetCustomer: TfFormGetCustomer
       Height = 241
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
       LoadMask.Message = 'Loading data...'
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 1
       Columns = <
         item
@@ -77,7 +77,7 @@ inherited fFormGetCustomer: TfFormGetCustomer
       ParentColor = False
       Border = True
       Align = alTop
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 2
       object Label2: TUniLabel
         Left = 8

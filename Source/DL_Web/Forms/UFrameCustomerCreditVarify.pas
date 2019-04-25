@@ -61,7 +61,7 @@ begin
 
     Result := MacroValue(Result, [MI('$CusCredit', sTable_CusCredit),  MI('$Customer', sTable_Customer),
                                   MI('$CusCreditVerify', sTable_CusCreditVif),
-                                  MI('$VerMan', UniMainModule.FUserConfig.FUserID)]);
+                                  MI('$VerMan', UniMainModule.FUserConfig.FUserID));
     Result := Result + ' Order By C_Date Desc';
   end;
 end;
@@ -78,7 +78,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'C_Name like ''%%%s%%'' Or C_PY like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end;
 end;

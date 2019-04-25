@@ -164,7 +164,7 @@ begin
   nStr := 'Z_ID=Select Z_ID, Z_Name From %s ' +
           'Where Z_Customer=''%s'' And Z_ValidDays>%s And ' +
           'IsNull(Z_InValid, '''')<>''%s'' And ' +
-          'IsNull(Z_Freeze, '''')<>''%s'' Order By Z_ID';
+          'IsNull(Z_Freeze, '''')<>''%s'' Order By R_ID Desc';
   nStr := Format(nStr, [sTable_ZhiKa, nID, sField_SQLServer_Now, sFlag_Yes, sFlag_Yes]);
 
   with EditZK.Properties do
@@ -216,7 +216,7 @@ begin
   ListDetail.Clear;
   if EditZK.ItemIndex < 0 then Exit;
 
-  nStr := 'Select D_StockName,D_Price,D_Value From %s Where D_ZID=''%s''';
+  nStr := 'Select D_StockName,D_Price,D_Value,D_YunFei From %s Where D_ZID=''%s''';
   nStr := Format(nStr, [sTable_ZhiKaDtl, GetCtrlData(EditZK)]);
 
   with FDM.QueryTemp(nStr) do
@@ -238,6 +238,8 @@ begin
 
         SubItems.Add(nStr);
         SubItems.Add(Format('%.2f',[Fields[2].AsFloat]));
+
+        SubItems.Add(Format('%.2f',[Fields[3].AsFloat]));
       end;
 
       Next;

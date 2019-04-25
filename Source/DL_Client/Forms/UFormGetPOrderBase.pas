@@ -4,11 +4,12 @@
 *******************************************************************************}
 unit UFormGetPOrderBase;
 
+{$I Link.Inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UFormNormal, cxGraphics, cxContainer, cxEdit, cxTextEdit,
+  Dialogs, UFormNormal, cxGraphics, cxContainer, cxEdit, cxTextEdit, DateUtils,
   cxMaskEdit, cxDropDownEdit, dxLayoutControl, StdCtrls, cxControls,
   ComCtrls, cxListView, cxButtonEdit, cxLabel, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
@@ -17,6 +18,7 @@ uses
 type
   TOrderBaseParam = record
     FID :string;
+    FNcOrder:string;
 
     FProvID: string;
     FProvName: string;
@@ -56,6 +58,7 @@ type
     //查询类型
     FOrderData: string;
     //申请单信息
+    FShowAllOrder : Boolean;
     FOrderItems: TOrderBaseParams;
     function QueryData(const nQueryType: string=''): Boolean;
     //查询数据
@@ -91,6 +94,7 @@ begin
     FResults.Clear;
     SetLength(FOrderItems, 0);
 
+    FShowAllOrder:= nP.FParamA<>'';
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
 
@@ -114,6 +118,7 @@ begin
   try
     LoadFormConfig(Self, nIni);
     LoadcxListViewConfig(Name, ListQuery, nIni);
+    if not gSysParam.FIsAdmin then ListQuery.Columns[4].Width:= 0;
   finally
     nIni.Free;
   end;
@@ -148,7 +153,17 @@ begin
 
   nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From $TB ' +
           'Where ((B_Value-B_SentValue>0) or (B_Value=0)) ' +
-          'And B_BStatus=''Y'' ';
+          'And B_BStatus=''Y'' And (((B_Value-B_SentValue-B_FreezeValue) >=100)or(B_Value=0))';
+
+  {$IFDEF NCPurchase}
+  if not FShowAllOrder then
+  begin
+    if DayOfTheMonth(Now)>5 then
+      nStr := nStr + ' And B_Date>=Convert(Datetime,Convert(Char(8),GETDATE(),120)+''1'') '
+    else nStr := nStr + ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121) ';
+  end;
+  {$ENDIF}
+  
   if nQueryType = '1' then //供应商
   begin
     nQuery := Trim(EditProvider.Text);
@@ -179,6 +194,9 @@ begin
     with FOrderItems[nIdx] do
     begin
       FID       := FieldByName('B_ID').AsString;
+      {$IFDEF NCSale}
+      FNcOrder  := FieldByName('B_NCOrderNo').AsString;
+      {$ENDIF}
       FProvID   := FieldByName('B_ProID').AsString;
       FProvName := FieldByName('B_ProName').AsString;
       FSaleID   := FieldByName('B_SaleID').AsString;
@@ -199,6 +217,9 @@ begin
         SubItems.Add(FStockName);
         SubItems.Add(FProvName);
         SubItems.Add(FRestValue);
+        {$IFDEF NCSale}
+        if gSysParam.FIsAdmin then SubItems.Add(FNcOrder);
+        {$ENDIF}
         ImageIndex := cItemIconIndex;
       end;
 

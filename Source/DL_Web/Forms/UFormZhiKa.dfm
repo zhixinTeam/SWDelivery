@@ -260,7 +260,7 @@ inherited fFormZhiKa: TfFormZhiKa
       FixedCols = 0
       FixedRows = 0
       ColCount = 8
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick
       ShowColumnTitles = True
       Columns = <
         item
@@ -296,7 +296,7 @@ inherited fFormZhiKa: TfFormZhiKa
           Width = 32
         end>
       OnClick = Grid1Click
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 22
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -310,7 +310,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Height = 12
       Hint = ''
       Caption = #32440#21345#26126#32454':'
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12

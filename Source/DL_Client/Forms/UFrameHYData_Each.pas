@@ -146,7 +146,7 @@ begin
   else nStr := nStr + ' Where (' + FWhereHas + ')';
 
   nSQL := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan), MI('$Bill', nSQL),
-          MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd+1))]);
+          MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd+1)));
   FDM.QueryData(SQLQuery, nSQL);
 
   //--------------------------------------------------------------------------

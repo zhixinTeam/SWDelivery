@@ -239,7 +239,7 @@ begin
   begin
     if cxView1.OptionsSelection.MultiSelect then
          nRIdx := cxView1.Controller.FocusedRecordIndex
-    else nRIdx := cxView1.Controller.SelectedRows[0].RecordIndex;
+    else nRIdx := cxView1.Controller.SelectedRows[0.RecordIndex;
     
     if nRIdx < 0 then Exit;
     nObj := cxView1.DataController.GetItemByFieldName(nField);

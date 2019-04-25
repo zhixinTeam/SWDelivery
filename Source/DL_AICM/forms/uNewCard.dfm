@@ -10,7 +10,7 @@ object fFormNewCard: TfFormNewCard
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  Font.Style = [
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
@@ -36,7 +36,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clRed
       Font.Height = -24
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [
       ParentFont = False
     end
     object labelIdCard: TcxLabel
@@ -48,7 +48,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = 'MS Sans Serif'
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.IsFontAssigned = True
     end
     object editWebOrderNo: TcxTextEdit
@@ -60,7 +60,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = 'MS Sans Serif'
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyDown = editWebOrderNoKeyDown
@@ -78,7 +78,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [
       ParentFont = False
       TabOrder = 2
       OnClick = btnQueryClick
@@ -93,7 +93,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [
       ParentFont = False
       TabOrder = 3
       OnClick = btnClearClick
@@ -125,7 +125,7 @@ object fFormNewCard: TfFormNewCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = 'MS Sans Serif'
-        Font.Style = []
+        Font.Style = [
         ParentFont = False
         TabOrder = 19
         OnClick = BtnOKClick
@@ -140,7 +140,7 @@ object fFormNewCard: TfFormNewCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = 'MS Sans Serif'
-        Font.Style = []
+        Font.Style = [
         ParentFont = False
         TabOrder = 20
         OnClick = BtnExitClick
@@ -155,7 +155,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 17
         OnKeyPress = EditValueKeyPress
@@ -194,7 +194,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 2
         Width = 121
@@ -210,7 +210,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 3
         Width = 121
@@ -266,7 +266,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 10
         Width = 227
@@ -282,7 +282,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 11
         Width = 418
@@ -298,7 +298,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 15
         Width = 121
@@ -318,7 +318,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
         TabOrder = 16
@@ -341,7 +341,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.ButtonStyle = bts3D
         Style.PopupBorderStyle = epbsFrame3D
         Style.IsFontAssigned = True
@@ -378,7 +378,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         TabOrder = 18
         Transparent = True
@@ -399,7 +399,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
         TabOrder = 14
@@ -418,7 +418,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.ButtonStyle = bts3D
         Style.PopupBorderStyle = epbsFrame3D
         Style.IsFontAssigned = True
@@ -427,7 +427,7 @@ object fFormNewCard: TfFormNewCard
         Width = 426
       end
       object dxLayoutGroup1: TdxLayoutGroup
-        AutoAligns = []
+        AutoAligns = [
         ShowCaption = False
         Hidden = True
         ShowBorder = False
@@ -439,7 +439,7 @@ object fFormNewCard: TfFormNewCard
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayoutGroup2: TdxLayoutGroup
-              AutoAligns = [aaVertical]
+              AutoAligns = [aaVertical
               AlignHorz = ahClient
               ShowCaption = False
               Hidden = True
@@ -546,7 +546,7 @@ object fFormNewCard: TfFormNewCard
                 ControlOptions.ShowBorder = False
               end
               object dxlytmLayout1Item11: TdxLayoutItem
-                AutoAligns = [aaVertical]
+                AutoAligns = [aaVertical
                 AlignHorz = ahClient
                 Caption = #21487#25552#36135#37327':'
                 Control = EditMax
@@ -564,7 +564,7 @@ object fFormNewCard: TfFormNewCard
                 ControlOptions.ShowBorder = False
               end
               object dxLayout1Item8: TdxLayoutItem
-                AutoAligns = [aaVertical]
+                AutoAligns = [aaVertical
                 AlignHorz = ahClient
                 Caption = #21150#29702#21544#25968':'
                 Control = EditValue
@@ -583,13 +583,13 @@ object fFormNewCard: TfFormNewCard
             ControlOptions.ShowBorder = False
           end
           object dxLayoutItem1: TdxLayoutItem
-            AutoAligns = [aaVertical]
+            AutoAligns = [aaVertical
             AlignHorz = ahRight
             Control = BtnOK
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item2: TdxLayoutItem
-            AutoAligns = [aaVertical]
+            AutoAligns = [aaVertical
             AlignHorz = ahRight
             Control = BtnExit
             ControlOptions.ShowBorder = False
@@ -617,7 +617,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -19
       Style.Font.Name = 'MS Sans Serif'
-      Style.Font.Style = []
+      Style.Font.Style = [
       Style.IsFontAssigned = True
     end
     object lvOrders: TListView
@@ -631,7 +631,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = 'MS Sans Serif'
-      Font.Style = []
+      Font.Style = [
       RowSelect = True
       ParentFont = False
       TabOrder = 1

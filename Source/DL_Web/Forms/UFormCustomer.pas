@@ -94,7 +94,7 @@ begin
     nStr := 'Select cus.*,A_CreditLimit From %s cus' +
             ' Left Join %s On A_CID=C_ID ' +
             'Where cus.R_ID=%s';
-    nStr := Format(nStr, [sTable_Customer, sTable_CusAccount, nID]);
+    nStr := Format(nStr, [sTable_Customer, sTable_CusAccount, nID);
 
     nQuery := LockDBQuery(ctWork);
     with DBQuery(nStr, nQuery) do
@@ -158,8 +158,8 @@ begin
     nStr := SF('R_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('C_ID', nID), ''], nBool),
-      SF_IF([SF('C_XuNi', sFlag_No), ''], nBool),
+      SF_IF([SF('C_ID', nID), '', nBool),
+      SF_IF([SF('C_XuNi', sFlag_No), '', nBool),
 
       SF('C_Name', EditName.Text),
       SF('C_PY', GetPinYin(EditName.Text)),
@@ -173,13 +173,13 @@ begin
       SF('C_Account', EditAccount.Text),
       SF('C_Memo', EditMemo.Text),
       SF('C_SaleMan', GetSaleManID())
-      ], sTable_Customer, nStr, FParam.FCommand = cCmd_AddData);
+      , sTable_Customer, nStr, FParam.FCommand = cCmd_AddData);
     nList.Add(nStr);
 
     if nID <> '' then
     begin
       nStr := 'Insert Into %s(A_CID,A_Date) Values(''%s'', %s)';
-      nStr := Format(nStr, [sTable_CusAccount, nID, sField_SQLServer_Now]);
+      nStr := Format(nStr, [sTable_CusAccount, nID, sField_SQLServer_Now);
       nList.Add(nStr);
     end;
 

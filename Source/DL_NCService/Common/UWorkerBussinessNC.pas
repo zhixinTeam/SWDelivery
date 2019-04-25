@@ -47,7 +47,7 @@ type
     FListA,FListB,FListC: TStrings;
     //list
     FIn: TWorkerWebChatData;
-    FOut: TWorkerWebChatData;
+    FOut: TWorkerBusinessCommand;
     //in out
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
@@ -65,6 +65,7 @@ type
     function CheckExistsPOrderBase(const nPK, nPKDtl, nOrderNo:string): Boolean;
     function GetZhiKaFreezeMoney(const nZhiKa, nCusId:string): Double;
     function CheckExistsZhika(const nZid, nZPk:string): Boolean;
+    function MakeZhiKaLog(nID, nCusId, nDesc, nData: string): string;
     //***************基础数据处理（添加、修改、删除）***************************
     function EditCustomer(var nData: string): Boolean;
     //客户档案
@@ -81,6 +82,9 @@ type
     function EditZhiKa(var nData: string): Boolean;
     //销售纸卡
 
+    function AddSyncOrder(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
+    function AddSyncBill(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
+
     function SendMsg(nPrmA, nPrmB, nPrmC:string):string;
     function SendOrderPoundInfo(var nData:string):boolean;
     //采购单
@@ -90,8 +94,7 @@ type
              const nSolution: string = sFlag_Solution_YN;
              const nDepartmen: string = sFlag_DepDaTing;
              const nReset: Boolean = False; const nMemo: string = ''): Boolean;
-    function UPDateZhiKaBind(nOldZhika, nNewZhiKaPk, nStockNo: string): Boolean;
-    function UPDateBills(nBillNo, nNewZhiKaPK: string; var nData:string): Boolean;
+    function UPDateBillsBind(nBillNo, nNewZhiKaPK, nNewZhikaDtlPk: string; var nData:string): Boolean;
     //NC调价后根据新纸卡信息 更新旧纸卡现有未出厂订单信息
     function SendBillPoundInfo(var nData:string):boolean;
     //销售单
@@ -177,6 +180,10 @@ begin
 
     if Result then
     begin
+      if FDataOutNeedUnPack then
+        FPacker.UnPackOut(nData, FDataOut);
+      //xxxxx
+
       Result := DoAfterDBWork(nData, True);
       if not Result then Exit;
 
@@ -302,7 +309,9 @@ var nNode, nTmp: TXmlNode;
 begin
   Result := False;
   // 如接口服务正常访问则挂起心跳线程
-  gTNCStatusChker.Suspend;
+  if Not gTNCStatusChker.Suspended then
+    gTNCStatusChker.Suspend;
+    
   try
     try
       FPacker.XMLBuilder.Clear;
@@ -338,12 +347,10 @@ begin
     else
     begin
       nData := '无效的请求类型(Message.billtype error).';
-      Exit;
     end;
   except on Ex : Exception do
     begin
       nData := 'XML解析失败:' + Ex.Message;
-      Exit;
     end;
   end;
 end;
@@ -521,8 +528,8 @@ begin
 
     PR_SaleMan  :
       begin
-        nStr:= Format('Select * From S_Salesman Where S_ID=''%s'' And S_Name=''%s''',
-                                  [nID, nName]);
+        nStr:= Format('Select * From S_Salesman Where (S_ID=''%s'' OR S_PK=''%s'') And S_Name=''%s''',
+                                  [nID, nID, nName]);
         nTip:= '业务员';
       end;
 
@@ -561,7 +568,7 @@ var nStr, nTip:string;
 begin
   Result:= False;
   try
-    nStr:= Format('Select * From P_OrderBase Where Where B_PKOrder=''%s'' And B_PKDtl=''%s'' And B_NCOrderNo=''%s'' ',
+    nStr:= Format('Select * From P_OrderBase Where B_PKOrder=''%s'' And B_PKDtl=''%s'' And B_NCOrderNo=''%s'' ',
                                                         [nPK, nPKDtl, nOrderNo]);
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     begin
@@ -628,13 +635,6 @@ begin
               Break;
             end;
 
-            if (NodeByName('smanid').ValueAsString<>'')And
-               (NodeByName('smanid').ValueAsString<>'null')then
-            if not CheckExists(PR_SaleMan, NodeByName('smanid').ValueAsString,NodeByName('smanname').ValueAsString, nData) then
-            begin
-              ExecSql:= False;
-              Break;
-            end;
 
             nPK:= NodeByName('pk_cus').ValueAsString;
             nInitMoney:= FloatToStr(Float2Float(NodeByName('initmoney').ValueAsFloatDef(0), cPrecision, False));
@@ -654,11 +654,15 @@ begin
               ///**********
               if NodeByName('smanid').ValueAsString<>'' then
               begin
-                nSql:= Format(' Insert Into S_Salesman(S_ID, S_Name, S_PY, S_InValid)Select top 1 ''%s'', ''%s'', ''%s'', ''%s'' ' +
-                                          ' From Master..SysDatabases Where Not exists(Select * From S_Salesman Where S_ID=''%s'') '  ,
-                              [ NodeByName('smanid').ValueAsString, NodeByName('smanname').ValueAsString,
-                                GetPinYinOfStr(NodeByName('smanname').ValueAsString), 'N', NodeByName('smanid').ValueAsString]);
-                FListA.Add(nSql);
+                try
+                  nSql:= Format(' Insert Into S_Salesman(S_ID, S_Name, S_PY, S_InValid, S_PK)Select top 1 ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' ' +
+                                              ' From Master..SysDatabases Where Not exists(Select * From S_Salesman Where S_ID=''%s'') '  ,
+                                  [ NodeByName('smancode').ValueAsString, NodeByName('smanname').ValueAsString,
+                                    GetPinYinOfStr(NodeByName('smanname').ValueAsString), 'N', NodeByName('smanid').ValueAsString,
+                                    NodeByName('smancode').ValueAsString]);
+                  FListA.Add(nSql);
+                except
+                end;
               end;
             end
             else if NodeByName('proc').ValueAsString='update' then
@@ -675,7 +679,20 @@ begin
               if NodeByName('smanid').ValueAsString<>'' then
               if NodeByName('smanid').ValueAsString<>'null' then
               begin
-                nSql:= Format(' UPDate S_Salesman Set S_Name=''%s'' ,S_PY=''%s'' Where S_ID=''%s'' ', [
+                if not CheckExists(PR_SaleMan, NodeByName('smanid').ValueAsString,NodeByName('smanname').ValueAsString, nData) then
+                begin
+                  try
+                    nSql:= Format(' Insert Into S_Salesman(S_ID, S_Name, S_PY, S_InValid, S_PK)Select top 1 ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' ' +
+                                              ' From Master..SysDatabases Where Not exists(Select * From S_Salesman Where S_ID=''%s'') '  ,
+                                  [ NodeByName('smancode').ValueAsString, NodeByName('smanname').ValueAsString,
+                                    GetPinYinOfStr(NodeByName('smanname').ValueAsString), 'N', NodeByName('smanid').ValueAsString,
+                                    NodeByName('smancode').ValueAsString]);
+                    FListA.Add(nSql);
+                  except
+                  end;
+                end;
+
+                nSql:= Format(' UPDate S_Salesman Set S_Name=''%s'' ,S_PY=''%s'' Where S_PK=''%s'' ', [
                               NodeByName('smanname').ValueAsString, GetPinYinOfStr(NodeByName('smanname').ValueAsString),
                               NodeByName('smanid').ValueAsString]);
                 FListA.Add(nSql);
@@ -703,7 +720,7 @@ begin
           try
             for nIdx:=0 to FListA.Count - 1 do
             begin
-              //gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
+              gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
               gSysLoger.AddLog('客户档案' + FListA[nIdx]);
             end;
 
@@ -976,7 +993,7 @@ end;
 function TBusWorkerBusinessNC.EditStocks(var nData: string): Boolean;
 var nSql, nPK, nPageType: string;
     nIdx: Integer;
-    nNode,nRoot: TXmlNode;
+    nNode, nRoot: TXmlNode;
     ExecSql:Boolean;
 begin
   WriteLog('【物料档案】入参：' + nData);
@@ -1347,7 +1364,7 @@ begin
                 begin
                   Sleep(60);
                   nOrderId:= FormatDateTime('OyyyyMMddHHmmsszzz', Now);             // DL 编号
-
+                  
                   nSql:= Format(' Insert Into P_OrderBase(B_ID, B_BStatus, B_ProID, B_ProName, B_ProPY, B_Man, B_Date, B_StockType, B_StockNo, B_StockName, '+
                                                          'B_Value, B_PKOrder,B_PKdtl, B_RestValue, B_LimValue, B_WarnValue, B_FreezeValue, B_SentValue,B_NCOrderNo) '+
                                     'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%d'', ''%s'', ''%s'', '+
@@ -1487,25 +1504,39 @@ begin
   end;
 end;
 
+function TBusWorkerBusinessNC.MakeZhiKaLog(nID, nCusId, nDesc, nData: string): string;
+var nStr:string;
+begin
+  Result:= Format(' Insert Into Sys_ZhiKaLog(Lg_Date,Lg_ZhiKaID,Lg_CusID ,Lg_Desc ,Lg_SourcXML) '+
+                                    'Select Convert(Varchar(19),GetDate(),121), ''%s'', ''%s'', ''%s'' ',
+                                    [nID,nCusId, nDesc, nData]);
+end;
+
 //Date: 2018-11-25
 //Desc: 销售纸卡
 function TBusWorkerBusinessNC.EditZhiKa(var nData: string): Boolean;
-var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanId, nFixmoney,
-    nValidDay, nCMan, nCTime, nProc, nFlag, nType: string;
+var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanId, nFixmoney, nXml, nStatus,
+    nValidDay, nCMan, nCTime, nProc, nFlag, nType, nZ_InValid: string;
     nPrice,nFlPrice,nValue,nYFPrice, nFreezeMoney, nFixmoneyNew:Double;
     nIdx: Integer;
     nRoot, nDetails, nItem: TXmlNode;
-    ExecSql, NeedExecDtl:Boolean;
+    ExecSql, NeedExecDtl, nInValid:Boolean;
 begin
   WriteLog('【销售纸卡】入参：' + nData);
+  nXml:= nData;
   try
     try
-      Result := False;   ExecSql:= True;   NeedExecDtl:= True;
+      Result := False;
+      ExecSql:= True;   NeedExecDtl:= True;
 
       with FPacker.XMLBuilder do
       begin
         ReadFromString(nData);
-        if not ParseDefault(nData) then Exit;
+        if not ParseDefault(nData) then
+        begin
+          WriteLog('【销售纸卡】：解析失败');
+          Exit;
+        end;
         nRoot := Root.FindNode('DataRow');
 
         if not Assigned(nRoot) then
@@ -1532,20 +1563,27 @@ begin
         nSmanId := Root.Nodes[0].NodeByName('smanid').ValueAsString;
         nValidDay:= Root.Nodes[0].NodeByName('validdays').ValueAsString;
         if nValidDay='0' then
-             nValidDay:= FormatDateTime('yyyy-MM-dd HH:mm:ss', IncYear(Now, 100))
+             nValidDay:= FormatDateTime('yyyy-MM-dd HH:mm:ss', IncYear(Now, 30))
         else nValidDay:= FormatDateTime('yyyy-MM-dd HH:mm:ss', IncDay(Now, StrToInt(nValidDay)));
 
         nFixmoney:= Root.Nodes[0].NodeByName('fixmoney').ValueAsString;
         nFixmoney:= StringReplace(nFixmoney, ',', '', [rfReplaceAll]);
         nFixmoney:= StringReplace(nFixmoney, '，', '', [rfReplaceAll]);
         nFixmoneyNew:= Float2Float(StrToFloatDef(nFixmoney, 0), cPrecision, False);
-        nFixmoney:= FloatToStr(nFixmoneyNew);
+        nFixmoney:= FloatToStr(nFixmoneyNew);   //FormatFloat()
 
         nCMan   := Root.Nodes[0].NodeByName('creator').ValueAsString;
         nCTime  := Root.Nodes[0].NodeByName('date').ValueAsString;
 
         nFlag   := Root.Nodes[0].NodeByName('flag').ValueAsString;
-        if nFlag='0' then nFlag:= sFlag_Yes else nFlag:= sFlag_No;
+        if nFlag='0' then
+        begin
+          nFlag:= sFlag_Yes;  nZ_InValid:= 'null';   nStatus:= '有效';
+        end
+        else
+        begin
+          nFlag:= sFlag_No;  nZ_InValid:= '''Y''';   nStatus:= '关闭';
+        end;
         //**************************************************************************
         nCusId  := GetCusId(nCusId);
         if (not CheckExists(PR_CusID, nCusId, '', nData)) then
@@ -1559,39 +1597,56 @@ begin
         begin
           if not CheckExistsZhika(nZId, nPK) then
           begin
+            //FListA.Add(' Delete S_ZhiKa Where Z_ID='''+ nZId +''' And Z_PKzk='''+nPK+'''');
+            FListA.Add(' Delete S_ZhiKa Where Z_ID='''+ nZId +'''');
+
             nSql:= Format(' Insert Into S_ZhiKa(Z_ID, Z_Name, Z_PKzk, Z_Customer, Z_SaleMan, Z_Lading, Z_ValidDays, Z_Verified,'+
                                                 'Z_YFMoney, Z_FixedMoney, Z_OnlyMoney, Z_Man, Z_Date) '+
-                                    'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' '+
+                                    'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s, ''%s'', ''%s'', ''%s'' '+
                                     'From Master..SysDatabases Where Not exists(Select * From S_ZhiKa Where Z_ID=''%s'' And Z_PKzk =''%s'') '  ,
                               [ nZId, nZName, nPK, nCusId, nSmanId, 'T', nValidDay, nFlag, '0', nFixmoney, 'Y', nCMan, nCTime, nZId, nPK ]);
             FListA.Add(nSql);
             FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
+            FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 新增纸卡 %s  金额：%s  状态为: %s ', [nCMan, nCusId, nZId, nFixmoney, nStatus]), nXml));
           end
-          else NeedExecDtl:= False;
+          else
+          begin
+
+            nSql:= Format(' UPDate S_ZhiKa Set Z_Name=''%s'', Z_Customer=''%s'', Z_SaleMan=''%s'', Z_ValidDays=''%s'', Z_Verified=''%s'', Z_InValid=%s ,Z_FixedMoney=''%s'', ' +
+                                                      'Z_Man=''%s'', Z_Date=''%s'' ' +
+                              ' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ',
+                              [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nZId, nPK]);
+            FListA.Add(nSql);
+            FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
+            FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s  金额为：%s  状态为: %s ', [nCMan, nCusId, nZId, nFixmoney, nStatus]), nXml));
+          end;
+          //else NeedExecDtl:= False;
         end
         else if nProc='update' then
         begin
           ///////////////  获取未出厂单据金额以及出厂未上传、上传失败单据金额
-          nFreezeMoney:= GetZhiKaFreezeMoney(nZId, nCusId);
+          {nFreezeMoney:= GetZhiKaFreezeMoney(nZId, nCusId);
           if nFixmoneyNew<nFreezeMoney then
           begin
             nData:= '客户 ' + nCusId + ' 正在发货金额 '+floattoStr(nFreezeMoney)+'、该纸卡金额将被修改为 0 元';
             nFixmoney:= '0';
           end
-          else nFixmoney:= FloatToStr(nFixmoneyNew-nFreezeMoney);
+          else nFixmoney:= FloatToStr(nFixmoneyNew-nFreezeMoney);  }
 
-          nSql:= Format(' UPDate S_ZhiKa Set Z_Name=''%s'', Z_Customer=''%s'', Z_SaleMan=''%s'', Z_ValidDays=''%s'', Z_Verified=''%s'',Z_FixedMoney=''%s'' ' +
+          nSql:= Format(' UPDate S_ZhiKa Set Z_Name=''%s'', Z_Customer=''%s'', Z_SaleMan=''%s'', Z_ValidDays=''%s'', Z_Verified=''%s'', Z_InValid=%s, Z_FixedMoney=''%s'', ' +
                                                     'Z_Man=''%s'', Z_Date=''%s'' ' +
                             ' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ',
-                            [ nZName, nCusId, nSmanId, nValidDay, nFlag, nFixmoney, nCMan, nCTime, nZId, nPK]);
+                            [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nZId, nPK]);
           FListA.Add(nSql);
           FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
+          FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s  金额为：%s  状态为: %s ', [nCMan, nCusId, nZId, nFixmoney, nStatus]), nXml));
         end
         else if nProc='delete' then
         begin
           // 修改纸卡为不可用状态
           nSql:= Format(' UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ', [nZId, nPK]);
           FListA.Add(nSql);
+          FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 停用纸卡 %s  状态为: %s ', [nCMan, nCusId, nZId, nStatus]), nXml));
         end
         else
         begin
@@ -1631,6 +1686,7 @@ begin
               nFlPrice:= NodeByName('flprice').ValueAsFloatDef(0);
               nValue  := NodeByName('value').ValueAsFloatDef(0);
               nYFPrice:= NodeByName('yunfei').ValueAsFloatDef(0);
+              nInValid:= NodeByName('isadjprice').ValueAsBoolDef(False);
 
               if (nPrice>0)and(nFlPrice>=0)and(nValue>=0)and(nYFPrice>=0) then
               begin
@@ -1641,12 +1697,20 @@ begin
                                 FloatToStr(nValue), 'Y', FloatToStr(nFlPrice), FloatToStr(nYFPrice), nPKDtl,
                                 nZId, NodeByName('stockno').ValueAsString]);
                 FListA.Add(nSql);
+                FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡%s 品种 %s  水泥、运费单价分别为：%s 、%s ',
+                                    [nCMan, nCusId, nZId, NodeByName('stockname').ValueAsString, FloatToStr(nPrice), FloatToStr(nFlPrice)]), nXml));
               end
               else
               begin
                 nData:= NodeByName('stockname').ValueAsString + ' 销售价、返利价或运费有误';
                 ExecSql:= False;
                 Exit;
+              end;
+
+              if nInValid then
+              begin
+                nSql:= Format(' UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ', [nZId, nPK]);
+                FListA.Add(nSql);
               end;
             end;
           end;
@@ -1658,7 +1722,7 @@ begin
           try
             for nIdx:=0 to FListA.Count - 1 do
             begin
-              //gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
+              gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
               gSysLoger.AddLog('销售纸卡 ' + FListA[nIdx]);
             end;
 
@@ -1724,7 +1788,7 @@ begin
   try
     nFOPer:= GetNewOPer;
     wParam:= TStringList.Create();
-    //*******************************************************  <![CDATA[%s]]>
+    //*******************************************************  <![CDATA[%s>
     wParam.Clear;
 
     nParam:= '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:idat="http://service.ncitf.itf.nc/IDataReceive">' +
@@ -1765,9 +1829,45 @@ begin
   end;
 end;
 
+//Desc: 插入待上传订单 或失败订单
+function TBusWorkerBusinessNC.AddSyncOrder(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
+var nstr, nNum : string;
+begin
+  if nStatus='1' then nNum:= '6'
+  else nNum:= '0';
+
+  nStr := 'Insert Into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc,N_ErrorMsg,N_SyncNum)'+
+              'Select ''$OrderNo'',''$Type'',''$Status'',''$Proc'',''$Msg'',''$Num'' ' +
+              'Where  Not exists(Select * From S_UPLoadOrderNc Where N_OrderNo=''$OrderNo'' And N_Type =''$Type'' ' +
+              ' And N_Status =''$Status'' And N_Proc =''$Proc'') ';
+  nStr := MacroValue(nStr, [MI('$OrderNo', nOrderNo), MI('$Type', 'P'), MI('$Msg', nErrMsg), MI('$Status', nStatus),
+                            MI('$Proc', nProc), MI('$Num', nNum)]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+end;
+
+function TBusWorkerBusinessNC.AddSyncBill(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
+var nstr, nNum : string;
+begin
+  if nStatus='1' then nNum:= '6'
+  else nNum:= '0';
+
+  nStr := 'Insert Into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc,N_ErrorMsg,N_SyncNum)'+
+              'Select ''$OrderNo'',''$Type'',''$Status'',''$Proc'',''$Msg'',''$Num'' ' +
+              'Where  Not exists(Select * From S_UPLoadOrderNc Where N_OrderNo=''$OrderNo'' And N_Type =''$Type'' ' +
+              ' And N_Status =''$Status'' And N_Proc =''$Proc'') ';
+  nStr := MacroValue(nStr, [MI('$OrderNo', nOrderNo), MI('$Type', 'S'), MI('$Msg', nErrMsg), MI('$Status', nStatus),
+                            MI('$Proc', nProc), MI('$Num', nNum)]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+
+  nStr := 'UPDate S_UPLoadOrderNc Set N_ErrorMsg=''$Msg'' Where N_OrderNo=''$OrderNo'' And N_Proc ''$Proc'' ';
+  nStr := MacroValue(nStr, [MI('$OrderNo', FListA.Values['ID']), MI('$Msg', nErrMsg),MI('$Proc', nProc)]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+end;
+
+
 //Desc: 采购单过磅
 function TBusWorkerBusinessNC.SendOrderPoundInfo(var nData: string): Boolean;
-var nStr: string;
+var nStr, nRe: string;
     nRoot, nNode : TXmlNode;
 begin
   Result := False;
@@ -1820,10 +1920,14 @@ begin
         WriteLog('NC返回：'+nStr);
         //nStr := SendMsg('BS0001','null', nStr);
         //nStr:= '<?xml version="1.0" encoding="utf-8"?><Info><DataRow><Pk>0</Pk><Message>订单已审核不能删除</Message><Status>-1</Status></DataRow></Info> ';
+        //nStr:= gSysParam.FRe;
       except on Ex:Exception do
         begin
+          AddSyncOrder(FListA.Values['DID'],'1',FListA.Values['Proc'],Ex.Message);
+
           gSysParam.FErrorNum:= gSysParam.FErrorNum + 1;
-          if gSysParam.FErrorNum>=10 then gTNCStatusChker.Resume;
+          if gSysParam.FErrorNum>=10 then
+            if gTNCStatusChker.Suspended then gTNCStatusChker.Resume;
 
           nData:= '访问NC出错：'+ Ex.Message;
           WriteLog(nData);
@@ -1838,7 +1942,7 @@ begin
           ReadFromString(nStr);
           if not ParseDefault(nData) then
           begin
-            WriteLog('推送失败:'+nData+'应答:'+nStr);
+            WriteLog('推送失败:'+nData+' 应答:'+nStr);
             Exit;
           end;
 
@@ -1854,7 +1958,7 @@ begin
           begin
             if NodeByName('Status').ValueAsString='-1' then
             begin
-              nData := Format(' %s 操作失败：%s', [ FListA.Values['ID'],
+              nData := Format('操作失败：%s %s', [ FListA.Values['DID'],
                                             NodeByName('Message').ValueAsString]);
             end
             else Result:= True;
@@ -1873,7 +1977,7 @@ begin
       end;
     end;
   finally
-    FOut.FData := sFlag_Yes;
+    FOut.FData := nData;
     FOut.FBase.FResult := True;
   end;
 end;
@@ -1924,98 +2028,94 @@ begin
   Result := True;
 end;
 
-//Desc: 更新现有订单与新纸卡关系
-function TBusWorkerBusinessNC.UPDateZhiKaBind(nOldZhika, nNewZhiKaPk, nStockNo: string): Boolean;
-var nStr, nNewZID, nZhiKaDtl : string;
-    nPrice, nYunFei : Double;
-    FErrNum : Integer;
-    xDBConn : PDBWorker;
-begin
-  Result:= False;
-  xDBConn:= nil;
-  xDBConn := gDBConnManager.GetConnection(gDBConnManager.DefaultConnection, FErrNum);
-
-  // 获取新纸卡 单价 、运费
-  nStr := 'Select Z_ID, D_StockNo, D_StockName, Z_PKzk, IsNull(Z_FixedMoney, 0) Z_FixedMoney, ' +
-                 'D_Price, IsNull(D_YunFei, 0) D_YunFei, D_PKDtl  From S_ZhiKa ' +
-          'Left  Join  S_ZhiKaDtl On Z_ID=D_ZID   ' +
-          'Where Z_PKzk=''%s''  ';
-  nStr := Format(nStr, [nNewZhiKaPk]);
-  //xxxxx
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  begin
-    if RecordCount > 0 then
-    begin
-      try
-        xDBConn.FConn.BeginTrans;
-        try
-          while not Eof do
-          begin
-            nNewZID   := FieldByName('Z_ID').AsString;
-            nZhiKaDtl := FieldByName('D_PKDtl').AsString;
-
-            nPrice    := FieldByName('D_Price').AsFloat;
-            nYunFei   := FieldByName('D_YunFei').AsFloat;
-
-
-            // 更新旧纸卡来源纸卡信息、价格、运费等
-            nStr := 'UPDate S_Bill Set L_ZhiKa=''%s'', L_Price=%g, L_YunFei=%g, L_Pkzk=''%s'' ' +
-                    'Where L_ZhiKa=''%s'' And L_PKDtl=''%s'' And L_OutFact Is Null And l_Status<>''O'' ';
-
-            nStr := Format(nStr, [nNewZID, nPrice, nYunFei, nNewZhiKaPk, nOldZhika, nZhiKaDtl]);
-            //xxxxx
-
-            gDBConnManager.WorkerExec(xDBConn, nStr);
-            xDBConn.FConn.CommitTrans;
-            Result:= True;
-          end;
-        except
-          xDBConn.FConn.RollbackTrans;
-        end;
-      finally
-        gDBConnManager.ReleaseConnection(xDBConn);
-      end;
-    end;
-  end;
-end;
-
 ////  NC调价后根据新纸卡信息 更新旧纸卡现有未出厂订单信息
-function TBusWorkerBusinessNC.UPDateBills(nBillNo, nNewZhiKaPK: string; var nData:string): Boolean;
-var nStr, nStockNo, nTruck, nOldZhiKaId, nZhiKaId, nZhiKaDtl, nCusId, nCusName: string;
-    nFixMoney, nPrice, nYunFei, nValue, nNeedJK : Double;
-    nPrePrice, nPreYunFei, nPreMoney, nNewMoney, nFreezeMoney : Double;
-    xDBConn : PDBWorker;
+function TBusWorkerBusinessNC.UPDateBillsBind(nBillNo, nNewZhiKaPK, nNewZhikaDtlPk: string; var nData:string): Boolean;
+var nStr, nTruck, nOldZhika, nOldDtlPk, nNewZID: string;
+    nIdx : Integer;
+    nPrice, nYunFei : Double;
 begin
-  Result:= False;   nFreezeMoney:= 0;
+  Result:= False;  FListA.Clear;
   //**************************
   nStr := 'Select * From S_Bill Where L_ID=''' + nBillNo + '''';
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
-    if RecordCount = 1 then
+    if RecordCount < 1 then
     begin
-      nStockNo   := FieldByName('L_StockNo').AsString;
-      nOldZhiKaId:= FieldByName('L_Zhika').AsString;
+      nData := '更新订单信息失败, 未找到销售订单 ' + nBillNo;
+      WriteLog(nData);
+      Exit;
+    end;
+    
+    nOldZhiKa := FieldByName('L_Zhika').AsString;
+    nOldDtlPk := FieldByName('L_PKDtl').AsString;
+  end;
 
-      // 更新旧纸卡订单到新纸卡
-      UPDateZhiKaBind(nOldZhiKaId, nNewZhiKaPK, nStockNo);
+  // 更新旧纸卡订单绑定关系到新纸卡下
+  // 获取新纸卡 单价 、运费
+  nStr := 'Select Z_ID, D_StockNo, D_StockName, Z_PKzk, IsNull(Z_FixedMoney, 0) Z_FixedMoney, ' +
+                 'D_Price, IsNull(D_YunFei, 0) D_YunFei, D_PKDtl  From S_ZhiKa ' +
+          'Left  Join  S_ZhiKaDtl On Z_ID=D_ZID   ' +
+          'Where Z_PKzk=''%s'' And D_PKDtl=''%s''  ';
+  nStr := Format(nStr, [nNewZhiKaPk, nNewZhikaDtlPk]);
+  //xxxxx
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount = 0 then
+    begin
+      nData:= format('未能获取到新纸卡 PK %s 信息、更改绑定关系失败', [nNewZhiKaPk]);
+      WriteLog(nData);
+      Exit;
     end
-    else nData := '更新订单信息失败, 未找到销售订单 ' + nBillNo;
+    else
+    begin
+      while not Eof do
+      begin
+        nNewZID := FieldByName('Z_ID').AsString;
+        nPrice  := FieldByName('D_Price').AsFloat;
+        nYunFei := FieldByName('D_YunFei').AsFloat;
+
+                // 更新旧纸卡来源纸卡信息、价格、运费等
+        nStr := 'UPDate S_Bill Set L_ZhiKa=''%s'', L_Price=%g, L_YunFei=%g, L_Pkzk=''%s'', L_PkDtl=''%s''  ' +
+                'Where L_ZhiKa=''%s'' And L_PKDtl=''%s'' And L_OutFact Is Null And l_Status<>''O'' ';
+        nStr := Format(nStr, [nNewZID, nPrice, nYunFei, nNewZhiKaPK, nNewZhikaDtlPk, nOldZhika, nOldDtlPk]);
+                //xxxxx
+
+        FListA.Add(nStr);
+        Next;
+      end;
+    end;
+  end;
+
+  FDBConn.FConn.BeginTrans;
+  try
+    for nIdx := 0 to FListA.Count - 1 do
+    begin
+      gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
+      WriteLog('更新纸卡绑定关系：' + FListA[nIdx]);
+    end;
+
+    FDBConn.FConn.CommitTrans;
+    nData := '处理成功';
+    Result:= True;
+  except
+    FDBConn.FConn.RollbackTrans;
+    nData := '处理失败';
   end;
 end;
 
 //Desc: 销售单信息
 function TBusWorkerBusinessNC.SendBillPoundInfo(var nData: string): Boolean;
-var nStr, nTime, nProc, nZhiKaPK, nZhiKaDtlPK, nCreator, nHid, nBid : string;
-    nCard : string;
+var nStr, nTime, nProc, nZhiKaNo, nZhiKaPK, nZhiKaDtlPK, nCreator, nHid, nBid : string;
+    nCard, nErrMsg: string;
     nZhika, nMTime, nMValue, nPValue, nValue : string;
     nRoot, nNode : TXmlNode;
 begin
-  Result := False;
-  try                         exit;
+  Result := False;   FOut.FExtParam:= '';
+  try
     FListA.Text := PackerDecodeStr(FIn.FData);
     nCard:= FListA.Values['Card'];
 
-    nStr:= 'Select * From S_Bill Where L_ID='''+FListA.Values['ID']+'''';
+    nStr:= 'Select *, (L_MValue-L_PValue) ValueX  From S_Bill Where L_ID='''+FListA.Values['ID']+'''';
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     begin
       if RecordCount= 1 then
@@ -2032,9 +2132,16 @@ begin
         nPValue:= FieldByName('L_PValue').AsString;
         nValue := FieldByName('L_Value').AsString;
 
+        {$IFDEF BasisWeightWithPM}
+        if FieldByName('L_IsBasisWeightWithPM').AsString='Y' then
+          nValue := FieldByName('ValueX').AsString;
+        {$ENDIF}
+
         if FIn.FExtParam='' then
         begin
-          FIn.FExtParam:= FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('L_OutFact').AsDateTime)
+          if FieldByName('L_OutFact').AsDateTime<IncYear(Now) then
+            FIn.FExtParam:= FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('L_MDate').AsDateTime)
+          else FIn.FExtParam:= FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('L_OutFact').AsDateTime);
         end;
       end
       else
@@ -2048,7 +2155,10 @@ begin
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     begin
       if RecordCount = 1 then
-        nHid:= FieldByName('R_ID').AsString
+      begin
+        nHid    := FieldByName('R_ID').AsString;
+        nZhiKaNo:= FieldByName('Z_ID').AsString;
+      end
       else
       begin
         nData:= '未找到订单 '+FListA.Values['ID'] + ' 的纸卡创建信息';
@@ -2056,8 +2166,13 @@ begin
       end;
     end;
 
-    if FListA.Values['proc']='' then nProc:= 'add'
-    else nProc:= FListA.Values['proc'];
+    nProc:= FListA.Values['proc'];
+    if (nCard<>'') then nProc:= 'add';
+    if (nProc='') then
+    begin
+      nData:= '订单 '+FListA.Values['ID'] + ' 无法推送、缺少操作标示';
+      Exit;
+    end;
     //***********************************************************
     nStr := '<?xml version="1.0" encoding="UTF-8"?>' +
             '<Message billtype="BS0002">' +
@@ -2065,6 +2180,7 @@ begin
             '   <proc>%s</proc> ' +
             '    <pk_org>%s</pk_org> ' +
             '    <dbilldate>%s</dbilldate> ' +
+            '    <saleorderno>%s</saleorderno> ' +
             '    <csaleorderhid>%s</csaleorderhid> ' +
             '    <csaleorderbid>%s</csaleorderbid> ' +
             '    <creator>%s</creator> ' +
@@ -2079,30 +2195,35 @@ begin
             '    <dr>0</dr> ' +
             ' </DataRow> ' +
             '</Message>';
-
-    nStr := Format(nStr, [nProc, gSysParam.FFactID, nTime, nZhiKaPK, nZhiKaDtlPK,
+                                                    //nTime
+    nStr := Format(nStr, [nProc, gSysParam.FFactID, FIn.FExtParam, nZhiKaNo, nZhiKaPK, nZhiKaDtlPK,
                            nCreator, FIn.FExtParam, FListA.Values['ID'],
                           nHid, nBid, nValue,
                           nMTime, nMValue, nPValue]);
     WriteLog('销售单上传NC：'+nStr);
+    WriteLog('销售单上传NC：'+gSysParam.FSrvRemote);
     try
       try
         FNCChannel := GetIDataReceivePortType(False, gSysParam.FSrvRemote);
         nStr := FNCChannel.receiveData('BS0002', 'null', nStr);
         //nStr := SendMsg('BS0002','null', nStr);
         //nStr:= '<?xml version="1.0" encoding="utf-8"?><Info><DataRow><Pk>1001ZZ100000000ETVWR</Pk><Message>未知错误</Message><Status>-1</Status></DataRow></Info> ';
+        //nStr:= gSysParam.FRe;
       except on Ex:Exception do
         begin
+          AddSyncBill(FListA.Values['ID'],'1',nProc,Ex.Message);
+
           gSysParam.FErrorNum:= gSysParam.FErrorNum + 1;
-          if gSysParam.FErrorNum>=10 then gTNCStatusChker.Resume;
-          
+          if gSysParam.FErrorNum>=10 then
+            if gTNCStatusChker.Suspended then gTNCStatusChker.Resume;
+
           nData:= '访问NC出错：'+ Ex.Message;
           WriteLog(nData);
           Exit;
         end;
       end;
 
-      WriteLog('返回：'+nStr);
+      WriteLog('NC返回：'+nStr);
       try
         gSysParam.FErrorNum:= 0;
         with FPacker.XMLBuilder do
@@ -2122,15 +2243,37 @@ begin
           begin
             if NodeByName('Status').ValueAsString='-1' then
             begin
-              nData := Format('销售单 %s 操作失败：%s', [ FListA.Values['ID'],
-                                            NodeByName('Message').ValueAsString]);
+              nErrMsg:= StringReplace(NodeByName('Message').ValueAsString, #13, '', [rfReplaceAll]);
+              nErrMsg:= StringReplace(nErrMsg, #10, '', [rfReplaceAll]);
+              nData := Format('销售单 %s 操作失败：%s', [ FListA.Values['ID'], nErrMsg]);
 
               if Pos('<PkNew>', nStr)>0 then
-              if NodeByName('PkNew').ValueAsString<>'' then
               begin
-                Result := UPDateBills(FListA.Values['ID'], NodeByName('PkNew').ValueAsString, nData);
-                FOut.FExtParam:= 'Y';
-                // 标记发生改价
+                if (NodeByName('PkNew').ValueAsString <> '') and
+                   (NodeByName('PkBNew').ValueAsString <> '') then
+                begin
+                  Result := UPDateBillsBind(FListA.Values['ID'], NodeByName('PkNew').ValueAsString,
+                                                             NodeByName('PkBNew').ValueAsString, nData);
+                  nData := 'PriceIsChanageY '+nData;
+                  FOut.FExtParam := 'PriceIsChanageY';
+                  // 标记发生改价将进行二次校验
+                end;
+              end
+              else
+              begin
+                IF nCard<>'' then
+                begin
+                  nStr := 'Insert Into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc,N_ErrorMsg)Select ''$OrderNo'',''$Type'',''$Status'',''$Proc'',''$Msg'' '+
+                          'Where  Not exists(Select * From S_UPLoadOrderNc Where N_OrderNo=''$OrderNo'' And N_Type =''$Type'' '+
+                                              ' And N_Status =''$Status'' And N_Proc =''$Proc'') ';
+                  nStr := MacroValue(nStr, [MI('$OrderNo', FListA.Values['ID']), MI('$Type', 'S'), MI('$Msg', nErrMsg),
+                                            MI('$Status', '1'), MI('$Proc', nProc)]);
+                  gDBConnManager.WorkerExec(FDBConn, nStr);
+
+                  nStr := 'UPDate S_UPLoadOrderNc Set N_ErrorMsg=''$Msg'' Where N_OrderNo=''$OrderNo'' And N_Proc ''$Proc'' ';
+                  nStr := MacroValue(nStr, [MI('$OrderNo', FListA.Values['ID']), MI('$Msg', nErrMsg),MI('$Proc', nProc)]);
+                  gDBConnManager.WorkerExec(FDBConn, nStr);
+                end;
               end;
             end
             else
@@ -2144,7 +2287,12 @@ begin
                         SF('N_Proc', nProc),
                         SF('N_SyncNum', '1')
                         ], sTable_UPLoadOrderNcHistory, '', True);
+                gDBConnManager.WorkerExec(FDBConn, nStr);
 
+                nStr := 'Delete S_UPLoadOrderNc Where N_OrderNo=''$OrderNo'' And N_Type =''$Type'' '+
+                                              ' And N_Status =''$Status'' And N_Proc =''$Proc''';
+                nStr := MacroValue(nStr, [MI('$OrderNo', FListA.Values['ID']), MI('$Type', 'S'),
+                                            MI('$Status', '1'), MI('$Proc', nProc)]);
                 gDBConnManager.WorkerExec(FDBConn, nStr);
               end;
             end;
@@ -2163,7 +2311,7 @@ begin
       end;
     end;
   finally
-    FOut.FData := sFlag_Yes;
+    FOut.FData := nData;
     FOut.FBase.FResult := True;
   end;
 end;
@@ -2192,9 +2340,13 @@ begin
 
     if nStr = 'OK' then
     begin
+      WriteLog('网络链接恢复、NC服务工作状态正常、现切换为在线模式 OnLine');
       gSysParam.FErrorNum:= 0;
+      if Not gTNCStatusChker.Suspended then
+          gTNCStatusChker.Suspend;
+
       Result:= True;
-      nStr := 'UPDate Sys_Dict Set D_Value=''OnLine'' Where D_Memo=''NCServiceStatus'' And D_Name= ''SysParam'' ';
+      nStr := 'UPDate Sys_Dict Set D_Value=''OnLine'' Where D_Memo=''NCServiceStatus'' And D_Name=''SysParam'' ';
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
   finally

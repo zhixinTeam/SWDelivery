@@ -313,6 +313,7 @@ begin
     nFreeze  := SQLQuery.FieldByName('O_Value').AsFloat;
     nVal     := SQLQuery.FieldByName('D_NetWeight').AsFloat;
 
+    {$IFDEF NCPurchase}
     /// 检查是否已经同步NC  如同步则先通知NC 尝试删除
     nStr := 'Select * From %s Where M_ID=''%s'' And ISNULL(M_Pk, '''')<>'''' ';
     nStr := Format(nStr, [sTable_Materails, nStockNo, sTable_Materails]);
@@ -324,7 +325,7 @@ begin
                  'Union  ' +
                  'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ';
 
-          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nID, sTable_UPLoadOrderNcHistory, nID]);
+          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nID, sTable_UPLoadOrderNcHistory, nID);
           with FDM.QueryTemp(nStr) do
           begin
             if RecordCount>0 then
@@ -332,13 +333,14 @@ begin
               nData:= GetOrderDtlInfo(nID);
               if Not SendDeleteOrderDtlMsgToNc(nData, nMsg) then
               begin
+                ShowMsg('删除失败', sError);
                 Exit;
               end;
             end;
           end;
       end;
     end;
-
+    {$ENDIF}
 
     if nP <> '' then
          nOutFact := True
@@ -449,6 +451,7 @@ begin
 
     CreateBaseFormItem(cFI_FormOrderDtl, '', @nP);
   end;
+  EditTruckPropertiesButtonClick(EditCustomer, 0);
 end;
 
 initialization

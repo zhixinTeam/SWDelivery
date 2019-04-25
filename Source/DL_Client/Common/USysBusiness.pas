@@ -116,9 +116,10 @@ function SaveXuNiCustomer(const nName,nSaleMan: string): string;
 //存临时客户
 function IsAutoPayCredit: Boolean;
 //回款时冲信用
+
 function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
  const nType,nPayment,nMemo,nMemoX: string; const nMoney: Double;
- const nCredit: Boolean = True): Boolean;
+ const nCredit: Boolean = True): Boolean;                     //; const nIsExamine : Boolean = False
 //保存回款记录
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
  const nEndTime: TDateTime): Boolean;
@@ -1241,19 +1242,19 @@ begin
     FDM.ExecuteSQL(nStr);
 
     nStr := 'Insert Into %s(M_SaleMan,M_CusID,M_CusName,' +
-            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo, M_MemoX) ' +
+            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo,M_MemoX) ' +
             'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'',''%s'')';
     nStr := Format(nStr, [sTable_InOutMoney, nSaleMan, nCusID, nCusName, nType,
-            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo, nMemoX]);
+              nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo, nMemoX]);
     FDM.ExecuteSQL(nStr);
 
     if (nLimit > 0) and (
-       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now)) then
+         not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now)) then
     begin
-      nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
-              '请手动调整该客户信用额度.';
-      nStr := Format(nStr, [nCusName]);
-      ShowDlg(nStr, sHint);
+        nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
+                '请手动调整该客户信用额度.';
+        nStr := Format(nStr, [nCusName]);
+        ShowDlg(nStr, sHint);
     end;
 
     if not nBool then
@@ -2061,6 +2062,7 @@ begin
   else Result := -1;
 end;
 
+
 //Desc: 检测nWeek是否存在或过期
 function IsWeekValid(const nWeek: string; var nHint: string): Boolean;
 var nStr: string;
@@ -2313,7 +2315,7 @@ begin
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
-    nStr := '编号为[ %s ] 的记录已无效!!';
+    nStr := '编号为[ %s  的记录已无效!!';
     nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
@@ -2345,8 +2347,9 @@ begin
 
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
-  
-  nStr := 'Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)';
+
+  nStr := 'Select *,(Case when L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan '+
+          'From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)';
   nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
@@ -2393,6 +2396,13 @@ begin
   FDR.Dataset1.DataSet := FDM.SqlTemp;
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
+
+  if Result  then
+  begin
+    nStr := 'UPDate %s Set L_PrintNum=L_PrintNum+1 Where L_ID In (%s) ';
+    nStr := Format(nStr, [sTable_Bill, nBill]);
+    FDM.ExecuteSQL(nStr);
+  end;
 end;
 
 //Desc: 打印提货单(打印指定净重出厂小票)
@@ -2462,7 +2472,8 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end;
 
-  nStr := 'Select * From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
+  nStr := 'Select *,(Case when D_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan '+
+          'From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
   nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nOrder]);
 
   nDS := FDM.QueryTemp(nStr);
@@ -2493,6 +2504,13 @@ begin
   FDR.Dataset1.DataSet := FDM.SqlTemp;
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
+
+  if Result  then
+  begin
+    nStr := 'UPDate %s Set D_PrintNum=D_PrintNum+1 Where D_ID=''%s'' ';
+    nStr := Format(nStr, [sTable_OrderDtl, nOrder]);
+    FDM.ExecuteSQL(nStr);
+  end;
 end;
 
 function PrintDuanDaoOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
@@ -2855,7 +2873,7 @@ begin
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
-  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam);
 
   nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +

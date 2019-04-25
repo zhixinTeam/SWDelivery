@@ -10,7 +10,7 @@ interface
 uses
   Windows, Classes, Controls, SysUtils, DB, ADODB, NativeXml, UBusinessWorker,
   UBusinessPacker, UBusinessConst, UMgrDBConn, UMgrParam, UFormCtrl, USysLoger,
-  ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel,
+  ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel, DateUtils,
   {$IFDEF WXChannelPool}Wechat_Intf{$ELSE}wechat_soap{$ENDIF},IdHTTP,Graphics;
 
 type
@@ -681,11 +681,16 @@ begin
   nMoney := GetCustomerValidMoneyFromK3(FIn.FData);
   {$ENDIF}
 
-  nStr := 'select D_ZID,' +                     //销售卡片编号
+  nStr := 'Select D_ZID,' +                     //销售卡片编号
         '  D_Type,' +                           //类型(袋,散)
         '  D_StockNo,' +                        //水泥编号
         '  D_StockName,' +                      //水泥名称
         '  D_Price,' +                          //单价
+        {$IFDEF USE_NC}
+          ' D_YunFei, Z_FixedMoney, ISNULL(YFMoney, 0) YFMoney, ' +
+          ' Convert(decimal(18,5),(isNull(Z_FixedMoney, 0) - ISNULL(YFMoney, 0))/isNull((D_YunFei+D_Price), 10000)) D_Valuex,' +
+        {$ENDIF}        
+        
         '  D_Value,' +                          //订单量
         '  Z_Man,' +                            //创建人
         '  Z_Date,' +                           //创建日期
@@ -693,11 +698,17 @@ begin
         '  Z_Name,' +                           //客户名称
         '  Z_Lading,' +                         //提货方式
         '  Z_CID ' +                            //合同编号
-        'from %s a join %s b on a.Z_ID = b.D_ZID ' +
-        'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) '+
-        'and Z_Customer=''%s''';
+        'From %s a Join %s b on a.Z_ID = b.D_ZID ' +
+        
+        {$IFDEF USE_NC}
+        'Left Join (Select L_zhika, sum((L_Price+L_YunFei)*L_Value) YFMoney From S_Bill '+
+            'Where L_CusID=''%s'' Group by L_zhika) c on c.L_ZhiKa = a.Z_ID ' +
+        {$ENDIF}  
+
+        'Where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) And Z_ValidDays>GetDate() '+
+        'and Z_Customer=''%s''  Order by Z_Date Desc ';
         //订单已审核 有效
-  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,sFlag_Yes,sFlag_Yes,
+  nStr := Format(nStr,[sTable_ZhiKa, sTable_ZhiKaDtl, FIn.FData, sFlag_Yes,sFlag_Yes,
                        FIn.FData]);
   WriteLog('获取订单列表sql:'+nStr);
   with gDBConnManager.WorkerQuery(FDBConn, nStr),FPacker.XMLBuilder do
@@ -729,6 +740,9 @@ begin
     nNode := Root.NodeNew('Items');
     while not Eof do
     begin
+      {$IFDEF USE_NC}
+      if Float2PInt(FieldByName('D_Valuex').AsFloat, cPrecision, False)>0 then
+      {$ENDIF}  
       with nNode.NodeNew('Item') do
       begin
         if FieldByName('D_Type').AsString = 'D' then
@@ -757,6 +771,16 @@ begin
           nValue := 0;
         end;
         {$ENDIF}
+        {$IFDEF USE_NC}
+        try
+          nValue := FieldByName('D_Valuex').AsFloat;
+          nValue := Float2PInt(nValue, cPrecision, False) / cPrecision;
+          if nValue<0 then nValue := 0;
+        except
+          nValue := 0;
+        end;
+        {$ENDIF}
+        
         NodeNew('MaxNumber').ValueAsString  := FloatToStr(nValue);
         NodeNew('SaleArea').ValueAsString   := '';
       end;
@@ -1392,17 +1416,25 @@ end;
 //Parm: 客户编号[FIn.FData]
 //Desc: 获取可用订单列表
 function TBusWorkerBusinessWebchat.GetPurchaseContractList(var nData: string): Boolean;
-var nStr, nProID: string;
-    nNode: TXmlNode;
+var nStr, nProID, nWH : string;
+    nNode : TXmlNode;
 begin
   Result := False;
+
+  nWH:= '';
+  {$IFDEF NCPurchase}
+    if DayOfTheMonth(Now)>5 then
+      nWH := ' And B_Date>=Convert(Datetime,Convert(Char(8),GETDATE(),120)+''1'') '
+    else nWH := ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121) ';
+  {$ENDIF}
 
   nProID := Trim(FIn.FData);
   BuildDefaultXML;
 
-  nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s '
-    +'where ((B_Value-B_SentValue>0) or (B_Value=0)) And B_BStatus=''%s'' '
-    +'and B_ProID=''%s''';
+  nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s ' +
+          'Where ((B_Value-B_SentValue>0) or (B_Value=0)) And B_BStatus=''%s'' ' +
+                'And B_ProID=''%s''  '+ nWH +
+          'Order by B_Date Desc';
   nStr := Format(nStr , [sTable_OrderBase, sFlag_Yes, nProID]);
   WriteLog('获取采购订单列表sql:'+nStr);
 
@@ -1602,8 +1634,8 @@ end;
 //Parm: 客户号[FIn.FData]
 //Desc: 获取客户资金
 function TBusWorkerBusinessWebchat.GetCusMoney(var nData: string): Boolean;
-var
-  nMoney: Double;
+var nMoney, YFMoney: Double;
+    nStr : string;
 begin
   Result := False;
   BuildDefaultXML;
@@ -1615,6 +1647,29 @@ begin
 
   {$IFDEF UseERP_K3}
   nMoney := GetCustomerValidMoneyFromK3(FIn.FData);
+  {$ENDIF}
+  
+  {$IFDEF USE_NC}
+  nStr := 'Select SUM((L_Price+L_YunFei)*L_Value) YFMoney From %s Where L_CusID=''%s'' And '+
+                  'L_Zhika in(Select Z_ID From S_ZhiKa Where Z_Verified=''Y'' and '+
+                                  '(Z_InValid<>''Y'' or Z_InValid is null) and Z_Customer=''%s'' )';
+  nStr := Format(nStr,[sTable_Bill, FIn.FData, FIn.FData]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount=0 then
+      YFMoney:= 0
+    else YFMoney := Float2Float(FieldByName('YFMoney').AsFloat, cPrecision, True);
+  end;
+
+  nStr := 'Select SUM(Z_FixedMoney) Z_FixedMoney From %s Where Z_Verified=''Y'' and '+
+          '(Z_InValid<>''Y'' or Z_InValid is null) and Z_Customer=''%s''  ';
+  nStr := Format(nStr,[sTable_ZhiKa, FIn.FData]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount=0 then
+      nMoney:= 0
+    else nMoney := Float2Float(FieldByName('Z_FixedMoney').AsFloat, cPrecision, True) - YFMoney;
+  end;
   {$ENDIF}
 
   with FPacker.XMLBuilder do

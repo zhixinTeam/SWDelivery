@@ -98,13 +98,13 @@ begin
     nStr := 'Select A_CID,A_InMoney,A_OutMoney,C_Name,C_SaleMan From %s ' +
             ' Left Join %s on C_ID=A_CID ' +
             'Where A_CID=''%s''';
-    nStr := Format(nStr, [sTable_CusAccount, sTable_Customer, nCusID]);
+    nStr := Format(nStr, [sTable_CusAccount, sTable_Customer, nCusID);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      EditIn.Text := Format('%.2f', [FieldByName('A_InMoney').AsFloat]);
-      EditOut.Text := Format('%.2f', [FieldByName('A_OutMoney').AsFloat]);
+      EditIn.Text := Format('%.2f', [FieldByName('A_InMoney').AsFloat);
+      EditOut.Text := Format('%.2f', [FieldByName('A_OutMoney').AsFloat);
 
       FParam.FParamC := FieldByName('C_SaleMan').AsString;
       nIdx := StrListIndex(FParam.FParamC, EditSaleMan.Items, 0, '.');
@@ -146,7 +146,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr]);
+  nStr := Format('C_SaleMan=''%s''', [nStr);
   LoadCustomer(EditCus.Items, nStr);
 end;
 

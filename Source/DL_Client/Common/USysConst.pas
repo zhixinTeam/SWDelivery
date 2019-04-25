@@ -235,6 +235,7 @@ type
     FRecMenuMax : integer;                           //导航栏个数
     FIconFile   : string;                            //图标配置文件
     FUsesBackDB : Boolean;                           //使用备份库
+    FPound      : Boolean;                           //开启随机净重 应对检查
 
     FLocalIP    : string;                            //本机IP
     FLocalMAC   : string;                            //本机MAC

@@ -94,11 +94,15 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
         end
         item
           Caption = #21333#20215'('#20803'/'#21544')'
-          Width = 100
+          Width = 80
         end
         item
           Caption = #21150#29702#37327'('#21544')'
-          Width = 100
+          Width = 80
+        end
+        item
+          Caption = #36816#36153'('#20803'/'#21544')'
+          Width = 80
         end>
       HideSelection = False
       ParentFont = False

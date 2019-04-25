@@ -57,6 +57,8 @@ type
     N14: TMenuItem;
     N15: TMenuItem;
     N16: TMenuItem;
+    N17: TMenuItem;
+    N18: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -77,6 +79,7 @@ type
     procedure N14Click(Sender: TObject);
     procedure N15Click(Sender: TObject);
     procedure N16Click(Sender: TObject);
+    procedure N18Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -140,6 +143,13 @@ begin
     Result := Result + nStr + '(' + nWhere + ')';
   //xxxxx
 
+  if (not gSysParam.FIsAdmin)and
+     (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
+  begin
+      Result := Result + ' And ((L_SaleName=''' + gSysParam.FUserID + ''') or (L_CusName=''' +
+            gSysParam.FUserID + '''))';
+  end;
+
   Result := MacroValue(Result, [
             MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx
@@ -191,7 +201,7 @@ begin
     if EditCard.Text = '' then Exit;
 
     FUseDate := Length(EditCard.Text) <= 3;
-    FWhere := Format('L_Truck like ''%%%s%%'' Or L_HYDan like ''%%%s%%''', [EditCard.Text, EditCard.Text]);
+    FWhere := Format(' (L_Truck like ''%%%s%%'' Or L_HYDan like ''%%%s%%'') ', [EditCard.Text, EditCard.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -238,6 +248,7 @@ end;
 procedure TfFrameBill.BtnDelClick(Sender: TObject);
 var nStr, nReason: string;
 begin
+  if CheckDelete.Checked then Exit;
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
@@ -302,7 +313,7 @@ end;
 
 //Desc: 修改未进厂车牌号
 procedure TfFrameBill.N5Click(Sender: TObject);
-var nStr,nTruck: string;
+var nStr, nStrx, nLid, nTruck: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
@@ -314,8 +325,15 @@ begin
     //无效或一致
 
     nStr := SQLQuery.FieldByName('L_ID').AsString;
-    if ChangeLadingTruckNo(nStr, nTruck) then
+    //if ChangeLadingTruckNo(nStr, nTruck) then
     begin
+      nStrx := 'UPDate %s Set L_Truck=''%s'' Where L_ID=''%s''';
+      nStrx := Format(nStrx, [sTable_Bill, nTruck, nStr]);
+      FDM.ExecuteSQL(nStrx);
+      nStrx := 'UPDate %s Set T_Truck=''%s'' Where T_Bill=''%s''';
+      nStrx := Format(nStrx, [sTable_ZTTrucks, nTruck, nStr]);
+      FDM.ExecuteSQL(nStrx);
+
       nStr := '修改车牌号[ %s -> %s ].';
       nStr := Format(nStr, [SQLQuery.FieldByName('L_Truck').AsString, nTruck]);
       FDM.WriteSysLog(sFlag_BillItem, SQLQuery.FieldByName('L_ID').AsString, nStr, False);
@@ -524,6 +542,23 @@ begin
 
     nStr := SQLQuery.FieldByName('L_ID').AsString;
     PrintBillReport_Std(nStr, nStd, False);
+  end;
+end;
+
+procedure TfFrameBill.N18Click(Sender: TObject);
+var nSql, nLid, nStr : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('L_ID').AsString;
+    nSql := 'UPDate %s Set L_Date=GETDATE() Where L_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_Bill , nLid]);
+    FDM.ExecuteSQL(nSql);
+
+    nStr:= SQLQuery.FieldByName('L_Truck').AsString;
+    nStr:= Format(' %s 对超时进厂车辆 %s %s  放行', [gSysParam.FUserName, nLid, nStr]);
+    FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
+    ShowMsg('操作成功、已调整该车辆开单时间', sHint);
   end;
 end;
 

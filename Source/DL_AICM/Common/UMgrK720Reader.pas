@@ -21,7 +21,7 @@ type
     FAddr     : Integer;         //机器地址,有效值(0-15)
   end;
 
-  TK720OutData = array [0..512] of Char;
+  TK720OutData = array [0..512 of Char;
   //传出数据
 
   TK720ReaderAction = (raQueryStatus, raRead, raRecycle, raControl);
@@ -307,7 +307,7 @@ begin
   nHexTmp := Copy(nCardHex, 1, 4);
   //定长4位
   for nIdx := Length(nHexTmp) downto 1 do
-    Result := Result + IntToHex(Ord(nHexTmp[nIdx]), 2);
+    Result := Result + IntToHex(Ord(nHexTmp[nIdx), 2);
 
   nInt := StrToInt64('$' + Result);
   Result := IntToStr(nInt);
@@ -318,7 +318,7 @@ procedure TK720ReaderManager.ClearBuffer(const nList: TList; const nFree: Boolea
 var nIdx: Integer;
 begin
   for nIdx := nList.Count - 1 downto 0 do
-    DeleteK720ReaderDataItem(nList[nIdx], nList);
+    DeleteK720ReaderDataItem(nList[nIdx, nList);
 
   if nFree then
     nList.Free;
@@ -480,7 +480,7 @@ begin
     FSyncLock.Enter;
     try
       for nIdx := FBuffer.Count - 1 downto 0 do
-        FTmpList.Add(FBuffer[nIdx]);
+        FTmpList.Add(FBuffer[nIdx);
     finally
       FSyncLock.Leave;
     end;
@@ -492,7 +492,7 @@ begin
     try
       for nIdx:=0 to FTmpList.Count - 1 do
       begin
-        SendDataFrame(FTmpList[nIdx]);
+        SendDataFrame(FTmpList[nIdx);
         //发送数据帧
 
         if nIdx < FTmpList.Count - 1 then

@@ -33,10 +33,10 @@ inherited fFormInvoiceZZDetail: TfFormInvoiceZZDetail
       Hint = ''
       RowEditor = True
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow
       LoadMask.Message = 'Loading data...'
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       Font.Height = -13
       ParentFont = False
       TabOrder = 1
@@ -53,7 +53,7 @@ inherited fFormInvoiceZZDetail: TfFormInvoiceZZDetail
     Hint = ''
     Checked = True
     Caption = #20840#36873'/'#21462#28040#20840#36873
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akBottom
     TabOrder = 3
     OnClick = Chk_AllClick
   end
@@ -64,7 +64,7 @@ inherited fFormInvoiceZZDetail: TfFormInvoiceZZDetail
     Height = 13
     Hint = ''
     Caption = #24050#36873#25321#65306'0 '#21544
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akBottom
     TabOrder = 4
   end
   object UnLblTotal: TUniLabel
@@ -74,7 +74,7 @@ inherited fFormInvoiceZZDetail: TfFormInvoiceZZDetail
     Height = 13
     Hint = ''
     Caption = #24635#25968#65306'0 '#21544
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akBottom
     TabOrder = 5
   end
   object ClientDS1: TClientDataSet

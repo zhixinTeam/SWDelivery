@@ -104,8 +104,8 @@ begin
 
     nCount := nList.Count - 1;
     for i:=0 to nCount do
-     if TObject(nList[i]) is TBaseFrame then
-      Result := Result + TBaseFrame(nList[i]).DealCommand(Sender, nCmd);
+     if TObject(nList[i) is TBaseFrame then
+      Result := Result + TBaseFrame(nList[i).DealCommand(Sender, nCmd);
     //broadcast command and combine then result
   finally
     nList.Free;

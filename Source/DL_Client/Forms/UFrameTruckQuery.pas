@@ -36,11 +36,19 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
+    N5: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure N1Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+    procedure N6Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -162,6 +170,51 @@ begin
        FWhere := '';
        InitFormData('L_OutFact Is not Null');
      end;
+  end;
+end;
+
+procedure TfFrameTruckQuery.N7Click(Sender: TObject);
+var nSql, nLid : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('L_ID').AsString;
+    nSql := 'UPDate %s Set L_Refuse=''N'' Where L_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_Bill , nLid]);
+    FDM.ExecuteSQL(nSql);
+    EditTruckPropertiesButtonClick(EditTruck, 0);
+  end;
+end;
+
+procedure TfFrameTruckQuery.N6Click(Sender: TObject);
+var nSql, nLid : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('L_ID').AsString;
+    nSql := 'UPDate %s Set L_Refuse=''Y'' Where L_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_Bill , nLid]);
+    FDM.ExecuteSQL(nSql);
+    EditTruckPropertiesButtonClick(EditTruck, 0);
+  end;
+end;
+
+procedure TfFrameTruckQuery.N9Click(Sender: TObject);
+var nSql, nLid, nStr : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('L_ID').AsString;
+    nSql := 'UPDate %s Set L_Date=GETDATE() Where L_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_Bill , nLid]);
+    FDM.ExecuteSQL(nSql);
+
+    nStr:= SQLQuery.FieldByName('L_Truck').AsString;
+    nStr:= Format(' %s 对超时进厂车辆 %s %s  放行', [gSysParam.FUserName, nLid, nStr]);
+    FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
+
+    ShowMsg('操作成功、已调整该车辆开单时间', sHint);
+    EditTruckPropertiesButtonClick(EditTruck, 0);
   end;
 end;
 

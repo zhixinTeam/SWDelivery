@@ -83,7 +83,7 @@ var nStr: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
 
     Result := 'Select * From $Bill ';
     //提货单
@@ -99,7 +99,7 @@ begin
     //xxxxx
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-              MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
   end;
 end;
@@ -143,7 +143,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end else
 
@@ -153,7 +153,7 @@ begin
     if EditTruck.Text = '' then Exit;
 
     FUseDate := Length(EditTruck.Text) <= 3;
-    FWhere := Format('L_Truck like ''%%%s%%''', [EditTruck.Text]);
+    FWhere := Format('L_Truck like ''%%%s%%''', [EditTruck.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -169,7 +169,7 @@ end;
 procedure TfFrameBill.MenuItemN1Click(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
-   10: FWhere := Format('(L_Status=''%s'')', [sFlag_BillNew]);
+   10: FWhere := Format('(L_Status=''%s'')', [sFlag_BillNew);
    20: FWhere := 'L_OutFact Is Null'
    else Exit;
   end;

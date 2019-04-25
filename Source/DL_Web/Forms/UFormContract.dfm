@@ -347,7 +347,7 @@ inherited fFormSaleContract: TfFormSaleContract
       FixedCols = 0
       FixedRows = 0
       ColCount = 6
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor]
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor
       ShowColumnTitles = True
       Columns = <
         item
@@ -374,7 +374,7 @@ inherited fFormSaleContract: TfFormSaleContract
           Title.Caption = '111'
           Width = 0
         end>
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 28
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -427,7 +427,7 @@ inherited fFormSaleContract: TfFormSaleContract
     Height = 17
     Hint = ''
     Caption = #34394#25311#21512#21516': '#21150#29702#32440#21345#26102#20801#35768#21464#26356#19994#21153#21592#21644#23458#25143#21517#31216'.'
-    Anchors = [akLeft, akBottom]
+    Anchors = [akLeft, akBottom
     TabOrder = 3
   end
 end

@@ -136,12 +136,12 @@ begin
         FHintText  := ReadString(FProgID, 'HintText', '');
 
         FCopyRight := ReadString(FProgID, 'CopyRight', '');
-        FCopyRight := StringReplace(FCopyRight, '\n', #13#10, [rfReplaceAll]);
+        FCopyRight := StringReplace(FCopyRight, '\n', #13#10, [rfReplaceAll);
         FAppFlag   := ReadString(FProgID, 'AppFlag', 'COMMIT');
 
         FParam     := ParamStr(1);
         FIconFile  := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
-        FIconFile  := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
+        FIconFile  := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase);
 
         FLocalMAC   := MakeActionID_MAC;
         GetLocalIPConfig(FLocalName, FLocalIP);
@@ -159,7 +159,7 @@ procedure ShowMsgOnLastPanelOfStatusBar(const nMsg: string);
 begin
   if Assigned(gStatusBar) and (gStatusBar.Panels.Count > 0) then
   begin
-    gStatusBar.Panels[gStatusBar.Panels.Count - 1].Text := nMsg;
+    gStatusBar.Panels[gStatusBar.Panels.Count - 1.Text := nMsg;
     Application.ProcessMessages;
   end;
 end;
@@ -170,8 +170,8 @@ begin
   if Assigned(gStatusBar) and (gStatusBar.Panels.Count > nIdx) and
      (nIdx > -1) then
   begin
-    gStatusBar.Panels[nIdx].Text := nMsg;
-    gStatusBar.Panels[nIdx].Width := gStatusBar.Canvas.TextWidth(nMsg) +
+    gStatusBar.Panels[nIdx.Text := nMsg;
+    gStatusBar.Panels[nIdx.Width := gStatusBar.Canvas.TextWidth(nMsg) +
                                      Trunc(gSysParam.FDisplayDPI * Length(nMsg) / 50);
     //Application.ProcessMessages;
   end;

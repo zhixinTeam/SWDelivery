@@ -85,7 +85,7 @@ begin
   nList := nil;
   with TStringHelper, TDateTimeHelper do
   try
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
     nDefault := False;
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
 
@@ -105,35 +105,35 @@ begin
     //生成客户列表
 
     nStr := 'Update #total Set C_Init=A_InitMoney From %s Where C_ID=A_CID';
-    nStr := Format(nStr, [sTable_CusAccount]);
+    nStr := Format(nStr, [sTable_CusAccount);
     nList.Add(nStr);
     //期初:系统初始金额
 
     nStr := 'Update #total Set C_Init=C_Init+IsNull(M_Money,0) From (' +
       'Select M_CusID,Sum(M_Money) as M_Money From %s Where M_Date<''$ST'' ' +
       'Group By M_CusID ) t where C_ID=M_CusID';
-    nStr := Format(nStr, [sTable_InOutMoney]);
+    nStr := Format(nStr, [sTable_InOutMoney);
     nList.Add(nStr);
     //期初:合并入金
 
     nStr := 'Update #total Set C_Init=C_Init-IsNull(L_Money,0) From (' +
       'Select L_CusID,Sum(CONVERT(Decimal(15,2), (L_Price+L_YunFei)*L_Value)) as L_Money From %s ' +
       'Where L_OutFact<''$ST'' Group By L_CusID) t Where C_ID=L_CusID';
-    nStr := Format(nStr, [sTable_Bill]);
+    nStr := Format(nStr, [sTable_Bill);
     nList.Add(nStr);
     //期初:合并出金
 
     nStr := 'Update #total Set C_Init=C_Init-IsNull(S_Money,0) From (' +
       'Select S_CusID,Sum(S_Price*S_Value) as S_Money From %s ' +
       'Where S_OutFact<''$ST'' Group By S_CusID) t Where C_ID=S_CusID';
-    nStr := Format(nStr, [sTable_InvSettle]);
+    nStr := Format(nStr, [sTable_InvSettle);
     nList.Add(nStr);
     //期初:合并返还
 
     nStr := 'Update #total Set C_Total=IsNull(M_Money,0) From (' +
       'Select M_CusID,Sum(M_Money) as M_Money From %s Where M_Date>=''$ST'' ' +
       'And M_Date<''$ED'' Group By M_CusID) t Where C_ID=M_CusID';
-    nStr := Format(nStr, [sTable_InOutMoney]);
+    nStr := Format(nStr, [sTable_InOutMoney);
     nList.Add(nStr);
     //发生:合并入金
 
@@ -141,7 +141,7 @@ begin
       'Select L_CusID,Sum(L_Price*L_Value) as L_Money From %s Where ' +
       'L_OutFact>=''$ST'' and L_OutFact<''$ED''  Group By L_CusID' +
       ')t where C_ID=L_CusID';
-    nStr := Format(nStr, [sTable_Bill]);
+    nStr := Format(nStr, [sTable_Bill);
     nList.Add(nStr);
     //发生:合并出金
 
@@ -149,7 +149,7 @@ begin
       'Select S_CusID,Sum(S_Price*S_Value) as S_Money From %s Where ' +
       'S_OutFact>=''$ST'' and S_OutFact<''$ED'' Group By S_CusID' +
       ') t where C_ID=S_CusID';
-    nStr := Format(nStr, [sTable_InvSettle]);
+    nStr := Format(nStr, [sTable_InvSettle);
     nList.Add(nStr);
     //发生:合并返还
 
@@ -158,7 +158,7 @@ begin
     //结余:生成结余
 
     nList.Text := MacroValue(nList.Text, [MI('$ST', Date2Str(FStart)),
-                  MI('$ED', Date2Str(FEnd + 1))]);
+                  MI('$ED', Date2Str(FEnd + 1)));
     //xxxxx
 
     DBExecute(nList, nQuery);
@@ -200,7 +200,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := '(C_PY like ''%%%s%%'' Or C_Name like ''%%%s%%'')';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end;
 end;

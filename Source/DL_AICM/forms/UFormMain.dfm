@@ -10,7 +10,7 @@ object fFormMain: TfFormMain
   Font.Color = clRed
   Font.Height = -56
   Font.Name = #23435#20307
-  Font.Style = [fsBold]
+  Font.Style = [fsBold
   OldCreateOrder = False
   WindowState = wsMaximized
   OnClose = FormClose
@@ -25,12 +25,12 @@ object fFormMain: TfFormMain
     AutoSize = False
     Caption = #21697#31181#21517#31216':'
     ParentFont = False
-    Style.Edges = [bLeft, bRight, bBottom]
+    Style.Edges = [bLeft, bRight, bBottom
     Style.Font.Charset = DEFAULT_CHARSET
     Style.Font.Color = clWhite
     Style.Font.Height = -64
     Style.Font.Name = #23435#20307
-    Style.Font.Style = [fsBold]
+    Style.Font.Style = [fsBold
     Style.IsFontAssigned = True
     Properties.Alignment.Horz = taLeftJustify
     Properties.Alignment.Vert = taVCenter
@@ -50,7 +50,7 @@ object fFormMain: TfFormMain
     Style.Font.Color = clWhite
     Style.Font.Height = -64
     Style.Font.Name = #23435#20307
-    Style.Font.Style = [fsBold]
+    Style.Font.Style = [fsBold
     Style.IsFontAssigned = True
     Properties.Alignment.Horz = taLeftJustify
     Properties.Alignment.Vert = taVCenter
@@ -79,7 +79,7 @@ object fFormMain: TfFormMain
       Style.Font.Color = clWhite
       Style.Font.Height = -64
       Style.Font.Name = #23435#20307
-      Style.Font.Style = [fsBold]
+      Style.Font.Style = [fsBold
       Style.IsFontAssigned = True
       Properties.Alignment.Horz = taLeftJustify
       Properties.Alignment.Vert = taVCenter
@@ -97,7 +97,7 @@ object fFormMain: TfFormMain
       Style.Font.Color = clRed
       Style.Font.Height = -48
       Style.Font.Name = #23435#20307
-      Style.Font.Style = [fsBold]
+      Style.Font.Style = [fsBold
       Style.IsFontAssigned = True
       Properties.Alignment.Horz = taLeftJustify
       Properties.Alignment.Vert = taVCenter
@@ -117,7 +117,7 @@ object fFormMain: TfFormMain
     Style.Font.Color = clWhite
     Style.Font.Height = -64
     Style.Font.Name = #23435#20307
-    Style.Font.Style = [fsBold]
+    Style.Font.Style = [fsBold
     Style.IsFontAssigned = True
     Properties.Alignment.Horz = taLeftJustify
     Properties.Alignment.Vert = taVCenter
@@ -133,12 +133,12 @@ object fFormMain: TfFormMain
     AutoSize = False
     Caption = #20132#36135#21333#21495':'
     ParentFont = False
-    Style.Edges = [bLeft, bRight, bBottom]
+    Style.Edges = [bLeft, bRight, bBottom
     Style.Font.Charset = DEFAULT_CHARSET
     Style.Font.Color = clWhite
     Style.Font.Height = -64
     Style.Font.Name = #23435#20307
-    Style.Font.Style = [fsBold]
+    Style.Font.Style = [fsBold
     Style.IsFontAssigned = True
     Properties.Alignment.Vert = taVCenter
     Transparent = True
@@ -157,7 +157,7 @@ object fFormMain: TfFormMain
     Style.Font.Color = clWhite
     Style.Font.Height = -64
     Style.Font.Name = #23435#20307
-    Style.Font.Style = [fsBold]
+    Style.Font.Style = [fsBold
     Style.TextColor = clWhite
     Style.IsFontAssigned = True
     Properties.Alignment.Vert = taVCenter
@@ -187,7 +187,7 @@ object fFormMain: TfFormMain
       Font.Color = clRed
       Font.Height = -12
       Font.Name = #23435#20307
-      Font.Style = [fsBold]
+      Font.Style = [fsBold
       ParentColor = True
       ParentFont = False
       TabOrder = 0
@@ -202,7 +202,7 @@ object fFormMain: TfFormMain
         Style.Font.Color = clWhite
         Style.Font.Height = -64
         Style.Font.Name = #24494#36719#38597#40657
-        Style.Font.Style = []
+        Style.Font.Style = [
         Style.IsFontAssigned = True
         Properties.Alignment.Horz = taCenter
         Properties.Alignment.Vert = taVCenter
@@ -227,7 +227,7 @@ object fFormMain: TfFormMain
       Font.Color = clRed
       Font.Height = -12
       Font.Name = #23435#20307
-      Font.Style = [fsBold]
+      Font.Style = [fsBold
       ParentColor = True
       ParentFont = False
       TabOrder = 1
@@ -3638,7 +3638,7 @@ object fFormMain: TfFormMain
       Font.Color = clRed
       Font.Height = -12
       Font.Name = #23435#20307
-      Font.Style = [fsBold]
+      Font.Style = [fsBold
       ParentFont = False
       TabOrder = 2
       object imgCard: TImage
@@ -8994,7 +8994,7 @@ object fFormMain: TfFormMain
     Parity.Bits = prNone
     StopBits = sbOneStopBit
     DataBits = dbEight
-    Events = [evRxChar, evTxEmpty, evRxFlag, evRing, evBreak, evCTS, evDSR, evError, evRLSD, evRx80Full]
+    Events = [evRxChar, evTxEmpty, evRxFlag, evRing, evBreak, evCTS, evDSR, evError, evRLSD, evRx80Full
     FlowControl.OutCTSFlow = False
     FlowControl.OutDSRFlow = False
     FlowControl.ControlDTR = dtrDisable

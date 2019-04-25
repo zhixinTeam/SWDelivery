@@ -78,8 +78,8 @@ begin
       EditWeek.Text := '请选择结算周期'; Exit;
     end else
     begin
-      nStr := '年份:[ %s ] 周期:[ %s ]';
-      EditWeek.Text := Format(nStr, [FNowYear, FWeekName]);
+      nStr := '年份:[ %s  周期:[ %s ';
+      EditWeek.Text := Format(nStr, [FNowYear, FWeekName);
 
       if FNowWeek = '' then
       begin
@@ -89,11 +89,11 @@ begin
         nInt := StrToInt(FNowYear);
 
         nWeek := MacroValue(nWeek, [MI('$W', sTable_InvoiceWeek),
-                MI('$S', IntToStr(nInt)), MI('$E', IntToStr(nInt+1))]);
+                MI('$S', IntToStr(nInt)), MI('$E', IntToStr(nInt+1)));
         //xxxxx
       end else
       begin
-        nWeek := Format('Where R_Week=''%s''  AND R_Chk=1', [FNowWeek]);
+        nWeek := Format('Where R_Week=''%s''  AND R_Chk=1', [FNowWeek);
       end;
     end;
 
@@ -120,7 +120,7 @@ begin
     if FNowWeek='' then Result := Result + ' Order By R_Week ';
 
     Result := MacroValue(Result, [MI('$Req', sTable_InvoiceReq),
-              MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa)]);
+              MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa));
     //xxxxx
   end;
 end;
@@ -219,7 +219,7 @@ begin
 
   nWhere:= Format('R_CusID=''%s'' And R_ZhiKa=''%s'' And R_Week=''%s'' And R_Stock=''%s'' And R_Price=''%s'' '+
                   'And R_Type=''%s'' And R_SaleID=''%s'' And R_YunFei=''%s''', [nCusId, nZhiKa, nWeek, nStockId,
-                                  nPrice, nType, nSaleId, nYunFei]);
+                                  nPrice, nType, nSaleId, nYunFei);
   //*****************
   nParam.FParamA := nWhere;
   (nForm as TfFormBase).SetParam(nParam);
@@ -257,7 +257,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'R_CusPY Like ''%%%s%%'' Or R_Customer Like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -284,7 +284,7 @@ begin
     nStr := 'L_Group=''$Group'' And L_ItemID=''$ID''';
     with TStringHelper do
     nParam.FParamD := MacroValue(nStr, [MI('$Group', sFlag_ZhiKaItem),
-                      MI('$ID', nParam.FParamC)]);
+                      MI('$ID', nParam.FParamC));
     //检索条件
 
     ShowSystemLog(nParam);

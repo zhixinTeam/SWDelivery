@@ -32,7 +32,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
       Kind = tUniDateTime
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 1
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -67,7 +67,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
       Kind = tUniDateTime
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 4
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -95,7 +95,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 6
     end
     object UniLabel2: TUniLabel
@@ -113,7 +113,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Width = 295
       Height = 50
       Hint = ''
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 8
     end
     object cbb_Stock: TUniComboBox
@@ -146,7 +146,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Style = csDropDownList
       MaxLength = 35
       Text = ''
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -174,7 +174,7 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Enabled = False
       Style = csDropDownList
       Text = ''
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12

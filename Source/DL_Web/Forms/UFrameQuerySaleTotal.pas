@@ -109,7 +109,7 @@ begin
   ChangeDBGridParam;
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
 
     if Radio1.Checked then
     begin
@@ -169,7 +169,7 @@ begin
     end;
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
     //xxxxx
 
     if Radio1.Checked or Radio2.Checked then
@@ -200,7 +200,7 @@ begin
     //按品种合计时无法查询客户
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
     InitFormData(FWhere);
   end;
 end;
@@ -217,7 +217,7 @@ begin
     //*********
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
     begin
-      with DBGridMain.Columns[nIdx] do
+      with DBGridMain.Columns[nIdx do
       begin
         Sortable:= not DBGridMain.Grouping.Enabled;
         nstr:= FieldName;
@@ -262,7 +262,7 @@ begin
 
     FJBWhere := '(L_OutFact>=''%s'' and L_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
-                sFlag_BillPick, sFlag_BillPost]);
+                sFlag_BillPick, sFlag_BillPost);
     InitFormData('');
   finally
     FJBWhere := '';

@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
-  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} DateUtils,
+  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} DateUtils, StrUtils,
   UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, UBase64,
   USysLoger, USysDB, UMITConst;
 
@@ -47,6 +47,7 @@ type
     //装车线
     FOnLine : Boolean;
   protected
+    procedure WriteBillLog(const nEvent: string);
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
     //base funciton
@@ -56,7 +57,7 @@ type
     function AllowedSanMultiBill: Boolean;
     function VerifyBeforSave(var nData: string): Boolean;
     function VerifyBeforSaveEx(var nData: string): Boolean;
-    function IsAllowCreateBill: Boolean;
+    function ChkNcServiceStatus: Boolean;
     function SaveBills(var nData: string): Boolean;
     //保存交货单
     function DeleteBill(var nData: string): Boolean;
@@ -74,6 +75,7 @@ type
     //执行散装预合卡
     function GetPostBillItems(var nData: string): Boolean;
     //获取岗位交货单
+    function BasisWeightBillOutChk(var nBill: TLadingBillItem): Boolean;
     function SavePostBillItems(var nData: string): Boolean;
     //保存岗位交货单
     function AddManualEventRecord(const nEID,nKey,nEvent:string;
@@ -81,6 +83,7 @@ type
              const nSolution: string = sFlag_Solution_YN;
              const nDepartmen: string = sFlag_DepDaTing;
              const nReset: Boolean = False; const nMemo: string = ''): Boolean;
+
   public
     constructor Create; override;
     destructor destroy; override;
@@ -134,6 +137,12 @@ begin
   FDataOutNeedUnPack := False;
 end;
 
+//Desc: 记录nEvent日志
+procedure TWorkerBusinessBills.WriteBillLog(const nEvent: string);
+begin
+  gSysLoger.AddLog(TWorkerBusinessBills, '', nEvent);
+end;
+
 //Date: 2014-09-15
 //Parm: 命令;数据;参数;输出
 //Desc: 本地调用业务对象
@@ -154,7 +163,7 @@ begin
     nPacker := gBusinessPackerManager.LockPacker(sBus_BusinessCommand);
     nPacker.InitData(@nIn, True, False);
     //init
-    
+
     nStr := nPacker.PackIn(@nIn);
     nWorker := gBusinessWorkerManager.LockWorker(FunctionName);
     //get worker
@@ -307,7 +316,7 @@ var nIdx: Integer;
     nStr,nTruck, nStockNo, nStockName: string;
     nOut: TWorkerBusinessCommand;
 begin
-  Result := False;
+  Result := False;    {$IFDEF NCSale} ChkNcServiceStatus; {$ENDIF}
   nTruck := FListA.Values['Truck'];
   if not VerifyTruckNO(nTruck, nData) then Exit;
 
@@ -579,11 +588,11 @@ begin
 end;
 
 //**** 检查能否发货
-function TWorkerBusinessBills.IsAllowCreateBill: Boolean;
+function TWorkerBusinessBills.ChkNcServiceStatus: Boolean;
 var nSQL : string;
     nLastTime : TDateTime;   // 离线时间
 begin
-  Result:= False;  FOnLine:= False;
+  Result:= False;
   //*****************
   nSQL := 'Select * From %s Where D_Name=''SysParam'' And D_Memo=''NCServiceStatus''  ';
   nSQL := Format(nSQL, [sTable_SysDict]);
@@ -591,11 +600,8 @@ begin
   begin
     if RecordCount > 0 then
     begin
-      if FieldByName('D_Value').AsString='OnLine' then
-      begin
-        Result:= True;   FOnLine:= True;
-        Exit;
-      end;
+      FOnLine:= (FieldByName('D_Value').AsString='OnLine');
+      Result:= True;
     end;
   end;
 end;
@@ -606,11 +612,10 @@ function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
 var nIdx: Integer;
     nVal,nMoney,nProportion: Double;
     nStr,nSQL,nFixMoney, nStockCodeParam, nZhiKaPK, nZhiKaDtlPK: string;
-    {$IFDEF TruckInNow}
     nStatus, nNextStatus: string;
-    {$ENDIF}
     nOut, nTmp, nOutX: TWorkerBusinessCommand;
     nList, nListX : TStrings;
+    nCanCreateBill:Boolean;
 begin
   nList := TStringList.Create;   nStockCodeParam:= '';
   nListX:= TStringList.Create;
@@ -624,7 +629,7 @@ begin
     nData := nOut.FData;
     Exit;
   end;
-  
+
   nMoney:= Float2Float((StrToFloat(nOut.FData)), cPrecision, True);
   nFixMoney := nOut.FExtParam;
   //zhika money
@@ -637,7 +642,7 @@ begin
   end;
 
   //检查纸卡状态
-  nSQL := 'Select * From %s Where Z_ID=''%s'' And IsNull(Z_InValid, '')<>''Y'' And IsNull(Z_Freeze, '')<>''Y''';
+  nSQL := 'Select * From %s Where Z_ID=''%s'' And IsNull(Z_InValid, '''')<>''Y'' And IsNull(Z_Freeze, '''')<>''Y''';
   nSQL := Format(nSQL, [sTable_ZhiKa, FListA.Values['ZhiKa']]);
   with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
   begin
@@ -680,6 +685,17 @@ begin
   end;
   
   {$IFDEF NCSale}
+  nCanCreateBill:= False;
+  nSQL := 'Select Z_ID, Z_CID, C_ID From %s Left Join  %s on Z_CID=C_ID '+
+          'Where Z_ID=''%s'' ';
+  nSQL := Format(nSQL, [sTable_ZhiKa, sTable_SaleContract, FListA.Values['ZhiKa']]);
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nCanCreateBill:= FieldByName('C_ID').AsString<>'';
+    end;
+  end;
   //*************************************************************************
   //*************************查找NC传过来的纸卡PK 以及纸卡品种 PKDtl ********
   nSQL := 'Select Z_ID,D_StockName,Z_PKzk, D_PkDtl From %s Left  Join  %s On Z_ID=D_ZID ' +
@@ -697,7 +713,7 @@ begin
     nZhiKaPK := FieldByName('Z_PKzk').AsString;
     nZhiKaDtlPK := FieldByName('D_PkDtl').AsString;
 
-    if (nZhiKaPK = '') or (nZhiKaDtlPK = '') then
+    if ((nZhiKaPK = '') or (nZhiKaDtlPK = '')) And (not nCanCreateBill) then
     begin
       nData := '纸卡[ %s ]信息缺少PK信息暂不能开单、请联系管理员.';
       nData := Format(nData, [FListA.Values['ZhiKa']]);
@@ -731,10 +747,8 @@ begin
             nData := '厂内销售业务禁止拼单.';
             Exit;
           end;
-
           nOut.FData := Fields[0].AsString;
         end;
-
       end else   //其他业务，获取交货单号
 
       begin
@@ -795,13 +809,8 @@ begin
         end;
         //*************获取批次号信息
 
-//      if Pos('袋', FListC.Values['StockName']) > 0 then                       // 声威
-//        FListC.Values['Type'] := 'D'
-//      else FListC.Values['Type'] := 'S';
-
       {$IFDEF RemoteSnap}
-        if FListC.Values['SnapTruck']='' then
-          FListC.Values['SnapTruck']:='Y';
+        if FListC.Values['SnapTruck']='' then FListC.Values['SnapTruck']:='Y';
       {$ELSE}
         FListC.Values['SnapTruck']:='N';
       {$ENDIF} //是否进行车牌识别
@@ -1241,7 +1250,7 @@ begin
 
   //----------------------------------------------------------------------------
   nStr := 'Select L_CusID,L_StockNo,L_StockName,L_Value,L_Price,L_ZhiKa,' +
-          'L_ZKMoney,L_OutFact From %s Where L_ID=''%s''';
+          'L_ZKMoney,L_OutFact,L_YunFei From %s Where L_ID=''%s''';
   nStr := Format(nStr, [sTable_Bill, FIn.FData]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
@@ -1269,7 +1278,7 @@ begin
     end;
 
     nVal := FieldByName('L_Value').AsFloat;
-    nMon := nVal * FieldByName('L_Price').AsFloat;
+    nMon := nVal * (FieldByName('L_Price').AsFloat + FieldByName('L_YunFei').AsFloat);
     nMon := Float2Float(nMon, cPrecision, True);
   end;
 
@@ -1328,7 +1337,7 @@ begin
   end;
 
   //----------------------------------------------------------------------------
-  nStr := 'Select D_Price From %s Where D_ZID=''%s'' And D_StockNo=''%s''';
+  nStr := 'Select D_Price, D_YunFei From %s Where D_ZID=''%s'' And D_StockNo=''%s''';
   nStr := Format(nStr, [sTable_ZhiKaDtl, FIn.FExtParam, FListB.Values['StockNo']]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
@@ -1356,7 +1365,7 @@ begin
     end;
     {$ENDIF}
 
-    nMon := nVal * FieldByName('D_Price').AsFloat;
+    nMon := nVal * (FieldByName('D_Price').AsFloat + FieldByName('D_YunFei').AsFloat);
     nMon := Float2Float(nMon, cPrecision, True);
 
     if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
@@ -1401,6 +1410,7 @@ begin
             SF('L_SaleID', FListA.Values['SaleID']),
             SF('L_SaleMan', FListA.Values['SaleMan']),
             SF('L_Price', FieldByName('D_Price').AsFloat, sfVal),
+            SF('L_YunFei', FieldByName('D_YunFei').AsFloat, sfVal),
             SF('L_ZKMoney', FListA.Values['ZKMoney'])
             ], sTable_Bill, SF('L_ID', FIn.FData), False);
     FListC.Add(nStr); //增加调拨方出金
@@ -1434,15 +1444,49 @@ begin
     nIn.FExtParam := nExt;
 
     nIn.FBase.FParam := sParam_NoHintOnError;
-
     nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessNC);
     //get worker
     Result := nWorker.WorkActive(@nIn, nOut);
-
     if not Result then
       gSysLoger.AddLog(TWorkerBusinessBills, '通知NC服务:', nOut.FBase.FErrDesc);
     //xxxxx
   finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+function CallBusinessSaleBillToNCEx(const nCmd: Integer; const nData, nExt: string;
+  const nOut: PWorkerBusinessCommand): Boolean;
+var nStr: string;
+    nIn: TWorkerWebchatData;
+    nPacker: TBusinessPackerBase;
+    nWorker: TBusinessWorkerBase;
+begin
+  nPacker := nil;
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    nPacker := gBusinessPackerManager.LockPacker(sBus_BusinessCommand);
+    nPacker.InitData(@nIn, True, False);
+    //init
+
+    nStr := nPacker.PackIn(@nIn);
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessNC);
+    //get worker
+
+    Result := nWorker.WorkActive(nStr);
+    if Result then
+         nPacker.UnPackOut(nStr, nOut)
+    else
+    begin
+      nOut.FData:= nStr;
+      gSysLoger.AddLog(TWorkerBusinessBills, '通知NC服务:', nOut.FBase.FErrDesc);
+    end
+  finally
+    gBusinessPackerManager.RelasePacker(nPacker);
     gBusinessWorkerManager.RelaseWorker(nWorker);
   end;
 end;
@@ -1460,25 +1504,7 @@ var nIdx: Integer;
 begin
   Result := False;
   //init
-  {$IFDEF NCSale}
-  ///   尝试删除NC 单子  如NC 已审核则会返回失败
-  nListBill:= TStringList.Create;
-  try
-    nListBill.Clear;
-    nListBill.Values['ID']  := FIn.FData;
-    nListBill.Values['Proc']:= 'delete';
-    //*******************
-    if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerEncodeStr(nListBill.Text), '', @nOut) then
-    begin
-      nData:= nOut.FData;
-      Exit;
-    end;
-  finally
-    nListBill.Free;
-  end;
-  {$ENDIF}
-
-  nStr := ' Select L_ZhiKa,L_Value,L_Price,L_YunFei,L_CusID,L_OutFact,L_ZKMoney,L_HYDan,L_EmptyOut ' +
+  nStr := ' Select L_ZhiKa,L_Value,L_Price,L_YunFei,L_CusID,L_OutFact,L_ZKMoney,L_HYDan,L_EmptyOut,L_Status ' +
           {$IFDEF SendMorefactoryStock} ',L_SendFactory ' + {$ENDIF}
           ' From %s Where L_ID=''%s''';
   nStr := Format(nStr, [sTable_Bill, FIn.FData]);
@@ -1498,8 +1524,9 @@ begin
       nData := Format(nData, [FIn.FData]);
       Exit;
     end;
-                     {
+
     nHasOut := FieldByName('L_OutFact').AsString <> '';
+      {
     //已出厂
     if nHasOut then
     begin
@@ -1520,7 +1547,28 @@ begin
     nVal := FieldByName('L_Value').AsFloat;
     nMoney := Float2Float(nVal*(FieldByName('L_Price').AsFloat+FieldByName('L_YunFei').AsFloat), cPrecision, True);
   end;
-  
+
+  {$IFDEF NCSale}
+  if nHasOut then   ///   如果已出厂 尝试删除NC 单子  如NC 已审核则会返回失败
+  begin
+    nListBill:= TStringList.Create;
+    try
+      nListBill.Clear;
+      nListBill.Values['ID']  := FIn.FData;
+      nListBill.Values['Proc']:= 'delete';
+      //*******************
+      if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerEncodeStr(nListBill.Text), '', @nOut) then
+      begin
+        nData:= nOut.FData;
+        Exit;
+      end;
+    finally
+      nListBill.Free;
+    end;
+  end;
+  {$ENDIF}
+
+
   nStr := 'Select R_ID,T_HKBills,T_Bill From %s ' +
           'Where T_HKBills Like ''%%%s%%''';
   nStr := Format(nStr, [sTable_ZTTrucks, FIn.FData]);
@@ -2036,7 +2084,7 @@ begin
 
       if nListB.Values['Price'] = '' then
       begin
-        nData := '车辆[ %s ]超发[ %s ]吨,待合单纸卡中没有[ %s ]品种.';
+        nData := '车辆[ %s ]超发 %s 吨,待合单纸卡中没有[ %s ]品种.';
         nData := Format(nData, [nListA.Values['Truck'], FIn.FExtParam,
                  nListB.Values['StockName']]);
         Exit;
@@ -2149,8 +2197,10 @@ begin
           'L_HYDan, L_EmptyOut,L_SnapTruck,L_IsSample '+
 
             {$IFDEF ChkSaleCardInTimeOut}      // 销售进厂超时检查
-              ',DATEDIFF(MINUTE, L_Date, GETDATE()) InTimeDiff '+
-            {$ENDIF}
+              ',DATEDIFF(MINUTE, L_Date, GETDATE()) InTimeDiff '+   {$ENDIF}
+            {$IFDEF BasisWeightWithPM}
+            ',L_IsBasisWeightWithPM '+     {$ENDIF}
+
           'From $Bill  ';
   //xxxxx
 
@@ -2191,8 +2241,7 @@ begin
       FStockName  := FieldByName('L_StockName').AsString;
       FValue      := FieldByName('L_Value').AsFloat;
       FPrice      := FieldByName('L_Price').AsFloat;
-      FYunfei    := FieldByName('L_YunFei').AsFloat;
-
+      FYunfei     := FieldByName('L_YunFei').AsFloat;
 
       FCard       := FieldByName('L_Card').AsString;
       FIsVIP      := FieldByName('L_IsVIP').AsString;
@@ -2221,8 +2270,13 @@ begin
       FYSValid      := FieldByName('L_EmptyOut').AsString;
       FIsSample     := FieldByName('L_IsSample').AsString;
       {$IFDEF ChkSaleCardInTimeOut}
-      FMINUTEDate   := FieldByName('InTimeDiff').AsInteger;
+      FMinuteDate   := FieldByName('InTimeDiff').AsInteger;
       {$ENDIF}
+
+      {$IFDEF BasisWeightWithPM}
+      FIsBasisWeight:= FieldByName('L_IsBasisWeightWithPM').AsString= sFlag_Yes;
+      {$ENDIF}
+
       FSelected := True;
 
       Inc(nIdx);
@@ -2280,18 +2334,200 @@ begin
   Result := True;
 end;
 
+//库底计量,更新净重 资金校验
+function TWorkerBusinessBills.BasisWeightBillOutChk(var nBill: TLadingBillItem): Boolean;
+var nOut: TWorkerBusinessCommand;
+    nStr, nData, nSQL, nFactory: string;
+    nVal, nMVal, m, f, nEmpTruckWc, nNewValue : Double;
+    nFixMoney : Boolean;
+begin
+  Result:= False;
+  nEmpTruckWc:= 0;  nNewValue:= 0;
+  try
+    with nBill do
+    begin
+      if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+                  FZhiKa, '', @nOut) then
+      begin
+        nData := nOut.FData;
+        Exit;
+      end;
+      nFixMoney := nOut.FExtParam=sFlag_Yes;
+
+      //*******************************************************************
+      nStr := 'Select * From %s Where D_Name=''%s'' And D_Memo=''EmpTruckWuCha'' ';
+      nStr := Format(nStr, [sTable_SysDict, sFlag_PoundWuCha, sFlag_PEmpTWuCha]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        if RecordCount>0 then nEmpTruckWc:= FieldbyName('D_Value').AsFloat;
+      end;
+
+      nVal := FMData.FValue * 1000 - FPData.FValue * 1000;
+      if (Abs(nVal)<= nEmpTruckWc) and (FIsSample<>sFlag_Yes) then
+      begin
+        // 判断为空车出厂
+        WriteLog(Format('库底装车计量订单 单号：%s 非样品订单、净重：%.2f 公斤 、空车出厂标准 %.2f 公斤、予以空车出厂标示',
+                            [FID, nVal, nEmpTruckWc]));
+        FYSValid:= 'Y';
+        FValue:= 0;
+        //*****************  //空车出厂单更新 毛重=皮重 提货量为0
+        nSQL := 'UPDate %s Set L_EmptyOut=''Y'', L_Value=0, L_MValue=L_PValue Where L_ID=''%s''  ';
+        nSQL := Format(nSQL, [sTable_Bill, FID]);
+        FListA.Add(nSQL);  nSQL:= ''; //更新出金
+      end;
+
+      if FYSValid=sFlag_Yes then    ///  空车出厂单
+      begin
+        nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, False);
+        {$IFNDEF NCSale}
+        if nFixMoney then
+        begin
+          nSQL := 'UPDate %s Set Z_FixedMoney=Z_FixedMoney+%s Where Z_ID=''%s''';
+          nSQL := Format(nSQL, [sTable_ZhiKa, FloatToStr(nVal), FZhiKa]);
+          //xxxxx
+          FListA.Add(nSQL); nSQL:= '';
+        end;   //释放限提金额
+
+        nSQL := 'UPDate %s Set A_FreezeMoney=A_FreezeMoney-%s Where A_CID=''%s''';
+        nSQL := Format(nSQL, [sTable_CusAccount, FloatToStr(nVal), FCusID]);
+        FListA.Add(nSQL);   nSQL:= '';
+        //释放冻结金
+        {$ENDIF}
+
+
+        {$IFDEF SendMorefactoryStock}
+        nSQL := ' Select L_HYDan, L_SendFactory From %s Where L_ID=''%s'' ';
+        nSQL := Format(nSQL, [sTable_Bill, FID]);
+        with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+        if RecordCount > 0 then
+        begin
+          nFactory:= Fields[1].AsString;
+        end;
+        {$ENDIF}
+
+        nSQL := 'UPDate %s Set B_HasUse=B_HasUse-%.2f Where B_Batcode=''%s''';
+        nSQL := Format(nSQL, [sTable_StockBatcode, FValue, FHYDan]);
+          {$IFDEF SendMorefactoryStock}
+          nSQL := nSQL + ' And B_SendFactory='''+nFactory+'''';
+          {$endif}
+        FListA.Add(nSQL);   nSQL:= '';
+        //释放使用的批次号
+      end
+      else
+      begin   //   非空车出厂单
+        {$IFNDEF NCSale}
+        //------------------------------------------------------------------------
+        //库底计量,更新净重
+        nVal := StrToFloat(nOut.FData) + ((FPrice+FYunFei) * FValue);
+        //纸卡可用金: 剩余金额 + 开单冻结金额
+        nVal := Float2Float(nVal, cPrecision, False);
+
+        nStr := 'Select (L_MValue-L_PValue),(L_Price+IsNull(L_YunFei, 0)) From %s Where L_ID=''%s''';
+        nStr := Format(nStr, [sTable_Bill, FID]);
+        with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+        begin
+            if RecordCount < 1 then
+            begin
+              nData := Format('交货单[ %s ]已丢失', [FID]);
+              WriteLog(nData);
+              Exit;
+            end;
+
+            nNewValue:= Fields[0].AsFloat;
+            nMVal := Fields[0].AsFloat;
+            m := Float2Float(nMVal * Fields[1].AsFloat, cPrecision, True);
+            //交货单实际总额
+
+            if nVal < m then
+            begin
+              nSQL := FID + sFlag_ManualF;
+              nStr := 'Select Count(*) From %s Where E_ID=''%s''';
+              nStr := Format(nStr, [sTable_ManualEvent, nSQL]);
+
+              f := gDBConnManager.WorkerQuery(FDBConn, nStr).Fields[0].AsInteger;
+              //事件是否存在
+
+		          nData := '车辆[ %s ]余额不足,详情如下:' + #13#10#13#10 +
+		                  '※.单据编号: %s' + #13#10 +
+		                  '※.提货总额: %.2f吨,%.2f元' + #13#10 +
+		                  '※.可用金额: %.2f元' + #13#10 +
+		                  '※.需补金额: %.2f元';
+		          nData := Format(nData, [FTruck, FID, nMVal, m, nVal, m-nVal]);
+		
+		          nSQL := MakeSQLByStr([
+		                  SF_IF([SF('E_ID', nSQL), ''], f < 1),
+		                  SF_IF([SF('E_Key', FTruck), ''], f < 1),
+		                  SF_IF([SF('E_From', '出厂门岗'), ''], f < 1),
+		                  SF_IF([SF('E_Result', 'Null', sfVal), ''], f < 1),
+		
+		                  SF('E_Event', nData), //更新事件
+		                  SF_IF([SF('E_Solution', sFlag_Solution_OK), ''], f < 1),
+		                  SF_IF([SF('E_Departmen', sFlag_DepDaTing), ''], f < 1),
+		                  SF_IF([SF('E_Date', sField_SQLServer_Now, sfVal), ''], f < 1)
+		                  ], sTable_ManualEvent, SF('E_ID', nSQL), f < 1);
+		          //xxxxx
+
+              gDBConnManager.WorkerExec(FDBConn, nSQL);
+              Exit;
+            end;
+        end;
+
+        m := m - Float2Float((FPrice+FYunFei) * FValue, cPrecision, True);
+        //出金差额: 总额 - 冻结金额
+
+        if nFixMoney then     // 限提纸卡
+        begin
+          nSQL := 'UPDate %s Set Z_FixedMoney=Z_FixedMoney-(%.2f) Where Z_ID=''%s''';
+          nSQL := Format(nSQL, [sTable_ZhiKa, m, FZhiKa]);
+          FListA.Add(nSQL); //更新纸卡限提金额差额
+        end;
+
+        nSQL := 'UPDate %s Set A_OutMoney=A_OutMoney+(%.2f) Where A_CID=''%s''';
+        nSQL := Format(nSQL, [sTable_CusAccount, m, FCusID]);
+        FListA.Add(nSQL); //更新出金差额
+        {$ENDIF}
+
+        nSQL := ' Select L_HYDan From %s Where L_ID=''%s'' ';
+        {$IFDEF SendMorefactoryStock}
+        nSQL := ' Select L_HYDan, L_SendFactory From %s Where L_ID=''%s'' ';
+        {$ENDIF}
+        nSQL := Format(nSQL, [sTable_Bill, FID]);
+        with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+        if RecordCount > 0 then
+        begin
+            nSQL := 'UPDate %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
+                    'Where B_Batcode=''%s''';
+            nSQL := Format(nSQL, [sTable_StockBatcode, nNewValue, FValue,
+                    Fields[0].AsString]);
+              {$IFDEF SendMorefactoryStock}
+              nSQL := nSQL + ' And B_SendFactory='''+Fields[1].AsString+'''';
+              {$endif}
+            FListA.Add(nSQL);
+        end;
+        //更新批次号使用量差额
+      end;
+
+      Result:= True;
+    end;
+  except
+    on Ex:Exception do
+    WriteLog(Format('库底计量装车订单、出厂资金校验发生异常：%s', [Ex.Message]));
+  end;
+end;
+
 //Date: 2014-09-18
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessBills.SavePostBillItems(var nData: string): Boolean;
-var nStr,nSQL,nTmp,nFixMoney, nFactory,nOutFactTime, nCusName: string;
-    f,m,nVal,nMVal,nNeedJK: Double;
+var nStr,nSQL,nTmp,nFixMoney, nFactory,nOutFactTime, nCusName, nEMsg: string;
+    f,m,nVal,nMVal,nTrueVal,nNeedJK: Double;
     i,nIdx,nInt: Integer;
     nBills: TLadingBillItems;
     nPrice, nYunFei, nMoney : Double;
     nOut: TWorkerBusinessCommand;
+    nPriceChanged:Boolean;
 begin
-  Result := False;
+  Result := False;    nPriceChanged:= False;
   AnalyseBillItems(FIn.FData, nBills);
   nInt := Length(nBills);
 
@@ -2313,7 +2549,6 @@ begin
 
   FListA.Clear;
   //用于存储SQL列表
-
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckIn then //进厂
   begin
@@ -2544,6 +2779,13 @@ begin
 
     with nBills[0] do
     begin
+      if FPData.FValue = 0 then
+      begin
+        nData := '车辆 %s 皮重数据为 0、不能称毛重.';
+        WriteBillLog(nData);
+        Exit;
+      end;
+
       if FYSValid <> sFlag_Yes then
       begin
         if FType = sFlag_San then //散装需交验资金额
@@ -2565,6 +2807,7 @@ begin
           f := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True) - m;
           //实际所需金额与可用金差额
 
+          {$IFNDEF NCSale}
           if f > 0 then
           begin
             {$IFDEF SanPreHK}
@@ -2598,7 +2841,6 @@ begin
           m := m - Float2Float((FPrice+FYunFei) * nVal, cPrecision, True);
           //新增冻结金额
 
-          {$IFNDEF NCSale}
           nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney+(%.2f) ' +
                   'Where A_CID=''%s''';
           nSQL := Format(nSQL, [sTable_CusAccount, m, FCusID]);
@@ -2650,20 +2892,16 @@ begin
         nFixMoney := nOut.FExtParam;
 
         nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, False);
+        {$IFNDEF NCSale}
         if nFixMoney = sFlag_Yes then
         begin
           nSQL := 'Update %s Set Z_FixedMoney=Z_FixedMoney+%s Where Z_ID=''%s''';
           nSQL := Format(nSQL, [sTable_ZhiKa, FloatToStr(nVal),
                   nBills[0].FZhiKa]);
           //xxxxx
-
-          {$IFNDEF NCSale}
           FListA.Add(nSQL);
-          {$ENDIF}
-        end;
-        //释放限提金额
+        end;   //释放限提金额
 
-        {$IFNDEF NCSale}
         nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney-%s Where A_CID=''%s''';
         nSQL := Format(nSQL, [sTable_CusAccount, FloatToStr(nVal),
                 FCusID]);
@@ -2807,64 +3045,140 @@ begin
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckOut then
   begin
-    FListB.Clear;
+    FListB.Clear;  nPriceChanged:= False;
     for nIdx:=Low(nBills) to High(nBills) do
     with nBills[nIdx] do
     begin
       nOutFactTime:= FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);
 
-      {$IFDEF NCSale}
-      if FValue>0 then      // 空车出厂单不上传NC
+      {$IFDEF BasisWeightWithPM}
+      //  库底磅 (称皮 装车 称毛)   散装出厂需校验资金
+      if (FType = sFlag_San) and FIsBasisWeight then
       begin
-        gSysLoger.AddLog(TWorkerBusinessBills, '推送销售出厂单到NC', nBills[nIdx].FID);
-        if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerDecodeStr(FIn.FData), nOutFactTime, @nOut) then
-            Exit
-        else
+        IF not BasisWeightBillOutChk(nBills[nIdx]) then
         begin
-          //如发生改价 需重新获取订单 单价、运费信息
-          IF nOut.FExtParam='Y' then
-          begin
-            nSQL := 'Select * From %s Where L_ID=''%s''';
-            nSQL := Format(nSQL, [sTable_Bill, FID]);
-            with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-            if RecordCount > 0 then
-            begin
-              FPrice := FieldByName('L_Price').AsFloat;
-              FYunFei:= FieldByName('L_YunFei').AsFloat;
-            end
-            else Exit;
-          end;
+          WriteBillLog(Format('库底装车计量单 %s、出厂资金校验未通过', [nBills[nIdx].FID]));
+          Exit;
         end;
-        /// ******************************************  检查是否能扣减掉货款
+      end;
+      {$ENDIF}
+                                              
+        {$IFDEF NCSale}
+        ChkNcServiceStatus;
+        //*******
+        if (FValue>0) then
+        begin
+          if (LeftStr(nBills[nIdx].FZhiKa, 2)<>'ZK') then      // 空车出厂单 、厂内自作纸卡 不上传 NC 验证
+          begin
+            if FOnLine then
+            begin
+              WriteBillLog(Format('推送销售出厂单到 NC、%s', [nBills[nIdx].FID]));
+              
+              if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerDecodeStr(FIn.FData), nOutFactTime, @nOut) then
+              begin
+                gSysLoger.AddLog(TWorkerBusinessBills, '销售单出厂', Format(' %s 出厂失败：'+nOut.FData, [nBills[nIdx].FID]));
+                Exit;
+              end
+              else
+              begin
+                begin
+                  nSQL := 'Select * From %s Where L_ID=''%s''';
+                  nSQL := Format(nSQL, [sTable_Bill, FID]);
+                  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+                  if RecordCount > 0 then
+                  begin
+                    //如发生改价 需重新获取订单 单价、运费信息
+                    nPriceChanged:= nBills[nIdx].FZhiKa<>FieldByName('L_ZhiKa').AsString;//nOut.FExtParam='Y';
+                    IF nPriceChanged then
+                    begin
+                      nBills[nIdx].FZhiKa:= FieldByName('L_ZhiKa').AsString;
+                      FPrice := FieldByName('L_Price').AsFloat;
+                      FYunFei:= FieldByName('L_YunFei').AsFloat;
+                    end;
+                  end
+                  else
+                  begin
+                    WriteBillLog(Format('未能查找到销售订单 %s、禁止出厂放行', [FID]));
+                    Exit;
+                  end;
+                end;
+              end;
+            end
+            else WriteBillLog(Format('管理员已切换离线模式、%s 车辆 %s 出厂将仅做本地校验',[FID, FTruck]));
+          end
+          else WriteBillLog(Format('【厂内办理纸卡】%s %s 车辆 %s 、不上传NC、将仅做本地校验', [FID, nBills[nIdx].FZhiKa, FTruck]));
+        end
+        else WriteBillLog(Format('【空车出厂订单】%s %s 车辆 %s 、不上传NC、将仅做本地校验', [FID, nBills[nIdx].FZhiKa, FTruck]));
+        /// ******************************************  本地二次检查是否能扣减掉货款
         nMoney:= 0;
         // 获取纸卡已扣减出厂单据剩余可用金额
         if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
-               nBills[0].FZhiKa, 'GetOutMoney', @nOut) then
+               nBills[nIdx].FZhiKa, 'GetOutMoney', @nOut) then
         begin
           nData := nOut.FData;
           gSysLoger.AddLog(TWorkerBusinessBills, '销售出厂校验', nData);
           Exit;
         end;
         nMoney:= Float2Float((StrToFloat(nOut.FData)), cPrecision, True);
-
         nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True);
+
+        // 本地校验资金
         if (nMoney-nVal<0) then
         begin
           nNeedJK:= Float2Float(-1*(nMoney-nVal), cPrecision);
-          nData  := Format('%s 车辆 %s 销售单 %s 纸卡金额不足支付本次货款,需补交资金 %g 元、方可出厂',
-                              [FCusName, FTruck, FID, nNeedJK]);
-                              
+          nData  := Format('%s 车辆 %s 销售单 %s 纸卡金额:%g 不足支付本次货款:%g ,需补交资金 %g 元、方可出厂',
+                              [FCusName, FTruck, FID, nMoney, nVal, nNeedJK]);
+
           gSysLoger.AddLog(TWorkerBusinessBills, '销售出厂校验', nData);
           AddManualEventRecord(FID+'C', FTruck, nData, '系统消息', sFlag_Solution_OK,
                     sFlag_DepDaTing, True);
+          AddManualEventRecord(FID+'O', FTruck, nData, '系统消息', sFlag_Solution_OK,
+                    sFlag_DepMenGang, True);
           Exit;
-        end;
-      end;
-      {$ENDIF}
+        end
+        else
+        begin
+          IF nPriceChanged then
+          begin
+            nEMsg:= '该订单所属纸卡已调价、稍后上传';
+            nData  := Format('%s 车辆 %s 销售单 %s 已关联新纸卡并更新价格、经资金核对予以放行、稍后再次同步',
+                                [FCusName, FTruck, FID]);
+            gSysLoger.AddLog(TWorkerBusinessBills, '销售出厂校验', nData);
+          end;
 
+          if not FOnLine then
+          begin
+            nEMsg:= 'NC服务端离线、稍后上传';
+            nData  := Format('%s 车辆 %s 销售单 %s NC服务离线、本地资金校验通过、稍后再次同步',
+                                [FCusName, FTruck, FID, nNeedJK]);
+            gSysLoger.AddLog(TWorkerBusinessBills, '销售出厂校验', nData);
+          end;
+
+          //如（发生改价 、离线模式校验通过）   需重新再次推送
+          IF nPriceChanged or (not FOnLine) then
+          begin
+            nStr := MakeSQLByStr([SF('N_OrderNo', FID),
+                                  SF('N_Type', 'S'), SF('N_Status', '-1'),
+                                  SF('N_Proc', 'add'), SF('N_SyncNum', '0'),
+                                  SF('N_ErrorMsg', nEMsg)] ,
+                                  sTable_UPLoadOrderNc, '', True);
+            FListA.Add(nStr);
+          end;
+
+        end;
+        gSysLoger.AddLog(TWorkerBusinessBills, '销售出厂校验', Format('销售单 %s 车辆 %s 出厂校验通过', [FID, FTruck]));
+      {$ENDIF}
       /// ************************************
       FListB.Add(FID);
       //交货单列表
+
+      {$IFDEF BasisWeightWithPM}
+      if (FType = sFlag_San)and(FYSValid<>sFlag_Yes)and FIsBasisWeight then
+      begin
+        nSQL := MakeSQLByStr([ SF('L_Value', 'L_MValue-L_PValue',sfVal)], sTable_Bill, SF('L_ID', FID), False);
+        FListA.Add(nSQL); //更新交货单
+      end;
+      {$ENDIF}
 
       nSQL := MakeSQLByStr([SF('L_Status', sFlag_TruckOut),
               SF('L_NextStatus', ''),
@@ -2874,20 +3188,23 @@ begin
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL); //更新交货单
 
+      {$IFNDEF NCSale}
       if FYSValid <> sFlag_Yes then
       begin
         nVal := Float2Float((FPrice+FYunFei) * FValue, cPrecision, True);
-        //提货金额
+        //开单提货金额
 
-        nSQL := 'Update %s Set A_OutMoney=A_OutMoney+(%.2f),' +
+        nSQL := 'UPDate %s Set A_OutMoney=A_OutMoney+(%.2f),' +
                 'A_FreezeMoney=A_FreezeMoney-(%.2f) Where A_CID=''%s''';
         nSQL := Format(nSQL, [sTable_CusAccount, nVal, nVal, FCusID]);
         FListA.Add(nSQL); //更新客户资金(可能不同客户)
       end;
+      {$ENDIF}
 
       {$IFNDEF CreateBillCreateHYEach}   //未在开单开化验单
         {$IFDEF PrintHYEach}
         //if FPrintHY then
+        if FYSValid <> sFlag_Yes then
         begin
           FListC.Values['Group'] :=sFlag_BusGroup;
           FListC.Values['Object'] := sFlag_HYDan;
@@ -3042,8 +3359,6 @@ begin
     for nIdx:=0 to FListA.Count - 1 do
       gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
 
-    //xxxxx   //gSysLoger.AddLog(TWorkerBusinessBills, '销售', FListA[nIdx]);
-
     FDBConn.FConn.CommitTrans;
     Result := True;
   except
@@ -3077,7 +3392,6 @@ begin
   end;
   {$ENDIF}
 end;
-
 
 
 initialization

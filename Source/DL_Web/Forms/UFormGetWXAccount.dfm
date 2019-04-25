@@ -36,7 +36,7 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
       ParentShowHint = False
       FixedCols = 0
       FixedRows = 0
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick
       ShowColumnTitles = True
       Columns = <
         item
@@ -53,7 +53,7 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
         end>
       OnSelectCell = Grid1SelectCell
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom
       TabOrder = 0
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -68,7 +68,7 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
       Hint = ''
       ParentColor = False
       Align = alTop
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akLeft, akTop, akRight
       TabOrder = 2
       DesignSize = (
         446
@@ -88,7 +88,7 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
         Width = 297
         Hint = ''
         Text = ''
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akLeft, akTop, akRight
         TabOrder = 2
         OnChange = EditIDChange
       end
@@ -99,7 +99,7 @@ inherited fFormGetWXAccount: TfFormGetWXAccount
         Height = 25
         Hint = ''
         Caption = #26597#35810
-        Anchors = [akTop, akRight]
+        Anchors = [akTop, akRight
         TabOrder = 3
         ScreenMask.Enabled = True
         ScreenMask.Message = #35835#21462#21830#22478#36134#25143#21015#34920

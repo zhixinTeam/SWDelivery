@@ -70,7 +70,7 @@ begin
   if nID <> '' then
   try
     nStr := 'Select * From %s Where R_ID=%s';
-    nStr := Format(nStr, [sTable_Salesman, nID]);
+    nStr := Format(nStr, [sTable_Salesman, nID);
 
     nQuery := LockDBQuery(ctWork);
     with DBQuery(nStr, nQuery) do
@@ -115,7 +115,7 @@ begin
     nStr := SF('R_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('S_ID', nID), ''], FParam.FCommand = cCmd_AddData),
+      SF_IF([SF('S_ID', nID), '', FParam.FCommand = cCmd_AddData),
       SF('S_Name', EditName.Text),
       SF('S_PY', GetPinYin(EditName.Text)),
       SF('S_Phone', EditPhone.Text),
@@ -123,9 +123,9 @@ begin
       SF('S_Memo', EditMemo.Text),
 
       SF_IF([SF('S_InValid', sFlag_Yes),
-             SF('S_InValid', sFlag_No)], Check1.Checked)
+             SF('S_InValid', sFlag_No), Check1.Checked)
       //xxxxx
-      ], sTable_Salesman, nStr, FParam.FCommand = cCmd_AddData);
+      , sTable_Salesman, nStr, FParam.FCommand = cCmd_AddData);
     nList.Add(nStr);
 
     DBExecute(nList, nil, FDBType);
