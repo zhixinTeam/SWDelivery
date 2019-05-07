@@ -89,7 +89,7 @@ inherited fFormIncInfo: TfFormIncInfo
       Width = 97
       Height = 17
       BiDiMode = bdLeftToRight
-      Caption = '-_-'
+      Caption = #30917#25151
       Color = clWindow
       ParentBiDiMode = False
       ParentColor = False

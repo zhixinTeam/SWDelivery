@@ -31,6 +31,8 @@ type
     mniN1: TMenuItem;
     btn1: TcxButton;
     dxlytmLayout1Item7: TdxLayoutItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure Radio1Click(Sender: TObject);
@@ -66,7 +68,7 @@ implementation
 {$R *.dfm}
 
 uses
-  ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
+  ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness, UFormBase,
   UBusinessConst, USysConst, USysDB, UDataModule;
 
 class function TfFrameQuerySyncOrderForNC.FrameID: integer;

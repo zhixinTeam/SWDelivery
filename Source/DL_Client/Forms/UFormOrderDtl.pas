@@ -75,6 +75,7 @@ type
     FOrderID,FDetailID,FOldOrderBaseNo, FOldOrder, FNewOrder: string;
     //单据标识
     FOrderBase : TStrings;
+    FNeedSync : Boolean;
     procedure InitFormData(const nID: string);
     //载入数据
     function SetData(Sender: TObject; const nData: string): Boolean;
@@ -254,6 +255,8 @@ begin
         YSStatus.ItemIndex:= 0
       else YSStatus.ItemIndex:= 1;
 
+      FNeedSync:= FieldByName('D_Status').AsString='O';
+
       nTem:= FieldByName('D_UnloadPlace').AsString;
       UnPlace.ItemIndex:= UnPlace.Properties.Items.IndexOf(nTem);
 
@@ -348,7 +351,6 @@ end;
 //Desc: 保存数据
 procedure TfFormOrderDtl.BtnOKClick(Sender: TObject);
 var nSQL, nStr, nMsg, nData, nS, nY: string;
-    nNeedSync : Boolean;
     nVal : Double;
 begin
   nVal := StrToFloatDef(EditMValue.Text, 0)-StrToFloatDef(EditPValue.Text, 0)-StrToFloatDef(EditKZValue.Text, 0);
@@ -357,7 +359,7 @@ begin
     ShowMsg('操作失败：请检查毛重、皮重、扣杂是否正确', sError);
     Exit;
   end;
-                       {
+                       
   nStr := 'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ' +
           'Union  ' +
           'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ';
@@ -365,7 +367,7 @@ begin
   nStr := Format(nStr, [sTable_UPLoadOrderNc, FDetailID, sTable_UPLoadOrderNcHistory, FDetailID]);
   with FDM.QueryTemp(nStr) do
   begin
-    nNeedSync:= (RecordCount > 0);
+    FNeedSync:= (RecordCount > 0);
     if RecordCount > 0 then
     begin
       nData := GetOrderDtlInfo(FDetailID);
@@ -381,7 +383,7 @@ begin
       nSQL := Format(nSQL, [FDetailID]);
       FDM.ExecuteSQL(nSQL);
     end;                      
-  end;          }
+  end;
 
   if YSStatus.ItemIndex=0 then nY:= 'Y' else nY:= 'N';
 
@@ -394,7 +396,7 @@ begin
           ' Where ' +GetRightStr('Where',nSQL);
     FDM.ExecuteSQL(nSQL);
 
-    nSQL := 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_PValue-D_KZValue Where ' +GetRightStr('Where',nSQL);
+    nSQL := 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-isNull(D_KZValue, 0) Where ' +GetRightStr('Where',nSQL);
     FDM.ExecuteSQL(nSQL);
 
     nSQL := MakeSQLByStr([SF('P_CusID', EditProID.Text),
@@ -403,6 +405,7 @@ begin
             SF('P_MName', EditStockName.Text),
             SF('P_Truck', EditTruck.Text),
             SF('P_PValue', StrToFloatDef(EditPValue.Text, 0), sfVal),
+            SF('P_KZValue', StrToFloatDef(EditKZValue.Text, 0), sfVal),
             SF('P_MValue', StrToFloatDef(EditMValue.Text, 0), sfVal)
             ], sTable_PoundLog, SF('P_Order', FDetailID), False);
     FDM.ExecuteSQL(nSQL);
@@ -430,7 +433,7 @@ begin
     nSQL:= Format('Delete S_UPLoadOrderNc Where N_OrderNo=''%s'' ', [FDetailID]);
     FDM.ExecuteSQL(nSQL);
 
-    IF nY<>'N' then
+    IF (nY<>'N') and (nVal>0) and FNeedSync then
     begin
       nSQL:= Format('Insert into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum) '+
                     'Select ''%s'',''P'',-1,''add'',0 ', [FDetailID]);

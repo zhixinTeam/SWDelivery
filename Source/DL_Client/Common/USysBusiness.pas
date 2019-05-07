@@ -340,6 +340,7 @@ function GetshoporderbyTruck(const nData: string): string;
 //根据车牌号获取订单
 
 function SendDeleteOrderDtlMsgToNc(const nData: string; var nRe:string): Boolean;
+function SendDeleteBillMsgToNc(const nData: string; var nRe:string): Boolean;
 function ChkNcStatus(const nData: string; var nRe:string): Boolean;
 
 procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
@@ -355,6 +356,7 @@ function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
 function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
 function IsSaleCardInTimeOut(const nDiffTime: integer): Boolean;
 //进厂超时检查
+function AdjustBillStatus(const nID: string): Boolean;
 
 
 implementation
@@ -2527,13 +2529,13 @@ begin
   end;
 
   nStr := ' Select B_Id, a.T_ID ,B_SrcAddr+B_DestAddr KHName, a.T_StockName, c.T_PValue, c.T_MValue, '+
-          '      c.T_Value, a.T_InTime, a.T_OutFact, a.T_Truck '+
-          ' From %s a                                '+
-          ' Left Join %s b On B_ID=a.T_PID           '+
-          ' Left Join %s  c On B_ID=c.T_PID          '+
-          ' Where B_IsNei=''N'' And c.T_ID=''%s''';
+          '      c.T_Value, c.T_InTime, c.T_OutFact, c.T_Truck '+
+          ' From %s b                         '+
+          ' Left Join %s a On B_ID=a.T_PID    '+
+          ' Left Join %s c On B_ID=c.T_PID    '+
+          ' Where c.T_ID=''%s''';
 
-  nStr := Format(nStr, [sTable_TransferSW, sTable_TransBase, sTable_Transfer, nOrder]);
+  nStr := Format(nStr, [sTable_TransBase, sTable_TransferSW, sTable_Transfer, nOrder]);
 
   nDS := FDM.QueryTemp(nStr);
   if not Assigned(nDS) then Exit;
@@ -2964,7 +2966,7 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end;
 
-  nStr := 'Select * From %s Where T_ID=''%s''';
+  nStr := 'Select *, B_SrcAddr+B_DestAddr KHName From %s Where T_ID=''%s''';
   nStr := Format(nStr, [sTable_Transfer, nID]);
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -2974,7 +2976,7 @@ begin
     ShowMsg(nStr, sHint); Exit;
   end;
 
-  nStr := gPath + sReportDir + 'DuanDao.fr3';
+  nStr := gPath + sReportDir + 'DuanDaoOrder.fr3';
   if not FDR.LoadReportFile(nStr) then
   begin
     nStr := '无法正确加载报表文件';
@@ -3291,6 +3293,13 @@ function SendDeleteOrderDtlMsgToNc(const nData: string; var nRe:string): Boolean
 var nOut: TWorkerBusinessCommand;
 begin
   Result:= CallBusinessPurchaseOrderToNC(cBC_SendToNcOrdreInfo, nData, '', @nOut);
+  nRe := nOut.FData;
+end;
+
+function SendDeleteBillMsgToNc(const nData: string; var nRe:string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result:= CallBusinessPurchaseOrderToNC(cBC_SendToNcBillInfo, nData, '', @nOut);
   nRe := nOut.FData;
 end;
 
@@ -3668,6 +3677,18 @@ begin
   begin
     Result:= (RecordCount = 0) ;
   end;
+end;
+
+function AdjustBillStatus(const nID: string): Boolean;
+var nstr:string;
+begin
+  Result:= False;
+  nStr := 'UPDate S_Bill Set L_Status=''F'', L_NextStatus=''M''  '+
+          'Where ((L_Status=''M'' And L_Status=''O'') or L_IsBasisWeightWithPM=''Y'') And l_ID=''%s'' ';
+  nStr := Format(nStr, [nID]);
+  FDM.ExecuteSQL(nStr);
+
+  Result:= True;
 end;
 
 //Date: 2018-08-03

@@ -1,6 +1,6 @@
 inherited fFrameBill: TfFrameBill
   Width = 1028
-  Height = 493
+  Height = 507
   inherited ToolBar1: TToolBar
     Width = 1028
     inherited BtnAdd: TToolButton
@@ -8,7 +8,7 @@ inherited fFrameBill: TfFrameBill
       OnClick = BtnAddClick
     end
     inherited BtnEdit: TToolButton
-      Visible = False
+      OnClick = BtnEditClick
     end
     inherited BtnDel: TToolButton
       OnClick = BtnDelClick
@@ -17,7 +17,7 @@ inherited fFrameBill: TfFrameBill
   inherited cxGrid1: TcxGrid
     Top = 205
     Width = 1028
-    Height = 288
+    Height = 302
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
     end
@@ -213,7 +213,7 @@ inherited fFrameBill: TfFrameBill
   object PMenu1: TPopupMenu
     AutoHotkeys = maManual
     OnPopup = PMenu1Popup
-    Left = 4
+    Left = 7
     Top = 264
     object N1: TMenuItem
       Caption = #25171#21360#25552#36135#21333
@@ -272,6 +272,7 @@ inherited fFrameBill: TfFrameBill
     end
     object N3: TMenuItem
       Caption = #35843#25320#25552#36135#21333
+      Visible = False
       OnClick = N3Click
     end
     object N8: TMenuItem

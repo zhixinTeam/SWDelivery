@@ -125,14 +125,41 @@ begin
       {$IFDEF PoundRoundJZ}
       if nView.Tag=789 then  // 启用随机净重  应对检查
       begin
-        if ((nItem.FDBItem.FField ='L_Value')And(nEntity='MAIN_L06')) then
+        if nEntity='MAIN_L06' then
         begin
-          nItem.FDBItem.FField:= 'L_StdMValue';
+          if (nItem.FDBItem.FField ='L_Value') then
+            nItem.FDBItem.FField:= 'L_StdValue'
+          else if (nItem.FDBItem.FField ='L_MValue') then
+            nItem.FDBItem.FField:= 'L_StdMValue';
+
         end;
 
-        if ((nItem.FDBItem.FField ='P_NetWeight')And(nEntity='MAIN_E03')) then
+       if nEntity='MAIN_E03' then
         begin
-          nItem.FDBItem.FField:= 'P_StdNetWeight';
+          if (nItem.FDBItem.FField ='P_NetWeight') then
+            nItem.FDBItem.FField:= 'P_StdNetWeight'
+          else if (nItem.FDBItem.FField ='P_MValue') then
+            nItem.FDBItem.FField:= 'P_StdMValue';
+        end;
+
+      end
+      else
+      begin
+        if nEntity='MAIN_L06' then
+        begin
+          if (nItem.FDBItem.FField ='L_StdValue') then
+            nItem.FDBItem.FField:= 'L_Value'
+          else if (nItem.FDBItem.FField ='L_StdMValue') then
+            nItem.FDBItem.FField:= 'L_MValue';
+
+        end;
+
+       if nEntity='MAIN_E03' then
+        begin
+          if (nItem.FDBItem.FField ='P_StdNetWeight') then
+            nItem.FDBItem.FField:= 'P_NetWeight'
+          else if (nItem.FDBItem.FField ='P_StdMValue') then
+            nItem.FDBItem.FField:= 'P_MValue';
         end;
       end;
       {$ENDIF}

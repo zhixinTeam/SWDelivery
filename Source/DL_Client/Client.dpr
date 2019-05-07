@@ -18,7 +18,9 @@ uses
   UFormCustomerInitEdit in 'Forms\UFormCustomerInitEdit.pas' {fFormCustomerInitEdit},
   UFrameMsgLog in 'Forms\UFrameMsgLog.pas' {fFrameMsgLog: TFrame},
   UFormCtlCusbd in 'Forms\UFormCtlCusbd.pas' {fFormCtlCusbd},
-  UFrameQuerySyncOrderForNC in 'Forms\UFrameQuerySyncOrderForNC.pas' {fFrameQuerySyncOrderForNC: TFrame};
+  UFrameQuerySyncOrderForNC in 'Forms\UFrameQuerySyncOrderForNC.pas' {fFrameQuerySyncOrderForNC: TFrame},
+  UFromUPDateBindBillZhiKa in 'Forms\UFromUPDateBindBillZhiKa.pas' {fFormUPDateBindBillZhika},
+  UFramQueryNcZhiKaLog in 'Forms\UFramQueryNcZhiKaLog.pas' {fFrameQueryNcZhiKaLog: TFrame};
 
 {$R *.res}
 var
@@ -49,6 +51,7 @@ begin
   Application.CreateForm(TfMainForm, fMainForm);
   Application.CreateForm(TfFormCustomerInitEdit, fFormCustomerInitEdit);
   Application.CreateForm(TfFormCtlCusbd, fFormCtlCusbd);
+  Application.CreateForm(TfFormUPDateBindBillZhika, fFormUPDateBindBillZhika);
   Application.Run;
 
   ReleaseMutex(gMutexHwnd);

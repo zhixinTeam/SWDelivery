@@ -166,5 +166,12 @@ inherited fFrameQuerySyncOrderForNC: TfFrameQuerySyncOrderForNC
       Caption = #20877#27425#21516#27493
       OnClick = mniN1Click
     end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object N2: TMenuItem
+      Caption = #26356#25442#24320#21333#32440#21345
+      Visible = False
+    end
   end
 end

@@ -512,7 +512,7 @@ begin
   end;
   FLastTruckNo:= nBills[0].FTruck;
 
-  {$IFDEF SWTC}  //声威铜川工厂 门卫室管控车辆是否能上磅
+  {$IFDEF SWTC}  //声威铜川工厂 门卫室管控车辆是否能上磅  校正库底装车车辆多次过磅状态
   if ChkBillStatus(nBills[0].FID) then
   begin
     nStr:= Format('订单 %s 车辆 %s、已被门卫室禁止上磅、请联系门卫室',
@@ -572,8 +572,11 @@ begin
     //状态校正
     {$IFDEF AllowMultiM}
     if (FStatus = sFlag_TruckBFM)And(FCardUsed=sFlag_Sale)  then
+    begin
       FNextStatus := sFlag_TruckBFM;
-    //销售允许多次过重
+      //销售允许多次过重
+      AdjustBillStatus(nBills[nIdx].FID);
+    end;
     {$ENDIF}
 
     FSelected := (FNextStatus = sFlag_TruckBFP) or
@@ -1224,7 +1227,7 @@ begin
       Exit;
     end;
 
-//    {$IFDEF CQJJ}
+//    {$IFDEF SanPoundChKJZ}
 //    if FUIData.FValue>StrToFloatDef(edt1.Text, 49) then
 //    begin
 //      nCanSave:= False;

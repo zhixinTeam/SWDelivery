@@ -844,6 +844,20 @@ begin
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckBFP then //称量皮重
   begin
+    FListB.Clear;
+    nStr := 'Select D_Value From %s Where D_Name=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_NFStock]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      while not Eof do
+      begin
+        FListB.Add(Fields[0].AsString);
+        Next;
+      end;
+    end;
+
     FListC.Clear;
     FListC.Values['Field'] := 'T_PValue';
     FListC.Values['Truck'] := nPound[0].FTruck;
@@ -903,6 +917,11 @@ begin
       begin
         FNextStatus := sFlag_TruckFH;
       end;
+
+      if FListB.IndexOf(FStockNo) >= 0 then
+        FNextStatus := sFlag_TruckBFM;
+      //现场不发货直接过重
+
 
       nSQL := MakeSQLByStr([
             SF('P_ID', nOut.FData),

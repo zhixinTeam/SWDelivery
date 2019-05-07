@@ -1,6 +1,6 @@
 inherited fFormGetZhiKa: TfFormGetZhiKa
-  Left = 1013
-  Top = 225
+  Left = 1300
+  Top = 167
   Width = 431
   Height = 467
   BorderStyle = bsSizeable

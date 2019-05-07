@@ -80,6 +80,7 @@ type
     procedure N15Click(Sender: TObject);
     procedure N16Click(Sender: TObject);
     procedure N18Click(Sender: TObject);
+    procedure BtnEditClick(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -114,6 +115,11 @@ begin
   inherited;
   FUseDate := True;
   InitDateRange(Name, FStart, FEnd);
+
+  if (not gSysParam.FIsAdmin) then
+  begin
+    BtnEdit.Visible:= False;
+  end;
 end;
 
 procedure TfFrameBill.OnDestroyFrame;
@@ -559,6 +565,29 @@ begin
     nStr:= Format(' %s 对超时进厂车辆 %s %s  放行', [gSysParam.FUserName, nLid, nStr]);
     FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
     ShowMsg('操作成功、已调整该车辆开单时间', sHint);
+  end;
+end;
+
+procedure TfFrameBill.BtnEditClick(Sender: TObject);
+var nStr:string;
+    nP: TFormCommandParam;
+begin
+  try
+    if cxView1.DataController.GetSelectedCount > 0 then
+    begin
+      nP.FParamA := SQLQuery.FieldByName('L_ID').AsString;
+
+      CreateBaseFormItem(cFI_FormUPDateBindBillZhika, '', @nP);
+      if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
+
+
+      nStr := 'Delete From %s Where R_ID=%s';
+      nStr := Format(nStr, [sTable_UPLoadOrderNc, SQLQuery.FieldByName('R_ID').AsString]);
+
+      //FDM.ExecuteSQL(nStr);
+      InitFormData(FWhere);
+    end;
+  finally
   end;
 end;
 

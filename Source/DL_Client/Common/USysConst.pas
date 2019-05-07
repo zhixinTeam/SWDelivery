@@ -39,6 +39,8 @@ const
 
   cFI_FrameBillHYDanHD    = $3001;                   //水泥回单查询
   cFI_FrameBillSalePlan   = $3002;                   //销售品种限量计划
+  cFI_FrameQueryNcZhiKaLog= $3003;                   //销售纸卡同步日志
+
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -105,6 +107,7 @@ const
 
   cFI_FormBillSalePlan  = $2005;                     //销售供应编辑
   cFI_FormCstmerCategoryInfo   = $2006;              //客户类别
+  cFI_FormUPDateBindBillZhika  = $2007;              //重新绑定开单纸卡
 
 
   cFI_FormBaseInfo      = $1006;                     //基本信息
@@ -388,6 +391,7 @@ begin
   AddMenuModuleItem('MAIN_D12', cFI_FrameBillBuDanAudit);
   AddMenuModuleItem('MAIN_DXL01', cFI_FormBillSalePlan, mtForm);
   AddMenuModuleItem('MAIN_DXL02', cFI_FrameBillSalePlan);
+  AddMenuModuleItem('MAIN_DL01', cFI_FrameQueryNcZhiKaLog);
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);

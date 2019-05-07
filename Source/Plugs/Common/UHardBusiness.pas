@@ -492,7 +492,7 @@ begin
       nStr := Format(nStr, [FTruck, FMINUTEDate, gTruckQueueManager.SaleCardInTimeDiff]);
 
       //  进厂时间距离称重时间超时 依然给予拒绝
-      nStrx := 'UPDate %s Set L_Status=''N'', L_NextStatus='''' Where L_ID=''%s''';
+      nStrx := 'UPDate %s Set L_Status=''N'', L_NextStatus='''' Where L_ID=''%s'' And (L_MValue Is Null) ';
       nStrx := Format(nStrx, [sTable_Bill, FID]);
       gDBConnManager.ExecSQL(nStrx);
       //***************** //  自动进厂情况下通知磅房虚拟读卡器
@@ -943,14 +943,14 @@ end;
 //Date: 2019-03-12
 //Parm: 交货单号;重量
 //Desc: 依据nBill状态写入nValue重量
-function SavePoundData(const nTunnel: PBWTunnel; const nValue: Double): Boolean;
-var nStr, nStatus: string;
+function SavePoundData(const nTunnel: PBWTunnel; const nValue: Double;nChangeStatus:Boolean=False): Boolean;
+var nStr, nStatus : string;
     nDBConn: PDBWorker;
 begin
   nDBConn := nil;
   try
     Result := False;
-    nStr := 'Select L_Status,L_Value,L_PValue From %s Where L_ID=''%s''';
+    nStr := 'Select L_Status,L_Value,L_PValue,IsNull(L_MValue, 0) L_MValue From %s Where L_ID=''%s''';
     nStr := Format(nStr, [sTable_Bill, nTunnel.FBill]);
      
     with gDBConnManager.SQLQuery(nStr, nDBConn) do
@@ -977,13 +977,33 @@ begin
         //更新通道皮重, 确认磅重上限
       end else
       begin
-        nStr := MakeSQLByStr([SF('L_Status', sFlag_TruckBFM),
-                SF('L_NextStatus', sFlag_TruckOut),
-                SF('L_MValue', nValue, sfVal),
-                SF('L_MDate', sField_SQLServer_Now, sfVal),
-                SF('L_IsBasisWeightWithPM', sFlag_Yes)
-          		], sTable_Bill, SF('L_ID', nTunnel.FBill), False);
+        nStr := MakeSQLByStr([
+                    SF('L_Status', sFlag_TruckFH),
+                    SF('L_NextStatus', sFlag_TruckBFM),
+                    SF('L_IsBasisWeightWithPM', sFlag_Yes)
+                  ], sTable_Bill, SF('L_ID', nTunnel.FBill), False);
         gDBConnManager.WorkerExec(nDBConn, nStr);
+
+        if (nValue>(FieldByName('L_MValue').AsFloat)) then
+        begin
+            nStr := MakeSQLByStr([
+                    SF('L_MValue', nValue, sfVal),
+                    SF('L_MDate', sField_SQLServer_Now, sfVal)
+                  ], sTable_Bill, SF('L_ID', nTunnel.FBill), False);
+            gDBConnManager.WorkerExec(nDBConn, nStr);
+        end;
+
+        // 经光栅检测通过  表示车辆按要求完全在榜上停稳 
+        if nChangeStatus then
+        begin
+            nStr := MakeSQLByStr([
+                    SF('L_Status', sFlag_TruckBFM),
+                    SF('L_NextStatus', sFlag_TruckOut),
+                    SF('L_MValue', nValue, sfVal),
+                    SF('L_MDate', sField_SQLServer_Now, sfVal)
+                  ], sTable_Bill, SF('L_ID', nTunnel.FBill), False);
+            gDBConnManager.WorkerExec(nDBConn, nStr);
+        end;
       end; //放灰状态,只更新重量,出厂时计算净重
     end;
 
@@ -1060,6 +1080,8 @@ begin
     Exit; //非库底计量,不保存数据
     {$ENDIF}
 
+    SavePoundData(nTunnel, nTunnel.FValHas);
+
     if (not gProberManager.IsTunnelOK(nTunnel.FID))
       {$IFDEF ProberMidChk} or gProberManager.IsTunnelOK(nTunnel.FID+'MID') {$ENDIF}
        then
@@ -1074,7 +1096,7 @@ begin
     ShowLEDHint(nTunnel.FID, '数据平稳准备保存称重');
     WriteNearReaderLog(nTunnel.FID+'、数据平稳准备保存称重');
                                    
-    if SavePoundData(nTunnel, nTunnel.FValHas) then
+    if SavePoundData(nTunnel, nTunnel.FValHas, True) then
     begin
       gBasisWeightManager.SetParam(nTunnel.FID, 'CanFH', sFlag_Yes);
       //添加可放灰标记

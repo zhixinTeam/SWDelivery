@@ -61,6 +61,7 @@ type
     function CheckNode(nNode: TXmlNode; nStr:string; var nData:string): Boolean;
     function CheckExists(const nPm:TChkParam; nID, nName:string;var nRe:string): Boolean;
     function GetCusId(const nPK:string): string;
+    function GetSaleManId(const nPK:string): string;
     function GetMateId(const nPK:string): string;
     function CheckExistsPOrderBase(const nPK, nPKDtl, nOrderNo:string): Boolean;
     function GetZhiKaFreezeMoney(const nZhiKa, nCusId:string): Double;
@@ -1467,6 +1468,23 @@ begin
   end;
 end;
 
+function TBusWorkerBusinessNC.GetSaleManId(const nPK:string): string;
+var nStr, nTip:string;
+begin
+  Result:= '';
+  try
+    nStr:= Format('Select * From S_Salesman Where S_PK=''%s'' ', [nPK]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount>0 then
+      begin
+        Result:= FieldByName('S_ID').AsString;
+      end;
+    end;
+  except
+  end;
+end;
+
 function TBusWorkerBusinessNC.GetZhiKaFreezeMoney(const nZhiKa, nCusId:string): Double;
 var nStr, nTip:string;
 begin
@@ -1507,15 +1525,16 @@ end;
 function TBusWorkerBusinessNC.MakeZhiKaLog(nID, nCusId, nDesc, nData: string): string;
 var nStr:string;
 begin
+  nData:= StringReplace(nData, '''', '"', [rfReplaceAll]);
   Result:= Format(' Insert Into Sys_ZhiKaLog(Lg_Date,Lg_ZhiKaID,Lg_CusID ,Lg_Desc ,Lg_SourcXML) '+
-                                    'Select Convert(Varchar(19),GetDate(),121), ''%s'', ''%s'', ''%s'' ',
+                                    'Select Convert(Varchar(19),GetDate(),121), ''%s'', ''%s'', ''%s'', ''%s'' ',
                                     [nID,nCusId, nDesc, nData]);
 end;
 
 //Date: 2018-11-25
 //Desc: 销售纸卡
 function TBusWorkerBusinessNC.EditZhiKa(var nData: string): Boolean;
-var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanId, nFixmoney, nXml, nStatus,
+var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanPk, nSmanId, nSMan, nFixmoney, nXml, nStatus,
     nValidDay, nCMan, nCTime, nProc, nFlag, nType, nZ_InValid: string;
     nPrice,nFlPrice,nValue,nYFPrice, nFreezeMoney, nFixmoneyNew:Double;
     nIdx: Integer;
@@ -1560,7 +1579,7 @@ begin
         nZId    := Root.Nodes[0].NodeByName('zid').ValueAsString;
         nZName  := Root.Nodes[0].NodeByName('zname').ValueAsString;
         nCusId  := Root.Nodes[0].NodeByName('cusid').ValueAsString;
-        nSmanId := Root.Nodes[0].NodeByName('smanid').ValueAsString;
+        nSmanPk := Root.Nodes[0].NodeByName('smanid').ValueAsString;
         nValidDay:= Root.Nodes[0].NodeByName('validdays').ValueAsString;
         if nValidDay='0' then
              nValidDay:= FormatDateTime('yyyy-MM-dd HH:mm:ss', IncYear(Now, 30))
@@ -1592,6 +1611,9 @@ begin
           ExecSql:= False;
           Exit;
         end;
+        nSman:= GetSaleManId(nSmanPk);
+        if nSman<>'' then nSmanId:= nSman
+        else nSmanId:= nSmanPk;
         //***********
         if nProc='add' then
         begin
@@ -1697,7 +1719,7 @@ begin
                                 FloatToStr(nValue), 'Y', FloatToStr(nFlPrice), FloatToStr(nYFPrice), nPKDtl,
                                 nZId, NodeByName('stockno').ValueAsString]);
                 FListA.Add(nSql);
-                FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡%s 品种 %s  水泥、运费单价分别为：%s 、%s ',
+                FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s 品种 %s  水泥、运费单价分别为：%s 、%s ',
                                     [nCMan, nCusId, nZId, NodeByName('stockname').ValueAsString, FloatToStr(nPrice), FloatToStr(nFlPrice)]), nXml));
               end
               else

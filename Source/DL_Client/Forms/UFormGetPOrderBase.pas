@@ -118,7 +118,6 @@ begin
   try
     LoadFormConfig(Self, nIni);
     LoadcxListViewConfig(Name, ListQuery, nIni);
-    if not gSysParam.FIsAdmin then ListQuery.Columns[4].Width:= 0;
   finally
     nIni.Free;
   end;
@@ -152,21 +151,20 @@ begin
   ListQuery.Items.Clear;
 
   nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From $TB ' +
-          'Where ((B_Value-B_SentValue>0) or (B_Value=0)) ' +
-          'And B_BStatus=''Y'' And (((B_Value-B_SentValue-B_FreezeValue) >=100)or(B_Value=0))';
+          'Where B_BStatus=''Y'' And (B_Value=0 or (((B_Value-B_SentValue-B_FreezeValue) >=100) ';
 
-  {$IFDEF NCPurchase}
   if not FShowAllOrder then
   begin
     if DayOfTheMonth(Now)>5 then
-      nStr := nStr + ' And B_Date>=Convert(Datetime,Convert(Char(8),GETDATE(),120)+''1'') '
-    else nStr := nStr + ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121) ';
+      nStr := nStr + ' And B_Date>=Convert(Datetime,Convert(Char(8),GETDATE(),120)+''1''))) '
+    else nStr := nStr + ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121)) ';
   end;
-  {$ENDIF}
   
   if nQueryType = '1' then //供应商
   begin
     nQuery := Trim(EditProvider.Text);
+
+    if nQuery<>'' then
     nStr := nStr + 'And ((B_ProID like ''%%$QUERY%%'') ' +
             'or (B_ProName  like ''%%$QUERY%%'') ' +
             'or (B_ProPY  like ''%%$QUERY%%'')) ';
@@ -174,6 +172,8 @@ begin
   else if nQueryType = '2' then //原材料
   begin
     nQuery := Trim(EditMate.Text);
+
+    if nQuery<>'' then
     nStr := nStr + 'And ((B_StockName like ''%%$QUERY%%'') ' +
             'or (B_StockNo  like ''%%$QUERY%%'')) ';
   end else Exit;
@@ -218,7 +218,7 @@ begin
         SubItems.Add(FProvName);
         SubItems.Add(FRestValue);
         {$IFDEF NCSale}
-        if gSysParam.FIsAdmin then SubItems.Add(FNcOrder);
+        SubItems.Add(FNcOrder);
         {$ENDIF}
         ImageIndex := cItemIconIndex;
       end;
