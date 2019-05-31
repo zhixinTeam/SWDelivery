@@ -86,6 +86,7 @@ type
     function CheckNcOnLine: Boolean;
     function GetZhiKaValidMoney(var nData: string): Boolean;
     //获取纸卡可用金
+    function GetZhiKaKFNum(var nData: string): Boolean;
     function CustomerHasMoney(var nData: string): Boolean;
     //验证客户是否有钱
     function SaveTruck(var nData: string): Boolean;
@@ -371,6 +372,7 @@ begin
    cBC_UserLogOut          : Result := LogOut(nData);
    cBC_GetStockBatcode     : Result := GetStockBatcode(nData);
    cBC_GetStockBatcodeEx   : Result := GetStockBatcodeEx(nData);   //  多厂批次
+   cBC_GetZhiKaKFNum       : Result := GetZhiKaKFNum(nData);
 
    cBC_VerifySnapTruck     : Result := VerifySnapTruck(nData);
    {$IFDEF UseERP_K3}
@@ -855,6 +857,42 @@ begin
   end;
 end;
 {$ENDIF}
+
+function TWorkerBusinessCommander.GetZhiKaKFNum(var nData: string): Boolean;
+var nStr : string;
+    nVal : Double;
+begin
+  Result:= False;
+  FOut.FData:= '0';
+
+  nStr:= ' Select D_ZID, Z_PKzk, D_PKDtl, D_Type, D_StockNo, D_StockName, D_Price, D_YunFei, Z_FixedMoney, ISNULL(YFMoney, 0) YFMoney,   ' +
+         ' Convert(decimal(18,2),(isNull(Z_FixedMoney, 0) - ISNULL(YFMoney, 0))/isNull((D_YunFei+D_Price), 10000)) D_Valuex, D_Value, Z_Customer  ' +
+         ' From S_ZhiKa a   ' +
+         ' Join S_ZhiKaDtl b on a.Z_ID = b.D_ZID ' +
+         ' Left Join (  ' +
+               ' Select L_zhika, sum((L_Price+L_YunFei)*L_Value) YFMoney ' +
+               ' From S_Bill ' +
+               ' Where L_ZhiKa=''%s'' Group by L_zhika) c on c.L_ZhiKa = a.Z_ID ' +
+               ' Where Z_Verified=''Y'' And (Z_InValid<>''Y'' or Z_InValid is null) And Z_ValidDays>GetDate() and ' +
+               ' Z_ID=''%s'' And Z_IsSupportTail=''Y'' And D_StockNo=''%s''  ';
+  nStr := Format(nStr, [FIn.FData, FIn.FData, FIn.FExtParam]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if recordCount=0 then
+    begin
+      nData := '未能找到纸卡订单 ' + FIn.FData ;
+      WriteLog(nData);
+      Exit;
+    end;
+
+    nVal := FieldByName('D_Valuex').AsFloat;
+    nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    if nVal<0 then nVal := 0;
+    FOut.FData:= FloatToStr(nVal);
+
+    Result:= True;
+  end;
+end;
 
 //Date: 2014-09-05
 //Desc: 验证客户是否有钱,以及信用是否过期

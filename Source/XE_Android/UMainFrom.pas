@@ -125,9 +125,20 @@ end;
 
 procedure TMainForm.BtnReadCardClick(Sender: TObject);
 begin
-  if not Assigned(FrmReadCard) then
-     FrmReadCard := TFrmReadCard.Create(Self);
-  FrmReadCard.Show;
+  if not gSysParam.FHasLogin then
+  begin
+    ShowMessage('ÇëÏÈµÇÂ¼');
+
+      if not Assigned(frmLogin) then
+       frmLogin := TfrmLogin.Create(Self);
+      frmLogin.Show;
+  end
+  else
+  begin
+    if not Assigned(FrmReadCard) then
+       FrmReadCard := TFrmReadCard.Create(Self);
+    FrmReadCard.Show;
+  end;
 end;
 
 procedure TMainForm.BtnSetClick(Sender: TObject);

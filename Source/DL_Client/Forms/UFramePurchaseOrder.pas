@@ -104,7 +104,7 @@ function TfFramePurchaseOrder.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select oo.* From $OO oo ';
+  Result := 'Select oo.*, dtl.* From $OO oo Left Join P_OrderDtl dtl On D_OID=O_ID ';
   //xxxxx
 
   if nWhere = '' then

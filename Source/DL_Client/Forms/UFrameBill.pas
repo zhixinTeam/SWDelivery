@@ -59,6 +59,7 @@ type
     N16: TMenuItem;
     N17: TMenuItem;
     N18: TMenuItem;
+    NC1: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -81,6 +82,7 @@ type
     procedure N16Click(Sender: TObject);
     procedure N18Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
+    procedure NC1Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -588,6 +590,20 @@ begin
       InitFormData(FWhere);
     end;
   finally
+  end;
+end;
+
+procedure TfFrameBill.NC1Click(Sender: TObject);
+var nID: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nID := SQLQuery.FieldByName('L_ID').AsString;
+    begin
+      UPLoadOrderToNC(nID, 'S');
+      InitFormData(FWhere);
+      ShowMsg('操作成功、稍后上传 NC ', sHint);
+    end;
   end;
 end;
 

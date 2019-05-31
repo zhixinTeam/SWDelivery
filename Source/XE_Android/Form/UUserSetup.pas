@@ -46,11 +46,20 @@ begin
 end;
 
 procedure TFrmSetup.BtnSaveClick(Sender: TObject);
+var nOPerator:string;
 begin
+  nOPerator := StringReplace(EditUser.Text, ' ', '', [rfReplaceAll]);
+  nOPerator := StringReplace(EditUser.Text, #13, '', [rfReplaceAll]);
+  nOPerator := StringReplace(EditUser.Text, #10, '', [rfReplaceAll]);
+
+  if gSysParam.FOperator<>nOPerator then
+    gSysParam.FHasLogin:= False;
+  if nOPerator='' then Exit;
+
   with gSysParam do
   begin
-    FOperator := EditUser.Text;
-    FPassword := EditPsw.Text;
+    FOperator := nOPerator;
+    FPassword := Trim(EditPsw.Text);//EditPsw.Text;
 
     FServIP   := EditServIP.Text;
     FServPort := StrToIntDef(EditPort.Text, 8082);

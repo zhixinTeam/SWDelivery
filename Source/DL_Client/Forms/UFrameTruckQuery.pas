@@ -92,11 +92,25 @@ end;
 
 //------------------------------------------------------------------------------
 function TfFrameTruckQuery.InitFormDataSQL(const nWhere: string): string;
+var nSwh, nPwh : string;
 begin
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
   //xxxxx
+
+  if nWhere <> '' then
+  begin
+    nSwh:= ' And (' + nWhere + ')';
+    nPwh:= ' And (' + nWhere + ')';
+    nPwh:= StringReplace(nPwh, 'L_CusPY', 'D_ProPY', [rfReplaceAll]);
+    nPwh:= StringReplace(nPwh, 'L_CusName', 'D_ProName', [rfReplaceAll]);
+    nPwh:= StringReplace(nPwh, 'L_Truck', 'D_Truck', [rfReplaceAll]);
+
+    nPwh:= StringReplace(nPwh, 'L_InTime', 'D_InTime', [rfReplaceAll]);
+    nPwh:= StringReplace(nPwh, 'L_OutFact', 'D_OutFact', [rfReplaceAll]);
+  end;
+
   Result := 'Select * from $Bill b ';
-               
+
   if FFilteDate then
     Result := Result + 'Where ((L_InTime>=''$S'' and L_InTime <''$End'') Or ' +
             '(L_OutFact>=''$S'' and L_OutFact <''$End''))';
@@ -107,9 +121,9 @@ begin
          Result := Result + ' And (' + nWhere + ')'
     else Result := Result + ' Where (' + nWhere + ')';
   //xxxxx
-  
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+
+  Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$OrderDtl', sTable_OrderDtl),
+                                MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx
 end;
 

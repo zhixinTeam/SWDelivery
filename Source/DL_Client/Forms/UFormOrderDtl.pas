@@ -333,6 +333,7 @@ begin
       FListB.Values['MValue'] := FieldByName('D_MValue').AsString;
       FListB.Values['PValue'] := FieldByName('D_PValue').AsString;
       FListB.Values['KZValue'] := FieldByName('D_KZValue').AsString;
+      FListB.Values['KZValue'] := FieldByName('D_Truck').AsString;
     end;
 
     nProPk:= GetProPk(nProId);
@@ -433,7 +434,7 @@ begin
     nSQL:= Format('Delete S_UPLoadOrderNc Where N_OrderNo=''%s'' ', [FDetailID]);
     FDM.ExecuteSQL(nSQL);
 
-    IF (nY<>'N') and (nVal>0) and FNeedSync then
+    IF ((nY<>'N') and (nVal>0)) or FNeedSync then
     begin
       nSQL:= Format('Insert into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum) '+
                     'Select ''%s'',''P'',-1,''add'',0 ', [FDetailID]);

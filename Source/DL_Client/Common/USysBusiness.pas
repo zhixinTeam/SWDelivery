@@ -357,6 +357,8 @@ function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
 function IsSaleCardInTimeOut(const nDiffTime: integer): Boolean;
 //进厂超时检查
 function AdjustBillStatus(const nID: string): Boolean;
+function UPDateTruckNo(nDid,nTruck: string): Boolean;
+function UPLoadOrderToNC(nid, nType : string): Boolean;
 
 
 implementation
@@ -2336,8 +2338,9 @@ end;
 
 //Desc: 打印提货单
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
-var nStr: string;
+var nStr, nP: string;
     nParam: TReportParamItem;
+    nIdx : Integer;
 begin
   Result := False;
 
@@ -2350,6 +2353,20 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
 
+  //--------------------------------------------------------------------------
+  nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
+  //only for fields
+  nP := '';
+
+  with FDM.QueryTemp(nStr) do
+  begin
+      for nIdx:=0 to FieldCount - 1 do
+        nP := nP + Fields[nIdx].FieldName + ',';
+      //所有字段,不包括删除
+
+      System.Delete(nP, Length(nP), 1);
+  end;
+
   nStr := 'Select *,(Case when L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan '+
           'From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)';
   nStr := Format(nStr, [sTable_Bill, nBill]);
@@ -2361,16 +2378,14 @@ begin
     nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
-
   {$IFDEF SetStdValue}
+  nP:= StringReplace(nP, ',L_MValue', ', L_StdValue+L_PValue', [rfReplaceAll]);
+
   if FDM.SqlTemp.FieldByName('L_StdValue').AsFloat>0 then
   begin
     nStr := ' Select * From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s) ' +
             ' Union ' +
-            ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
-            ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue L_MValue, ' +
-            ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
-            ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_SendFactory,L_IsSample,L_StdValue, Sys_PoundLog.* ' +
+            ' Select '+nP+', Sys_PoundLog.* ' +
             ' From S_Bill Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID In (%s)  ';
     nStr := Format(nStr, [sTable_Bill, nBill, nBill]);
 
@@ -2422,11 +2437,11 @@ begin
 
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
-  
+                          
   nStr := ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
-          ' '+nStdValue+' AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, '+nStdValue+'+L_PValue L_MValue, ' +
+          ' Cast('+nStdValue+'as Decimal(15,2)) AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, '+nStdValue+'+L_PValue L_MValue, ' +
           ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
-          ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_IsSample, Sys_PoundLog.* ' +
+          ' L_PrintHY,L_Audit,L_Man,L_Date,L_EmptyOut,L_DelMan,L_DelDate,L_ICCardNo,L_SnapTruck,L_IsSample,L_StdMValue,L_DelReson,L_Refuse, Sys_PoundLog.* ' +
           ' From %s Left Join %s on P_Bill=L_ID Where L_ID In (%s)  ';
   nStr := Format(nStr, [sTable_Bill, sTable_PoundLog, nBill]);
   //xxxxx
@@ -2966,7 +2981,7 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end;
 
-  nStr := 'Select *, B_SrcAddr+B_DestAddr KHName From %s Where T_ID=''%s''';
+  nStr := 'Select *, T_SrcAddr+T_DestAddr KHName From %s Where T_ID=''%s''';
   nStr := Format(nStr, [sTable_Transfer, nID]);
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -3683,8 +3698,8 @@ function AdjustBillStatus(const nID: string): Boolean;
 var nstr:string;
 begin
   Result:= False;
-  nStr := 'UPDate S_Bill Set L_Status=''F'', L_NextStatus=''M''  '+
-          'Where ((L_Status=''M'' And L_Status=''O'') or L_IsBasisWeightWithPM=''Y'') And l_ID=''%s'' ';
+  nStr := 'UPDate S_Bill Set L_Status=(Case When L_Type=''D'' Then ''Z'' Else ''F'' End), L_NextStatus=''M''  '+
+          'Where ((L_Status=''M'' And L_NextStatus=''O'') or L_IsBasisWeightWithPM=''Y'') And L_ID=''%s'' ';
   nStr := Format(nStr, [nID]);
   FDM.ExecuteSQL(nStr);
 
@@ -3703,6 +3718,61 @@ begin
   begin
     Result := Trim(nOut.FData);
     nDept:= Trim(nOut.FExtParam);
+  end;
+end;
+
+//Desc: 修改采购单车牌
+function UPDateTruckNo(nDid,nTruck: string): Boolean;
+var nStr: string;
+    nBool: Boolean;
+begin
+  try
+    nStr := 'Select * From %s Where D_ID=''%s''';
+    nStr := Format(nStr, [sTable_OrderDtl, nDid]);
+    with FDM.QueryTemp(nStr) do
+    begin
+      if recordCount>0 then
+      begin
+        nStr := 'UPDate %s Set O_Truck=''%s'' Where O_ID=''%s''';
+        nStr := Format(nStr, [sTable_Order, nTruck, FieldByName('D_OID').AsString]);
+        FDM.ExecuteSQL(nStr);
+
+        nStr := 'UPDate %s Set D_Truck=''%s'' Where D_ID=''%s''';
+        nStr := Format(nStr, [sTable_OrderDtl, nTruck, FieldByName('D_ID').AsString]);
+        FDM.ExecuteSQL(nStr);
+
+        nStr := 'UPDate %s Set P_Truck=''%s'' Where P_Order=''%s''';
+        nStr := Format(nStr, [sTable_PoundLog, nTruck, FieldByName('D_ID').AsString]);
+        FDM.ExecuteSQL(nStr);
+      end;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+//Desc: 新增上传用友任务
+function UPLoadOrderToNC(nid, nType : string): Boolean;
+var nStr : string;
+    nBool: Boolean;
+begin
+  try
+    nStr := 'Select * From %s Where N_OrderNo=''%s'' AND N_Type=''%s'' ';
+    nStr := Format(nStr, [sTable_UPLoadOrderNc, nid, nType]);
+    with FDM.QueryTemp(nStr) do
+    begin
+      if recordCount=0 then
+      begin
+
+        nStr := 'Insert Into %s(N_OrderNo, N_Type, N_Status, N_Proc, N_SyncNum) ' +
+                '	    Select ''%s'', ''%s'', ''-1'', ''add'', 0  ';
+        nStr := Format(nStr, [sTable_UPLoadOrderNc, nid, nType]);
+        FDM.ExecuteSQL(nStr);
+      end;
+    end;
+    Result := True;
+  except
+    Result := False;
   end;
 end;
 

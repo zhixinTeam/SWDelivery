@@ -105,6 +105,7 @@ type
   private
     function ChkPoundStatus:Boolean;
     function ChkBillStatus(nLid:string):Boolean;
+    function ChkOrderStatus(nLid:string):Boolean;
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -513,7 +514,7 @@ begin
   FLastTruckNo:= nBills[0].FTruck;
 
   {$IFDEF SWTC}  //声威铜川工厂 门卫室管控车辆是否能上磅  校正库底装车车辆多次过磅状态
-  if ChkBillStatus(nBills[0].FID) then
+  if ChkBillStatus(nBills[0].FID)or(ChkOrderStatus(nBills[0].FID)) then
   begin
     nStr:= Format('订单 %s 车辆 %s、已被门卫室禁止上磅、请联系门卫室',
                                 [nBills[0].FID, nBills[0].FTruck]);
@@ -715,6 +716,18 @@ begin
     Result:= RecordCount > 0
   end;
 end;
+
+function TfFrameAutoPoundItem.ChkOrderStatus(nLid:string):Boolean;
+VAR nSql : string;
+begin
+  nSql := 'Select * From %s Where D_ID=''%s'' And D_Refuse=''Y'' ';
+  nSql := Format(nSql, [sTable_OrderDtl , nLid]);
+  with FDM.QueryTemp(nSql) do
+  begin
+    Result:= RecordCount > 0
+  end;
+end;
+
 //------------------------------------------------------------------------------
 //Desc: 由定时读取交货单
 procedure TfFrameAutoPoundItem.Timer_ReadCardTimer(Sender: TObject);
@@ -848,6 +861,10 @@ begin
   begin
     nNet := FUIData.FMData.FValue;
     nVal := nNet * 1000 - FUIData.FPData.FValue * 1000;
+
+
+    WriteLog(Format('单号：%s 毛重：%.2f 吨 皮重：%.2f 吨 净重：%.2f 公斤  样品 %s ',
+                          [FBillItems[0].FID, FUIData.FMData.FValue, FUIData.FPData.FValue, nVal, FBillItems[0].FIsSample]));
 
     if (nNet > 0) and (Abs(nVal)<= gSysParam.FEmpTruckWc) and (FBillItems[0].FIsSample<>sFlag_Yes) then
     begin

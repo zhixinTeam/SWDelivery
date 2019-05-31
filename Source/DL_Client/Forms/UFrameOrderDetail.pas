@@ -12,7 +12,7 @@ uses
   cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter, cxData,
   cxDataStorage, cxEdit, DB, cxDBData, cxContainer, Menus, dxLayoutControl,
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
-  cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
+  cxSplitter, cxGridLevel, cxClasses, cxGridCustomView, UFormInputbox,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxCheckBox, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, dxSkinsdxLCPainter;
@@ -42,6 +42,12 @@ type
     N3: TMenuItem;
     Check1: TcxCheckBox;
     N4: TMenuItem;
+    N5: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
@@ -52,6 +58,10 @@ type
     procedure Check1Click(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
+    procedure N6Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
+    procedure N10Click(Sender: TObject);
   private
     { Private declarations }
     function GetOrderDtlInfo(nId: string): string;
@@ -89,6 +99,12 @@ begin
   inherited;
   FTimeS := Str2DateTime(Date2Str(Now) + ' 00:00:00');
   FTimeE := Str2DateTime(Date2Str(Now) + ' 00:00:00');
+
+
+  if (not gSysParam.FIsAdmin) then
+  begin
+    N7.Visible:= False;
+  end;
 
   FJBWhere := '';
   InitDateRange(Name, FStart, FEnd);
@@ -452,6 +468,67 @@ begin
     CreateBaseFormItem(cFI_FormOrderDtl, '', @nP);
   end;
   EditTruckPropertiesButtonClick(EditCustomer, 0);
+end;
+
+procedure TfFrameOrderDetail.N6Click(Sender: TObject);
+var nStr,nTruck: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('D_Truck').AsString;
+    nTruck := nStr;
+    if not ShowInputBox('请输入新的车牌号码:', '修改', nTruck, 15) then Exit;
+
+    if (nTruck = '') or (nStr = nTruck) then Exit;
+    //无效或一致
+
+    nStr := SQLQuery.FieldByName('D_ID').AsString;
+    if UPDateTruckNo(nStr, nTruck) then
+    begin
+      InitFormData(FWhere);
+      ShowMsg('车牌号修改成功', sHint);
+    end;
+  end;
+end;
+
+procedure TfFrameOrderDetail.N7Click(Sender: TObject);
+var nID: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nID := SQLQuery.FieldByName('D_ID').AsString;
+    begin
+      UPLoadOrderToNC(nID, 'P');
+      InitFormData(FWhere);
+      ShowMsg('操作成功、稍后上传 NC ', sHint);
+    end;
+  end;
+end;
+
+procedure TfFrameOrderDetail.N9Click(Sender: TObject);
+var nSql, nLid : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('D_ID').AsString;
+    nSql := 'UPDate %s Set D_Refuse=''N'' Where D_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_OrderDtl , nLid]);
+    FDM.ExecuteSQL(nSql);
+    EditTruckPropertiesButtonClick(EditTruck, 0);
+  end;
+end;
+
+procedure TfFrameOrderDetail.N10Click(Sender: TObject);
+var nSql, nLid : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nLid := SQLQuery.FieldByName('D_ID').AsString;
+    nSql := 'UPDate %s Set D_Refuse=''Y'' Where D_ID=''%s'' ';
+    nSql := Format(nSql, [sTable_OrderDtl , nLid]);
+    FDM.ExecuteSQL(nSql);
+    EditTruckPropertiesButtonClick(EditTruck, 0);
+  end;
 end;
 
 initialization

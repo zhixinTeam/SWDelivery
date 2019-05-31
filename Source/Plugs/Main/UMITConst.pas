@@ -70,7 +70,7 @@ type
     FProportion : Double;                            //可发金额比例（在线状态 默认为 1 离线后默认为 0.8 即80%）
     FAllowSale  : Boolean;
 
-    FPoundMPrinter : string;                         //程序标识
+    FPoundMPrinter : string;                         //采购回皮打印小票打印机
   end;
   //系统参数
 
@@ -154,6 +154,9 @@ begin
         FParam     := ParamStr(1);
         FIconFile  := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
         FIconFile  := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
+
+        FPoundMPrinter := ReadString('ExOPtions', 'PoundMPrinter', '');
+
 
         FLocalMAC   := MakeActionID_MAC;
         GetLocalIPConfig(FLocalName, FLocalIP);

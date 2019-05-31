@@ -1,6 +1,6 @@
 inherited fFormOrderDtl: TfFormOrderDtl
-  Left = 1091
-  Top = 327
+  Left = 743
+  Top = 299
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 302

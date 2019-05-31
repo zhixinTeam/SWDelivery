@@ -157,7 +157,7 @@ inherited fFrameTruckQuery: TfFrameTruckQuery
   end
   object PMenu1: TPopupMenu
     AutoHotkeys = maManual
-    Left = 10
+    Left = 13
     Top = 280
     object N9: TMenuItem
       Caption = #20801#35768#35813#36710#36742#36229#26102#36827#21378

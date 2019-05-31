@@ -60,7 +60,11 @@ begin
     FSavePswd := cbSavePsd.IsChecked;
     FAutoLogin:= cbAutoLogin.IsChecked;
 
-    FOperator := Trim(EditUser.Text);
+    FOperator := StringReplace(EditUser.Text, ' ', '', [rfReplaceAll]);
+    FOperator := StringReplace(EditUser.Text, #13, '', [rfReplaceAll]);
+    FOperator := StringReplace(EditUser.Text, #10, '', [rfReplaceAll]);
+
+    FOperator := FOperator;
     FPassword := Trim(EditPsd.Text);
 
     FHasLogin := Login;

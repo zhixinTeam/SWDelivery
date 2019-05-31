@@ -52,7 +52,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SWTC}
+{$DEFINE SWAS}
 //特定系统       SWJY  SWTC  SWAS  SWYL  SWFX      CQJJ
 
 //陕西声威集团 铜川工厂
@@ -341,11 +341,11 @@
 
 //声威凤县工厂
 {$IFDEF SWFX}
-  {.$IFDEF NCPurchase}
-  {.$DEFINE NCSale}	// NC销售开关
+  {$DEFINE NCPurchase}
+  {$DEFINE NCSale}	// NC销售开关
   {$DEFINE ChkZTMatch}
   //检查同组通道装车状态
-  {$DEFINE SetStdValue}
+  {.$DEFINE SetStdValue}
   //打印2张提货单 （一张真实数据、一张标准数据）
   {$DEFINE SXSW}
   //声威批次号  年月日 + 水泥批次号

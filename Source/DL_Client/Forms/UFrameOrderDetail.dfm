@@ -226,10 +226,32 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
   object pmPMenu1: TPopupMenu
     AutoHotkeys = maManual
     Left = 10
-    Top = 280
+    Top = 281
     object mniN1: TMenuItem
       Caption = #26102#38388#27573#26597#35810
       OnClick = mniN1Click
+    end
+    object N8: TMenuItem
+      Caption = '-'
+    end
+    object N9: TMenuItem
+      Caption = #20801#35768#35813#36710#36742#19978#30917
+      OnClick = N9Click
+    end
+    object N10: TMenuItem
+      Caption = #31105#27490#35813#36710#36742#19978#30917
+      OnClick = N10Click
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
+    object N6: TMenuItem
+      Caption = #20462#25913#36710#29260#21495
+      OnClick = N6Click
+    end
+    object N7: TMenuItem
+      Caption = #20877#27425#19978#20256#29992#21451
+      OnClick = N7Click
     end
     object N1: TMenuItem
       Caption = '-'

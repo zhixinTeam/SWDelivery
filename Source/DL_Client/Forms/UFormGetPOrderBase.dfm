@@ -1,6 +1,6 @@
 inherited fFormGetPOrderBase: TfFormGetPOrderBase
-  Left = 1014
-  Top = 252
+  Left = 875
+  Top = 229
   Width = 616
   Height = 384
   BorderStyle = bsSizeable

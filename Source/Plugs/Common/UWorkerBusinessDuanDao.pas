@@ -659,7 +659,7 @@ end;
 function TWorkerBusinessDuanDao.SavePostDDItems(var nData: string): Boolean;
 var nVal: Double;
     nNeedP: Boolean;
-    nSQL,nS,nN, nPdLNo, nLineId, nLineName: string;
+    nSQL,nS,nN, nPdLNo, nLineId, nLineName,nStr: string;
     nInt, nIdx: Integer;
     nPound: TLadingBillItems;
     nOut, nPDOut: TWorkerBusinessCommand;

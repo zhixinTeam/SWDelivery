@@ -38,6 +38,7 @@ const
   cBC_UpdateTruckInfo         = $0017;   //保存车辆信息
   cBC_GetTruckPoundData       = $0015;   //获取车辆称重数据
   cBC_SaveTruckPoundData      = $0016;   //保存车辆称重数据
+  cBC_GetZhiKaKFNum           = $0019;   //获取纸卡余量
 
   cBC_SaveBills               = $0020;   //保存交货单列表
   cBC_DeleteBill              = $0021;   //删除交货单
@@ -140,6 +141,9 @@ const
   cBC_SendToNcBillInfo        = $0788;   //销售单    同步数据到NC
   cBC_NcStatusChk             = $0789;   //NC服务 状态监测
 
+  cBC_NCCHBill                = $0790;   //销售单冲红
+  cBC_NCCHOrder               = $0791;   //采购单冲红
+
 
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
@@ -180,6 +184,7 @@ type
     FValue      : Double;          //提货量
     FPrice      : Double;          //提货单价
     FYunFei     : Double;          //提货运费价
+    FBillValue  : Double;          //开单量
 
     FCard       : string;          //磁卡号
     FIsVIP      : string;          //通道类型
@@ -327,7 +332,8 @@ begin
         FPType      := Values['PType'];
         FPoundID    := Values['PoundID'];
         FSelected   := Values['Selected'] = sFlag_Yes;
-                                                                   
+        FBillValue  := StrToFloatDef(Values['BillValue'], 0);
+
         with FPData do
         begin
           FStation  := Values['PStation'];
@@ -427,7 +433,8 @@ begin
         Values['StockName']  := FStockName;
         Values['Value']      := FloatToStr(FValue);
         Values['Price']      := FloatToStr(FPrice);
-        Values['YunFei']      := FloatToStr(FYunfei);
+        Values['YunFei']     := FloatToStr(FYunfei);
+        Values['BillValue']  := FloatToStr(FBillValue);
 
         Values['Card']       := FCard;
         Values['IsVIP']      := FIsVIP;

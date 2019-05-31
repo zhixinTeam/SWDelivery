@@ -838,6 +838,7 @@ begin
               {$IFDEF NCSale}
               SF('L_PKzk', nZhiKaPK),
               SF('L_PkDtl', nZhiKaDtlPK),
+              SF('L_BillValue', FListC.Values['Value'], sfVal),
               {$ENDIF}
 
               {$IFDEF SendMorefactoryStock}
@@ -1526,14 +1527,14 @@ begin
     end;
 
     nHasOut := FieldByName('L_OutFact').AsString <> '';
-      {
+
     //已出厂
-    if nHasOut then
+    if nHasOut and ((FIn.FBase.FFrom.FUser<>'admin')or(FIn.FBase.FFrom.FUser<>'张茴')) then
     begin
-      nData := '交货单[ %s ]已出厂,不允许删除.';
+      nData := '交货单[ %s ]已出厂,非管理员不允许删除.';
       nData := Format(nData, [FIn.FData]);
       Exit;
-    end;          }
+    end;
 
     nCus := FieldByName('L_CusID').AsString;
     nHY  := FieldByName('L_HYDan').AsString;
@@ -2194,7 +2195,7 @@ begin
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_YunFei,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
-          'L_HYDan, L_EmptyOut,L_SnapTruck,L_IsSample '+
+          'L_HYDan, L_EmptyOut,L_SnapTruck,L_IsSample,L_BillValue '+
 
             {$IFDEF ChkSaleCardInTimeOut}      // 销售进厂超时检查
               ',DATEDIFF(MINUTE, L_Date, GETDATE()) InTimeDiff '+   {$ENDIF}
@@ -2242,6 +2243,7 @@ begin
       FValue      := FieldByName('L_Value').AsFloat;
       FPrice      := FieldByName('L_Price').AsFloat;
       FYunfei     := FieldByName('L_YunFei').AsFloat;
+      FBillValue  := FieldByName('L_BillValue').AsFloat;
 
       FCard       := FieldByName('L_Card').AsString;
       FIsVIP      := FieldByName('L_IsVIP').AsString;
@@ -2353,7 +2355,6 @@ begin
         Exit;
       end;
       nFixMoney := nOut.FExtParam=sFlag_Yes;
-
       //*******************************************************************
       nStr := 'Select * From %s Where D_Name=''%s'' And D_Memo=''EmpTruckWuCha'' ';
       nStr := Format(nStr, [sTable_SysDict, sFlag_PoundWuCha, sFlag_PEmpTWuCha]);
@@ -2519,15 +2520,18 @@ end;
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessBills.SavePostBillItems(var nData: string): Boolean;
-var nStr,nSQL,nTmp,nFixMoney, nFactory,nOutFactTime, nCusName, nEMsg: string;
-    f,m,nVal,nMVal,nTrueVal,nNeedJK: Double;
+var nStr,nP,nSQL,nTmp,nFixMoney, nFactory,nOutFactTime, nHDInfo,
+    nCusID, nCusName, nEMsg, nZKID, nPKzk, nPKDtl, nNewPrice, nNewYunFei,
+    nBillNo : string;
+
+    f,m,nVal,nMVal,nTrueVal,nNeedJK, nYMValue,nNewBillValue: Double;
     i,nIdx,nInt: Integer;
     nBills: TLadingBillItems;
     nPrice, nYunFei, nMoney : Double;
     nOut: TWorkerBusinessCommand;
-    nPriceChanged:Boolean;
+    nPriceChanged, nTail:Boolean;
 begin
-  Result := False;    nPriceChanged:= False;
+  Result := False;    nPriceChanged:= False;  nNewBillValue:= 0;
   AnalyseBillItems(FIn.FData, nBills);
   nInt := Length(nBills);
 
@@ -2748,8 +2752,8 @@ begin
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckBFM then //称量毛重
   begin
-    nInt := -1;
-    nMVal := 0;
+    nInt := -1;  nZKID:= ''; nPKzk:= ''; nPKDtl:= ''; nNewPrice:= ''; nNewYunFei:= ''; nHDInfo:= '';
+    nMVal := 0;  nTail:= False;   nBillNo:= '';
 
     for nIdx:=Low(nBills) to High(nBills) do
     if nBills[nIdx].FPoundID = sFlag_Yes then
@@ -2779,6 +2783,9 @@ begin
 
     with nBills[0] do
     begin
+      if FBillValue=0 then FBillValue:= FValue;
+      // 开单量用于计算超吨
+
       if FPData.FValue = 0 then
       begin
         nData := '车辆 %s 皮重数据为 0、不能称毛重.';
@@ -2786,7 +2793,7 @@ begin
         Exit;
       end;
 
-      if FYSValid <> sFlag_Yes then
+      if FYSValid <> sFlag_Yes then        //非空车出厂订单
       begin
         if FType = sFlag_San then //散装需交验资金额
         begin
@@ -2845,11 +2852,114 @@ begin
                   'Where A_CID=''%s''';
           nSQL := Format(nSQL, [sTable_CusAccount, m, FCusID]);
           FListA.Add(nSQL); //更新账户
-          {$ENDIF}
+          {$ELSE}
+//            if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaKFNum,
+//                   nBills[0].FZhiKa, nBills[0].FStockNo, @nOut) then
+//            begin
+//              nData := nOut.FData;
+//              Exit;
+//            end;
 
-          nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
-                  ], sTable_Bill, SF('L_ID', FID), False);
-          FListA.Add(nSQL); //更新提货量
+            if (FBillValue<FValue)and(f>0) then        //(StrToFloat(nOut.FData))=0
+            begin
+                nNewBillValue:= FValue-FBillValue;
+
+                nStr:= ' Select top 1 * From (  ' +
+                       ' Select D_ZID, Z_PKzk, D_PKDtl, D_Type, D_StockNo, D_StockName, D_Price, D_YunFei, Z_FixedMoney, ISNULL(YFMoney, 0) YFMoney,   ' +
+                       ' Convert(decimal(18,5),(isNull(Z_FixedMoney, 0) - ISNULL(YFMoney, 0))/isNull((D_YunFei+D_Price), 10000)) D_Valuex, D_Value, Z_Customer  ' +
+                       ' From S_ZhiKa a   ' +
+                       ' Join S_ZhiKaDtl b on a.Z_ID = b.D_ZID ' +
+                       ' Left Join (  ' +
+                           ' Select L_zhika, sum((L_Price+L_YunFei)*L_Value) YFMoney ' +
+                           ' From S_Bill ' +
+                           ' Where L_CusID=''%s'' Group by L_zhika) c on c.L_ZhiKa = a.Z_ID ' +
+                           ' Where Z_Verified=''Y'' And (Z_InValid<>''Y'' or Z_InValid is null) And Z_ValidDays>GetDate() and ' +
+                           ' Z_Customer=''%s'' And Z_IsSupportTail=''Y'' And D_StockNo=''%s'' ) x ' +
+                       ' Where D_Valuex>=%g Order by D_Valuex  ';
+                nStr := Format(nStr, [FCusID, FCusID, FStockNo, (nNewBillValue)]);
+                         WriteBillLog(nStr);
+                with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+                begin
+                  if recordCount=0 then
+                  begin
+                    nData := '该发货单已超可发量且未找到支持尾单合并的NC订单';
+                    WriteLog(nData);
+                    Exit;
+                  end;
+
+                  nZKID:= FieldByName('D_ZID').AsString;
+                  nPKzk:= FieldByName('Z_PKzk').AsString;
+                  nPKDtl:= FieldByName('D_PKDtl').AsString;
+                  nNewPrice:= FieldByName('D_Price').AsString;
+                  nNewYunFei:= FieldByName('D_YunFei').AsString;
+                end;
+
+                if (nZKID<>'')and(nPKzk<>'')and(nPKDtl<>'') then
+                begin
+                  FListC.Clear;
+                  FListC.Values['Group'] := sFlag_BusGroup;
+                  FListC.Values['Object']:= sFlag_BillNo;
+                  //to get serial no
+
+                  if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+                        FListC.Text, sFlag_Yes, @nOut) then
+                    raise Exception.Create(nOut.FData);
+                  //xxxxx
+                  if (nOut.FData='')then
+                  begin
+                    nData := '获取销售订单编号失败、未能生成新单据';
+                    WriteLog(nData);
+                    Exit;
+                  end;
+
+                  nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
+                  //only for fields
+                  nP := '';
+                  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+                  begin
+                    for nIdx:=0 to FieldCount - 1 do
+                     if (Fields[nIdx].DataType <> ftAutoInc) and
+                        (Fields[nIdx].FieldName<>'L_ID') and
+                        (Fields[nIdx].FieldName<>'L_HDBills') and
+                        (Fields[nIdx].FieldName<>'L_Status') and
+                        (Fields[nIdx].FieldName<>'L_NextStatus') and
+                        (Fields[nIdx].FieldName<>'L_ZhiKa') and
+                        (Fields[nIdx].FieldName<>'L_PKzk') and
+                        (Fields[nIdx].FieldName<>'L_PKDtl') and
+                        (Fields[nIdx].FieldName<>'L_Price') and
+                        (Fields[nIdx].FieldName<>'L_YunFei') and
+
+                        (Fields[nIdx].FieldName<>'L_Value') and
+                        (Fields[nIdx].FieldName<>'L_MValue') then
+                      nP := nP + Fields[nIdx].FieldName + ',';
+                    //所有字段,不包括删除
+
+                    System.Delete(nP, Length(nP), 1);
+                  end;
+
+
+                  nStr := 'Insert Into $BB($FL,L_Value,L_MValue,L_ZhiKa, L_PKzk,L_PKDtl, L_Price, L_YunFei, L_ID,L_Status,L_NextStatus,L_HDBills) ' +
+                          'Select $FL,'+FloatToStr(nNewBillValue)+','+FloatToStr(nNewBillValue)+'+L_PValue, '+
+                                 '''$ZhiKa'', ''$Pkzk'', ''$PkDtl'', $Price, $YunFei, ''$New'',''M'',''O'',''$HDB'' From $BI Where L_ID=''$ID''';
+                  nStr := MacroValue(nStr, [MI('$BB', sTable_Bill),MI('$FL', nP),
+                                            MI('$ZhiKa', nZKID),MI('$Pkzk', nPKzk),MI('$PkDtl', nPKDtl),
+                                            MI('$Price', nNewPrice),MI('$YunFei', nNewYunFei),MI('$New', nOut.FData),
+                                            MI('$HDB', FID +'、'+ nOut.FData),
+                                            MI('$BI', sTable_Bill), MI('$ID', FID)]);
+                  FListA.Add(nStr); //生成新订单 （L_Value=实际装车量-开单量）
+
+                  nHDInfo:= Format('订单 %s 开单量：%g 实际净重：%g  所属纸卡 %s 剩余量不足、进行尾单处理、订单分别为: %s、%s ',
+                                              [FID, FBillValue, FValue, FZhiKa, FID, nOut.FData]);
+                  nTail:= True;   nBillNo:= nOut.FData;
+                end;
+            end
+            else
+            begin
+              nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
+                      ], sTable_Bill, SF('L_ID', FID), False);
+              FListA.Add(nSQL); //更新提货量
+            end;
+          {$ENDIF}
 
           {$IFNDEF NCSale}
           if nOut.FExtParam = sFlag_Yes then
@@ -2982,8 +3092,14 @@ begin
         FListB.Delete(i);
       //排除本次称重
 
-      if FYSValid <> sFlag_Yes then   //判断是否空车出厂
+      if FYSValid <> sFlag_Yes then   //判断是否空车出厂  非空车出厂
       begin
+        if nTail then
+        begin
+          FValue:= FBillValue;
+          FMData.FValue:= FMData.FValue-nNewBillValue;
+        end;
+
         nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal),
                 SF('L_Status', sFlag_TruckBFM),
                 SF('L_NextStatus', sFlag_TruckOut),
@@ -2992,6 +3108,15 @@ begin
                 SF('L_MMan', FIn.FBase.FFrom.FUser)
                 ], sTable_Bill, SF('L_ID', FID), False);
         FListA.Add(nSQL);
+
+        if nTail then
+        begin
+          nSQL := MakeSQLByStr([
+                  SF('L_MDate', sField_SQLServer_Now, sfVal),
+                  SF('L_MMan', FIn.FBase.FFrom.FUser)
+                  ], sTable_Bill, SF('L_ID', nBillNo), False);
+          FListA.Add(nSQL);
+        end;
       end else
       begin
         nSQL := MakeSQLByStr([SF('L_Value', 0.00, sfVal),
@@ -3073,8 +3198,13 @@ begin
             if FOnLine then
             begin
               WriteBillLog(Format('推送销售出厂单到 NC、%s', [nBills[nIdx].FID]));
-              
-              if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerDecodeStr(FIn.FData), nOutFactTime, @nOut) then
+
+              FListC.Clear;
+              FListC.Values['ID']  := nBills[nIdx].FID;
+              FListC.Values['Proc']:= 'add';
+              FListC.Values['Card']:= nBills[nIdx].FCard;
+
+              if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerEncodeStr(FListC.Text), nOutFactTime, @nOut) then
               begin
                 gSysLoger.AddLog(TWorkerBusinessBills, '销售单出厂', Format(' %s 出厂失败：'+nOut.FData, [nBills[nIdx].FID]));
                 Exit;
@@ -3206,6 +3336,7 @@ begin
         //if FPrintHY then
         if FYSValid <> sFlag_Yes then
         begin
+          FListC.Clear;
           FListC.Values['Group'] :=sFlag_BusGroup;
           FListC.Values['Object'] := sFlag_HYDan;
           //to get serial no
@@ -3371,6 +3502,9 @@ begin
     if Assigned(gHardShareData) then
       gHardShareData('TruckOut:' + nBills[0].FCard);
     //磅房处理自动出厂
+
+    if nHDInfo<>'' then
+      WriteBillLog(nHDInfo);
   end;
 
   {$IFDEF MicroMsg}

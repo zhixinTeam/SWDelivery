@@ -335,8 +335,10 @@ end;
 function TMessageScanThread.SendOrderToNC(nList: TStrings):Boolean;
 var nStr, nLID, nProPk, nMtlPk, nBid, nBPKDtl: string;
     nOut: TWorkerBusinessCommand;
+    nJuShou:Boolean;
 begin
   Result := False;
+  nJuShou := False;
   nLID := nList.Values['ID'];
   try
     nStr := 'Select *, b.R_ID ORID From %s a Left Join %s b On B_ID=O_BID Left Join %s c On O_ID=D_OID ' +
@@ -353,77 +355,93 @@ begin
       First;
       FListB.Clear;
 
-      nProPk := FieldByName('B_ProId').AsString;
-      nMtlPk := FieldByName('O_StockNo').AsString;
-      nBid   := FieldByName('B_NCOrderNo').AsString;
-      nBPKDtl:= FieldByName('B_PKDtl').AsString;
-      //GetOrderNCInfo(FieldByName('ORID').AsString, FieldByName('D_OutFact').AsString, nBid, nBPKDtl);
-      //重新查找与出厂时间匹配的NC采购单
-      //***********
-      FListB.Values['Proc']      := nList.Values['Proc'];
-      FListB.Values['CreateTime']:= FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('O_Date').AsDateTime);
+      nJuShou:= FieldByName('D_YSResult').AsString='N';
+
+      IF not nJuShou then
+      begin
+        nProPk := FieldByName('B_ProId').AsString;
+        nMtlPk := FieldByName('O_StockNo').AsString;
+        nBid   := FieldByName('B_NCOrderNo').AsString;
+        nBPKDtl:= FieldByName('B_PKDtl').AsString;
+        //GetOrderNCInfo(FieldByName('ORID').AsString, FieldByName('D_OutFact').AsString, nBid, nBPKDtl);
+        //重新查找与出厂时间匹配的NC采购单
+        //***********
+        FListB.Values['Proc']      := nList.Values['Proc'];
+        FListB.Values['CreateTime']:= FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('O_Date').AsDateTime);
+        FListB.Values['ProPk']     := nProPk;
+        FListB.Values['creator']   := FieldByName('O_Man').AsString;
+        FListB.Values['OutFact']   := FieldByName('D_OutFact').AsString;
+        FListB.Values['BID']       := nBid;
+        FListB.Values['OID']       := FieldByName('O_ID').AsString;
+        FListB.Values['ORID']      := FieldByName('ORID').AsString;
+        FListB.Values['DID']       := FieldByName('D_ID').AsString;
+        FListB.Values['Value']     := FieldByName('D_Value').AsString;
+
+        FListB.Values['StockPK']   := nMtlPk;
+        FListB.Values['PkDtl']     := nBPKDtl;
+        FListB.Values['CarrierPK'] := nProPk;                                // 承运商PK
+        FListB.Values['KFTime']    := FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);      // 矿发时间
+
+        FListB.Values['KFValue']   := FieldByName('O_YJZValue').AsString;    // 矿发量
+        if (FieldByName('O_YJZValue').AsString='')or
+            (FieldByName('O_YJZValue').AsString='0') then
+            FListB.Values['KFValue']:= FieldByName('D_Value').AsString;
+
+        FListB.Values['MDate']     := FieldByName('D_MDate').AsString;
+        FListB.Values['MValue']    := FieldByName('D_MValue').AsString;
+        FListB.Values['PValue']    := FieldByName('D_PValue').AsString;
+        FListB.Values['KZValue']   := FieldByName('D_KZValue').AsString;
+        FListB.Values['TruckNo']   := FieldByName('D_Truck').AsString;
+      end;
+    end;
+
+    IF not nJuShou then
+    begin
+      // *******************  获取供应商、原料  PK 值
+      nStr := 'Select * From %s Where P_ID=''%s''';
+      nStr := Format(nStr, [sTable_Provider, nProPk]);
+      with gDBConnManager.WorkerQuery(FDBConnA, nStr) do
+      begin
+        if RecordCount < 1 then
+        begin
+          WriteLog(Format('供应商[ %s ]不存在、本次将终止上传单据.', [nProPk]));
+          Exit;
+        end
+        else nProPk:= FieldByName('P_PKPro').AsString;
+      end;
+
+      nStr := 'Select * From %s Where M_ID=''%s''';
+      nStr := Format(nStr, [sTable_Materails, nMtlPk]);
+      with gDBConnManager.WorkerQuery(FDBConnA, nStr) do
+      begin
+        if RecordCount < 1 then
+        begin
+          WriteLog(Format('原料[ %s ]不存在、本次将终止上传单据.', [nMtlPk]));
+          Exit;
+        end
+        else nMtlPk:= FieldByName('M_PK').AsString;
+      end;
+
       FListB.Values['ProPk']     := nProPk;
-      FListB.Values['creator']   := FieldByName('O_Man').AsString;
-      FListB.Values['OutFact']   := FieldByName('D_OutFact').AsString;
-      FListB.Values['BID']       := nBid;
-      FListB.Values['OID']       := FieldByName('O_ID').AsString;
-      FListB.Values['ORID']      := FieldByName('ORID').AsString;
-      FListB.Values['DID']       := FieldByName('D_ID').AsString;
-      FListB.Values['Value']     := FieldByName('D_Value').AsString;
-
       FListB.Values['StockPK']   := nMtlPk;
-      FListB.Values['PkDtl']     := nBPKDtl;
-      FListB.Values['CarrierPK'] := nProPk;                                // 承运商PK
-      FListB.Values['KFTime']    := FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);      // 矿发时间
+      FListB.Values['CarrierPK'] := nProPk;
+      nStr := PackerEncodeStr(FListB.Text);
+      ////*******************************************
 
-      FListB.Values['KFValue']   := FieldByName('O_YJZValue').AsString;    // 矿发量
-      if (FieldByName('O_YJZValue').AsString='')or
-          (FieldByName('O_YJZValue').AsString='0') then
-          FListB.Values['KFValue']:= FieldByName('D_Value').AsString;
-
-      FListB.Values['MDate']     := FieldByName('D_MDate').AsString;
-      FListB.Values['MValue']    := FieldByName('D_MValue').AsString;
-      FListB.Values['PValue']    := FieldByName('D_PValue').AsString;
-      FListB.Values['KZValue']   := FieldByName('D_KZValue').AsString;
-    end;
-
-    // *******************  获取供应商、原料  PK 值
-    nStr := 'Select * From %s Where P_ID=''%s''';
-    nStr := Format(nStr, [sTable_Provider, nProPk]);
-    with gDBConnManager.WorkerQuery(FDBConnA, nStr) do
-    begin
-      if RecordCount < 1 then
+      Result := TBusWorkerBusinessNC.CallMe(cBC_SendToNcOrdreInfo, nStr,'',@nOut);
+      if not Result then
       begin
-        WriteLog(Format('供应商[ %s ]不存在、本次将终止上传单据.', [nProPk]));
-        Exit;
-      end
-      else nProPk:= FieldByName('P_PKPro').AsString;
-    end;
-
-    nStr := 'Select * From %s Where M_ID=''%s''';
-    nStr := Format(nStr, [sTable_Materails, nMtlPk]);
-    with gDBConnManager.WorkerQuery(FDBConnA, nStr) do
+          nStr:= ' UPDate %s Set N_ErrorMsg=''%s'' Where R_ID=%s ';
+          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nOut.FData, nList.Values['RID']]);
+          gDBConnManager.WorkerExec(FDBConnA, nStr);
+      end;
+    end
+    else
     begin
-      if RecordCount < 1 then
-      begin
-        WriteLog(Format('原料[ %s ]不存在、本次将终止上传单据.', [nMtlPk]));
-        Exit;
-      end
-      else nMtlPk:= FieldByName('M_PK').AsString;
-    end;
-
-    FListB.Values['ProPk']     := nProPk;
-    FListB.Values['StockPK']   := nMtlPk;
-    FListB.Values['CarrierPK'] := nProPk;
-    nStr := PackerEncodeStr(FListB.Text);
-    ////*******************************************
-
-    Result := TBusWorkerBusinessNC.CallMe(cBC_SendToNcOrdreInfo, nStr,'',@nOut);
-    if not Result then
-    begin
-        nStr:= ' UPDate %s Set N_ErrorMsg=''%s'' Where R_ID=%s ';
-        nStr:= Format(nStr, [sTable_UPLoadOrderNc, nOut.FData, nList.Values['RID']]);
-        gDBConnManager.WorkerExec(FDBConnA, nStr);
+      nStr:= ' Delete %s Where R_ID=%s ';
+      nStr:= Format(nStr, [sTable_UPLoadOrderNc, nList.Values['RID']]);
+      gDBConnManager.WorkerExec(FDBConnA, nStr);
+      WriteLog(Format('采购单[ %s ]为拒收、本次将终止上传单据.', [nLID]));
     end;
   finally
   end;

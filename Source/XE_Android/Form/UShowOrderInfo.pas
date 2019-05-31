@@ -92,7 +92,7 @@ begin
     //卸货方式
 
     FKZValue := StrToFloatDef(EditKZValue.Text, 0);
-    FMemo       := cbb_KZMemo.items[cbb_KZMemo.ItemIndex];           //扣杂备注
+    FMemo    := cbb_KZMemo.items[cbb_KZMemo.ItemIndex];           //扣杂备注
 
     if chk_JuShou.IsChecked then
       FYSValid:= 'N'         //拒收

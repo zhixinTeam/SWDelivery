@@ -157,8 +157,9 @@ begin
   begin
     if DayOfTheMonth(Now)>5 then
       nStr := nStr + ' And B_Date>=Convert(Datetime,Convert(Char(8),GETDATE(),120)+''1''))) '
-    else nStr := nStr + ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121)) ';
-  end;
+    else nStr := nStr + ' And B_Date>=CONVERT(CHAR(10),DATEADD(month,-1,DATEADD(dd,-DAY(GETDATE())+1,GETDATE())),121))) ';
+  end
+  else nStr := nStr + ')) ';
   
   if nQueryType = '1' then //π©”¶…Ã
   begin

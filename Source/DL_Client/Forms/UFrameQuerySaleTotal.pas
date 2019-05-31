@@ -185,15 +185,15 @@ begin
               ' Group  by  L_Type, L_StockName) b On a.L_StockName=b.L_StockName  '+
               ' Order  by  a.L_Type, b.L_StockName Desc ';
 
-    Result := Format(Result, [sTable_Bill, Date2Str(FStart), Date2Str(FEnd + 1),
+    Result := Format(Result, [sTable_Bill, FormatDateTime('YYYY-MM-01', FStart), Date2Str(FEnd + 1),
                               sTable_Bill, Date2Str(Now)+' 00:00:00', Date2Str(FEnd)+' 23:59:59']);
 
     if (not gSysParam.FIsAdmin) then
     begin
       nStrWh:= ' And ((L_SaleMan=''' + gSysParam.FUserID + ''') or (L_CusName=''' + gSysParam.FUserID + '''))';
-      Result := MacroValue(Result, [MI('$WH', nStrWh)]);
     end;
-
+    
+    Result := MacroValue(Result, [MI('$WH', nStrWh)]);
   end;
 end;
 
