@@ -39,7 +39,7 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
       Width = 275
       Hint = ''
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       ReadOnly = True
     end
@@ -58,7 +58,7 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
       Width = 364
       Height = 286
       Hint = ''
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 4
     end
     object BtnWeekFilter: TUniBitBtn

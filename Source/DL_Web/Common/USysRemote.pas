@@ -190,8 +190,8 @@ begin
   nList := nil;
   try
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-    nList.Values['Group' := nGroup;
-    nList.Values['Object' := nObject;
+    nList.Values['Group'] := nGroup;
+    nList.Values['Object'] := nObject;
 
     if nUseDate then
          nStr := sFlag_Yes
@@ -257,12 +257,12 @@ var nOut: TWorkerBusinessCommand;
 begin
   {$IFDEF DEBUG}      // 该部分有问题
 //  nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-//  nList.Values['BindID' := 'id';
-//  nList.Values['Name' := 'name_A';
-//  nList.Values['Phone' := 'Phone';
+//  nList.Values['BindID'] := 'id';
+//  nList.Values['Name'] := 'name_A';
+//  nList.Values['Phone'] := 'Phone';
 //
 //  Result := PackerEncodeStr(nList.Text);
-//  nList.Values['Name' := 'name_B';
+//  nList.Values['Name'] := 'name_B';
 //  Result := Result + #13#10 + PackerEncodeStr(nList.Text);
 //
 //  gMG.FObjectPool.Release(nList);

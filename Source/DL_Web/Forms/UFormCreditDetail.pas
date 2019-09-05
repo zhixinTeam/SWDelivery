@@ -115,7 +115,7 @@ begin
     nStr := 'Select cc.*,C_Name From %s cc ' +
             ' Left Join %s cus On cus.C_ID=cc.C_CusID ' +
             'Where cc.C_CusID=''%s'' Order By C_Date Desc';
-    nStr := Format(nStr, [sTable_CusCredit, sTable_Customer, nCusID);
+    nStr := Format(nStr, [sTable_CusCredit, sTable_Customer, nCusID]);
 
     nQuery := LockDBQuery(FDBType);
     DBQuery(nStr, nQuery, ClientDS1);
@@ -147,16 +147,16 @@ begin
     nQuery := LockDBQuery(FDBType);
     nStr := 'Select C_Verify,C_CusID,C_Money From %s Where R_ID=%s';
     nStr := Format(nStr, [sTable_CusCredit,
-            ClientDS1.FieldByName('R_ID').AsString);
+            ClientDS1.FieldByName('R_ID').AsString]);
     //xxxxx
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      nStr := Fields[0.AsString;
-      nCID := Fields[1.AsString;
+      nStr := Fields[0].AsString;
+      nCID := Fields[1].AsString;
 
-      nVal := Fields[2.AsFloat;
+      nVal := Fields[2].AsFloat;
       nVal := Float2Float(nVal, cPrecision, False);
       //money
     end else
@@ -175,7 +175,7 @@ begin
             '※.客户名称: %s' + #13#10 +
             '※.授信金额: %.2f元' + #13#10#13#10 +
             '继续授信请点击"是".';
-    nStr := Format(nStr, [ClientDS1.FieldByName('C_Name').AsString, nVal);
+    nStr := Format(nStr, [ClientDS1.FieldByName('C_Name').AsString, nVal]);
     MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       var nList: TStrings;
@@ -188,12 +188,12 @@ begin
                   SF('C_Verify', sFlag_Yes),
                   SF('C_VerMan', UniMainModule.FUserConfig.FUserID),
                   SF('C_VerDate', sField_SQLServer_Now, sfVal)
-                  , sTable_CusCredit, nStr, False);
+                  ], sTable_CusCredit, nStr, False);
           nList.Add(nStr);
 
           nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
                   'Where A_CID=''%s''';
-          nStr := Format(nStr, [sTable_CusAccount, nVal, nCID);
+          nStr := Format(nStr, [sTable_CusAccount, nVal, nCID]);
           nList.Add(nStr);
 
           DBExecute(nList, nil, FDBType);

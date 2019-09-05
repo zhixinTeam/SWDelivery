@@ -90,7 +90,7 @@ procedure TfFormPriceRule.LoadPriceList(const nQuery: TADOQuery);
 var nStr: string;
 begin
   nStr := 'Select * From %s Where R_Valid=''%s'' Order By R_Date DESC';
-  nStr := Format(nStr, [sTable_PriceRule, sFlag_Yes);
+  nStr := Format(nStr, [sTable_PriceRule, sFlag_Yes]);
   DBQuery(nStr, nQuery, ClientDS);
 end;
 
@@ -103,7 +103,7 @@ begin
   //xxxxx
 
   for nIdx := Low(FStockList) to High(FStockList) do
-    FStockList[nIdx.FSelected := True;
+    FStockList[nIdx].FSelected := True;
   EditStock.Clear;
 
   if ClientDS.Active and (ClientDS.RecordCount > 0) then
@@ -115,9 +115,9 @@ begin
     begin
       nStr := ClientDS.FieldByName('R_StockNo').AsString;
       for nIdx := Low(FStockList) to High(FStockList) do
-       if FStockList[nIdx.FID = nStr then
+       if FStockList[nIdx].FID = nStr then
        begin
-         FStockList[nIdx.FSelected := False;
+         FStockList[nIdx].FSelected := False;
          Break;
        end;
 
@@ -128,8 +128,8 @@ begin
   end;
 
   for nIdx := Low(FStockList) to High(FStockList) do
-   if FStockList[nIdx.FSelected then
-    EditStock.Items.AddObject(FStockList[nIdx.FName, Pointer(nIdx));
+   if FStockList[nIdx].FSelected then
+    EditStock.Items.AddObject(FStockList[nIdx].FName, Pointer(nIdx));
   //xxxxx
 
   if EditStock.Items.Count > 0 then
@@ -161,23 +161,23 @@ begin
   nList := nil;
   try
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-    nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex);
+    nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex]);
 
     nStr := 'Update %s Set R_Valid=''%s'' ' +
             'Where R_StockNo=''%s'' And R_Valid=''%s''';
     nStr := Format(nStr, [sTable_PriceRule, sFlag_No,
-            FStockList[nIdx.FID, sFlag_Yes);
+            FStockList[nIdx].FID, sFlag_Yes]);
     nList.Add(nStr);
 
     with TSQLBuilder do
-    nStr := MakeSQLByStr([SF('R_StockNo', FStockList[nIdx.FID),
-            SF('R_StockName', FStockList[nIdx.FName),
+    nStr := MakeSQLByStr([SF('R_StockNo', FStockList[nIdx].FID),
+            SF('R_StockName', FStockList[nIdx].FName),
             SF('R_Low', EditLow.Text),
             SF('R_High', EditHigh.Text),
             SF('R_Valid', sFlag_Yes),
             SF('R_Man', UniMainModule.FUserConfig.FUserID),
             SF('R_Date', sField_SQLServer_Now, sfVal)
-            , sTable_PriceRule, '', True);
+            ], sTable_PriceRule, '', True);
     nList.Add(nStr);
 
     nQuery := LockDBQuery(FDBType);
@@ -203,7 +203,7 @@ begin
   end;
 
   nStr := ClientDS.FieldByName('R_StockName').AsString;
-  nStr := Format('确定要删除[ %s 的价格吗?', [nStr);
+  nStr := Format('确定要删除[ %s ]的价格吗?', [nStr]);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
     procedure(Sender: TComponent; Res: Integer)
     begin
@@ -212,7 +212,7 @@ begin
 
       nStr := ClientDS.FieldByName('R_ID').AsString;
       nSQL := 'Update %s Set R_Valid=''%s'' Where R_ID=%s';
-      nSQL := Format(nSQL, [sTable_PriceRule, sFlag_No, nStr);
+      nSQL := Format(nSQL, [sTable_PriceRule, sFlag_No, nStr]);
 
       nQuery := nil;
       try

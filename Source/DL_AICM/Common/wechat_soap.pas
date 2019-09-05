@@ -17,8 +17,8 @@ type
 
   // ************************************************************************ //
   // The following types, referred to in the WSDL document are not being represented
-  // in this file. They are either aliases[@ of other types represented or were referred
-  // to but never[! declared in the document. The types from the latter category
+  // in this file. They are either aliases[@] of other types represented or were referred
+  // to but never[!] declared in the document. The types from the latter category
   // typically map to predefined/known XML or Borland types; however, they could also 
   // indicate incorrect WSDL documents that failed to declare or import a schema type.
   // ************************************************************************ //
@@ -36,7 +36,7 @@ type
   // URL       : http://www.hnzxtech.cn/wxplatform/ws/revicews
   // ************************************************************************ //
   ReviceWS = interface(IInvokable)
-  ['{D55EC9EA-5462-0127-93DF-231DF6B5573E}'
+  ['{D55EC9EA-5462-0127-93DF-231DF6B5573E}']
     function  mainfuncs(const arg0: WideString; const arg1: WideString): WideString; stdcall;
   end;
 

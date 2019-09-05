@@ -648,7 +648,7 @@ begin
         for nIdx:=0 to Root.NodeCount-1 do
         begin
           nNode := Root.Nodes[nIdx];  nSql:= '';
-                   
+
           with nNode do
           begin
             if (Not CheckNode(nNode, 'pk_cus', nData)) or (Not CheckNode(nNode, 'cusid', nData)) or
@@ -676,6 +676,7 @@ begin
               FListA.Add(nSql);
               ///**********
               if NodeByName('smanid').ValueAsString<>'' then
+              if NodeByName('smanid').ValueAsString<>'null' then
               begin
                 try
                   nSql:= Format(' Insert Into S_Salesman(S_ID, S_Name, S_PY, S_InValid, S_PK)Select top 1 ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' ' +
@@ -713,12 +714,24 @@ begin
                     FListA.Add(nSql);
                   except
                   end;
+                end
+                else
+                begin
+                  nSql:= Format(' UPDate S_Salesman Set S_Name=''%s'' ,S_PY=''%s'' Where S_PK=''%s'' ', [
+                                NodeByName('smanname').ValueAsString, GetPinYinOfStr(NodeByName('smanname').ValueAsString),
+                                NodeByName('smanid').ValueAsString]);
+                  FListA.Add(nSql);
                 end;
 
-                nSql:= Format(' UPDate S_Salesman Set S_Name=''%s'' ,S_PY=''%s'' Where S_PK=''%s'' ', [
-                              NodeByName('smanname').ValueAsString, GetPinYinOfStr(NodeByName('smanname').ValueAsString),
-                              NodeByName('smanid').ValueAsString]);
+                //  调整纸卡、订单绑定业务员关系
+                nSql:= Format(' UPDate S_ZhiKa Set Z_SaleMan=''%s'' Where Z_Customer=''%s'' ', [
+                                NodeByName('smancode').ValueAsString, NodeByName('cusid').ValueAsString]);
                 FListA.Add(nSql);
+
+                nSql:= Format(' UPDate S_Bill Set L_SaleID=''%s'', L_SaleMan=''%s'' Where Z_Customer=''%s'' ', [
+                                NodeByName('smancode').ValueAsString, NodeByName('smanname').ValueAsString, NodeByName('cusid').ValueAsString]);
+                FListA.Add(nSql);
+
               end;
             end
             else if NodeByName('proc').ValueAsString='delete' then
@@ -1755,11 +1768,17 @@ begin
                 nOldDtl := NodeByName('olddtl_zk').ValueAsString;
                 if (nOldZid<>'')and(nOldZid<>'null') then
                 begin
-                   nSql:= Format(' UPDate S_Bill Set L_Zhika=''%s'', L_PKzk=''%s'', L_PKDtl=''%s'', L_Price=%g, L_YunFei=%g '+
+                  nSql:= Format(' UPDate S_Bill Set L_Zhika=''%s'', L_PKzk=''%s'', L_PKDtl=''%s'', L_Price=%g, L_YunFei=%g '+
                                  ' Where L_OutFact is null And L_ZhiKa=''%s'' ' ,
                                 [ nZId, nPK, nPKDtl, nPrice, nYFPrice, nOldZid]);
                   FListA.Add(nSql);
                   WriteLog(nSql);
+
+                  nSql:= Format(' UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID=''%s'' ', [nOldZid]);
+                  FListA.Add(nSql);
+                  WriteLog(nSql);
+                  FListA.Add(MakeZhiKaLog(nOldZid, nCusId, Format('检查到客户 %s 纸卡 %s 已有新纸卡 %s 替代，关闭原纸卡 %s',
+                                      [nCusId, nOldZid, nZId, nOldZid]), nXml));
                 end;
               except
               end;
@@ -2622,7 +2641,7 @@ begin
               begin
                 IF nCard<>'' then
                 begin
-                  nStr := 'Insert Into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc,N_ErrorMsg)Select ''$OrderNo'',''$Type'',''$Status'',''$Proc'',''$Msg'' '+
+                  nStr := 'Insert Into S_UPLoadOrderNc(N_OrderNo, N_Type, N_Status, N_Proc,N_ErrorMsg,N_SyncNum)Select ''$OrderNo'',''$Type'',''$Status'',''$Proc'',''$Msg'',10 '+
                           'Where  Not exists(Select * From S_UPLoadOrderNc Where N_OrderNo=''$OrderNo'' And N_Type =''$Type'' '+
                                               ' And N_Status =''$Status'' And N_Proc =''$Proc'') ';
                   nStr := MacroValue(nStr, [MI('$OrderNo', FListA.Values['ID']), MI('$Type', 'S'), MI('$Msg', nData),

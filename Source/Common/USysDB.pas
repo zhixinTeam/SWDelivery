@@ -323,6 +323,7 @@ const
   sTable_Bill         = 'S_Bill';                    //提货单
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
+  sTable_PrintTotle   = 'Sys_PrintTotle';            //打印机计数
 
   sTable_SalePlanStock       = 'X_SalePlanStock';      //销售计划品种限量
   sTable_SalePlanCustomer    = 'X_SalePlanCustomer';   //销售计划品种客户限量

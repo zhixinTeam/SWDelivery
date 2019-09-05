@@ -83,7 +83,7 @@ begin
     FixedCols := 2;
     RowCount := 0;
     ColCount := 6;
-    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick;
+    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick];
   end;
 
   UserDefineStringGrid(Name, Grid1, True);
@@ -145,7 +145,7 @@ begin
   try
     nStr := 'Select * From $Table Where D_Name=''$Name'' Order By D_Index DESC';
     nStr := MacroValue(nStr, [MI('$Table', sTable_SysDict),
-                              MI('$Name', sFlag_StockItem));
+                              MI('$Name', sFlag_StockItem)]);
     //xxxxx
 
     nQuery := LockDBQuery(ctWork);
@@ -158,12 +158,12 @@ begin
 
       while not Eof do
       begin
-        Grid1.Cells[giID,    nIdx := FieldByName('D_ParamB').AsString;
-        Grid1.Cells[giName,  nIdx := FieldByName('D_Value').AsString;
-        Grid1.Cells[giValue, nIdx := '0';
-        Grid1.Cells[giPrice, nIdx := '0';
-        Grid1.Cells[giMoney, nIdx := '0';
-        Grid1.Cells[giType,  nIdx := FieldByName('D_Memo').AsString;
+        Grid1.Cells[giID,    nIdx] := FieldByName('D_ParamB').AsString;
+        Grid1.Cells[giName,  nIdx] := FieldByName('D_Value').AsString;
+        Grid1.Cells[giValue, nIdx] := '0';
+        Grid1.Cells[giPrice, nIdx] := '0';
+        Grid1.Cells[giMoney, nIdx] := '0';
+        Grid1.Cells[giType,  nIdx] := FieldByName('D_Memo').AsString;
 
         Inc(nIdx);
         Next;
@@ -177,7 +177,7 @@ begin
               ' Left Join %s s On s.S_ID=sc.C_SaleMan ' +
               'Where sc.R_ID=''%s''';
       nStr := Format(nStr, [sTable_SaleContract, sTable_Customer,
-           sTable_SalesMan, nID);
+           sTable_SalesMan, nID]);
       //xxxxx
 
       with DBQuery(nStr, nQuery) do
@@ -211,7 +211,7 @@ begin
     end;
 
     nStr := 'Select * From %s Where E_CID=''%s''';
-    nStr := Format(nStr, [sTable_SContractExt, EditID.Text);
+    nStr := Format(nStr, [sTable_SContractExt, EditID.Text]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -221,11 +221,11 @@ begin
       begin
         nStr := FieldByName('E_StockNo').AsString;
         for nIdx := 0 to Grid1.RowCount-1 do
-        if Grid1.Cells[0, nIdx = nStr then //±àºÅÆ¥Åä
+        if Grid1.Cells[0, nIdx] = nStr then //±àºÅÆ¥Åä
         begin
-          Grid1.Cells[giValue, nIdx := FieldByName('E_Value').AsString;
-          Grid1.Cells[giPrice, nIdx := FieldByName('E_Price').AsString;
-          Grid1.Cells[giMoney, nIdx := FieldByName('E_Money').AsString;
+          Grid1.Cells[giValue, nIdx] := FieldByName('E_Value').AsString;
+          Grid1.Cells[giPrice, nIdx] := FieldByName('E_Price').AsString;
+          Grid1.Cells[giMoney, nIdx] := FieldByName('E_Money').AsString;
           Break;
         end;
 
@@ -248,7 +248,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr);
+  nStr := Format('C_SaleMan=''%s''', [nStr]);
   LoadCustomer(EditCus.Items, nStr);
 end;
 
@@ -259,7 +259,7 @@ begin
   if Key = Char(VK_RETURN) then
   begin
     Key := #0;
-    ShowGetCustomerForm(GetNameFromBox(EditCus),
+    ShowGetCustomerForm(GetNameFromBox(EditCus), '',
       procedure(const nResult: Integer; const nParam: PFormCommandParam)
       begin
         nStr := Trim(nParam.FParamC + '.' + nParam.FParamD); //saleman: id.name
@@ -317,11 +317,11 @@ begin
     if FParam.FCommand = cCmd_AddData then
     begin
       nStr := 'Select Count(*) From %s Where C_ID=''%s''';
-      nStr := Format(nStr, [sTable_SaleContract, EditID.Text);
+      nStr := Format(nStr, [sTable_SaleContract, EditID.Text]);
       //²éÑ¯±àºÅÊÇ·ñ´æÔÚ
 
       with DBQuery(nStr, nQuery) do
-      if Fields[0.AsInteger > 0 then
+      if Fields[0].AsInteger > 0 then
       begin
         EditID.SetFocus;
         ShowMessage('¸Ã±àºÅµÄºÏÍ¬ÒÑ¾­´æÔÚ'); Exit;
@@ -336,11 +336,11 @@ begin
     nStr := SF('R_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('C_ID', EditID.Text), '', nIdx = 0),
-      SF_IF([SF('C_SaleMan', GetIDFromBox(EditSaleMan)), '', nIdx = 0),
-      SF_IF([SF('C_Customer', GetIDFromBox(EditCus)), '', nIdx = 0),
-      SF_IF([SF('C_Freeze', sFlag_No), '', nIdx = 0),
-      SF_IF([SF('C_XuNi', sFlag_Yes), SF('C_XuNi', sFlag_No), Check1.Checked),
+      SF_IF([SF('C_ID', EditID.Text), ''], nIdx = 0),
+      SF_IF([SF('C_SaleMan', GetIDFromBox(EditSaleMan)), ''], nIdx = 0),
+      SF_IF([SF('C_Customer', GetIDFromBox(EditCus)), ''], nIdx = 0),
+      SF_IF([SF('C_Freeze', sFlag_No), ''], nIdx = 0),
+      SF_IF([SF('C_XuNi', sFlag_Yes), SF('C_XuNi', sFlag_No)], Check1.Checked),
 
       SF('C_Project', EditName.Text),
       SF('C_Date', Date2Str(EditQDate.DateTime)),
@@ -351,35 +351,35 @@ begin
       SF('C_Approval', EditApproval.Text),
       SF('C_ZKDays', EditDays.Text, sfVal),
       SF('C_Memo', EditMemo.Text)
-      , sTable_SaleContract, nStr, FParam.FCommand = cCmd_AddData);
+      ], sTable_SaleContract, nStr, FParam.FCommand = cCmd_AddData);
     nList.Add(nStr);
 
     if FParam.FCommand = cCmd_EditData then
     begin
       nStr := 'Delete From %s Where E_CID=''%s''';
-      nStr := Format(nStr, [sTable_SContractExt, EditID.Text);
+      nStr := Format(nStr, [sTable_SContractExt, EditID.Text]);
       nList.Add(nStr);
     end;
 
     for nIdx := 0 to Grid1.RowCount-1 do
-    if IsNumber(Grid1.Cells[giValue, nIdx, True) and
-       (StrToFloat(Grid1.Cells[giValue, nIdx) > 0) then
+    if IsNumber(Grid1.Cells[giValue, nIdx], True) and
+       (StrToFloat(Grid1.Cells[giValue, nIdx]) > 0) then
     begin
       nStr := MakeSQLByStr([
         SF('E_CID', EditID.Text),
-        SF('E_Type', Grid1.Cells[giType, nIdx),
-        SF('E_StockNo', Grid1.Cells[giID, nIdx),
-        SF('E_StockName', Grid1.Cells[giName, nIdx),
-        SF('E_Value', Grid1.Cells[giValue, nIdx, sfVal),
+        SF('E_Type', Grid1.Cells[giType, nIdx]),
+        SF('E_StockNo', Grid1.Cells[giID, nIdx]),
+        SF('E_StockName', Grid1.Cells[giName, nIdx]),
+        SF('E_Value', Grid1.Cells[giValue, nIdx], sfVal),
 
-        SF_IF([SF('E_Price', Grid1.Cells[giPrice, nIdx, sfVal), 'E_Price=0',
-               IsNumber(Grid1.Cells[giPrice, nIdx, True)),
+        SF_IF([SF('E_Price', Grid1.Cells[giPrice, nIdx], sfVal), 'E_Price=0'],
+               IsNumber(Grid1.Cells[giPrice, nIdx], True)),
         //xxxxx
 
-        SF_IF([SF('E_Money', Grid1.Cells[giMoney, nIdx, sfVal), 'E_Money=0',
-               IsNumber(Grid1.Cells[giMoney, nIdx, True))
+        SF_IF([SF('E_Money', Grid1.Cells[giMoney, nIdx], sfVal), 'E_Money=0'],
+               IsNumber(Grid1.Cells[giMoney, nIdx], True))
         //xxxxx
-        , sTable_SContractExt, '', True);
+        ], sTable_SContractExt, '', True);
       nList.Add(nStr);
     end;
 

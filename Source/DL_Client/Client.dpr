@@ -20,7 +20,10 @@ uses
   UFormCtlCusbd in 'Forms\UFormCtlCusbd.pas' {fFormCtlCusbd},
   UFrameQuerySyncOrderForNC in 'Forms\UFrameQuerySyncOrderForNC.pas' {fFrameQuerySyncOrderForNC: TFrame},
   UFromUPDateBindBillZhiKa in 'Forms\UFromUPDateBindBillZhiKa.pas' {fFormUPDateBindBillZhika},
-  UFramQueryNcZhiKaLog in 'Forms\UFramQueryNcZhiKaLog.pas' {fFrameQueryNcZhiKaLog: TFrame};
+  UFramQueryNcZhiKaLog in 'Forms\UFramQueryNcZhiKaLog.pas' {fFrameQueryNcZhiKaLog: TFrame},
+  UFrameQueryCusZhikaInfo in 'Forms\UFrameQueryCusZhikaInfo.pas' {fFrameQueryCusZhiKa: TFrame},
+  UFramePrinterJS in 'Forms\UFramePrinterJS.pas' {fFramePrinterJS: TFrame},
+  UFromPrinterJs in 'Forms\UFromPrinterJs.pas' {fFormPrinterJs};
 
 {$R *.res}
 var
@@ -52,6 +55,7 @@ begin
   Application.CreateForm(TfFormCustomerInitEdit, fFormCustomerInitEdit);
   Application.CreateForm(TfFormCtlCusbd, fFormCtlCusbd);
   Application.CreateForm(TfFormUPDateBindBillZhika, fFormUPDateBindBillZhika);
+  Application.CreateForm(TfFormPrinterJs, fFormPrinterJs);
   Application.Run;
 
   ReleaseMutex(gMutexHwnd);

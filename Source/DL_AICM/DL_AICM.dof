@@ -1,6 +1,6 @@
-[FileVersion
+[FileVersion]
 Version=7.0
-[Compiler
+[Compiler]
 A=8
 B=0
 C=1
@@ -79,7 +79,7 @@ PrivatePropAccessor=1
 UnsafeType=0
 UnsafeCode=0
 UnsafeCast=0
-[Linker
+[Linker]
 MapFile=0
 OutputObjs=0
 ConsoleApp=1
@@ -89,7 +89,7 @@ MinStackSize=16384
 MaxStackSize=1048576
 ImageBase=4194304
 ExeDescription=
-[Directories
+[Directories]
 OutputDir=../../Bin/DL_AICM
 UnitOutputDir=../../Dcu/DL_AICM
 PackageDLLOutputDir=
@@ -99,17 +99,17 @@ Packages=vcl;rtl;vclx;indy;inet;xmlrtl;vclie;inetdbbde;inetdbxpress;dbrtl;dsnap;
 Conditionals=
 DebugSourceDirs=
 UsePackages=0
-[Parameters
+[Parameters]
 RunParams=
 HostApplication=
 Launcher=
 UseLauncher=0
 DebugCWD=
-[Language
+[Language]
 ActiveLang=
 ProjectLang=
 RootDir=C:\Program Files\Borland\Delphi7\Bin\
-[Version Info
+[Version Info]
 IncludeVerInfo=0
 AutoIncBuild=0
 MajorVer=1
@@ -123,7 +123,7 @@ Private=0
 DLL=0
 Locale=2052
 CodePage=936
-[Version Info Keys
+[Version Info Keys]
 CompanyName=
 FileDescription=
 FileVersion=1.0.0.0
@@ -134,10 +134,10 @@ OriginalFilename=
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
-[HistoryLists\hlUnitAliases
+[HistoryLists\hlUnitAliases]
 Count=1
 Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
-[HistoryLists\hlSearchPath
+[HistoryLists\hlSearchPath]
 Count=8
 Item0=../Common;Common;Forms
 Item1=Common;Forms;../../Common
@@ -147,14 +147,14 @@ Item4=D:\PCB\VCL\FastReport.v253.FS\Source;D:\PCB\VCL\SPCOMM
 Item5=D:\PCB\销售管理\FastReport\Source;D:\PCB\销售管理\SPCOMM
 Item6=D:\PCB\销售管理\FastReport\Source
 Item7=D:\PCB\进货管理\FastReport\Source
-[HistoryLists\hlUnitOutputDirectory
+[HistoryLists\hlUnitOutputDirectory]
 Count=5
 Item0=../../Dcu/DL_AICM
 Item1=../../Dcu/DL_SelfHelp
 Item2=../../Dcu/DL_Client
 Item3=../Dcu/DL_Client
 Item4=../Dcu
-[HistoryLists\hlOutputDirectorry
+[HistoryLists\hlOutputDirectorry]
 Count=7
 Item0=../../Bin/DL_AICM
 Item1=../../Bin/DL_AICM_V3

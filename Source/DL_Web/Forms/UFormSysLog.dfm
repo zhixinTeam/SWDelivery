@@ -31,10 +31,10 @@ inherited fFormSysLog: TfFormSysLog
       Height = 316
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
       LoadMask.Message = 'Loading data...'
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 1
     end
     object PanelTop: TUniSimplePanel
@@ -46,7 +46,7 @@ inherited fFormSysLog: TfFormSysLog
       ParentColor = False
       Border = True
       Align = alTop
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       object Label1: TUniLabel
         Left = 8

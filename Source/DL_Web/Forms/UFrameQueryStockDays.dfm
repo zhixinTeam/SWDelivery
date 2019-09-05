@@ -112,7 +112,7 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
         #21452#20987#19978#38754#30340#25253#34920#25968#25454','#26174#31034#22270#34920'.')
       LayoutConfig.BodyPadding = '10'
       Align = alBottom
-      Anchors = [akLeft, akRight, akBottom
+      Anchors = [akLeft, akRight, akBottom]
       TitleAlign = taCenter
       object Series1: TUniLineSeries
         Title = #26376#21333#26085#32479#35745

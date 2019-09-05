@@ -7,7 +7,7 @@ object BaseFrame: TBaseFrame
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = #23435#20307
-  Font.Style = [
+  Font.Style = []
   ParentFont = False
   TabOrder = 0
 end

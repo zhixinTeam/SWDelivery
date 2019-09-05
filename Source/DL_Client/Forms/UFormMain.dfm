@@ -13,6 +13,7 @@ object fMainForm: TfMainForm
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 12
   object HintPanel: TPanel
@@ -1419,5 +1420,12 @@ object fMainForm: TfMainForm
     OnTimer = Timer1Timer
     Left = 44
     Top = 186
+  end
+  object tmr1: TTimer
+    Enabled = False
+    Interval = 60000
+    OnTimer = tmr1Timer
+    Left = 18
+    Top = 222
   end
 end

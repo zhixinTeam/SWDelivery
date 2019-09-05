@@ -99,7 +99,7 @@ begin
   nPath := gPath;
   if Copy(nPath, Length(nPath), 1) = '\' then
     System.Delete(nPath, Length(nPath), 1);
-  Result := StringReplace(nStr, '$Path', nPath, [rfReplaceAll, rfIgnoreCase);
+  Result := StringReplace(nStr, '$Path', nPath, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 end.

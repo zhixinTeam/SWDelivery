@@ -67,7 +67,7 @@ implementation
 {$R *.dfm}
 uses
   uniGUIVars, MainModule, uniGUIApplication, UManagerGroup, Data.Win.ADODB,
-  USysBusiness, USysDB, USysConst, UFormDateFilter, UFormInputbox, UFormInputBoxEx;
+  USysBusiness, USysDB, USysConst, UFormDateFilter, UFormInputBoxEx;     //UFormInputbox
 
 
 procedure TfFrameHYData.OnCreateFrame(const nIni: TIniFile);
@@ -123,7 +123,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -134,7 +134,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx do
+        with FStockList[nIdx] do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -147,7 +147,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      cbb_Stock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
+      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
     cbb_Stock.ItemIndex := 0;
   finally
     cbb_Stock.Items.EndUpdate;
@@ -177,8 +177,8 @@ begin
   Result := '';
   if cbb_Stock.ItemIndex < 1 then Exit;
 
-  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex);
-  Result := FStockList[nIdx.FValue;
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
+  Result := FStockList[nIdx].FValue;
 end;
 
 function TfFrameHYData.InitFormDataSQL(const nWhere: string): string;
@@ -186,12 +186,12 @@ var nStr, nNo, nWH: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
     nStr := 'Select R_SerialNo,P_Type,P_Stock,P_Name,P_QLevel From $SR sr ' +
             ' Left Join $SP sp on sp.P_ID=sr.R_PID';
     nStr := MacroValue(nStr, [MI('$SR', sTable_StockRecord),
-            MI('$SP', sTable_StockParam));
+            MI('$SP', sTable_StockParam)]);
     //检验记录
 
     Result := 'Select hy.*,sr.*,C_PY,C_Name,sl.S_ID, sl.S_Name From $HY hy ' +
@@ -214,12 +214,13 @@ begin
     if (Not UniMainModule.FUserConfig.FIsAdmin) then
     begin
       if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
-        Result := Result + 'And (S_Name='''+ UniMainModule.FUserConfig.FUserID +''')';
+        Result := Result + ' And (S_Name='''+ UniMainModule.FUserConfig.FUserID +''' or '+
+                               ' C_WeiXin='''+ UniMainModule.FUserConfig.FUserID +''')';
     end;
 
     Result := MacroValue(Result, [MI('$HY', sTable_StockHuaYan),
               MI('$Cus', sTable_Customer), MI('$SR', nStr), MI('$No', nNo),
-              MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
+              MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
 end;
@@ -241,7 +242,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'C_PY like ''%%%s%%'' Or C_Name like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end else
 
@@ -251,7 +252,7 @@ begin
     if EditTruck.Text = '' then Exit;
 
     FWhere := 'H_Truck like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditTruck.Text);
+    FWhere := Format(FWhere, [EditTruck.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -287,7 +288,7 @@ begin
   FValue := nValue;
 
   nStr := 'Update %s Set H_CusName=''%s'' Where H_ID=''%s''';
-  nStr := Format(nStr, [sTable_StockHuaYan, FValue, FBillId);
+  nStr := Format(nStr, [sTable_StockHuaYan, FValue, FBillId]);
 
   DBExecute(nStr, nil, FDBType);
 
@@ -324,7 +325,7 @@ begin
 
     FJBWhere := '(L_OutFact>=''%s'' and L_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
-                sFlag_BillPick, sFlag_BillPost);
+                sFlag_BillPick, sFlag_BillPost]);
     InitFormData('');
   finally
     FJBWhere := '';

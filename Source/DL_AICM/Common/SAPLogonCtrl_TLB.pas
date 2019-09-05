@@ -112,7 +112,7 @@ type
 // GUID:      {B24944D7-1501-11CF-8981-0000E8A49FA0}
 // *********************************************************************//
   _CSAPLogonControl = dispinterface
-    ['{B24944D7-1501-11CF-8981-0000E8A49FA0}'
+    ['{B24944D7-1501-11CF-8981-0000E8A49FA0}']
     procedure AboutBox; dispid -552;
     function NewConnection: IDispatch; dispid 14;
     procedure Enable3D; dispid 13;
@@ -144,7 +144,7 @@ type
 // GUID:      {B24944D8-1501-11CF-8981-0000E8A49FA0}
 // *********************************************************************//
   _CSAPLogonControlEvents = dispinterface
-    ['{B24944D8-1501-11CF-8981-0000E8A49FA0}'
+    ['{B24944D8-1501-11CF-8981-0000E8A49FA0}']
     procedure Click; dispid -600;
     procedure Error(Number: Smallint; var Description: WideString; Scode: Integer; 
                     const Source: WideString; const HelpFile: WideString; HelpContext: Integer; 
@@ -160,7 +160,7 @@ type
 // GUID:      {E2D74A49-184A-11CF-8984-0000E8A49FA0}
 // *********************************************************************//
   _CSAPLogonConnection = dispinterface
-    ['{E2D74A49-184A-11CF-8984-0000E8A49FA0}'
+    ['{E2D74A49-184A-11CF-8984-0000E8A49FA0}']
     procedure Copy(bServer: WordBool); dispid 34;
     procedure SystemMessages; dispid 33;
     function Logon(hWnd: OleVariant; bSilent: WordBool): WordBool; dispid 22;
@@ -314,9 +314,9 @@ uses ComObj;
 
 procedure TSAPLogonControl.InitControlData;
 const
-  CEventDispIDs: array [0..3 of DWORD = (
+  CEventDispIDs: array [0..3] of DWORD = (
     $FFFFFDA0, $00000001, $00000002, $00000003);
-  CTFontIDs: array [0..0 of DWORD = (
+  CTFontIDs: array [0..0] of DWORD = (
     $FFFFFE00);
   CControlData: TControlData2 = (
     ClassID: '{0AAF5A11-8C04-4385-A925-0B62F6632BEC}';
@@ -387,7 +387,7 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents(dtlOcxPage, [TSAPLogonControl);
+  RegisterComponents(dtlOcxPage, [TSAPLogonControl]);
 end;
 
 end.

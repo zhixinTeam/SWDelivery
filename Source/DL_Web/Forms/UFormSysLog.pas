@@ -122,9 +122,9 @@ begin
   nQuery := nil;
   with TDateTimeHelper do
   try
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
     nStr := 'Select * From %s Where L_Date>=''%s'' And L_Date<''%s''';
-    nStr := Format(nStr, [sTable_SysLog, Date2Str(FStart), Date2Str(FEnd+1));
+    nStr := Format(nStr, [sTable_SysLog, Date2Str(FStart), Date2Str(FEnd+1)]);
     if nWhere <> '' then nStr := nStr + ' And (' + nWhere + ')';
 
     nQuery := LockDBQuery(FDBType);
@@ -148,7 +148,7 @@ begin
   EditItem.Text := Trim(EditItem.Text);
   if EditItem.Text <> '' then
   begin
-    FWhere := Format('L_ItemID=''%s''', [EditItem.Text);
+    FWhere := Format('L_ItemID=''%s''', [EditItem.Text]);
     InitFormData(FWhere);
   end;
 end;

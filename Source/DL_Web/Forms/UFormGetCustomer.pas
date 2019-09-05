@@ -27,6 +27,8 @@ type
   private
     { Private declarations }
     procedure FindCustomer(const nCusName: string);
+  private
+    FPopedom:string;
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
@@ -34,7 +36,7 @@ type
     function SetParam(const nParam: TFormCommandParam): Boolean; override;
   end;
 
-procedure ShowGetCustomerForm(const nCusName: string;
+procedure ShowGetCustomerForm(const nCusName, nPopedom: string;
  const nResult: TFormModalResult);
 //入口函数
 
@@ -49,7 +51,7 @@ uses
 //Date: 2018-05-04
 //Parm: 客户名称;结果回调
 //Desc: 显示客户查询窗口
-procedure ShowGetCustomerForm(const nCusName: string;
+procedure ShowGetCustomerForm(const nCusName, nPopedom: string;
   const nResult: TFormModalResult);
 var nForm: TUniForm;
     nParm: TFormCommandParam;
@@ -59,6 +61,7 @@ begin
 
   with nForm as TfFormGetCustomer do
   begin
+    FPopedom:= nPopedom;
     if nCusName <> '' then
     begin
       nParm.FCommand := cCmd_GetData;
@@ -133,11 +136,17 @@ begin
   try
     nStr := 'Select cus.R_ID,C_ID,C_Name,S_ID,S_Name from $Cus cus ' +
             '  Left Join $SM sm On sm.S_ID=cus.C_SaleMan ' +
-            'Where C_PY like ''%$ID%'' or C_Name like ''%$ID%'' or ' +
-            '  C_ID like ''%$ID%''';
+            'Where (C_PY like ''%$ID%'' or C_Name like ''%$ID%'' or ' +
+            '  C_ID like ''%$ID%'') ';
     nStr := MacroValue(nStr, [MI('$Cus', sTable_Customer),
-            MI('$SM', sTable_Salesman), MI('$ID', nCusName));
+            MI('$SM', sTable_Salesman), MI('$ID', nCusName)]);
     //xxxxx
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if (FPopedom<>'')And(HasPopedom2(sPopedom_ViewMYCusData, FPopedom)) then
+        nStr := nStr + ' And (S_Name='''+UniMainModule.FUserConfig.FUserID+'''or '+
+                        'C_WeiXin='''+UniMainModule.FUserConfig.FUserID+''')';
+    end;
 
     nQuery := LockDBQuery(FDBType);
     DBQuery(nStr, nQuery, ClientDS1);

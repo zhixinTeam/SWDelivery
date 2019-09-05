@@ -63,19 +63,6 @@ inherited fFrameQueryPurchaseStockOddDays: TfFrameQueryPurchaseStockOddDays
         Font.Name = #23435#20307
         OnChange = EdtSearchTimeChange
       end
-      object UnLbl1: TUniLabel
-        Left = 262
-        Top = 17
-        Width = 276
-        Height = 12
-        Hint = ''
-        Caption = #31579#36873#35813#26085#26399#20043#21069#24050#20986#21378#21333#25454#12289#19981#21547#24403#21069#26085#26399#26694#20869#26085#26399
-        ParentFont = False
-        Font.Charset = GB2312_CHARSET
-        Font.Height = -12
-        Font.Name = #23435#20307
-        TabOrder = 3
-      end
     end
     inherited DBGridMain: TUniDBGrid
       Width = 991
@@ -115,7 +102,7 @@ inherited fFrameQueryPurchaseStockOddDays: TfFrameQueryPurchaseStockOddDays
         #21452#20987#19978#38754#30340#25253#34920#25968#25454','#26174#31034#22270#34920'.')
       LayoutConfig.BodyPadding = '10'
       Align = alBottom
-      Anchors = [akLeft, akRight, akBottom
+      Anchors = [akLeft, akRight, akBottom]
       TitleAlign = taCenter
       object Series1: TUniLineSeries
         Title = #26376#21333#26085#32479#35745

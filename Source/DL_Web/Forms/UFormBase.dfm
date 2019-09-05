@@ -6,7 +6,7 @@ object fFormBase: TfFormBase
   Caption = ''
   BorderStyle = bsSingle
   OldCreateOrder = False
-  BorderIcons = [biSystemMenu
+  BorderIcons = [biSystemMenu]
   MonitoredKeys.Keys = <>
   OnCreate = UniFormCreate
   OnDestroy = UniFormDestroy
@@ -22,7 +22,7 @@ object fFormBase: TfFormBase
     Height = 25
     Hint = ''
     Caption = #30830#23450
-    Anchors = [akRight, akBottom
+    Anchors = [akRight, akBottom]
     TabOrder = 0
     Default = True
     OnClick = BtnOKClick
@@ -36,7 +36,7 @@ object fFormBase: TfFormBase
     Caption = #21462#28040
     Cancel = True
     ModalResult = 2
-    Anchors = [akRight, akBottom
+    Anchors = [akRight, akBottom]
     TabOrder = 1
   end
   object PanelWork: TUniSimplePanel
@@ -47,7 +47,7 @@ object fFormBase: TfFormBase
     Hint = ''
     ParentColor = False
     Border = True
-    Anchors = [akLeft, akTop, akRight, akBottom
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 2
   end
 end

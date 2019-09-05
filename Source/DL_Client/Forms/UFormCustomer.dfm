@@ -190,7 +190,7 @@ inherited fFormCustomer: TfFormCustomer
       Top = 161
       Hint = 'T.C_Account'
       ParentFont = False
-      Properties.MaxLength = 18
+      Properties.MaxLength = 100
       TabOrder = 9
       Width = 121
     end

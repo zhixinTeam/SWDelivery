@@ -72,7 +72,7 @@ begin
   try
     nQuery := LockDBQuery(FDBType);
     nStr := 'Select C_ID,C_Name,C_SaleMan From %s Where C_ID=''%s''';
-    nStr := Format(nStr, [sTable_Customer, nParam.FParamA);
+    nStr := Format(nStr, [sTable_Customer, nParam.FParamA]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -128,7 +128,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -139,7 +139,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx do
+        with FStockList[nIdx] do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -152,7 +152,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      cbb_Stock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
+      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
     cbb_Stock.ItemIndex := 0;
   finally
     cbb_Stock.Items.EndUpdate;
@@ -170,7 +170,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr);
+  nStr := Format('C_SaleMan=''%s''', [nStr]);
   LoadCustomer(cbb_EditCus.Items, nStr);
 end;
 
@@ -204,12 +204,12 @@ begin
     if nID = '' then
     begin
       nStr := 'Select Top 1 W_End From %s Order By W_End DESC';
-      nStr := Format(nStr, [sTable_InvoiceWeek);
+      nStr := Format(nStr, [sTable_InvoiceWeek]);
 
       with DBQuery(nStr, nQuery) do
       if RecordCount > 0 then
       begin
-        DecodeDate(Fields[0.AsDateTime, nY, nM, nD);
+        DecodeDate(Fields[0].AsDateTime, nY, nM, nD);
         EditStart.DateTime := EncodeDate(nY, nM, nD) + 1;
       end else
       begin
@@ -228,14 +228,14 @@ begin
     end else
     begin
       nStr := 'Select * From %s Where W_ID=%s';
-      nStr := Format(nStr, [sTable_InvoiceWeek, nID);
+      nStr := Format(nStr, [sTable_InvoiceWeek, nID]);
 
       with DBQuery(nStr, nQuery) do
       begin
         if RecordCount < 1 then
         begin
-          nStr := '记录号为[ %s 的记录已无效.';
-          ShowMessage(Format(nStr, [nID));
+          nStr := '记录号为[ %s ]的记录已无效.';
+          ShowMessage(Format(nStr, [nID]));
           Exit;
         end;
 
@@ -315,11 +315,11 @@ begin
 //
 //    nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
 //            MI('$S', Date2Str(EditStart.DateTime)),
-//            MI('$E', Date2Str(EditEnd.DateTime)));
+//            MI('$E', Date2Str(EditEnd.DateTime))]);
 //    //xxxxx
 //
 //    if FParam.FParamA <> '' then
-//      nStr := nStr + Format(' And W_ID<>%s', [FParam.FParamA);
+//      nStr := nStr + Format(' And W_ID<>%s', [FParam.FParamA]);
 //    //xxxxx
 //
 //    nQuery := LockDBQuery(FDBType);
@@ -334,7 +334,7 @@ begin
 //        nTmp := '开始:%s 结束:%s 名称: %s' + #32#32#13#10;
 //        nTmp := Format(nTmp, [Date2Str(FieldByName('W_Begin').AsDateTime),
 //                Date2Str(FieldByName('W_End').AsDateTime),
-//                FieldByName('W_Name').AsString);
+//                FieldByName('W_Name').AsString]);
 //        //xxxxx
 //
 //        nStr := nStr + nTmp;
@@ -361,8 +361,8 @@ begin
   Result := '';
   if cbb_Stock.ItemIndex < 1 then Exit;
 
-  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex);
-  Result := FStockList[nIdx.FValue;
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
+  Result := FStockList[nIdx].FValue;
 end;
 
 function TfFormInvoiceWeek.GetStockId: string;
@@ -371,8 +371,8 @@ begin
   Result := '';
   if cbb_Stock.ItemIndex < 1 then Exit;
 
-  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex);
-  Result := FStockList[nIdx.FKey;
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
+  Result := FStockList[nIdx].FKey;
 end;
 
 procedure TfFormInvoiceWeek.BtnOKClick(Sender: TObject);
@@ -399,7 +399,7 @@ begin
     nStr := SF('W_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('W_NO', nID), '', nBool),
+      SF_IF([SF('W_NO', nID), ''], nBool),
       SF('W_Name', EditName.Text),
       SF('W_Begin', DateTime2Str(EditStart.DateTime)),
       SF('W_End', DateTime2Str(EditEnd.DateTime)),
@@ -414,7 +414,7 @@ begin
 
       SF('W_Man', UniMainModule.FUserConfig.FUserID),
       SF('W_Date', sField_SQLServer_Now, sfVal)
-      , sTable_InvoiceWeek, nStr, nBool);
+      ], sTable_InvoiceWeek, nStr, nBool);
     nList.Add(nStr);
 
     DBExecute(nList, nil, FDBType);

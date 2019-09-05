@@ -158,7 +158,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       Top = 126
       Width = 794
       Height = 406
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow]
       OnMouseDown = DBGridMainMouseDown
       OnDrawColumnCell = DBGridMainDrawColumnCell
       Columns = <

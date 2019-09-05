@@ -15,6 +15,7 @@ type
     SQLQuery1: TADOQuery;
     SQLTemp: TADOQuery;
     Qry_1: TADOQuery;
+    Qry_OPer: TADOQuery;
   private
     { Private declarations }
   public
@@ -22,6 +23,8 @@ type
     function SQLQuery(const nSQL: string; const nQuery: TADOQuery): TDataSet;
     //查询数据库
     function QuerySQL(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
+    function ExecuteSQL(const nSQL: string): integer;
+    {*执行写操作*}
   end;
 
 var
@@ -92,6 +95,30 @@ begin
   except
     ADOConn.Connected := False;
     Inc(nInt);
+  end;
+end;
+
+//Desc: 执行nSQL写操作
+function TFDM.ExecuteSQL(const nSQL: string): integer;
+var nStep: Integer;
+begin
+  Result := -1;
+  nStep := 0;
+  
+  while nStep <= 2 do
+  try
+    Qry_OPer.Close;
+    Qry_OPer.SQL.Text := nSQL;
+    Result := Qry_OPer.ExecSQL;
+
+    Break;
+  except
+    on E:Exception do
+    begin
+      Inc(nStep);
+      WriteLog(E.Message+' SQl:'+ nSQL);
+      raise Exception.Create(E.Message);
+    end;
   end;
 end;
 

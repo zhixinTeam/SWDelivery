@@ -40,8 +40,8 @@ type
     FLibModule:Integer;
     FComHandle:THandle;
     FPort:string;
-    FRecordInfo:array[0..255 of Char;
-    FStateInfo:array[0..3 of Char;
+    FRecordInfo:array[0..255] of Char;
+    FStateInfo:array[0..3] of Char;
     FMachineStatus:TMachineStatus;
     FParentWnd:THandle;
     //动态库版本信息
@@ -140,7 +140,7 @@ begin
   if not FileExists(FFileName_Config) then
   begin
     ErrorCode := 990;
-    ErrorMsg := 'com口配置文件['+FFileName_Config+'不存在';
+    ErrorMsg := 'com口配置文件['+FFileName_Config+']不存在';
     Exit;
   end;
   nini := TIniFile.Create(FFileName_Config);
@@ -175,7 +175,7 @@ begin
   if not FileExists(FFileName_K720) then
   begin
     ErrorCode := 1010;
-    ErrorMsg := '动态库文件[ '+FFileName_K720+' 不存在！';
+    ErrorMsg := '动态库文件[ '+FFileName_K720+' ]不存在！';
     Exit;
   end;
 
@@ -183,7 +183,7 @@ begin
   if (FLibModule<=32) then
   begin
     ErrorCode := 1020;
-    ErrorMsg := '加载驱动程序文件[ '+FFileName_K720+' 失败！';
+    ErrorMsg := '加载驱动程序文件[ '+FFileName_K720+' ]失败！';
     Exit;
   end;
 
@@ -209,7 +209,7 @@ end;
 function TSzttceApi.IssueOneCard(var nCardno: string): Boolean;
 var
   nRet:Integer;
-  nCardID:array[0..3 of Byte;
+  nCardID:array[0..3] of Byte;
 begin
   nCardno := '';
   Result := False;
@@ -324,7 +324,7 @@ begin
   if FComHandle=0 then
   begin
     ErrorCode := 1080;
-    ErrorMsg := '打开串口['+FPort+'失败';
+    ErrorMsg := '打开串口['+FPort+']失败';
     Exit;
   end;
   Result := True;
@@ -338,7 +338,7 @@ begin
   Result := '';
   for nIdx := High(nCardid) downto Low(nCardid) do
   begin
-    Result := Result+IntToHex(nCardid[nIdx,2);
+    Result := Result+IntToHex(nCardid[nIdx],2);
   end;
   nInt := StrToInt64('$' + Result);
   Result := IntToStr(nInt);
@@ -475,7 +475,7 @@ end;
 function TSzttceApi.ReadCardSerialNo(var nCardSerialNo: string): Boolean;
 var
   nRet:Integer;
-  nCardID:array[0..3 of Byte;
+  nCardID:array[0..3] of Byte;
 begin
   nCardSerialNo := '';
   Result := False;

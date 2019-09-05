@@ -59,7 +59,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Hint = ''
       Style = csDropDownList
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -75,7 +75,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Style = csDropDownList
       MaxLength = 35
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -172,7 +172,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Width = 368
       Hint = ''
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 11
     end
     object unlbl1: TUniLabel
@@ -194,7 +194,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Width = 125
       Hint = ''
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12

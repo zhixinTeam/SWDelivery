@@ -248,13 +248,13 @@ begin
   try
     if nType = ctMain then
          nStr := gServerParam.FDBMain
-    else nStr := gAllFactorys[UniMainModule.FUserConfig.FFactory.FDBWorkOn;
+    else nStr := gAllFactorys[UniMainModule.FUserConfig.FFactory].FDBWorkOn;
   finally
     GlobalSyncRelease;
   end;
 
   Result := gMG.FObjectPool.Lock(TADOConnection, nil, @nCD,
-    function(const nObj: TObject; const nData: Pointer): Boolean
+    function(const nObj: TObject; const nData: Pointer; var nTimes: Integer): Boolean
     begin
       Result := (not Assigned(nData)) or
                 (PAdoConnectionData(nData).FConnUser = nStr);
@@ -437,7 +437,7 @@ begin
       with nC do
       begin
         Close;
-        SQL.Text := nList[nIdx;
+        SQL.Text := nList[nIdx];
         Result := Result + ExecSQL;
       end;
 
@@ -470,7 +470,7 @@ begin
   begin
     Result := '';
     for nIdx:=1 to Length(nCard) do
-      Result := Result + IntToHex(Ord(nCard[nIdx), 2);
+      Result := Result + IntToHex(Ord(nCard[nIdx]), 2);
     //xxxxx
   end else Result := nCard;
 
@@ -512,9 +512,9 @@ begin
       nLen := gAllUsers.Count - 1;
 
       for nIdx := 0 to nLen do
-       with PSysParam(gAllUsers[nIdx)^ do
-        nList.Add(FixData(Format('%2d.Name: %s', [nIdx+1, FUserID), Format(
-         'IP:%s SYS:%s DESC:%s', [FLocalIP, FOSUser, FUserAgent)));
+       with PSysParam(gAllUsers[nIdx])^ do
+        nList.Add(FixData(Format('%2d.Name: %s', [nIdx+1, FUserID]), Format(
+         'IP:%s SYS:%s DESC:%s', [FLocalIP, FOSUser, FUserAgent])));
       //xxxxx
     end;
   finally
@@ -539,7 +539,7 @@ begin
       for nIdx := nList.SessionList.Count-1 downto 0 do
       begin
         nStr := '管理员更新系统,请重新登录';
-        TUniGUISession(nList.SessionList[nIdx).Terminate(nStr);
+        TUniGUISession(nList.SessionList[nIdx]).Terminate(nStr);
       end;
     finally
       nList.Unlock;
@@ -574,7 +574,7 @@ begin
     nList.Text := nHint;
 
     for nIdx:=0 to nList.Count - 1 do
-      nList[nIdx := '※.' + nList[nIdx;
+      nList[nIdx] := '※.' + nList[nIdx];
     Result := nList.Text;
   finally
     gMG.FObjectPool.Release(nList);
@@ -593,7 +593,7 @@ begin
   else Result := nil;
 
   if (not Assigned(Result)) and nException then
-    UniMainModule.FMainForm.ShowMessage(Format('窗体类[ %s 无效.', [nClass));
+    UniMainModule.FMainForm.ShowMessage(Format('窗体类[ %s ]无效.', [nClass]));
   //xxxxx
 end;
 
@@ -608,8 +608,8 @@ begin
   Result := '';
 
   for nIdx := 1 to Length(nStr) do
-   if CharInSet(nStr[nIdx, ['a'..'z', 'A'..'Z','0'..'9') then
-    Result := Result + nStr[nIdx;
+   if CharInSet(nStr[nIdx], ['a'..'z', 'A'..'Z','0'..'9']) then
+    Result := Result + nStr[nIdx];
   //number & charactor
 end;
 
@@ -646,14 +646,14 @@ begin
             'Values($D,''$M'',''$G'',''$I'',''$K'',''$E'')';
     nSQL := MacroValue(nSQL, [MI('$T', sTable_SysLog),
             MI('$D', sField_SQLServer_Now), MI('$G', nGroup), MI('$I', nItem),
-            MI('$E', nEvent), MI('$K', nKeyID));
+            MI('$E', nEvent), MI('$K', nKeyID)]);
     //xxxxx
 
     if nMan = '' then
          nStr := FUserConfig.FUserName
     else nStr := nMan;
 
-    nSQL := MacroValue(nSQL, [MI('$M', nStr));
+    nSQL := MacroValue(nSQL, [MI('$M', nStr)]);
     Result := nSQL;
 
     if nExec then
@@ -721,7 +721,7 @@ begin
     nQuery := LockDBQuery(ctWork);
 
     nStr := MacroValue(sQuery_SysDict, [MI('$Table', sTable_SysDict),
-                                        MI('$Name', nItem));
+                                        MI('$Name', nItem)]);
     DBQuery(nStr, nQuery);
 
     if nQuery.RecordCount > 0 then
@@ -758,7 +758,7 @@ begin
 
     SetLength(nStock, 0);
     nStr := 'Select * From %s Where D_Name=''%s'' Order By D_Index DESC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
 
     with DBQuery(nStr, nTmp) do
     if nTmp.RecordCount > 0 then
@@ -769,7 +769,7 @@ begin
 
       while not Eof do
       begin
-        with nStock[nIdx do
+        with nStock[nIdx] do
         begin
           FID := FieldByName('D_ParamB').AsString;
           FName := FieldByName('D_Value').AsString;
@@ -803,11 +803,11 @@ begin
 
     if nWhere = '' then
          nW := ''
-    else nW := Format(' And (%s)', [nWhere);
+    else nW := Format(' And (%s)', [nWhere]);
 
     nStr := 'Select S_ID,S_Name From %s ' +
             'Where IsNull(S_InValid, '''')<>''%s'' %s Order By S_PY';
-    nStr := Format(nStr, [sTable_Salesman, sFlag_Yes, nW);
+    nStr := Format(nStr, [sTable_Salesman, sFlag_Yes, nW]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -844,11 +844,11 @@ begin
 
     if nWhere = '' then
          nW := ''
-    else nW := Format(' And (%s)', [nWhere);
+    else nW := Format(' And (%s)', [nWhere]);
 
     nStr := 'Select C_ID,C_Name From %s ' +
             'Where IsNull(C_XuNi, '''')<>''%s'' %s Order By C_PY';
-    nStr := Format(nStr, [sTable_Customer, sFlag_Yes, nW);
+    nStr := Format(nStr, [sTable_Customer, sFlag_Yes, nW]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -885,11 +885,11 @@ begin
 
     if nWhere = '' then
          nW := ''
-    else nW := Format(' And (%s)', [nWhere);
+    else nW := Format(' And (%s)', [nWhere]);
 
     nStr := 'Select U_Name From %s ' +
             'Where U_State=1 And U_VerifyCredit=-1 ';
-    nStr := Format(nStr, [sTable_User, sFlag_Yes, nW);
+    nStr := Format(nStr, [sTable_User, sFlag_Yes, nW]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -938,13 +938,13 @@ begin
   begin
     nStr := 'Select D_Value From $T Where D_Name=''$N'' and D_Memo=''$M''';
     nStr := MacroValue(nStr, [MI('$T', sTable_SysDict),
-            MI('$N', sFlag_SysParam), MI('$M', sFlag_ZhiKaVerify));
+            MI('$N', sFlag_SysParam), MI('$M', sFlag_ZhiKaVerify)]);
     //xxxxx
   end;
 
   with DBQuery(nStr, nQuery) do
   if RecordCount > 0 then
-       Result := Fields[0.AsString = sFlag_Yes
+       Result := Fields[0].AsString = sFlag_Yes
   else Result := False;
 end;
 
@@ -961,7 +961,7 @@ begin
     else nTmp := gMG.FObjectPool.Lock(TStrings) as TStrings;
 
     nStr := 'Update %s Set A_InMoney=A_InMoney+%.2f Where A_CID=''%s''';
-    nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID);
+    nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
     nTmp.Add(nStr);
 
     with TSQLBuilder do
@@ -974,7 +974,7 @@ begin
             SF('M_Date', sField_SQLServer_Now, sfVal),
             SF('M_Man', UniMainModule.FUserConfig.FUserID),
             SF('M_Memo', nMemo)
-            , sTable_InOutMoney);
+            ], sTable_InOutMoney);
     nTmp.Add(nStr);
 
     DBExecute(nTmp, nQuery, ctWork);
@@ -983,9 +983,9 @@ begin
     if (nLimit > 0) and (
        not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now(),'')) then
     begin
-      nStr := '发生未知错误,导致冲减客户[ %s 信用操作失败.' + #13#10 +
+      nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
               '请手动调整该客户信用额度.';
-      nStr := Format(nStr, [nCusName);
+      nStr := Format(nStr, [nCusName]);
       UniMainModule.FMainForm.ShowMessage(nStr);
     end;
   finally
@@ -1025,21 +1025,21 @@ begin
       {$ELSE}
       nStr := 'Select A_InMoney From %s Where A_CID=''%s''';
       {$ENDIF}
-      nStr := Format(nStr, [sTable_CusAccount, nCusID);
+      nStr := Format(nStr, [sTable_CusAccount, nCusID]);
 
       with DBQuery(nStr, nQuery) do
       if  RecordCount > 0 then
       begin
-        if Fields[0.AsFloat < nLimit then
-          nLimit := Float2Float(Fields[0.AsFloat, cPrecision, False);
+        if Fields[0].AsFloat < nLimit then
+          nLimit := Float2Float(Fields[0].AsFloat, cPrecision, False);
         //客户入金小于当前可用金时,只可退回入金金额
       end;
 
       if (nLimit <= 0) or (nLimit < -nVal) then
       begin
         nStr := '客户: %s ' + #13#10#13#10 +
-                '当前余额为[ %.2f 元,无法支出[ %.2f 元.';
-        nStr := Format(nStr, [nCusName, nLimit, -nVal);
+                '当前余额为[ %.2f ]元,无法支出[ %.2f ]元.';
+        nStr := Format(nStr, [nCusName, nLimit, -nVal]);
 
         UniMainModule.FMainForm.ShowMessage(nStr);
         Exit;
@@ -1054,18 +1054,18 @@ begin
     if nCredit and (nVal > 0) and IsAutoPayCredit(nQuery) then
     begin
       nStr := 'Select A_CreditLimit From %s Where A_CID=''%s''';
-      nStr := Format(nStr, [sTable_CusAccount, nCusID);
+      nStr := Format(nStr, [sTable_CusAccount, nCusID]);
 
       with DBQuery(nStr, nQuery) do
-      if (RecordCount > 0) and (Fields[0.AsFloat > 0) then
+      if (RecordCount > 0) and (Fields[0].AsFloat > 0) then
       begin
-        if FloatRelation(nVal, Fields[0.AsFloat, rtGreater) then
-             nLimit := Float2Float(Fields[0.AsFloat, cPrecision, False)
+        if FloatRelation(nVal, Fields[0].AsFloat, rtGreater) then
+             nLimit := Float2Float(Fields[0].AsFloat, cPrecision, False)
         else nLimit := nVal;
 
-        nStr := '客户[ %s 当前信用额度为[ %.2f 元,是否冲减?' +
-                #32#32#13#10#13#10 + '点击"是"将降低[ %.2f 元的额度.';
-        nStr := Format(nStr, [nCusName, Fields[0.AsFloat, nLimit);
+        nStr := '客户[ %s ]当前信用额度为[ %.2f ]元,是否冲减?' +
+                #32#32#13#10#13#10 + '点击"是"将降低[ %.2f ]元的额度.';
+        nStr := Format(nStr, [nCusName, Fields[0].AsFloat, nLimit]);
 
         UniMainModule.FMainForm.MessageDlg(nStr, mtConfirmation, mbYesNo,
           procedure(Sender: TComponent; Res: Integer)
@@ -1107,12 +1107,12 @@ begin
   begin
     nStr := 'Select D_Value From $T Where D_Name=''$N'' and D_Memo=''$M''';
     nStr := MacroValue(nStr, [MI('$T', sTable_SysDict),
-            MI('$N', sFlag_SysParam), MI('$M', sFlag_PayCredit));
+            MI('$N', sFlag_SysParam), MI('$M', sFlag_PayCredit)]);
     //xxxxx
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
-         Result := Fields[0.AsString = sFlag_Yes
+         Result := Fields[0].AsString = sFlag_Yes
     else Result := False;
   end;
 end;
@@ -1130,14 +1130,14 @@ begin
     nTmp := FormatDateTime('YYMMDD', Now);
 
     nStr := 'Select Top 1 %s From %s Where %s Like ''%s'' Order By %s DESC';
-    nStr := Format(nStr, [nField, nTable, nField, nPrefix+nTmp+'%', nField);
+    nStr := Format(nStr, [nField, nTable, nField, nPrefix+nTmp+'%', nField]);
     //xxxxx
 
     nQuery := LockDBQuery(ctWork);
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      nStr := Fields[0.AsString;
+      nStr := Fields[0].AsString;
       nStr := Copy(nStr, Length(nStr) - nIncLen + 1, nIncLen);
 
       if TStringHelper.IsNumber(nStr, False) then
@@ -1172,11 +1172,11 @@ begin
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
 
     nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_CreditVerify);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_CreditVerify]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
-         nStr := Fields[0.AsString
+         nStr := Fields[0].AsString
     else nStr := sFlag_No;
 
     if nStr = sFlag_Yes then //需审核
@@ -1191,14 +1191,14 @@ begin
               SF('C_VerMan', nVarMan),
               SF('C_End', DateTime2Str(nEndTime)),
               SF('C_Memo',nMemo), SF('C_CreditID', nCId)
-              , sTable_CusCredit, '', True);
+              ], sTable_CusCredit, '', True);
       nList.Add(nStr);
 
       nStr := MakeSQLByStr([SF('V_CreditID', nCId),
               SF('V_PreFxMan', UniMainModule.FUserConfig.FUserID),
               SF('V_Verify', sFlag_Unknow),
               SF('V_VerMan', nVarMan)
-              , sTable_CusCreditVif, '', True);
+              ], sTable_CusCreditVif, '', True);
       nList.Add(nStr);
 
     end else
@@ -1212,12 +1212,12 @@ begin
               SF('C_VerMan', UniMainModule.FUserConfig.FUserID),
               SF('C_VerDate', sField_SQLServer_Now, sfVal),
               SF('C_Memo',nMemo)
-              , sTable_CusCredit, '', True);
+              ], sTable_CusCredit, '', True);
       nList.Add(nStr);
 
       nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
               'Where A_CID=''%s''';
-      nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID);
+      nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
       nList.Add(nStr);
     end;
 
@@ -1249,7 +1249,7 @@ begin
     nStr := 'Select * From %s ' +
          'Where M_ProgID=''%s'' And M_NewOrder>=0 And M_Title<>''-'' ' +
          'Order By M_NewOrder ASC';
-    nStr := Format(nStr, [sTable_Menu, gSysParam.FProgID);
+    nStr := Format(nStr, [sTable_Menu, gSysParam.FProgID]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -1260,7 +1260,7 @@ begin
 
       while not Eof do
       begin
-        with gAllMenus[nIdx do
+        with gAllMenus[nIdx] do
         begin
           FEntity    := FieldByName('M_Entity').AsString;
           FMenuID    := FieldByName('M_MenuID').AsString;
@@ -1298,12 +1298,12 @@ var nIdx,nInt: Integer;
     Result := UniMainModule.FUserConfig.FIsAdmin;
     if Result then Exit;
     
-    with gAllPopedoms[nGroup do
+    with gAllPopedoms[nGroup] do
     begin
       for i := Low(FPopedom) to High(FPopedom) do
-      if CompareText(nMItem, FPopedom[i.FItem) = 0 then
+      if CompareText(nMItem, FPopedom[i].FItem) = 0 then
       begin 
-        Result := Pos(sPopedom_Read, FPopedom[i.FPopedom) > 0;
+        Result := Pos(sPopedom_Read, FPopedom[i].FPopedom) > 0;
         Exit;
       end;
     end;
@@ -1315,13 +1315,13 @@ var nIdx,nInt: Integer;
       nSub: TuniTreeNode;
   begin
     for i := 0 to nInt do
-    with gAllMenus[i do
+    with gAllMenus[i] do
     begin
       if CompareText(FEntity, nEntity) <> 0 then Continue;
       //not match entity
 
       nTag := Integer(nParent.Data);
-      if CompareText(FPMenu, gAllMenus[nTag.FMenuID) <> 0 then Continue;
+      if CompareText(FPMenu, gAllMenus[nTag].FMenuID) <> 0 then Continue;
       //not sub item
 
       if not HasPopedom(MakeMenuID(FEntity, FMenuID)) then Continue;
@@ -1344,7 +1344,7 @@ begin
     nGroup := -1;
 
     for nIdx := Low(gAllPopedoms) to High(gAllPopedoms) do
-    if gAllPopedoms[nIdx.FID = UniMainModule.FUserConfig.FGroupID then
+    if gAllPopedoms[nIdx].FID = UniMainModule.FUserConfig.FGroupID then
     begin
       nGroup := nIdx;
       Break;
@@ -1358,7 +1358,7 @@ begin
 
     nInt := Length(gAllMenus)-1;
     for nIdx := 0 to nInt do
-    with gAllMenus[nIdx do
+    with gAllMenus[nIdx] do
     begin
       if CompareText(FEntity, nEntity) <> 0 then Continue;
       //not match entity
@@ -1396,7 +1396,7 @@ begin
   try
     Result := '';
     if (nIdx >= Low(gAllMenus)) and (nIdx <= High(gAllMenus)) then
-     with gAllMenus[nIdx do
+     with gAllMenus[nIdx] do
       Result := MakeMenuID(FEntity, FMenuID);
     //xxxxx
   finally
@@ -1416,7 +1416,7 @@ begin
     //init
 
     for nIdx := Low(FMenuModule) to High(FMenuModule) do
-    with FMenuModule[nIdx do
+    with FMenuModule[nIdx] do
     begin
       if CompareText(nModule, FModule) = 0 then
       begin
@@ -1439,7 +1439,7 @@ begin
     //init
 
     for nIdx := Low(FMenuModule) to High(FMenuModule) do
-    with FMenuModule[nIdx do
+    with FMenuModule[nIdx] do
     begin
       if CompareText(nMenu, FModule) = 0 then
       begin
@@ -1468,7 +1468,7 @@ begin
     //get query
 
     nStr := 'Select * From %s Where F_Valid=''%s'' Order By F_Index ASC';
-    nStr := Format(nStr, [sTable_Factorys, sFlag_Yes);
+    nStr := Format(nStr, [sTable_Factorys, sFlag_Yes]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -1479,7 +1479,7 @@ begin
 
       while not Eof do
       begin
-        with gAllFactorys[nIdx do
+        with gAllFactorys[nIdx] do
         begin
           FFactoryID  := FieldByName('F_ID').AsString;
           FFactoryName:= FieldByName('F_Name').AsString;
@@ -1510,7 +1510,7 @@ begin
     nList.Clear;
 
     for nIdx := Low(gAllFactorys) to High(gAllFactorys) do
-     with gAllFactorys[nIdx do
+     with gAllFactorys[nIdx] do
       nList.AddObject(FFactoryID + '.' + FFactoryName, Pointer(nIdx));
     //xxxxx
   finally
@@ -1528,7 +1528,7 @@ begin
   try
     Result := (nIdx >= Low(gAllFactorys)) and (nIdx <= High(gAllFactorys));
     if Result then
-      nFactory := gAllFactorys[nIdx;
+      nFactory := gAllFactorys[nIdx];
     //xxxxx
   finally
     GlobalSyncRelease;
@@ -1562,7 +1562,7 @@ begin
 
       while not Eof do
       begin
-        with gAllPopedoms[nIdx do
+        with gAllPopedoms[nIdx] do
         begin
           FID       := FieldByName('G_ID').AsString;
           FName     := FieldByName('G_NAME').AsString;
@@ -1583,7 +1583,7 @@ begin
     if RecordCount > 0 then
     begin
       for nIdx := Low(gAllPopedoms) to High(gAllPopedoms) do
-      with gAllPopedoms[nIdx do
+      with gAllPopedoms[nIdx] do
       begin
         nInt := 0;
         First;
@@ -1603,7 +1603,7 @@ begin
         begin
           if FieldByName('P_Group').AsString = FID then
           begin
-            with FPopedom[nInt do
+            with FPopedom[nInt] do
             begin
               FItem := FieldByName('P_Item').AsString;
               FPopedom := FieldByName('P_Popedom').AsString;
@@ -1634,7 +1634,7 @@ begin
     nGroup := -1;
 
     for nIdx := Low(gAllPopedoms) to High(gAllPopedoms) do
-    if gAllPopedoms[nIdx.FID = FUserConfig.FGroupID then
+    if gAllPopedoms[nIdx].FID = FUserConfig.FGroupID then
     begin
       nGroup := nIdx;
       Break;
@@ -1643,12 +1643,12 @@ begin
     if nGroup < 0 then Exit;
     //no group match
 
-    with gAllPopedoms[nGroup do
+    with gAllPopedoms[nGroup] do
     begin
       for nIdx := Low(FPopedom) to High(FPopedom) do
-      if CompareText(nMenu, FPopedom[nIdx.FItem) = 0 then
+      if CompareText(nMenu, FPopedom[nIdx].FItem) = 0 then
       begin
-        Result := FPopedom[nIdx.FPopedom;
+        Result := FPopedom[nIdx].FPopedom;
         Exit;
       end;
     end;
@@ -1697,7 +1697,7 @@ begin
     //get query
 
     nStr := 'Select * From %s Where E_ProgID=''%s''';
-    nStr := Format(nStr, [sTable_Entity, gSysParam.FProgID);
+    nStr := Format(nStr, [sTable_Entity, gSysParam.FProgID]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -1708,7 +1708,7 @@ begin
 
       while not Eof do
       begin
-        with gAllEntitys[nIdx do
+        with gAllEntitys[nIdx] do
         begin
           FEntity := FieldByName('E_Entity').AsString;
           FTitle  := FieldByName('E_Title').AsString;
@@ -1722,13 +1722,13 @@ begin
 
     //--------------------------------------------------------------------------
     nStr := 'Select * From %s Order By D_Index ASC';
-    nStr := Format(nStr, ['Sys_DataDict');
+    nStr := Format(nStr, ['Sys_DataDict']);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
       for nIdx := Low(gAllEntitys) to High(gAllEntitys) do
-      with gAllEntitys[nIdx do
+      with gAllEntitys[nIdx] do
       begin
         nStr := gSysParam.FProgID + '_' + FEntity;
         nInt := 0;
@@ -1751,7 +1751,7 @@ begin
         while not Eof  do
         begin
           if CompareText(nStr, FieldByName('D_Entity').AsString) = 0 then
-          with FDictItem[nInt do
+          with FDictItem[nInt] do
           begin
             FItemID  := FieldByName('D_ItemID').AsInteger;
             FTitle   := FieldByName('D_Title').AsString;
@@ -1816,14 +1816,14 @@ begin
   begin
     for nIdx := FieldCount-1 downto 0 do
     begin
-      nStr := Fields[nIdx.FieldName + '_asc';
+      nStr := Fields[nIdx].FieldName + '_asc';
       if IndexDefs.IndexOf(nStr) < 0 then
-        IndexDefs.Add(nStr, Fields[nIdx.FieldName, [);
+        IndexDefs.Add(nStr, Fields[nIdx].FieldName, []);
       //xxxxx
 
-      nStr := Fields[nIdx.FieldName + '_des';
+      nStr := Fields[nIdx].FieldName + '_des';
       if IndexDefs.IndexOf(nStr) < 0 then
-        IndexDefs.Add(nStr, Fields[nIdx.FieldName, [ixDescending);
+        IndexDefs.Add(nStr, Fields[nIdx].FieldName, [ixDescending]);
       //xxxxx
     end;
   end;
@@ -1843,18 +1843,11 @@ begin
   begin
     BorderStyle := ubsDefault;
     LoadMask.Message := '正在加载数据、请稍后';
-    Options := [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect;
+    Options := [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect];
 
     if UniMainModule.FGridColumnAdjust then
-      Options := Options + [dgColumnResize, dgColumnMove;
+      Options := Options + [dgColumnResize, dgColumnMove];
     //选项控制
-
-    if Pos('beforeinit', ClientEvents.UniEvents.Text.ToLower) < 1 then
-    begin
-      ClientEvents.UniEvents.Add('beforeInit=function beforeInit(sender,' +
-                    'config){config.viewConfig.enableTextSelection = true;}');
-      //单元格可选
-    end;
 
     ReadOnly := True;
     WebOptions.Paged := True;
@@ -1882,7 +1875,7 @@ begin
     //init
 
     for i := Low(gAllEntitys) to High(gAllEntitys) do
-    if CompareText(nEntity, gAllEntitys[i.FEntity) = 0 then
+    if CompareText(nEntity, gAllEntitys[i].FEntity) = 0 then
     begin
       nIdx := i;
       Break;
@@ -1897,7 +1890,7 @@ begin
       TStringHelper.Split(nFilter, nList, 0, ';');
     end;
 
-    with gAllEntitys[nIdx,nGrid do
+    with gAllEntitys[nIdx],nGrid do
     begin
       with Summary do
       begin
@@ -1910,7 +1903,7 @@ begin
       //clear first
 
       for i := Low(FDictItem) to High(FDictItem) do
-      with FDictItem[i do
+      with FDictItem[i] do
       begin
         if not FVisible then Continue;
 
@@ -1963,7 +1956,7 @@ begin
     //init
 
     for nIdx := Low(gAllEntitys) to High(gAllEntitys) do
-    if CompareText(nEntity, gAllEntitys[nIdx.FEntity) = 0 then
+    if CompareText(nEntity, gAllEntitys[nIdx].FEntity) = 0 then
     begin
       nEn := nIdx;
       Break;
@@ -1973,11 +1966,11 @@ begin
     //no entity match
     nClientDS.Tag := nEn;
 
-    nL := Low(gAllEntitys[nEn.FDictItem);
-    nH := High(gAllEntitys[nEn.FDictItem);
+    nL := Low(gAllEntitys[nEn].FDictItem);
+    nH := High(gAllEntitys[nEn].FDictItem);
 
     for nIdx := nL to nH do
-    with gAllEntitys[nEn.FDictItem[nIdx do
+    with gAllEntitys[nEn].FDictItem[nIdx] do
     begin
       if FFormat.FStyle <> fsFixed then Continue;
       if Trim(FFormat.FData) = '' then Continue;
@@ -2024,13 +2017,13 @@ begin
       begin
         for i := 0 to nCount do
         begin
-          if not IsNumber(nList[i, False) then Continue;
+          if not IsNumber(nList[i], False) then Continue;
           //not valid
 
           for j := 0 to nCount do
-          if nGrid.Columns[j.Tag = StrToInt(nList[i) then
+          if nGrid.Columns[j].Tag = StrToInt(nList[i]) then
           begin
-            nGrid.Columns[j.Index := i;
+            nGrid.Columns[j].Index := i;
             Break;
           end;
         end;
@@ -2040,8 +2033,8 @@ begin
       if Split(nStr, nList, nGrid.Columns.Count) then
       begin
         for i := 0 to nCount do
-         if IsNumber(nList[i, False) then
-          nGrid.Columns[i.Width := StrToInt(nList[i);
+         if IsNumber(nList[i], False) then
+          nGrid.Columns[i].Width := StrToInt(nList[i]);
         //apply width
       end;
 
@@ -2051,7 +2044,7 @@ begin
         if Split(nStr, nList, nGrid.Columns.Count) then
         begin
           for i := 0 to nCount do
-            nGrid.Columns[i.Visible := nList[i = '1';
+            nGrid.Columns[i].Visible := nList[i] = '1';
           //apply visible
         end;
       end;
@@ -2062,7 +2055,7 @@ begin
         nStr := '';
         for i := 0 to nCount do
         begin
-          nStr := nStr + IntToStr(nGrid.Columns[i.Tag);
+          nStr := nStr + IntToStr(nGrid.Columns[i].Tag);
           if i <> nCount then nStr := nStr + ';';
         end;
         nTmp.WriteString(nForm, 'GridIndex_' + nGrid.Name, nStr);
@@ -2070,7 +2063,7 @@ begin
         nStr := '';
         for i := 0 to nCount do
         begin
-          nStr := nStr + IntToStr(nGrid.Columns[i.Width);
+          nStr := nStr + IntToStr(nGrid.Columns[i].Width);
           if i <> nCount then nStr := nStr + ';';
         end;
         nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
@@ -2079,7 +2072,7 @@ begin
         nStr := '';
         for i := 0 to nCount do
         begin
-          if nGrid.Columns[i.Visible then
+          if nGrid.Columns[i].Visible then
                nStr := nStr + '1'
           else nStr := nStr + '0';
           if i <> nCount then nStr := nStr + ';';
@@ -2120,17 +2113,17 @@ begin
     if nLoad then
     begin
       nStr := 'columnresize=function columnresize(ct,column,width,eOpts){'+
-        'ajaxRequest($O, ''$E'', [''idx=''+column.dataIndex,''w=''+width)}';
+        'ajaxRequest($O, ''$E'', [''idx=''+column.dataIndex,''w=''+width])}';
       //add resize event
 
       nStr := MacroValue(nStr, [MI('$O', nForm + '.' + nGrid.Name),
-        MI('$E', sEvent_StrGridColumnResize));
+        MI('$E', sEvent_StrGridColumnResize)]);
       //xxxx
 
       nIdx := nGrid.ClientEvents.ExtEvents.IndexOf(nStr);
       if UniMainModule.FGridColumnAdjust and (nIdx < 0) then
       begin
-        nGrid.Options := nGrid.Options + [goColSizing;
+        nGrid.Options := nGrid.Options + [goColSizing];
         //添加可调列宽
 
         nGrid.ClientEvents.ExtEvents.Add(nStr);
@@ -2141,7 +2134,7 @@ begin
         //添加事件处理
       end else
       begin
-        nGrid.Options := nGrid.Options - [goColSizing;
+        nGrid.Options := nGrid.Options - [goColSizing];
         //删除可调列宽
 
         if nIdx >= 0 then
@@ -2155,8 +2148,8 @@ begin
       if Split(nStr, nList, nGrid.Columns.Count) then
       begin
         for nIdx := 0 to nCount do
-         if (nGrid.Columns[nIdx.Width>0) and IsNumber(nList[nIdx, False) then
-          nGrid.Columns[nIdx.Width := StrToInt(nList[nIdx);
+         if (nGrid.Columns[nIdx].Width>0) and IsNumber(nList[nIdx], False) then
+          nGrid.Columns[nIdx].Width := StrToInt(nList[nIdx]);
         //apply width
       end;
     end else
@@ -2166,7 +2159,7 @@ begin
       nStr := '';
       for nIdx := 0 to nCount do
       begin
-        nStr := nStr + IntToStr(nGrid.Columns[nIdx.Width);
+        nStr := nStr + IntToStr(nGrid.Columns[nIdx].Width);
         if nIdx <> nCount then nStr := nStr + ';';
       end;
       nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
@@ -2189,7 +2182,7 @@ var nStr: string;
 begin
   with TStringHelper,TUniStringGrid(nGrid) do
   begin
-    nStr := nParam.Values['idx';
+    nStr := nParam.Values['idx'];
     if IsNumber(nStr, False) then
          nIdx := StrToInt(nStr)
     else nIdx := -1;
@@ -2197,7 +2190,7 @@ begin
     if (nIdx < 0) or (nIdx >= Columns.Count) then Exit;
     //out of range
 
-    nStr := nParam.Values['w';
+    nStr := nParam.Values['w'];
     if IsNumber(nStr, False) then
          nW := StrToInt(nStr)
     else nW := -1;
@@ -2205,7 +2198,7 @@ begin
     if nW < 0 then Exit;
     if nW > 320 then
       nW := 320;
-    Columns[nIdx.Width := nW;
+    Columns[nIdx].Width := nW;
   end;
 end;
 
@@ -2221,7 +2214,7 @@ begin
     FixedCols := 0;
     FixedRows := 0;
     BorderStyle := ubsDefault;
-    Options := [goVertLine,goHorzLine,goColSizing,goRowSelect;
+    Options := [goVertLine,goHorzLine,goColSizing,goRowSelect];
     //style
   end;
 
@@ -2233,8 +2226,8 @@ begin
       begin
         nCount := nList.Count - 1;
         for i:=0 to nCount do
-         if TStringHelper.IsNumber(nList[i, False) then
-          nGrid.Columns[i.Width := StrToInt(nList[i);
+         if TStringHelper.IsNumber(nList[i], False) then
+          nGrid.Columns[i].Width := StrToInt(nList[i]);
       end;
     finally
       nList.Free;
@@ -2253,8 +2246,8 @@ begin
 
   for i:=0 to nCount do
   if i = nCount then
-       Result := Result + IntToStr(nGrid.Columns[i.Width)
-  else Result := Result + IntToStr(nGrid.Columns[i.Width) + ';';
+       Result := Result + IntToStr(nGrid.Columns[i].Width)
+  else Result := Result + IntToStr(nGrid.Columns[i].Width) + ';';
 end;
 
 //Date: 2018-05-22
@@ -2283,14 +2276,14 @@ begin
 
       for nIdx := 0 to nGrid.Columns.Count - 1 do
       begin
-        if not nGrid.Columns[nIdx.Visible then Continue;
+        if not nGrid.Columns[nIdx].Visible then Continue;
         //no visible,no export
 
         with nGrd.Columns.Add do
         begin
-          Title.Caption := nGrid.Columns[nIdx.Title.Caption;
-          FieldName := nGrid.Columns[nIdx.FieldName;
-          Width := nGrid.Columns[nIdx.Width;
+          Title.Caption := nGrid.Columns[nIdx].Title.Caption;
+          FieldName := nGrid.Columns[nIdx].FieldName;
+          Width := nGrid.Columns[nIdx].Width;
           Color := clWhite;
 
           Font.Charset := GB2312_CHARSET;
@@ -2342,24 +2335,24 @@ begin
   with TStringHelper do
   begin
     nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_SettleValid);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_SettleValid]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
-         nInt := Fields[0.AsInteger
+         nInt := Fields[0].AsInteger
     else nInt := 0;
 
     nStr := 'Select W_Begin,W_End,$Now From $W Where W_NO=''$NO''';
     nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
-            MI('$Now', sField_SQLServer_Now), MI('$NO', nWeek));
+            MI('$Now', sField_SQLServer_Now), MI('$NO', nWeek)]);
     //xxxxx
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      nBegin := Fields[0.AsDateTime;
-      nEnd   := Fields[1.AsDateTime;
-      Result := nEnd + nInt + 1 > Fields[2.AsDateTime;
+      nBegin := Fields[0].AsDateTime;
+      nEnd   := Fields[1].AsDateTime;
+      Result := nEnd + nInt + 1 > Fields[2].AsDateTime;
       if not Result then
         nHint := '该结算周期已结束';
       //xxxxx
@@ -2380,7 +2373,7 @@ begin
   with TStringHelper do
   begin
     nStr := 'Select Top 1 * From $Req Where R_Week=''$NO''';
-    nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq), MI('$NO', nWeek));
+    nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq), MI('$NO', nWeek)]);
     Result := DBQuery(nStr, nQuery).RecordCount > 0;
   end;
 end;
@@ -2397,7 +2390,7 @@ begin
             '( Select W_NO From $W Where W_Begin > (' +
             '  Select Top 1 W_Begin From $W Where W_NO=''$NO''))';
     nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
-            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek));
+            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
     Result := DBQuery(nStr, nQuery).RecordCount > 0;
   end;
 end;
@@ -2409,7 +2402,7 @@ begin
   with TStringHelper do
   begin
     nStr := 'Select * From $Stl Where S_Week=''$NO'' ';
-    nStr := MacroValue(nStr, [MI('$Stl', sTable_InvSettle),MI('$NO', nWeek));
+    nStr := MacroValue(nStr, [MI('$Stl', sTable_InvSettle),MI('$NO', nWeek)]);
     Result := DBQuery(nStr, nQuery).RecordCount > 0;
   end;
 end;
@@ -2427,19 +2420,19 @@ begin
 //            '  Select Top 1 W_Begin From $W Where W_NO=''$NO''))) And ' +
 //            '(R_Value<>R_KValue) And (R_KPrice <> 0)';
 //    nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
-//            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek));
+//            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
     //xxxxx
 
     nStr := 'Select R_Week, Count(*) From $Req Where (R_Week<>''$NO'') And ' +
             '(R_Value<>R_KValue) And (R_KPrice <> 0) And R_Chk=1 Group by R_Week';
     nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
-            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek));
+            MI('$W', sTable_InvoiceWeek), MI('$NO', nWeek)]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      nPreWeek:= Fields[0.AsString;
-      Result  := Fields[1.AsInteger;
+      nPreWeek:= Fields[0].AsString;
+      Result  := Fields[1].AsInteger;
     end
     else Result := 0;
   end;
@@ -2504,7 +2497,7 @@ begin
     begin
       nSR := 'Select * From %s sr ' +
              ' Left Join %s sp on sp.P_ID=sr.R_PID';
-      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam);
+      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
       nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
               ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
@@ -2513,7 +2506,7 @@ begin
       //xxxxx
 
       nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
-              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID));
+              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
       //xxxxx
 
       nQuery := LockDBQuery(ctMain);
@@ -2521,8 +2514,8 @@ begin
       DBQuery(nStr, nQuery);
       if nQuery.RecordCount < 1 then
       begin
-        nStr := '编号为[ %s  的化验单记录已无效!!';
-        nStr := Format(nStr, [nHID);
+        nStr := '编号为[ %s ] 的化验单记录已无效!!';
+        nStr := Format(nStr, [nHID]);
         Exit;
       end;
 
@@ -2562,7 +2555,7 @@ begin
              'R_Date,R_Man,R_HHCValueBak,R_HHCValueHJ,R_GanSuo,R_NaiMo,R_C4AF,R_C3A,R_C3S,R_7DZhe1,R_7DZhe2,R_7DZhe3,R_7DYa1,R_7DYa2,R_7DYa3,  ' +
              'R_7DYa4,R_7DYa5,R_7DYa6,R_3DShui1,R_3DShui2,R_7DShui1,R_7DShui2,''-'' R_28DShui1,''-'' R_28DShui2,R_ZhuMoJi,R_ZhuMoJiValue,R_LvSuanSG, sp.* From %s sr  ' +
              'Left Join %s sp on sp.P_ID=sr.R_PID ';
-      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam);
+      nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
       nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
               ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
@@ -2571,7 +2564,7 @@ begin
       //xxxxx
 
       nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
-              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID));
+              MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
       //xxxxx
 
       nQuery := LockDBQuery(ctMain);
@@ -2579,8 +2572,8 @@ begin
       DBQuery(nStr, nQuery);
       if nQuery.RecordCount < 1 then
       begin
-        nStr := '编号为[ %s  的化验单记录已无效!!';
-        nStr := Format(nStr, [nHID);
+        nStr := '编号为[ %s ] 的化验单记录已无效!!';
+        nStr := Format(nStr, [nHID]);
         Exit;
       end;
 

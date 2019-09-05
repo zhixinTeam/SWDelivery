@@ -108,7 +108,7 @@ var nSQL: string;
 begin
   nSQL := ' UPDate S_Bill Set L_StdValue= Case When L_Value>=50 then Cast(FLOOR(RAND(checksum(newid()))*5)+46 + '+
                                               'L_Value-Cast(L_Value as int) as decimal(15,2)) else L_Value End ' +
-          ' Where  L_Status=''O'' And (ISNULL(L_StdMValue, 0)= 0) ';
+          ' Where  L_Status=''O'' And (ISNULL(L_StdValue, 0)= 0) ';
   FDM.ExecuteSQL(nSQL);
 
   nSQL := ' UPDate S_Bill Set L_StdMValue=L_PValue+L_StdValue Where L_Status=''O'' And (ISNULL(L_StdMValue, 0)=0) ';
@@ -133,7 +133,8 @@ begin
   nSQL := ' UPDate Sys_PoundLog Set P_StdNetWeight=ISNULL(D_StdValue, 0) From P_OrderDtl '+
           ' Where D_ID=P_Order And P_StdNetWeight=0 And P_Type=''P'' And P_StdNetWeight<>D_StdValue  ';
   FDM.ExecuteSQL(nSQL);
-  nSQL := ' UPDate Sys_PoundLog Set P_StdMValue=P_PValue+P_StdNetWeight+ISNULL(P_KZValue, 0) Where P_StdMValue=0 And P_PValue IS NOT NULL AND P_MValue IS NOT NULL ';
+  nSQL := ' UPDate Sys_PoundLog Set P_StdMValue=P_PValue+P_StdNetWeight+ISNULL(P_KZValue, 0) '+
+           'Where P_StdMValue=0 And P_PValue IS NOT NULL AND P_MValue IS NOT NULL ';
   FDM.ExecuteSQL(nSQL);
 
 end;

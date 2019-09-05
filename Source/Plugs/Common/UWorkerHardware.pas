@@ -747,6 +747,8 @@ begin
 
   if Trim(nReader) <> '' then
     gHYReaderManager.OpenDoor(Trim(nReader));
+
+  WriteLog('¶Á¿¨Æ÷ '+nReader+' ËùÔÚµÀÕ¢Ì§¸Ë');
 end;
 
 function THardwareCommander.LineClose(var nData: string): Boolean;

@@ -99,4 +99,9 @@ inherited fFrameCusInOutMoney: TfFrameCusInOutMoney
         end>
     end
   end
+  inherited frxRprt1: TfrxReport
+    Datasets = <>
+    Variables = <>
+    Style = <>
+  end
 end

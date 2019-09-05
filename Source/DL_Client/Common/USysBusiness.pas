@@ -61,7 +61,7 @@ type
     FSelected: Boolean;      //状态
   end;
   TSalePlanItems = array of TSalePlanItem;
-  
+
 //------------------------------------------------------------------------------
 function AdjustHintToRead(const nHint: string): string;
 //调整提示内容
@@ -2338,7 +2338,7 @@ end;
 
 //Desc: 打印提货单
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
-var nStr, nP: string;
+var nStr, nP, nStockName : string;
     nParam: TReportParamItem;
     nIdx : Integer;
 begin
@@ -2372,11 +2372,15 @@ begin
   nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
-  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  with FDM.QueryTemp(nStr) do
   begin
-    nStr := '编号为[ %s ] 的记录已无效!!';
-    nStr := Format(nStr, [nBill]);
-    ShowMsg(nStr, sHint); Exit;
+    if RecordCount < 1 then
+    begin
+      nStr := '编号为[ %s ] 的记录已无效!!';
+      nStr := Format(nStr, [nBill]);
+      ShowMsg(nStr, sHint); Exit;
+    end;
+    nStockName:= FieldByName('L_StockName').AsString;
   end;
   {$IFDEF SetStdValue}
   nP:= StringReplace(nP, ',L_MValue', ', L_StdValue+L_PValue', [rfReplaceAll]);
@@ -2396,6 +2400,9 @@ begin
 
 
   nStr := gPath + sReportDir + 'LadingBill.fr3';
+  if Pos('水泥', nStockName)>0 then
+    nStr := gPath + sReportDir + 'LadingBillEx.fr3';
+
   if not FDR.LoadReportFile(nStr) then
   begin
     nStr := '无法正确加载报表文件';
@@ -2685,14 +2692,20 @@ begin
   else if (Pos('42', Result) > 0)and(Pos('tl', Result) > 0) then
     Result := gPath + sReportDir + 'HuaYan42_TL.fr3'
 
+  else if Pos('m32', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYanM32.fr3'
+  else if Pos('qz32', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_32qz.fr3'
+  else if Pos('32', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan32.fr3'
+
   else if Pos('gsysl', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
   else if Pos('kzf', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
   else if Pos('qz', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_qz.fr3'
-  else if Pos('32', Result) > 0 then
-    Result := gPath + sReportDir + 'HuaYan32.fr3'
+
   else if Pos('42', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan42.fr3'
   else if Pos('52', Result) > 0 then

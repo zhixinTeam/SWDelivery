@@ -98,14 +98,14 @@ begin
               'R_KPrice, R_KOther, R_Man, R_Date, R_CusPY, R_StockName, R_ZhiKa, R_YunFei, R_KMan, R_KDate, R_KYunFei,'+
               ' W_Name,Z_Name,Z_Project';
 
-    nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvoiceWeek, sTable_ZhiKa);
+    nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvoiceWeek, sTable_ZhiKa]);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
     begin
       if RecordCount < 1 then
       begin
-        //nStr := Format('编号为[ %s 的记录已丢失', [nID);
+        //nStr := Format('编号为[ %s ]的记录已丢失', [nID]);
         ShowMessage('未能找到符合条件的记录');
         Exit;
       end;
@@ -117,21 +117,21 @@ begin
       EditName.Text  := FieldByName('W_Name').AsString;
       EditCustomer.Text := FieldByName('R_Customer').AsString;
       EditStock.Text := FieldByName('R_StockName').AsString;
-      EditValue.Text := Format('%.2f 吨', [FieldByName('R_Value').AsFloat);
+      EditValue.Text := Format('%.2f 吨', [FieldByName('R_Value').AsFloat]);
 
       FPrice := FieldByName('R_Price').AsFloat;
-      EditPrice.Text := Format('%.2f 元/吨', [FPrice);
+      EditPrice.Text := Format('%.2f 元/吨', [FPrice]);
 
       FFLPrice := FieldByName('R_KPrice').AsFloat;
-      EditFL.Text := Format('%.2f 元/吨', [FFLPrice);      // 之前设置的返利销售价价差
-      //EditFLNew.Text := Format('%.2f', [FFLPrice);
+      EditFL.Text := Format('%.2f 元/吨', [FFLPrice]);      // 之前设置的返利销售价价差
+      //EditFLNew.Text := Format('%.2f', [FFLPrice]);
 
 
       FYYunFei := FieldByName('R_YunFei').AsFloat;
-      UnLbl3.Caption := Format('%.2f 元/吨', [FYYunFei);
+      UnLbl3.Caption := Format('%.2f 元/吨', [FYYunFei]);
 
       FYFlYunfei := FieldByName('R_KYunFei').AsFloat;        // 返利运费价差
-      unEdt_YunFei.Text := Format('%.2f', [FYFlYunfei);
+      unEdt_YunFei.Text := Format('%.2f', [FYFlYunfei]);
     end;
   finally
     ReleaseDBQuery(nQuery);
@@ -167,11 +167,11 @@ begin
     //xxxxx
 
     nStr := 'UPDate %s Set R_KPrice=%.2f, R_KYunFei=%.2f Where R_Chk=1 And %s';
-    nStr := Format(nStr, [sTable_InvoiceReq, nVal, nYunFei, FParam.FParamA);
+    nStr := Format(nStr, [sTable_InvoiceReq, nVal, nYunFei, FParam.FParamA]);
     nList.Add(nStr);
 
-    nStr := Format('返利价差[ %.2f -> %.2f  返利运费价差[ %.2f -> %.2f ',
-                                      [FFLPrice, nVal, FYFlYunfei, nYunFei);
+    nStr := Format('返利价差[ %.2f -> %.2f ] 返利运费价差[ %.2f -> %.2f ]',
+                                      [FFLPrice, nVal, FYFlYunfei, nYunFei]);
     nStr := WriteSysLog(sFlag_ZhiKaItem, FParam.FParamB, nStr,
             FDBType, nil, False, False);
     nList.Add(nStr);

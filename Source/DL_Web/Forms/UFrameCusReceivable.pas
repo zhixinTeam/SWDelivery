@@ -7,6 +7,7 @@
 *******************************************************************************}
 unit UFrameCusReceivable;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -85,11 +86,11 @@ procedure TfFrameCusReceivable.OnInitFormData(var nDefault: Boolean;
   const nWhere: string; const nQuery: TADOQuery);
 begin
   with TDateTimeHelper do
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   //xxxxx
 
   nDefault := False;
-  BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad);
+  BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad]);
 end;
 
 procedure TfFrameCusReceivable.OnDateFilter(const nStart,nEnd: TDate);
@@ -107,12 +108,12 @@ end;
 
 procedure TfFrameCusReceivable.BtnFindCusClick(Sender: TObject);
 begin
-  ShowGetCustomerForm(FCusName,
+  ShowGetCustomerForm(FCusName, FPopedom,
     procedure(const nResult: Integer; const nParam: PFormCommandParam)
     begin
       FCusID := nParam.FParamA;
       FCusName := nParam.FParamB;
-      BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad);
+      BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad]);
     end);
   //xxxxx
 end;
@@ -120,18 +121,18 @@ end;
 //------------------------------------------------------------------------------
 //Desc: 加载数据
 procedure TfFrameCusReceivable.BtnLoadClick(Sender: TObject);
-var nStr: string;
+var nStr, nExWH: string;
     nInit: Int64;
     nList: TStrings;
     nQuery: TADOQuery;
 begin
   with TDateTimeHelper do
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   if FCusID = '' then Exit;
   EditCustomer.Text := FCusID + '.' + FCusName;
 
   nList := nil;
-  nQuery := nil;
+  nQuery := nil;  nExWH:= '';
   nInit := GetTickCount; //init
 
   with TStringHelper,TDateTimeHelper do
@@ -147,25 +148,29 @@ begin
 
     nStr := 'Select A_CID as C_ID,A_InitMoney as C_Init into #qichu From %s ' +
             'where A_CID=''%s''';
-    nStr := Format(nStr, [sTable_CusAccount, FCusID);
+    nStr := Format(nStr, [sTable_CusAccount, FCusID]);
     nList.Add(nStr);
     //期初金额
 
+    {$IFDEF AuditingPayment}
+    nExWH:= ' And M_Verify=''Y'' ';
+    {$ENDIF}
+
     nStr := 'Update #qichu Set C_Init=C_Init+IsNull((Select Sum(M_Money) ' +
-            ' From %s Where M_CusID=''%s'' And M_Date<''$ST''), 0)';
-    nStr := Format(nStr, [sTable_InOutMoney, FCusID);
+            ' From %s Where M_CusID=''%s'' And M_Date<''$ST'' '+nExWH+'), 0)';
+    nStr := Format(nStr, [sTable_InOutMoney, FCusID]);
     nList.Add(nStr);
     //合并入金
 
     nStr := 'Update #qichu Set C_Init=C_Init-IsNull((Select Sum((L_Price+IsNull(L_YunFei, 0))*' +
             'L_Value) From %s Where L_CusID=''%s'' And L_OutFact<''$ST''), 0)';
-    nStr := Format(nStr, [sTable_Bill, FCusID);
+    nStr := Format(nStr, [sTable_Bill, FCusID]);
     nList.Add(nStr);
     //合并出金
 
     nStr := 'Update #qichu Set C_Init=C_Init+IsNull((Select Sum((S_Price+IsNull(S_YunFei, 0))*' +
             'S_Value) From %s Where S_CusID=''%s'' And S_Date<''$ST''), 0)';
-    nStr := Format(nStr, [sTable_InvSettle, FCusID);
+    nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
     //合并返还
 
@@ -193,15 +198,15 @@ begin
       'R_Price,R_Money,R_YunFei) Select L_ID,L_OutFact,2,''发货凭证'',L_StockName,' +
       'L_Value,L_Price,CONVERT(Decimal(15,2), (L_Price+IsNull(L_YunFei, 0))*L_Value),IsNull(L_YunFei, 0)*L_Value From %s ' +
       'Where L_CusID=''%s'' And L_OutFact>=''$ST'' and L_OutFact<''$ED''';
-    nStr := Format(nStr, [sTable_Bill, FCusID);
+    nStr := Format(nStr, [sTable_Bill, FCusID]);
     nList.Add(nStr);
     //出金记录
 
     nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Shou) Select ' +
       '''IOMONEY-''+CAST(R_ID as nvarchar(10)),M_Date,3,''销售回款'',' +
       'M_Money From %s Where M_CusID=''%s'' And M_Date>=''$ST'' And ' +
-      'M_Date<''$ED''';
-    nStr := Format(nStr, [sTable_InOutMoney, FCusID);
+      'M_Date<''$ED'' '+nExWH;
+    nStr := Format(nStr, [sTable_InOutMoney, FCusID]);
     nList.Add(nStr);
     //出入金
 
@@ -210,13 +215,13 @@ begin
       'R_Money,R_YunFei) Select S_Bill,S_Date,4,''结算返利'',S_StockName,' +
       'S_Price*(-1),S_Value,(S_Price)*S_Value*(-1),S_YunFei*S_Value*(-1) From %s ' +
       'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED''  ';  //And S_Price<>0
-    nStr := Format(nStr, [sTable_InvSettle, FCusID);
+    nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
     //返利
     //************************结算返利
 
     nList.Text := MacroValue(nList.Text, [MI('$ST', Date2Str(FStart)),
-                  MI('$ED', Date2Str(FEnd + 1)));
+                  MI('$ED', Date2Str(FEnd + 1))]);
     //xxxxx
 
     nQuery := LockDBQuery(FDBType);

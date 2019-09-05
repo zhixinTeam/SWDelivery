@@ -17,95 +17,95 @@ const
 
 type
   TIdCardInfoWChar = packed record
-    Name: array[0..14 of WideChar;
-    Sex : array[0..0 of WideChar;
-    Nation: array[0..1 of WideChar;
-    BirthDay:array[0..7 of WideChar;
-    Addr : array[0..34 of WideChar;
-    IdSN : array[0..17 of WideChar;
-    IssueOrgan: array[0..14 of WideChar;
-    VaildBegin: array[0..7 of WideChar;
-    VaildEnd : array[0..7 of WideChar;
-    theNewestAddr: array[0..34 of WideChar;
+    Name: array[0..14] of WideChar;
+    Sex : array[0..0] of WideChar;
+    Nation: array[0..1] of WideChar;
+    BirthDay:array[0..7] of WideChar;
+    Addr : array[0..34] of WideChar;
+    IdSN : array[0..17] of WideChar;
+    IssueOrgan: array[0..14] of WideChar;
+    VaildBegin: array[0..7] of WideChar;
+    VaildEnd : array[0..7] of WideChar;
+    theNewestAddr: array[0..34] of WideChar;
   end;
 
 //查看串口当前波特率
 function SDT_GetCOMBaud(iPort: integer; puiBaudRate: Pinteger): integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口，puiBaudRate[out无符号指针，指向普通串口当前波特率，返回值
+{iPort[in]表示端口，puiBaudRate[out]无符号指针，指向普通串口当前波特率，返回值
 0X90-成功，0x1-端口打开失败/端口号不合法，0x5无法获得SAM_V的波特率，串口不可用。}
 
 
 function SDT_StetCOMBaud(iPort: integer; uiCurrBaud: integer; uiSetBaud: integer): integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口, uiCurrBaud[in调用改API前已设置的业务终端与SAM_V通信的波特率(出厂默认为115200)
+{iPort[in]表示端口, uiCurrBaud[in]调用改API前已设置的业务终端与SAM_V通信的波特率(出厂默认为115200)
 uiCurrBaud只能为115200,57600,378400,19200,9600。如果uiCurrBaud数值不是这些值之一，函数返回0x21，如果和已设置的不一样，
-函数返回0x02表示不能设置调用API不成功。uiSetBaud[in将要设置的SAM_V波特率,只能为(同上)那些值，如果不是这些数值，返回也同上
+函数返回0x02表示不能设置调用API不成功。uiSetBaud[in]将要设置的SAM_V波特率,只能为(同上)那些值，如果不是这些数值，返回也同上
 函数返回0x90-成功，0x1-端口打开失败/端口号不合法，0x2-超时，设置不成功，0x21-uiCurrBaud、uiSetBaud输入参数数值错误}
 //设置SAM_V的串口的波特率
 
 function SDT_OpenPort(iPort: integer): integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，1-16(十进制)为串口，1001-1016(十进制)为USB口，缺省的一个USB设备端口是1001。
+{iPort[in]表示端口号，1-16(十进制)为串口，1001-1016(十进制)为USB口，缺省的一个USB设备端口是1001。
 函数返回0x90-打开端口成功,1-打开端口失败/端口号不合法}
 //打开串口/USB
 
 function SDT_ClosePort(iPort: integer): integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，返回值0x90-关闭串口成功，0x01-端口号不合法}
+{iPort[in]表示端口号，返回值0x90-关闭串口成功，0x01-端口号不合法}
 //关闭串口/USB
 
 function SDT_ResetSAM(iPort: integer; ilfOpen: integer): integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，目前串口和USB只支持16个，串口：0001-0016，USB：1001-1016。
-ilfOpen[in表示不在该函数内部打开和关闭串口，非0表示在API函数内部包含了打开串口和关闭串口函数，之前不需要调用
+{iPort[in]表示端口号，目前串口和USB只支持16个，串口：0001-0016，USB：1001-1016。
+ilfOpen[in]表示不在该函数内部打开和关闭串口，非0表示在API函数内部包含了打开串口和关闭串口函数，之前不需要调用
 SDT_OpenPort和SDT_ClosePort
 返回值0x90-成功，其他 失败}
 //对SAM_V复位
 
 //设置射频适配器最大通信字节数
 function SDT_SetMaxRFByte(iPort: integer;ucByte: Char;blfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，ucByte[in无符号字符,24-255，表示射频适配器最大通信字节数，ilfOpen[in参见SDT_ResetSAM
+{iPort[in]表示端口号，ucByte[in]无符号字符,24-255，表示射频适配器最大通信字节数，ilfOpen[in]参见SDT_ResetSAM
 返回值0x90-成功,其他-失败}
 
 //对SAM_V进行状态检测
 function SDT_GetSAMStatus(iPort: integer;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，ilfOpen参见SDT_ResetSAM
+{iPort[in]表示端口号，ilfOpen参见SDT_ResetSAM
 返回值0x90-SAM_V正常，0x60-自检失败，不能接收命令，其他-命令失败}
 
 //读取SAM_V的编号
 function SDT_GetSAMID(iPort: integer;pusSAMID: Pbyte;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，pusSAMID[out无符号字符串指针SAM_V编号，16字节，
+{iPort[in]表示端口号，pusSAMID[out]无符号字符串指针SAM_V编号，16字节，
 返回值0x90-成功，其他-失败}
 
 
 //读取SAM_V的编号
 function SDT_GetSAMIDToStr(iPort: integer;pusSAMID: Pbyte;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iport[in表示端口号，pusSAMID[outSAM_V编号,ilfOpen[in整数，参见SDT_ResetSAM
+{iport[in]表示端口号，pusSAMID[out]SAM_V编号,ilfOpen[in]整数，参见SDT_ResetSAM
 返回值0x90-成功，其他-失败}
 
 //开始找卡
 function SDT_StartFindIDCard(iPort: integer; var pucManaInfo: Integer; ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iport[in表示端口号，pucManaInfo[out无符号指针，证/卡芯片管理号，4个字节，ilfOpen[in参见SDT_ResetSAM
+{iport[in]表示端口号，pucManaInfo[out]无符号指针，证/卡芯片管理号，4个字节，ilfOpen[in]参见SDT_ResetSAM
 返回值0x9f-找卡成功，0x80-找卡失败}
 
 //选卡
 function SDT_SelectIDCard(iPort: integer; var pucManaMsg: integer;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，pucManaMsg[out无符号指针，证/卡芯片序列号，8个字节，ilfOpen[in参见SDT_ResetSAM
+{iPort[in]表示端口号，pucManaMsg[out]无符号指针，证/卡芯片序列号，8个字节，ilfOpen[in]参见SDT_ResetSAM
 返回值0x90-选卡成功，0x81-选卡失败}
 
 
 //读取卡体管理号
 function SDT_ReadMngInfo(iPort: integer;pucManageMsg: Pbyte;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，pucManageMsg[out无符号字符指针，卡体管理号，28字节，ilfOpen[in
+{iPort[in]表示端口号，pucManageMsg[out]无符号字符指针，卡体管理号，28字节，ilfOpen[in]
 返回值0x90-成功，其他-读失败}
 
 
 //读取证/卡固定信息
 function SDT_ReadBaseMsg(iPort: integer;pucCHMsg: Pbyte; var puiCHMsgLen: Integer;pucPHMsg: Pbyte; var puiPHMsgLen: Integer;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，pucCHMsg[out指向读到的文字信息，puiCHMsgLen[out指向读到的文字信息长度
-pucPHMsg[out指向读到的照片信息，puiPHMsgLen[out指向读到的照片信息长度，ilfOpen[in参见SDT_ResetSAM
+{iPort[in]表示端口号，pucCHMsg[out]指向读到的文字信息，puiCHMsgLen[out]指向读到的文字信息长度
+pucPHMsg[out]指向读到的照片信息，puiPHMsgLen[out]指向读到的照片信息长度，ilfOpen[in]参见SDT_ResetSAM
 返回值0x90-读固定信息成功，其他读固定信息失败}
 
 
 //读取追加信息
 function SDT_ReadNewAppMsg(iPort: integer;pucAppMsg: Pbyte;puiAppMsgLen: Pinteger;ilfOpen: integer):integer;stdcall;External DLL_SDTAPI;
-{iPort[in表示端口号，pucAppMsg[out指向读到的追加信息，puiAppMsgLen[out指向读到的追加信息长度，ilfOpen[in参见SDT_ResetSAM
+{iPort[in]表示端口号，pucAppMsg[out]指向读到的追加信息，puiAppMsgLen[out]指向读到的追加信息长度，ilfOpen[in]参见SDT_ResetSAM
 返回值0x90-读取追加信息成功，其他-读取追加信息失败}
 
 //将读到的身份证信息保存到文件
@@ -172,7 +172,7 @@ end;
 
 function EthnicNoToName(ANo: string): string;
 begin
-  Result:= LstEthnic.Values[ANo;
+  Result:= LstEthnic.Values[ANo];
 end;
 
 function FormatDateStr(AValue: string): string;

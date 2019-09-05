@@ -133,9 +133,9 @@ begin
     nPack.UnPackOut(nStr, nOut);
     with PBWDataBase(nOut)^,UniMainModule.FUserConfig do
     begin
-      nStr := 'User:[ %s  FUN:[ %s  TO:[ %s  KP:[ %d ';
+      nStr := 'User:[ %s ] FUN:[ %s ] TO:[ %s ] KP:[ %d ]';
       nStr := Format(nStr, [FUserID, ClassName(), FVia.FIP,
-              GetTickCount - nWorkTimeInit);
+              GetTickCount - nWorkTimeInit]);
       WriteLog(nStr);
 
       Result := FResult;
@@ -182,8 +182,8 @@ begin
     nListB := gMG.FObjectPool.Lock(TStrings) as TStrings;
     //lock object
 
-    nListA.Text := StringReplace(nCode, #9, #13#10, [rfReplaceAll);
-    nListB.Text := StringReplace(nDesc, #9, #13#10, [rfReplaceAll);
+    nListA.Text := StringReplace(nCode, #9, #13#10, [rfReplaceAll]);
+    nListB.Text := StringReplace(nDesc, #9, #13#10, [rfReplaceAll]);
 
     if nListA.Count <> nListB.Count then
     begin
@@ -193,10 +193,10 @@ begin
 
     for nIdx:=0 to nListA.Count - 1 do
     if (Length(nInclude) = 0) or
-       (TStringHelper.StrArrayIndex(nListA[nIdx, nInclude) > -1) then
+       (TStringHelper.StrArrayIndex(nListA[nIdx], nInclude) > -1) then
     begin
-      Result := Result + '¡ù.´úÂë: ' + nListA[nIdx + #13#10 +
-                         '   ÃèÊö: ' + nListB[nIdx + #13#10#13#10;
+      Result := Result + '¡ù.´úÂë: ' + nListA[nIdx] + #13#10 +
+                         '   ÃèÊö: ' + nListB[nIdx] + #13#10#13#10;
     end;
   finally
     gMG.FObjectPool.Release(nListA);
@@ -234,8 +234,8 @@ begin
     except
       on nErr:Exception do
       begin
-        nData := Format('%s(BY %s ).', [nErr.Message, gSysParam.FAppTitle);
-        WriteLog('Function:[ ' + ClassName() + ' ' + nErr.Message);
+        nData := Format('%s(BY %s ).', [nErr.Message, gSysParam.FAppTitle]);
+        WriteLog('Function:[ ' + ClassName() + ' ]' + nErr.Message);
       end;
     end;
   finally
@@ -253,7 +253,7 @@ function TClientWorkerQueryField.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FMITServURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FMITServURL;
   finally
     GlobalSyncRelease;
   end;
@@ -269,7 +269,7 @@ function TClientBusinessCommand.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FMITServURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FMITServURL;
   finally
     GlobalSyncRelease;
   end;
@@ -285,7 +285,7 @@ function TClientBusinessSaleBill.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FMITServURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FMITServURL;
   finally
     GlobalSyncRelease;
   end;
@@ -301,7 +301,7 @@ function TClientBusinessPurchaseOrder.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FMITServURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FMITServURL;
   finally
     GlobalSyncRelease;
   end;
@@ -317,7 +317,7 @@ function TClientBusinessHardware.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FHardMonURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FHardMonURL;
   finally
     GlobalSyncRelease;
   end;
@@ -338,7 +338,7 @@ function TClientBusinessWechat.GetFixedServiceURL: string;
 begin
   GlobalSyncLock;
   try
-    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory.FWechatURL;
+    Result := gAllFactorys[UniMainModule.FUserConfig.FFactory].FWechatURL;
   finally
     GlobalSyncRelease;
   end;

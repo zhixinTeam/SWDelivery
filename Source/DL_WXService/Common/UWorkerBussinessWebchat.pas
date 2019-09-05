@@ -666,7 +666,7 @@ end;
 //Parm: 客户编号[FIn.FData]
 //Desc: 获取可用订单列表
 function TBusWorkerBusinessWebchat.GetOrderList(var nData: string): Boolean;
-var nStr, nType: string;
+var nStr, nType, nNoShowZhiKa: string;
     nNode: TXmlNode;
     nValue,nMoney: Double;
 begin
@@ -775,7 +775,7 @@ begin
         try
           nValue := FieldByName('D_Valuex').AsFloat;
           nValue := Float2PInt(nValue, cPrecision, False) / cPrecision;
-          if nValue<0 then nValue := 0;
+          if nValue<=0 then nValue := 0;
         except
           nValue := 0;
         end;
@@ -783,6 +783,11 @@ begin
         
         NodeNew('MaxNumber').ValueAsString  := FloatToStr(nValue);
         NodeNew('SaleArea').ValueAsString   := '';
+      end;
+
+      if Float2PInt(FieldByName('D_Valuex').AsFloat, cPrecision, False)<=0 then
+      begin
+        nNoShowZhiKa:= nNoShowZhiKa+','''+FieldByName('D_ZID').AsString+'''';
       end;
 
       Next;
@@ -799,6 +804,9 @@ begin
   nData := FPacker.XMLBuilder.WriteToString;
   WriteLog('获取订单列表返回:'+nData);
   Result := True;
+
+  nStr:= 'UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID In ('+Copy(nNoShowZhiKa, 2, Length(nNoShowZhiKa))+')';
+  gDBConnManager.WorkerExec(FDBConn, nStr);
 end;
 
 function TBusWorkerBusinessWebchat.GetOrderInfo(var nData: string): Boolean;

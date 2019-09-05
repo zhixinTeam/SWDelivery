@@ -10,7 +10,7 @@ object fFormNewCard: TfFormNewCard
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  Font.Style = [
+  Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
@@ -36,7 +36,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clRed
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
     end
     object labelIdCard: TcxLabel
@@ -48,7 +48,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = #24494#36719#38597#40657
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object editWebOrderNo: TcxTextEdit
@@ -60,7 +60,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = 'MS Sans Serif'
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = editWebOrderNoKeyPress
@@ -77,7 +77,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
       TabOrder = 2
       OnClick = btnQueryClick
@@ -92,7 +92,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
       TabOrder = 3
       OnClick = btnClearClick
@@ -124,7 +124,7 @@ object fFormNewCard: TfFormNewCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = #24494#36719#38597#40657
-        Font.Style = [
+        Font.Style = []
         ParentFont = False
         TabOrder = 11
         OnClick = BtnOKClick
@@ -139,7 +139,7 @@ object fFormNewCard: TfFormNewCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = #24494#36719#38597#40657
-        Font.Style = [
+        Font.Style = []
         ParentFont = False
         TabOrder = 12
         OnClick = BtnExitClick
@@ -155,7 +155,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 8
         Width = 120
@@ -171,7 +171,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 0
         Width = 353
@@ -187,7 +187,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 2
         Width = 745
@@ -203,7 +203,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 3
         Width = 330
@@ -219,7 +219,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 4
         Width = 336
@@ -240,7 +240,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
         TabOrder = 7
@@ -263,7 +263,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.ButtonStyle = bts3D
         Style.PopupBorderStyle = epbsFrame3D
         Style.IsFontAssigned = True
@@ -286,7 +286,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
         TabOrder = 6
@@ -303,7 +303,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 9
         Width = 120
@@ -326,7 +326,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -21
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.TextColor = clWindowText
         Style.ButtonStyle = btsDefault
         Style.PopupBorderStyle = epbsSingle
@@ -350,19 +350,19 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = #23435#20307
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 10
         Transparent = True
         Width = 261
       end
       object dxLayoutGroup1: TdxLayoutGroup
-        AutoAligns = [aaHorizontal
+        AutoAligns = [aaHorizontal]
         ShowCaption = False
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           AlignHorz = ahClient
           Caption = #22522#26412#20449#24687
           object dxLayout1Group3: TdxLayoutGroup
@@ -371,7 +371,7 @@ object fFormNewCard: TfFormNewCard
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxlytmLayout1Item3: TdxLayoutItem
-              AutoAligns = [aaVertical
+              AutoAligns = [aaVertical]
               AlignHorz = ahClient
               Caption = #23458#25143#32534#21495':'
               Control = EditCus
@@ -384,7 +384,7 @@ object fFormNewCard: TfFormNewCard
             end
           end
           object dxlytmLayout1Item4: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             AlignHorz = ahClient
             Caption = #23458#25143#21517#31216':'
             Control = EditCName
@@ -392,10 +392,10 @@ object fFormNewCard: TfFormNewCard
           end
         end
         object dxGroup2: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           Caption = #25552#21333#20449#24687
           object dxLayout1Group1: TdxLayoutGroup
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             ShowCaption = False
             Hidden = True
             LayoutDirection = ldHorizontal
@@ -412,7 +412,7 @@ object fFormNewCard: TfFormNewCard
             end
           end
           object dxGroupLayout1Group5: TdxLayoutGroup
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             ShowCaption = False
             Hidden = True
             ShowBorder = False
@@ -457,7 +457,7 @@ object fFormNewCard: TfFormNewCard
           end
         end
         object dxLayoutGroup3: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           AlignHorz = ahClient
           ShowCaption = False
           Hidden = True
@@ -468,13 +468,13 @@ object fFormNewCard: TfFormNewCard
             ControlOptions.ShowBorder = False
           end
           object dxLayoutItem1: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnOK
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item2: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnExit
             ControlOptions.ShowBorder = False
@@ -502,7 +502,7 @@ object fFormNewCard: TfFormNewCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -19
       Style.Font.Name = #24494#36719#38597#40657
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object lvOrders: TListView
@@ -519,7 +519,7 @@ object fFormNewCard: TfFormNewCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       RowSelect = True
       ParentFont = False
       TabOrder = 1

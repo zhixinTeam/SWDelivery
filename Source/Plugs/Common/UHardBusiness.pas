@@ -548,7 +548,7 @@ begin
 
     if nCardType = sFlag_DuanDao then
     begin
-      nStr := '%s进厂';
+      nStr := '%s 进厂';
       nStr := Format(nStr, [nTrucks[0].FTruck]);
       WriteHardHelperLog(nStr, sPost_In);
       gDisplayManager.Display(nReader, nStr);
@@ -587,7 +587,7 @@ begin
       //抬杆
     end;
 
-    nStr := '%s磁卡[%s]进厂抬杆成功';
+    nStr := '%s磁卡 %s 进厂抬杆成功';
     nStr := Format(nStr, [BusinessToStr(nCardType), nCard]);
     WriteHardHelperLog(nStr, sPost_In);
     Exit;
@@ -646,7 +646,7 @@ begin
     {$ENDIF}
   end else
   begin
-    BlueOpenDoor(nReader);                   WriteHardHelperLog(nReader+' 执行抬杆');
+    BlueOpenDoor(nReader);                   WriteHardHelperLog(nReader+' '+nTrucks[0].FTruck+' 抬杆进厂放行');
     //抬杆
   end;
 
@@ -700,7 +700,8 @@ begin
     if nCardType = sFlag_Sale then
       nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks) else
     if nCardType = sFlag_DuanDao then
-      nRet := GetDuanDaoItems(nCard, sFlag_TruckOut, nTrucks) else nRet := False;
+      nRet := GetDuanDaoItems(nCard, sFlag_TruckOut, nTrucks)
+    else nRet := False;
 
     if not nRet then
     begin
@@ -1376,7 +1377,7 @@ var nStr: string;
     function IsGroupJSRun: Boolean;     // 检查同一分组通道是否有正在作业的（同一主皮带同一喷码机)
     var nField : TField;
         nTmp, nChkTunnel : string;
-        nWorker, nxWorker: PDBWorker;
+        nWorker: PDBWorker;
     begin
       WriteNearReaderLog('同组通道检测 进入.');
       Result:= False;   nWorker := nil;
@@ -1417,7 +1418,6 @@ var nStr: string;
         end;
       finally
         gDBConnManager.ReleaseConnection(nWorker);
-        //gDBConnManager.ReleaseConnection(nxWorker);
       end;
     end;
 begin
@@ -1428,8 +1428,8 @@ begin
 
   if not GetLadingBills(nCard, sFlag_TruckZT, nTrucks) then
   begin
-    nStr := '读取磁卡[ %s ]交货单信息失败.';
-    nStr := Format(nStr, [nCard]);
+    nStr := '读取 袋装通道[ %s ]磁卡[ %s ]交货单信息失败.';
+    nStr := Format(nStr, [nTunnel, nCard]);
 
     WriteNearReaderLog(nStr);
     Exit;
@@ -1573,6 +1573,7 @@ var nStr: string;
 begin
   gERelayManager.LineOpen(nTunnel);
   //开始放灰
+  WriteNearReaderLog(Format('为车辆 %s 开启定量装车通道 %s 作业', [nTruck.FTruck, nTunnel]) );
 
   nStr := Format('Truck=%s', [nTruck.FTruck]);
   gBasisWeightManager.StartWeight(nTunnel, nTruck.FBill, nTruck.FValue,
@@ -1663,10 +1664,16 @@ begin
   WriteNearReaderLog('MakeTruckLadingSan进入.');
   {$ENDIF}
 
+    nStr := 'MakeTruckLadingSan进入 收到散装通道[ %s ]磁卡[ %s ].';
+    nStr := Format(nStr, [nTunnel, nCard]);
+    WriteNearReaderLog(nStr);
+
+  if nCard='002863311530' then  Exit;
+
   if not GetLadingBills(nCard, sFlag_TruckFH, nTrucks) then
   begin
-    nStr := '读取磁卡[ %s ]交货单信息失败.';
-    nStr := Format(nStr, [nCard]);
+    nStr := '读取 散装通道[ %s ]磁卡[ %s ]交货单信息失败.';
+    nStr := Format(nStr, [nTunnel, nCard]);
 
     WriteNearReaderLog(nStr);
     Exit;
@@ -1777,7 +1784,7 @@ var nStr: string;
 begin
   {$IFDEF DEBUG}
   WriteNearReaderLog('MakeTruckWeightFirst进入.');
-  {$ENDIF}                                                 
+  {$ENDIF}
 
   if not GetLadingBills(nCard, sFlag_TruckFH, nTrucks) then
   begin
@@ -1809,7 +1816,8 @@ begin
       ShowLEDHint(nTunnel, '请进厂刷卡', nTrucks[0].FTruck);
       MakeGateSound(Format('%s 请到进厂点刷卡', [nTrucks[0].FTruck]), nVoiceID, False);
       Exit;
-    end;
+    end
+    else WriteNearReaderLog(Format('收到车道 %s 车辆 %s 刷卡装车', [nTunnel, nTrucks[nIdx].FTruck]));
   end;
 
   if gBasisWeightManager.IsTunnelBusy(nTunnel, @nPound) and

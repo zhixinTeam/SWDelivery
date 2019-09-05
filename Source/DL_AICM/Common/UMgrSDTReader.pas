@@ -162,7 +162,7 @@ begin
       try
         for nIdx := 0 to FReaders.Count - 1 do
         begin
-          FNowItem := FReaders[nIdx;
+          FNowItem := FReaders[nIdx];
           if not FNowItem.FEnabled then Continue;
 
           ReadCard(FNowItem);
@@ -185,7 +185,7 @@ var nErr: string;
     nCardInfoStr: TIdCardInfoStr;
     nCardInfoWC:TIdCardInfoWChar;
     nRet, nIdx, nMInfo, nSNO: Integer;
-    nIDInfo, nWLTInfo: array [0..2048 of Byte;
+    nIDInfo, nWLTInfo: array [0..2048] of Byte;
 begin
   with nRead^ do
   begin
@@ -431,7 +431,7 @@ var nIdx: Integer;
 begin
   for nIdx:=FReaders.Count - 1 downto 0 do
   begin
-    Dispose(PSDTReaderItem(FReaders[nIdx));
+    Dispose(PSDTReaderItem(FReaders[nIdx]));
     FReaders.Delete(nIdx);
   end;
 
@@ -469,9 +469,9 @@ begin
     for nIdx:=0 to nXML.Root.NodeCount - 1 do
     with nItem do
     begin
-      nNode := nXML.Root.Nodes[nIdx;
-      FID := nNode.AttributeByName['ID';
-      FName := nNode.AttributeByName['Name';
+      nNode := nXML.Root.Nodes[nIdx];
+      FID := nNode.AttributeByName['ID'];
+      FName := nNode.AttributeByName['Name'];
 
       nTmp := nNode.FindNode('IsUSB');
       if Assigned(nTmp) then

@@ -10,7 +10,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, uniGUITypes, UFrameBase, uniButton, uniBitBtn, uniEdit,
   uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniToolBar, uniGUIBaseClasses;
+  uniPanel, uniToolBar, uniGUIBaseClasses, frxClass, frxExportPDF, frxDBSet;
 
 type
   TfFramePayment = class(TfFrameBase)
@@ -40,7 +40,7 @@ implementation
 
 {$R *.dfm}
 uses
-  uniGUIVars, MainModule, uniGUIApplication, ULibFun, USysDB, USysConst,
+  uniGUIVars, MainModule, uniGUIApplication, ULibFun, USysDB, USysConst, USysBusiness,
   UFormDateFilter, UFormPayment;
 
 procedure TfFramePayment.OnCreateFrame(const nIni: TIniFile);
@@ -66,20 +66,28 @@ function TfFramePayment.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
     Result := 'Select iom.*,sm.S_Name,convert(varchar(20),M_Date,23) as ' +
               'M_DateOnly From $IOM iom ' +
               ' Left Join $SM sm On sm.S_ID=iom.M_SaleMan ' +
+              ' Left Join $Cus cus On cus.C_ID=iom.M_CusID ' +
               'Where M_Type=''$HK'' ';
 
     if nWhere = '' then
          Result := Result + 'And (M_Date>=''$Start'' And M_Date <''$End'')'
     else Result := Result + 'And (' + nWhere + ')';
 
+    if (Not UniMainModule.FUserConfig.FIsAdmin) then
+    begin
+      if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
+        Result := Result + ' And (sm.S_Name='''+ UniMainModule.FUserConfig.FUserID +''' or cus.C_WeiXin='''+
+                                                UniMainModule.FUserConfig.FUserID +''')';
+    end;
+
     Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
               MI('$IOM', sTable_InOutMoney), MI('$HK', sFlag_MoneyHuiKuan),
-              MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
+              MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
 end;
@@ -102,7 +110,7 @@ begin
 
     FWhere := '(M_Date>=''$Start'' And M_Date <''$End'') And ' +
               '(M_CusID like ''%%%s%%'' Or M_CusName like ''%%%s%%'')';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;
 end;

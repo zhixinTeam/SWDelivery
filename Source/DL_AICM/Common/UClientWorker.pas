@@ -139,9 +139,9 @@ begin
   FPacker.UnPackOut(nStr, nOut);
   with PBWDataBase(nOut)^ do
   begin
-    nStr := 'User:[ %s  FUN:[ %s  TO:[ %s  KP:[ %d ';
+    nStr := 'User:[ %s ] FUN:[ %s ] TO:[ %s ] KP:[ %d ]';
     nStr := Format(nStr, [gSysParam.FUserID, FunctionName, FVia.FIP,
-            GetTickCount - FWorkTimeInit);
+            GetTickCount - FWorkTimeInit]);
 
     Result := FResult;
     if Result then
@@ -178,8 +178,8 @@ function TClient2MITWorker.ErrDescription(const nCode, nDesc: string;
   const nInclude: TDynamicStrArray): string;
 var nIdx: Integer;
 begin
-  FListA.Text := StringReplace(nCode, #9, #13#10, [rfReplaceAll);
-  FListB.Text := StringReplace(nDesc, #9, #13#10, [rfReplaceAll);
+  FListA.Text := StringReplace(nCode, #9, #13#10, [rfReplaceAll]);
+  FListB.Text := StringReplace(nDesc, #9, #13#10, [rfReplaceAll]);
 
   if FListA.Count <> FListB.Count then
   begin
@@ -188,10 +188,10 @@ begin
   end else Result := '';
 
   for nIdx:=0 to FListA.Count - 1 do
-  if (Length(nInclude) = 0) or (StrArrayIndex(FListA[nIdx, nInclude) > -1) then
+  if (Length(nInclude) = 0) or (StrArrayIndex(FListA[nIdx], nInclude) > -1) then
   begin
-    Result := Result + '¡ù.´úÂë: ' + FListA[nIdx + #13#10 +
-                       '   ÃèÊö: ' + FListB[nIdx + #13#10#13#10;
+    Result := Result + '¡ù.´úÂë: ' + FListA[nIdx] + #13#10 +
+                       '   ÃèÊö: ' + FListB[nIdx] + #13#10#13#10;
   end;
 end;
 
@@ -202,7 +202,7 @@ var
 begin
   Result := '';
   nStr := 'select d_value from %s where d_name=''%s''';
-  nStr := Format(nStr,[sTable_SysDict,sFlag_MITSrvURL);
+  nStr := Format(nStr,[sTable_SysDict,sFlag_MITSrvURL]);
   with FDM.QuerySQL(nStr) do
   begin
     if RecordCount>0 then
@@ -249,8 +249,8 @@ begin
         if (GetFixedServiceURL <> '') or
            (gChannelChoolser.GetChannelURL = FHttp.TargetURL) then
         begin
-          nData := Format('%s(BY %s ).', [E.Message, gSysParam.FLocalName);
-          WriteLog('Function:[ ' + FunctionName + ' ' + E.Message);
+          nData := Format('%s(BY %s ).', [E.Message, gSysParam.FLocalName]);
+          WriteLog('Function:[ ' + FunctionName + ' ]' + E.Message);
           Exit;
         end;
       end;

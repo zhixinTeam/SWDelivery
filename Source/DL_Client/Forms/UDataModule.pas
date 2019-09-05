@@ -35,6 +35,7 @@ type
     dxGridLink1: TdxGridReportLink;
     cxLoF1: TcxLookAndFeelController;
     Conn_Bak: TADOConnection;
+    Qry_1: TADOQuery;
     procedure DataModuleCreate(Sender: TObject);
   private
     { Private declarations }
@@ -45,6 +46,8 @@ type
     { Public declarations }
     function IsEnableBackupDB: Boolean;
     {*备用库*}
+    function QueryTempPic(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
+
     function QuerySQL(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
     function QueryTemp(const nSQL: string; const nUseBackdb: Boolean = False): TDataSet;
     procedure QueryData(const nQuery: TADOQuery; const nSQL: string;
@@ -805,6 +808,57 @@ begin
     SQLTemp.Open;
 
     Result := SQLTemp;
+    nException := '';
+    Break;
+  except
+    on E:Exception do
+    begin
+      Inc(nStep);
+      nException := E.Message;
+      WriteLog(nException+' SQL:'+nSQL);
+    end;
+  end;
+
+  if nException <> '' then
+    raise Exception.Create(nException);
+  //xxxxx
+end;
+
+//Desc: 临时查询
+function TFDM.QueryTempPic(const nSQL: string; const nUseBackdb: Boolean): TDataSet;
+var nStep: Integer;
+    nException: string;
+begin
+  Result := nil;
+  if not CheckQueryConnection(Qry_1, nUseBackdb) then Exit;
+
+  nException := '';
+  nStep := 0;
+
+  while nStep <= 2 do
+  try
+    if nStep = 1 then
+    begin
+      Qry_1.Close;
+      Qry_1.SQL.Text := 'select 1';
+      Qry_1.Open;
+
+      Qry_1.Close;
+      Break;
+      //connection is ok
+    end else
+
+    if nStep = 2 then
+    begin
+      Qry_1.Connection.Close;
+      Qry_1.Connection.Open;
+    end; //reconnnect
+
+    Qry_1.Close;
+    Qry_1.SQL.Text := nSQL;
+    Qry_1.Open;
+
+    Result := Qry_1;
     nException := '';
     Break;
   except

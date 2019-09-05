@@ -71,7 +71,7 @@ begin
     InitFormData;
     BtnOK.Enabled := gPopedomManager.HasPopedom(nPopedom, sPopedom_Edit);
 
-    if (not gSysParam.FIsAdmin) then
+    if (not gSysParam.FIsAdmin)and(not gPopedomManager.HasPopedom(nPopedom, sPopedom_Edit)) then
     begin
       BtnOK.Visible:= False;
       BtnExit.Visible:= False;

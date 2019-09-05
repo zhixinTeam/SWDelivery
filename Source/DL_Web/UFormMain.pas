@@ -92,7 +92,7 @@ begin
     LabelHint.Caption := FHintText;
 
     nStr := '用户:【%s】 来自:【%s】 系统:【%s】 浏览器:【%s】';
-    nStr := Format(nStr, [FUserID, FLocalIP, FOSUser, FUserAgent);
+    nStr := Format(nStr, [FUserID, FLocalIP, FOSUser, FUserAgent]);
     StatusBar1.SimpleText := nStr;
   end;
 
@@ -206,7 +206,7 @@ begin
       nStr := '当前所有业务只针对如下工厂:' + #13#10#13#10 +
               '工厂编号: %s' + #13#10 +
               '工厂名称: %s';
-      nStr := Format(nStr, [FFactoryID, FFactoryName);
+      nStr := Format(nStr, [FFactoryID, FFactoryName]);
       ShowMessage(nStr);
     end;
   end;
@@ -228,7 +228,7 @@ begin
   //invalid menu
 
   for nIdx := Low(UniMainModule.FMenuModule) to High(UniMainModule.FMenuModule) do
-  with UniMainModule.FMenuModule[nIdx do
+  with UniMainModule.FMenuModule[nIdx] do
   begin
     if CompareText(FMenuID, nStr) <> 0 then Continue;
     //not match
@@ -238,8 +238,8 @@ begin
       nForm := SystemGetForm(FModule);
       if not Assigned(nForm) then
       begin
-        nStr := '窗体类[ %s 无效.';
-        ShowMessage(Format(nStr, [FModule));
+        nStr := '窗体类[ %s ]无效.';
+        ShowMessage(Format(nStr, [FModule]));
         Exit;
       end;
 
@@ -254,8 +254,8 @@ begin
         nFrameClass := TUniFrameClass(GetClass(FModule));
         if not Assigned(nFrameClass) then
         begin
-          nStr := 'Frame类[ %s 无效.';
-          ShowMessage(Format(nStr, [FModule));
+          nStr := 'Frame类[ %s ]无效.';
+          ShowMessage(Format(nStr, [FModule]));
           Exit;
         end;
 
@@ -300,7 +300,7 @@ begin
   nStr := GetMenuItemID(nIdx);
 
   for nIdx := Low(UniMainModule.FMenuModule) to High(UniMainModule.FMenuModule) do
-  with UniMainModule.FMenuModule[nIdx do
+  with UniMainModule.FMenuModule[nIdx] do
   begin
     if CompareText(FMenuID, nStr) <> 0 then Continue;
     //not match

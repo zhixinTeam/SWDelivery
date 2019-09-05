@@ -93,7 +93,7 @@ function TfFrameQueryPurchaseTotal.InitFormDataSQL(const nWhere: string): string
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
     Result := 'Select D_ProName, D_StockName, Count(*) D_Count, SUM(D_Value) D_Value, D_YSResult From $POrderDtl ' +
               'Where  D_OutFact>=''$StartTime'' And D_OutFact<''$EndTime'' ';
@@ -108,7 +108,7 @@ begin
     Result := Result + 'Group  By D_ProName, D_StockName, D_YSResult  Order  By D_ProName, D_StockName';
 
     Result := MacroValue(Result, [MI('$POrderDtl', sTable_OrderDtl),
-              MI('$StartTime', Date2Str(FStart)), MI('$EndTime', Date2Str(FEnd + 1)));
+              MI('$StartTime', Date2Str(FStart)), MI('$EndTime', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
 end;
@@ -131,7 +131,7 @@ begin
     //按品种合计时无法查询客户
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -147,7 +147,7 @@ begin
     //*********
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
     begin
-      with DBGridMain.Columns[nIdx do
+      with DBGridMain.Columns[nIdx] do
       begin
         Sortable:= not DBGridMain.Grouping.Enabled;
       end;
@@ -182,7 +182,7 @@ begin
 
     FJBWhere := '(D_OutFact>=''%s'' and D_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
-                sFlag_BillPick, sFlag_BillPost);
+                sFlag_BillPick, sFlag_BillPost]);
     InitFormData('');
   finally
     FJBWhere := '';

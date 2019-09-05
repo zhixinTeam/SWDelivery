@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
   Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniButton,
   uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses,
-  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses;
+  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses, frxClass,
+  frxExportPDF, frxDBSet;
 
 type
   TfFrameTruckQuery = class(TfFrameBase)
@@ -80,9 +81,9 @@ function TfFrameTruckQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
-    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
     //xxxxx
-    Result := 'Select * from $Bill b ';
+    Result := 'Select * from $Bill b Left Join S_Customer On C_ID=L_CusID ';
 
     if FFilteDate then
       Result := Result + 'Where ((L_InTime>=''$S'' and L_InTime <''$End'') Or ' +
@@ -98,11 +99,12 @@ begin
     if (Not UniMainModule.FUserConfig.FIsAdmin) then
     begin
       if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
-        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''' or C_WeiXin='''+
+                                                UniMainModule.FUserConfig.FUserID +''')';
     end;
 
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
 end;
@@ -139,7 +141,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;
 end;

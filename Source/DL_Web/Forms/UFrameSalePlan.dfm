@@ -86,7 +86,7 @@ inherited fFrameSalePlan: TfFrameSalePlan
       Height = 505
       Visible = False
       Align = alLeft
-      Anchors = [akLeft, akTop, akBottom
+      Anchors = [akLeft, akTop, akBottom]
     end
     object unpgcntrl1: TUniPageControl
       Left = 1
@@ -96,7 +96,7 @@ inherited fFrameSalePlan: TfFrameSalePlan
       Hint = ''
       ActivePage = unSht_1
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 4
       OnChange = unpgcntrl1Change
       object unSht_1: TUniTabSheet
@@ -109,10 +109,10 @@ inherited fFrameSalePlan: TfFrameSalePlan
           Height = 477
           Hint = ''
           DataSource = DataSource1
-          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
+          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
           LoadMask.Message = 'Loading data...'
           Align = alClient
-          Anchors = [akLeft, akTop, akRight, akBottom
+          Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
         end
       end
@@ -126,10 +126,10 @@ inherited fFrameSalePlan: TfFrameSalePlan
           Height = 477
           Hint = ''
           DataSource = Ds_Mx
-          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
+          Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
           LoadMask.Message = 'Loading data...'
           Align = alClient
-          Anchors = [akLeft, akTop, akRight, akBottom
+          Anchors = [akLeft, akTop, akRight, akBottom]
           TabOrder = 0
         end
       end

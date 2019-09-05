@@ -1,6 +1,6 @@
 inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
   Width = 1137
-  Height = 309
+  Height = 306
   Font.Height = -15
   object GroupBox1: TGroupBox
     Left = 8

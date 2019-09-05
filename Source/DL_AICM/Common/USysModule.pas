@@ -59,29 +59,29 @@ begin
 
   nStr := 'Select W_Factory,W_Serial From %s ' +
           'Where W_MAC=''%s'' And W_Valid=''%s''';
-  nStr := Format(nStr, [sTable_WorkePC, gSysParam.FLocalMAC, sFlag_Yes);
+  nStr := Format(nStr, [sTable_WorkePC, gSysParam.FLocalMAC, sFlag_Yes]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
   begin
-    gSysParam.FFactNum := Fields[0.AsString;
-    gSysParam.FSerialID := Fields[1.AsString;
+    gSysParam.FFactNum := Fields[0].AsString;
+    gSysParam.FSerialID := Fields[1].AsString;
   end;
 
   nStr := 'select d_value from %s where d_name=''%s''';
-  nStr := Format(nStr, [sTable_SysDict,'FactoryId');
+  nStr := Format(nStr, [sTable_SysDict,'FactoryId']);
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
   begin
-    gSysParam.FFactory := Fields[0.AsString;
+    gSysParam.FFactory := Fields[0].AsString;
   end;
 
   nStr := 'select d_value from %s where d_Memo=''%s''';
-  nStr := Format(nStr, [sTable_SysDict,sFlag_WXServiceMIT);
+  nStr := Format(nStr, [sTable_SysDict,sFlag_WXServiceMIT]);
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
   begin
-    gSysParam.FWechatURL := Fields[0.AsString;
+    gSysParam.FWechatURL := Fields[0].AsString;
   end;
 
   //----------------------------------------------------------------------------
@@ -95,7 +95,7 @@ begin
   end;
 
   nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
-  nStr := Format(nStr, [sTable_SysDict, sFlag_PoundWuCha);
+  nStr := Format(nStr, [sTable_SysDict, sFlag_PoundWuCha]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
@@ -104,25 +104,25 @@ begin
 
     while not Eof do
     begin
-      nStr := Fields[1.AsString;
+      nStr := Fields[1].AsString;
       if nStr = sFlag_PDaiWuChaZ then
-        gSysParam.FPoundDaiZ := Fields[0.AsFloat;
+        gSysParam.FPoundDaiZ := Fields[0].AsFloat;
       //xxxxx
 
       if nStr = sFlag_PDaiWuChaF then
-        gSysParam.FPoundDaiF := Fields[0.AsFloat;
+        gSysParam.FPoundDaiF := Fields[0].AsFloat;
       //xxxxx
 
       if nStr = sFlag_PDaiPercent then
-        gSysParam.FDaiPercent := Fields[0.AsString = sFlag_Yes;
+        gSysParam.FDaiPercent := Fields[0].AsString = sFlag_Yes;
       //xxxxx
 
       if nStr = sFlag_PDaiWuChaStop then
-        gSysParam.FDaiWCStop := Fields[0.AsString = sFlag_Yes;
+        gSysParam.FDaiWCStop := Fields[0].AsString = sFlag_Yes;
       //xxxxx
 
       if nStr = sFlag_PSanWuChaF then
-        gSysParam.FPoundSanF := Fields[0.AsFloat;
+        gSysParam.FPoundSanF := Fields[0].AsFloat;
 
       Next;
     end;
@@ -137,7 +137,7 @@ begin
 
   //----------------------------------------------------------------------------
   nStr := 'Select D_Value From %s Where D_Name=''%s''';
-  nStr := Format(nStr, [sTable_SysDict, sFlag_MITSrvURL);
+  nStr := Format(nStr, [sTable_SysDict, sFlag_MITSrvURL]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
@@ -146,7 +146,7 @@ begin
 
     while not Eof do
     begin
-      gChannelChoolser.AddChannelURL(Fields[0.AsString);
+      gChannelChoolser.AddChannelURL(Fields[0].AsString);
       Next;
     end;
 
@@ -156,12 +156,12 @@ begin
   end;
 
   nStr := 'Select D_Value From %s Where D_Name=''%s''';
-  nStr := Format(nStr, [sTable_SysDict, sFlag_HardSrvURL);
+  nStr := Format(nStr, [sTable_SysDict, sFlag_HardSrvURL]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
   begin
-    gSysParam.FHardMonURL := Fields[0.AsString;
+    gSysParam.FHardMonURL := Fields[0].AsString;
   end;
   LoadSysParameter(nil);
 end;

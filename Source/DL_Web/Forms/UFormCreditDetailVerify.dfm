@@ -99,7 +99,7 @@ inherited fFormCreditDetailVerify: TfFormCreditDetailVerify
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Font.Style = [fsBold
+      Font.Style = [fsBold]
       TabOrder = 6
     end
     object UnLbl_Money: TUniLabel
@@ -114,7 +114,7 @@ inherited fFormCreditDetailVerify: TfFormCreditDetailVerify
       Font.Color = clHighlight
       Font.Height = -15
       Font.Name = #23435#20307
-      Font.Style = [fsBold
+      Font.Style = [fsBold]
       TabOrder = 7
     end
     object UnLbl_Date: TUniLabel
@@ -149,7 +149,7 @@ inherited fFormCreditDetailVerify: TfFormCreditDetailVerify
       Width = 144
       Hint = ''
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -177,7 +177,7 @@ inherited fFormCreditDetailVerify: TfFormCreditDetailVerify
     Height = 25
     Hint = ''
     Caption = #25209#20934#30003#35831
-    Anchors = [akRight, akBottom
+    Anchors = [akRight, akBottom]
     TabOrder = 3
     Default = True
     OnClick = BtnOKClick

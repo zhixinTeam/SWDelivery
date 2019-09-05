@@ -75,10 +75,9 @@ begin
       FHintText := ReadString(FProgID, 'HintText', '');
       FCopyRight := ReadString(FProgID, 'CopyRight', '');
       FRecMenuMax := ReadInteger(FProgID, 'MaxRecent', cRecMenuMax);
-      FTTCEK720ID  := ReadString(FProgID, 'TTCEK720ID', '');
-      
+
       FIconFile := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
-      FIconFile := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase);
+      FIconFile := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
 
       FHYDanPrinter := ReadString(FProgID,'hydanprinter','');
       FCardPrinter:= ReadString(FProgID,'cardprinter','');
@@ -92,7 +91,7 @@ begin
       FReadInsertCard := ReadBool(FProgID,'ReadInsertCard',False);
       FEnablePurchaseMultipleCard := ReadBool(FProgID,'PurchaseMultipleCard',True);
       
-      FProberUser:= 0;
+      FProberUser := 0;
       FVoiceUser := 0;
 
       FIsManual := False;
@@ -121,7 +120,7 @@ begin
   nPath := gPath;
   if Copy(nPath, Length(nPath), 1) = '\' then
     System.Delete(nPath, Length(nPath), 1);
-  Result := StringReplace(nStr, '$Path', nPath, [rfReplaceAll, rfIgnoreCase);
+  Result := StringReplace(nStr, '$Path', nPath, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 //------------------------------------------------------------------------------
@@ -130,7 +129,7 @@ procedure ShowMsgOnLastPanelOfStatusBar(const nMsg: string);
 begin
   if Assigned(gStatusBar) and (gStatusBar.Panels.Count > 0) then
   begin
-    gStatusBar.Panels[gStatusBar.Panels.Count - 1.Text := nMsg;
+    gStatusBar.Panels[gStatusBar.Panels.Count - 1].Text := nMsg;
     Application.ProcessMessages;
   end;
 end;
@@ -141,8 +140,8 @@ begin
   if Assigned(gStatusBar) and (gStatusBar.Panels.Count > nIdx) and
      (nIdx > -1) then
   begin
-    gStatusBar.Panels[nIdx.Text := nMsg;
-    gStatusBar.Panels[nIdx.Width := gStatusBar.Canvas.TextWidth(nMsg) + 20;
+    gStatusBar.Panels[nIdx].Text := nMsg;
+    gStatusBar.Panels[nIdx].Width := gStatusBar.Canvas.TextWidth(nMsg) + 20;
     Application.ProcessMessages;
   end;
 end;
@@ -163,8 +162,8 @@ begin
       begin
         nCount := nList.Count - 1;
         for i:=0 to nCount do
-         if IsNumber(nList[i, False) then
-          nLv.Columns[i.Width := StrToInt(nList[i);
+         if IsNumber(nList[i], False) then
+          nLv.Columns[i].Width := StrToInt(nList[i]);
       end;
     finally
       nList.Free;
@@ -183,8 +182,8 @@ begin
 
   for i:=0 to nCount do
   if i = nCount then
-       Result := Result + IntToStr(nLv.Columns[i.Width)
-  else Result := Result + IntToStr(nLv.Columns[i.Width) + ';';
+       Result := Result + IntToStr(nLv.Columns[i].Width)
+  else Result := Result + IntToStr(nLv.Columns[i].Width) + ';';
 end;
 
 //Date: 2007-11-30
@@ -198,10 +197,10 @@ begin
   nCount := nLv.Items.Count - 1;
 
   for i:=0 to nCount do
-  if nAll or nLv.Items[i.Selected then
+  if nAll or nLv.Items[i].Selected then
   begin
-    nList.Add(nLv.Items[i.Caption + sLogField +
-      CombinStr(nLv.Items[i.SubItems, sLogField));
+    nList.Add(nLv.Items[i].Caption + sLogField +
+      CombinStr(nLv.Items[i].SubItems, sLogField));
     //combine items's data
   end;
 end;
@@ -217,7 +216,7 @@ begin
   begin
     Result := '';
     for nIdx:=1 to Length(nCard) do
-      Result := Result + IntToHex(Ord(nCard[nIdx), 2);
+      Result := Result + IntToHex(Ord(nCard[nIdx]), 2);
     //xxxxx
   end else Result := nCard;
 

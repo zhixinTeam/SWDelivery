@@ -369,6 +369,23 @@ begin
     end;
   end;
 
+  {$IFDEF ProhibitMultipleOrder}
+  nStr := 'Select L_ID From S_Bill Where L_OutFact is Null  AND L_Truck=''%s'' '+
+          'Union '+
+          'Select O_ID L_ID From P_Order Left Join P_OrderDtl On O_ID=D_OID '+
+          'Where D_OutFact is Null AND D_Truck=''%s'' ';
+  nStr := Format(nStr, [nTruck, nTruck]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '车辆[ %s ]在未完成订单[ %s ]之前禁止开单.';
+    nData := Format(nStr, [nTruck, FieldByName('L_ID').AsString]);
+    WriteLog(nData);
+    Exit;
+  end;
+  {$ENDIF}
+  ////**********************************************************
+  ////**********************************************************
   nStr := 'Select R_ID,T_Bill,T_StockNo,T_Type,T_InFact,T_Valid From %s ' +
           'Where T_Truck=''%s'' ';
   nStr := Format(nStr, [sTable_ZTTrucks, nTruck]);
@@ -619,7 +636,7 @@ var nIdx: Integer;
 begin
   nList := TStringList.Create;   nStockCodeParam:= '';
   nListX:= TStringList.Create;
-  Result := False;                                                              //gSysLoger.AddLog(TWorkerBusinessBills, '', '保存交货单');
+  Result:= False;                                                              //gSysLoger.AddLog(TWorkerBusinessBills, '', '保存交货单');
   FListA.Text := PackerDecodeStr(FIn.FData);
 
   if not VerifyBeforSave(nData) then Exit;

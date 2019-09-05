@@ -2,7 +2,7 @@ object UniMainModule: TUniMainModule
   OldCreateOrder = False
   OnCreate = UniGUIMainModuleCreate
   OnDestroy = UniGUIMainModuleDestroy
-  BrowserOptions = [boDisableMouseRightClick
+  BrowserOptions = [boDisableMouseRightClick]
   MonitoredKeys.Keys = <>
   ServerMessages.UnavailableErrMsg = #36890#35759#38169#35823': '#25968#25454#26080#27861#27491#30830#20256#36755'.'
   ServerMessages.LoadingMessage = #27491#22312#35835#21462
@@ -10,27 +10,27 @@ object UniMainModule: TUniMainModule
     '<html>'
     '<body bgcolor="#dfe8f6">'
     '<p style="text-align:center;color:#A05050">'#31995#32479#24050#36864#20986','#22240#20026#36816#34892#26102#21457#29983#38169#35823':</p>'
-    '<p style="text-align:center;color:#0000A0">[###message###</p>'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
     
-      '<p style="text-align:center;color:#A05050"><a href="[###url###"' +
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
       '>'#37325#26032#30331#24405#31995#32479'</a></p>'
     '</body>'
     '</html>')
   ServerMessages.InvalidSessionTemplate.Strings = (
     '<html>'
     '<body bgcolor="#dfe8f6">'
-    '<p style="text-align:center;color:#0000A0">[###message###</p>'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
     
-      '<p style="text-align:center;color:#A05050"><a href="[###url###"' +
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
       '>'#37325#26032#30331#24405#31995#32479'</a></p>'
     '</body>'
     '</html>')
   ServerMessages.TerminateTemplate.Strings = (
     '<html>'
     '<body bgcolor="#dfe8f6">'
-    '<p style="text-align:center;color:#0000A0">[###message###</p>'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
     
-      '<p style="text-align:center;color:#A05050"><a href="[###url###"' +
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
       '>'#37325#26032#30331#24405#31995#32479'</a></p>'
     '</body>'
     '</html>')

@@ -42,7 +42,7 @@ inherited fFormInvoiceSettle: TfFormInvoiceSettle
       Width = 305
       Hint = ''
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       ReadOnly = True
     end
@@ -61,7 +61,7 @@ inherited fFormInvoiceSettle: TfFormInvoiceSettle
       Width = 364
       Height = 286
       Hint = ''
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 4
     end
   end

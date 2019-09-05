@@ -59,7 +59,7 @@ inherited fFormPayment: TfFormPayment
       Hint = ''
       Style = csDropDownList
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -76,7 +76,7 @@ inherited fFormPayment: TfFormPayment
       ParentShowHint = False
       MaxLength = 35
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -195,7 +195,7 @@ inherited fFormPayment: TfFormPayment
       Hint = ''
       MaxLength = 20
       Text = ''
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -257,7 +257,7 @@ inherited fFormPayment: TfFormPayment
       Hint = ''
       Lines.Strings = (
         #38144#21806#22238#27454#25110#39044#20184#27454)
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 19
     end
   end

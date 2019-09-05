@@ -25,7 +25,7 @@ uses
   UFormBill, UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
   UFormZhiKaPrice, UFrameQueryDiapatch, UFrameTruckQuery, UFrameBillCard,
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
-  UFormLadingDuanDao,
+  UFormLadingDuanDao,              UFramePoundAutoItem,                                      
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,      
   UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
@@ -45,7 +45,7 @@ uses
   {.$ENDIF}
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
-  UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
+  UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameQueryCusZhikaInfo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
 
 

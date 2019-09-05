@@ -911,13 +911,14 @@ begin
         end;
         {$ENDIF}
 
-        {$IFDEF SWJY}
+        {$IFDEF ShowDaiWuChaLog}
         if (FType = sFlag_Dai) then
         WriteSysLog('袋装称重：'+ Format('%s %s 开单量: %.2f吨 装车量: %.2f吨 误差量: %.2f公斤 误差标准：%g, %g',
                             [FId, FTruck, FInnerData.FValue, nNet, nVal, FPoundDaiZ, FPoundDaiF]));
         {$ENDIF}
 
-        if ((FType = sFlag_Dai) and (
+        if ({$IFDEF SampleNoWuChaChk}(FBillItems[0].FIsSample<>sFlag_Yes)and{$ENDIF}   // 样品不做误差校验 （泾阳）
+            (FType = sFlag_Dai) and (
             ((nVal > 0) and (FPoundDaiZ > 0) and (nVal > FPoundDaiZ)) or
             ((nVal < 0) and (FPoundDaiF > 0) and (-nVal > FPoundDaiF)))) then
         begin

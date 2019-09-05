@@ -135,6 +135,26 @@ type
 implementation
 
 
+function GetLeftStr(SubStr, Str: string): string;
+begin
+   Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+end;
+//-------------------------------------------
+
+function GetRightStr(SubStr, Str: string): string;
+var
+   i: integer;
+begin
+   i := pos(SubStr, Str);
+   if i > 0 then
+     Result := Copy(Str
+       , i + Length(SubStr)
+       , Length(Str) - i - Length(SubStr) + 1)
+   else
+     Result := '';
+end;
+//-------------------------------------------
+
 class function TBusWorkerQueryField.FunctionName: string;
 begin
   Result := sBus_GetQueryField;
@@ -1147,7 +1167,7 @@ end;
 //Parm: 物料编号[FIn.FData];预扣减量[FIn.ExtParam];
 //Desc: 按规则生成指定品种的批次编号
 function TWorkerBusinessCommander.GetStockBatcode(var nData: string): Boolean;
-var nStr,nP, nTip, nSql: string;
+var nStr,nP, nTip, nSql, nNextCode: string;
     nNew: Boolean;
     nInt,nInc: Integer;
     nVal,nPer, nSurplus : Double;
@@ -1183,8 +1203,10 @@ var nStr,nP, nTip, nSql: string;
                               FieldByName('B_Name').AsString, Result]);
         //xxxxx
 
+        {$IFDEF NoTipBatCode}
         FOut.FBase.FErrCode := sFlag_ForceHint;
         FOut.FBase.FErrDesc := nStr;
+        {$ENDIF}
       end;
 
       nStr := MakeSQLByStr([SF('B_Batcode', Result),
@@ -1194,6 +1216,7 @@ var nStr,nP, nTip, nSql: string;
                 ], sTable_StockBatcode, SF('B_Stock', FIn.FData), False);
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
+
 begin
   Result := True;
   FOut.FData := '';
@@ -1268,7 +1291,7 @@ begin
       begin
         nStr := 'Update %s Set B_Base=1 Where B_Stock=''%s''';
         nStr := Format(nStr, [sTable_StockBatcode, FIn.FData]);
-        
+
         gDBConnManager.WorkerExec(FDBConn, nStr);
         FOut.FData := NewBatCode;
         nNew := True;
@@ -1317,14 +1340,20 @@ begin
           nStr := Format(nStr, [FieldByName('B_Stock').AsString,
                                 FieldByName('B_Name').AsString]);
           //xxxxx
-
+          {$IFDEF NoTipBatCode}
           FOut.FBase.FErrCode := sFlag_ForceHint;
           FOut.FBase.FErrDesc := nStr;
+          {$ENDIF}
+
+          nNextCode:= FieldByName('B_Batcode').AsString;
+          nNextCode:= GetRightStr('-', nNextCode);
+          nNextCode:= GetLeftStr('-', nNextCode) +'-'+ FloatToStr(StrToIntDef(nNextCode, 0)+1);
 
           nSurplus:= FieldByName('B_Value').AsFloat-FieldByName('B_HasUse').AsFloat;
-          nStr := '物料[ %s.%s ]批次[%s]发货已达预警量、剩余发货量[ %g ]、即将更换批次号,请准备取样.';
+          nStr := '物料[ %s.%s ]批次[%s]发货已达预警量、剩余发货量[ %g ]、即将更换下一批次号[%s],'+
+                  '请准备取样.该批次(%s)水泥经检验合格，准予出厂';
           nStr := Format(nStr, [FieldByName('B_Stock').AsString, FieldByName('B_Name').AsString,
-                                FieldByName('B_Batcode').AsString, nSurplus]);
+                                FieldByName('B_Batcode').AsString, nSurplus, nNextCode, nNextCode]);
 
           nTip:= FieldByName('B_Batcode').AsString +'>>'+ sFlag_ManualF;
           nSql:= ' If Not Exists (Select * From Sys_ManualEvent Where E_ID='''+nTip+''')  '+
@@ -1502,7 +1531,7 @@ begin
 
     if not nNew then //编号超发
     begin
-      nVal := FieldByName('B_HasUse').AsFloat + StrToFloat(FIn.FExtParam);
+      nVal := FieldByName('B_HasUse').AsFloat-100 + StrToFloat(FIn.FExtParam);
       //已使用+预使用
       nPer := FieldByName('B_Value').AsFloat * FieldByName('B_High').AsFloat / 100;
       //可用上限

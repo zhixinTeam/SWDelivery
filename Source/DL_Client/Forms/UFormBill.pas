@@ -683,11 +683,11 @@ begin
   begin
     ShowMsg('请先办理提货单的品种', sHint); Exit;
   end;
-
+             {
   if CheckTruckIsIN(EditTruck.Text) then
   begin
     ShowMsg('该车辆当前已开单、上一订单未出厂前禁止再次开单', sHint); Exit;
-  end;
+  end; }
   {$IFDEF CheckTruckNo}           // 查询是否有车辆已存在 声威
   if CheckTruckIsIN(EditTruck.Text) then
   begin
@@ -739,6 +739,12 @@ begin
     else if FSelecte and (FValue>70) and (gStockList[nIdx].FType='D') then
     begin
       ShowMsg('根据工厂规定、袋装最大开单量为：70 吨，请修改开单量', sHint); Exit;
+    end
+    else
+    begin
+      if MessageBox(0, '确认已核对开单信息、进行开单么', '提示',
+                        MB_OKCANCEL + MB_ICONQUESTION) = ID_CANCEL then
+        Exit;
     end;
   {$ENDIF}
 

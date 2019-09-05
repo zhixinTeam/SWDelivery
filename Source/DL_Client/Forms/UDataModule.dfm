@@ -1065,4 +1065,10 @@ object FDM: TFDM
     Left = 234
     Top = 10
   end
+  object Qry_1: TADOQuery
+    Connection = ADOConn
+    Parameters = <>
+    Left = 25
+    Top = 244
+  end
 end

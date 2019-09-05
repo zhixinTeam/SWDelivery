@@ -284,8 +284,8 @@ begin
 
   for nIdx:=1 to nLen do
   begin
-    if (FBuffer[nIdx <> #$AA) or (nLen - nIdx < 6) then Continue;
-    if (FBuffer[nIdx+1 <> #$FF) or (FBuffer[nIdx+2 <> #$00) then Continue;
+    if (FBuffer[nIdx] <> #$AA) or (nLen - nIdx < 6) then Continue;
+    if (FBuffer[nIdx+1] <> #$FF) or (FBuffer[nIdx+2] <> #$00) then Continue;
 
     nStr := Copy(FBuffer, nIdx+3, 4);
     FBuffer := '';
@@ -293,7 +293,7 @@ begin
     FCardType := ctRFID;
     nCardno := ParseCardNO(nStr, True);
     nSql := 'select * from %s where c_card=''%s''';
-    nSql := Format(nSql,[sTable_Card,nCardno);
+    nSql := Format(nSql,[sTable_Card,nCardno]);
     with FDM.QuerySQL(nSql) do
     begin
       if RecordCount<=0 then
@@ -343,7 +343,7 @@ begin
     TimerReadCard.Enabled := True;
 
     nStr := 'Select * From %s Where L_Card=''%s''';
-    nStr := Format(nStr, [sTable_Bill, nCard);
+    nStr := Format(nStr, [sTable_Bill, nCard]);
     FBegin := Now;
     with FDM.QuerySQL(nStr) do
     begin
@@ -393,17 +393,17 @@ begin
     //--------------------------------------------------------------------------
     nStr := 'Select Count(*) From %s ' +
             'Where Z_StockNo=''%s'' And Z_Valid=''%s'' And Z_VipLine=''%s''';
-    nStr := Format(nStr, [sTable_ZTLines, nStock, sFlag_Yes,nVip);
+    nStr := Format(nStr, [sTable_ZTLines, nStock, sFlag_Yes,nVip]);
     FBegin := Now;
     with FDM.QuerySQL(nStr) do
     begin
-      LabelNum.Caption := '开放道数: ' + Fields[0.AsString + '个';
+      LabelNum.Caption := '开放道数: ' + Fields[0].AsString + '个';
     end;
     WriteLog('TfFormMain.QueryCard(nCard='''+nCard+''')查询开放道数[+nStr+-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
     //--------------------------------------------------------------------------
     nStr := 'Select T_line,T_InTime,T_Valid From %s ZT ' +
              'Where T_HKBills like ''%%%s%%'' ';
-    nStr := Format(nStr, [sTable_ZTTrucks, nBill);
+    nStr := Format(nStr, [sTable_ZTTrucks, nBill]);
     FBegin := Now;
     with FDM.QuerySQL(nStr) do
     begin
@@ -429,7 +429,7 @@ begin
     if nLine <> '' then
     begin
       nStr := 'Select Z_Valid,Z_Name From %s Where Z_ID=''%s'' ';
-      nStr := Format(nStr, [sTable_ZTLines, nLine);
+      nStr := Format(nStr, [sTable_ZTLines, nLine]);
 
       with FDM.QuerySQL(nStr) do
       begin
@@ -447,7 +447,7 @@ begin
 
     nStr := 'Select D_Value From $DT Where D_Memo = ''$PQ''';
     nStr := MacroValue(nStr, [MI('$DT', sTable_SysDict),
-            MI('$PQ', sFlag_PoundQueue));
+            MI('$PQ', sFlag_PoundQueue)]);
 
     with FDM.QuerySQL(nStr) do
     begin
@@ -457,7 +457,7 @@ begin
 
     nStr := 'Select D_Value From $DT Where D_Memo = ''$DQ''';
     nStr := MacroValue(nStr, [MI('$DT', sTable_SysDict),
-            MI('$DQ', sFlag_DelayQueue));
+            MI('$DQ', sFlag_DelayQueue)]);
 
     with FDM.QuerySQL(nStr) do
     begin
@@ -481,20 +481,20 @@ begin
 
       nStr := MacroValue(nStr, [MI('$TB', sTable_ZTTrucks),
             MI('$Yes', sFlag_Yes), MI('$SN', nStock),
-            MI('$IT', DateTime2Str(nDate)),MI('$VIP', nVip));
+            MI('$IT', DateTime2Str(nDate)),MI('$VIP', nVip)]);
     end;
     //xxxxx
-    FBegin := Now;
+    FBegin := Now;       WriteLog(nStr);
     with FDM.QuerySQL(nStr) do
     begin
-      if Fields[0.AsInteger < 1 then
+      if Fields[0].AsInteger < 1 then
       begin
         nStr := '您已排到队首,请关注大屏调度准备进厂.';
         LabelHint.Caption := nStr;
       end else
       begin
         nStr := '您前面还有【 %d 】辆车等待进厂';
-        LabelHint.Caption := Format(nStr, [Fields[0.AsInteger);
+        LabelHint.Caption := Format(nStr, [Fields[0].AsInteger]);
       end;
     end;
     WriteLog('TfFormMain.QueryCard(nCard='''+nCard+''')查询车辆队列-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
@@ -569,7 +569,7 @@ begin
 
   nSR := 'Select * From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
-  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam);
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
   nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
@@ -578,13 +578,13 @@ begin
   //xxxxx
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
-          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID));
+          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
-    nStr := '编号为[ %s  的化验单记录已无效!!';
-    nStr := Format(nStr, [nHID);
+    nStr := '编号为 %s 的化验单记录已无效!!';
+    nStr := Format(nStr, [nHID]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -605,7 +605,7 @@ begin
   if Result  then
   begin
     nStr := 'UPDate %s Set H_PrintNum=H_PrintNum+1 Where H_Reporter=''%s'' ';
-    nStr := Format(nStr, [sTable_StockHuaYan, nHID);
+    nStr := Format(nStr, [sTable_StockHuaYan, nHID]);
     FDM.ExecuteSQL(nStr);
   end;
 end;
@@ -624,7 +624,7 @@ begin
     nHyDan := nP.FParamB;
     nStockname := nP.FParamC;
     nstockno := nP.FParamD;
-    nShortFileName := gSysParam.FQCReportFR3Map.Values[nstockno;
+    nShortFileName := gSysParam.FQCReportFR3Map.Values[nstockno];
     if nHyDan='' then
     begin
       ShowMsg('当前品种无需打印化验单。',sHint);
@@ -765,7 +765,7 @@ begin
     TimerReadCard.Enabled := True;
 
     nStr := 'select * from %s where o_card=''%s''';
-    nStr := Format(nStr, [sTable_Order, nCard);
+    nStr := Format(nStr, [sTable_Order, nCard]);
     FBegin := Now;
     with FDM.QuerySQL(nStr) do
     begin

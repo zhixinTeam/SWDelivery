@@ -20,7 +20,6 @@ type
     EdtSearchTime: TUniDateTimePicker;
     Chart1: TUniChart;
     Series1: TUniLineSeries;
-    UnLbl1: TUniLabel;
     procedure EdtSearchTimeChange(Sender: TObject);
   private
     { Private declarations }
@@ -71,7 +70,7 @@ begin
   try
     for nIdx := 0 to DBGridMain.Columns.Count-1 do
     begin
-      with DBGridMain.Columns[nIdx do
+      with DBGridMain.Columns[nIdx] do
       begin
         Sortable:= not DBGridMain.Grouping.Enabled;
       end;
@@ -98,21 +97,19 @@ begin
   FSearchDate:= EdtSearchTime.DateTime;
   with TStringHelper, TDateTimeHelper do
   begin
-    nStr   := 'Select a.D_StockName, a.D_Value D_YearValue, ISNULL(YearRecNum, 0) YearRecNum, '+
-                      'ISNULL(b.D_Value, 0) D_MonthValue, ISNULL(MonthRecNum, 0) MonthRecNum, '+
-                      'ISNULL(c.D_Value, 0) D_DayValue, ISNULL(DayRecNum, 0) DayRecNum  ' +
-                      'From (    ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) YearRecNum   ' +
+    nStr   := 'Select a.D_StockName, a.D_Value D_YearValue, ISNULL(b.D_Value, 0) D_MonthValue, ISNULL(c.D_Value, 0) D_DayValue ' +
+              'From (    ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value  ' +
               '	From $OrderDtl   ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$YearSTime'' and D_OutFact <''$ETime'')   ' +
               '	Group  by D_StockName) a  ' +
               'Left Join (   ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) MonthRecNum   ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value  ' +
               '	From $OrderDtl   ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$MounthSTime'' and D_OutFact <''$ETime'')   ' +
               '	Group  by D_StockName) b On a.D_StockName= b.D_StockName   ' +
               'Left Join (   ' +
-              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value, COUNT(*) DayRecNum    ' +
+              '	Select D_StockName, SUM(ISNULL(D_Value, 0)) D_Value   ' +
               '	From $OrderDtl    ' +
               '	Where D_DelMan is Null And (D_OutFact>=''$DaySTime'' and D_OutFact <''$ETime'')  ' +
               '	Group  by D_StockName) c On a.D_StockName= c.D_StockName   ' +
@@ -121,7 +118,7 @@ begin
     Result := MacroValue(nStr, [MI('$OrderDtl', sTable_OrderDtl), MI('$YearSTime', FormatDateTime('yyyy-01-01 00:00:00', FSearchDate)),
                                   MI('$MounthSTime', FormatDateTime('yyyy-MM-01 00:00:00', FSearchDate)),
                                   MI('$DaySTime', FormatDateTime('yyyy-MM-DD 00:00:00', FSearchDate)),
-                                  MI('$ETime', Date2Str(FSearchDate + 1)));
+                                  MI('$ETime', Date2Str(FSearchDate + 1))]);
     //xxxxx
   end;
 end;

@@ -92,13 +92,13 @@ begin
             'C_Name From %s ' +
             ' Left Join %s on C_ID=Z_Customer ' +
             'Where Z_ID=''%s''';
-    nStr := Format(nStr, [sTable_ZhiKa, sTable_Customer, nZhiKa);
+    nStr := Format(nStr, [sTable_ZhiKa, sTable_Customer, nZhiKa]);
 
     with DBQuery(nStr, nQuery) do
     begin
       if RecordCount < 1 then
       begin
-        nStr := Format('纸卡[ %s 已丢失.', [nZhiKa);
+        nStr := Format('纸卡[ %s ]已丢失.', [nZhiKa]);
         ShowMessage(nStr);
         Exit;
       end;
@@ -111,28 +111,28 @@ begin
       EditCustomer.Text := FieldByName('C_Name').AsString;
 
       FParam.FParamC := FieldByName('Z_FixedMoney').AsFloat;
-      EditMoney.Text := Format('%.2f', [FieldByName('Z_FixedMoney').AsFloat);
+      EditMoney.Text := Format('%.2f', [FieldByName('Z_FixedMoney').AsFloat]);
       Check1.Checked := FieldByName('Z_OnlyMoney').AsString = sFlag_Yes;
     end;
 
     nStr := 'Select * From %s Where A_CID=''%s''';
-    nStr := Format(nStr, [sTable_CusAccount, FParam.FParamB);
+    nStr := Format(nStr, [sTable_CusAccount, FParam.FParamB]);
 
     with DBQuery(nStr, nQuery) do
     begin
       if RecordCount < 1 then
       begin
-        nStr := '客户[ %s,%s 账户信息丢失.';
-        nStr := Format(nStr, [FParam.FParamB, EditCustomer.Text);
+        nStr := '客户[ %s,%s ]账户信息丢失.';
+        nStr := Format(nStr, [FParam.FParamB, EditCustomer.Text]);
         ShowMessage(nStr); Exit;
       end;
 
       BtnOK.Enabled := True;
-      EditIn.Text := Format('%.2f', [FieldByName('A_InMoney').AsFloat);
-      EditOut.Text := Format('%.2f', [FieldByName('A_OutMoney').AsFloat);
-      EditFreeze.Text := Format('%.2f', [FieldByName('A_FreezeMoney').AsFloat);
+      EditIn.Text := Format('%.2f', [FieldByName('A_InMoney').AsFloat]);
+      EditOut.Text := Format('%.2f', [FieldByName('A_OutMoney').AsFloat]);
+      EditFreeze.Text := Format('%.2f', [FieldByName('A_FreezeMoney').AsFloat]);
 
-      EditValid.Text := Format('%.2f', [GetCustomerValidMoney(FParam.FParamB));
+      EditValid.Text := Format('%.2f', [GetCustomerValidMoney(FParam.FParamB)]);
       //xxxxx
     end;
   finally
@@ -162,23 +162,23 @@ begin
 
     nStr := 'Update %s Set Z_FixedMoney=$My,Z_OnlyMoney=$F ' +
             'Where Z_ID=''%s''';
-    nStr := Format(nStr, [sTable_ZhiKa, FParam.FParamA);
+    nStr := Format(nStr, [sTable_ZhiKa, FParam.FParamA]);
 
     if Check1.Checked then
     begin
-      nStr := MacroValue(nStr, [MI('$My', EditMoney.Text));
-      nStr := MacroValue(nStr, [MI('$F', '''' + sFlag_Yes + ''''));
-    end else nStr := MacroValue(nStr, [MI('$My', 'Null'), MI('$F', 'Null'));
+      nStr := MacroValue(nStr, [MI('$My', EditMoney.Text)]);
+      nStr := MacroValue(nStr, [MI('$F', '''' + sFlag_Yes + '''')]);
+    end else nStr := MacroValue(nStr, [MI('$My', 'Null'), MI('$F', 'Null')]);
 
     nList.Add(nStr);
     //update sql
 
     if Check1.Checked then
     begin
-      nStr := '纸卡[ %s 限提金额[ %.2f -> %.2f ';
+      nStr := '纸卡[ %s ]限提金额[ %.2f -> %.2f ]';
       nStr := Format(nStr, [FParam.FParamA, StrToFloat(FParam.FParamC),
-                            StrToFloat(EditMoney.Text));
-    end else nStr := Format('取消限制纸卡[ %s 的可提货金额', [FParam.FParamA);
+                            StrToFloat(EditMoney.Text)]);
+    end else nStr := Format('取消限制纸卡[ %s ]的可提货金额', [FParam.FParamA]);
 
     nStr := WriteSysLog(sFlag_ZhiKaItem, FParam.FParamA, nStr,
             FDBType, nQuery, False, False);

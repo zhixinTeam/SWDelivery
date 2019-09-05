@@ -1,6 +1,6 @@
 object fFormHYRecord: TfFormHYRecord
-  Left = 686
-  Top = 220
+  Left = 377
+  Top = 190
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 613
@@ -615,12 +615,13 @@ object fFormHYRecord: TfFormHYRecord
         Width = 42
       end
       object cxTextEdit17: TcxTextEdit
-        Left = 60
+        Left = 59
         Top = 0
         Hint = 'E.R_MgO'
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 0
+        OnExit = cxTextEdit17Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 74
       end
@@ -631,6 +632,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 7
+        OnExit = cxTextEdit18Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 74
       end
@@ -681,6 +683,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 1
+        OnExit = cxTextEdit23Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 74
       end
@@ -691,6 +694,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 2
+        OnExit = cxTextEdit24Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 74
       end
@@ -712,6 +716,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 8
+        OnExit = cxTextEdit26Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 75
       end
@@ -722,6 +727,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 11
+        OnExit = cxTextEdit27Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 75
       end
@@ -732,6 +738,7 @@ object fFormHYRecord: TfFormHYRecord
         ParentFont = False
         Properties.MaxLength = 20
         TabOrder = 10
+        OnExit = cxTextEdit28Exit
         OnKeyPress = cxTextEdit17KeyPress
         Width = 75
       end

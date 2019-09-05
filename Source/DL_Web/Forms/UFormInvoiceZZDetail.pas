@@ -92,8 +92,8 @@ begin
   with DBGrid1 do
   begin
     if UniMainModule.FGridColumnAdjust then
-         Options := Options + [dgMultiSelect
-    else Options := Options + [dgEditing, dgMultiSelect;
+         Options := Options + [dgMultiSelect]
+    else Options := Options + [dgEditing, dgMultiSelect];
   end;
 end;
 
@@ -159,7 +159,7 @@ begin
   if DBGrid1.SelectedRows.Count < 1 then Exit;
 
   nStr := 'UPDate %s Set R_Chk=''%s'' Where R_ID In (%s) ';
-  nStr := Format(nStr, [sTable_InvoiceReq, nChk, nBill);
+  nStr := Format(nStr, [sTable_InvoiceReq, nChk, nBill]);
 
   DBExecute(nStr, nil, FDBType);
   Result := True;
@@ -191,8 +191,8 @@ begin
     finally
       EnableControls;
       RecNo:= nPi;
-      UnLblChk.Caption:= Format('已选择：%.2f 吨', [nChkTotal);
-      UnLblTotal.Caption := Format('总数：%.2f 吨', [nTotal);
+      UnLblChk.Caption:= Format('已选择：%.2f 吨', [nChkTotal]);
+      UnLblTotal.Caption := Format('总数：%.2f 吨', [nTotal]);
     end;
   end;
 end;
@@ -254,13 +254,13 @@ begin
   try
     DBGrid1.Columns.BeginUpdate;
     for nIdx := 0 to DBGrid1.Columns.Count-1 do
-      if (DBGrid1.Columns[nIdx.Title.Caption='选择') then
+      if (DBGrid1.Columns[nIdx].Title.Caption='选择') then
       begin
-        DBGrid1.Columns[nIdx.Alignment:= taLeftJustify;
+        DBGrid1.Columns[nIdx].Alignment:= taLeftJustify;
 
-        DBGrid1.Columns[nIdx.CheckBoxField.Enabled:= True;
-        DBGrid1.Columns[nIdx.CheckBoxField.FieldValues:='1;0';
-        DBGrid1.Columns[nIdx.CheckBoxField.DisplayValues:=' √ ;';
+        DBGrid1.Columns[nIdx].CheckBoxField.Enabled:= True;
+        DBGrid1.Columns[nIdx].CheckBoxField.FieldValues:='1;0';
+        DBGrid1.Columns[nIdx].CheckBoxField.DisplayValues:=' √ ;';
       end;
   finally
     DBGrid1.Columns.EndUpdate;
@@ -282,7 +282,7 @@ begin
 
     for nIdx:=DBGrid1.SelectedRows.Count - 1 downto 0 do
     begin
-      ClientDS1.Bookmark := DBGrid1.SelectedRows[nIdx;
+      ClientDS1.Bookmark := DBGrid1.SelectedRows[nIdx];
       nList.Add(ClientDS1.FieldByName('R_ID').AsString);
     end;
   finally
@@ -312,7 +312,7 @@ begin
 
     with TStringHelper,TDateTimeHelper do
       nStr := MacroValue(nStr, [MI('$Req', sTable_InvoiceReq),
-                MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa));
+                MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa)]);
     //xxxxx
 
     nQuery := LockDBQuery(FDBType);

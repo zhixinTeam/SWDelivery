@@ -31,6 +31,7 @@ type
     FNumOutFactMsg: Integer;
     //提货单出厂消息推送计时计数
   protected
+    function CanBillSyncToNc(nID : string):Boolean;
     function SendSaleBillToNC(nList: TStrings):Boolean;
     //销售单
     function GetOrderNCInfo(nRid, nTime: string; Var nNo, nPk:string):Boolean;
@@ -285,12 +286,33 @@ begin
   end;
 end;
 
+function TMessageScanThread.CanBillSyncToNc(nID : string):Boolean;
+var nStr : string;
+begin
+  Result:= False;
+  try
+    nStr := 'Select * From %s Where L_ID=''%s'' And L_Status=''O'' ';
+    nStr := Format(nStr, [sTable_Bill, nID]);
+    with gDBConnManager.WorkerQuery(FDBConnA, nStr) do
+    begin
+      Result:= (RecordCount > 0);
+    end;
+  finally
+  end;
+end;
+
 function TMessageScanThread.SendSaleBillToNC(nList: TStrings):Boolean;
 var nStr, nErrMsg : string;
     nOut: TWorkerBusinessCommand;
     nErrNum:Integer;
 begin
   Result:= False;
+  if not CanBillSyncToNc(nList.Values['ID']) then
+  begin
+    WriteLog('销售单：'+nList.Values['ID']+' 状态不符合自动同步要求、本次跳过');
+    Exit;
+  end;
+
   nStr  := PackerEncodeStr(nList.Text);
   Result:= TBusWorkerBusinessNC.CallMe(cBC_SendToNcBillInfo, nStr,'',@nOut);
 

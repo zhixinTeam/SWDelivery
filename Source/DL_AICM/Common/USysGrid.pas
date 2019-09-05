@@ -96,12 +96,12 @@ begin
   nCount := nView.ColumnCount - 1;
   for i:=0 to nCount do
   begin
-    if not Assigned(nView.Columns[i.Properties) then
-      nView.Columns[i.PropertiesClass := TcxTextEditProperties;
+    if not Assigned(nView.Columns[i].Properties) then
+      nView.Columns[i].PropertiesClass := TcxTextEditProperties;
     //xxxxx
 
-    if nView.Columns[i.Properties is TcxCustomEditProperties then
-      TcxCustomEditProperties(nView.Columns[i.Properties).ReadOnly := True;
+    if nView.Columns[i].Properties is TcxCustomEditProperties then
+      TcxCustomEditProperties(nView.Columns[i].Properties).ReadOnly := True;
     //设置只读
   end;
 end;
@@ -125,7 +125,7 @@ begin
     nStr := '';
     for i:=0 to nCount do
     begin
-      nStr := nStr + IntToStr(nView.Columns[i.Width);
+      nStr := nStr + IntToStr(nView.Columns[i].Width);
       if i <> nCount then nStr := nStr + ';';
     end;
 
@@ -134,7 +134,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      nStr := nStr + IntToStr(nView.Columns[i.Tag);
+      nStr := nStr + IntToStr(nView.Columns[i].Tag);
       if i <> nCount then nStr := nStr + ';';
     end;
 
@@ -143,7 +143,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      if nView.Columns[i.Visible then
+      if nView.Columns[i].Visible then
            nStr := nStr + '1'
       else nStr := nStr + '0';
       if i <> nCount then nStr := nStr + ';';
@@ -163,13 +163,13 @@ var nList: TStrings;
 begin
   nList := TStringList.Create;
   try
-    nList.Text := StringReplace(nWidth, ';', #13, [rfReplaceAll);
+    nList.Text := StringReplace(nWidth, ';', #13, [rfReplaceAll]);
     if nList.Count <> nView.ColumnCount then Exit;
 
     nCount := nView.ColumnCount - 1;
     for i:=0 to nCount do
-     if IsNumber(nList[i, False) then
-       nView.Columns[i.Width := StrToInt(nList[i);
+     if IsNumber(nList[i], False) then
+       nView.Columns[i].Width := StrToInt(nList[i]);
     //xxxxx
   finally
     nList.Free;
@@ -185,14 +185,14 @@ var nList: TStrings;
 begin
   nList := TStringList.Create;
   try
-    nList.Text := StringReplace(nIndex, ';', #13, [rfReplaceAll);
+    nList.Text := StringReplace(nIndex, ';', #13, [rfReplaceAll]);
     if nList.Count <> nView.ColumnCount then Exit;
     nCount := nList.Count - 1;
 
     for i:=0 to nCount do
     begin
-      nIdx := nList.IndexOf(IntToStr(nView.Columns[i.Tag));
-      if nIdx > -1 then nView.Columns[i.Index := nIdx;
+      nIdx := nList.IndexOf(IntToStr(nView.Columns[i].Tag));
+      if nIdx > -1 then nView.Columns[i].Index := nIdx;
     end;
   finally
     nList.Free;
@@ -208,12 +208,12 @@ var nList: TStrings;
 begin
   nList := TStringList.Create;
   try
-    nList.Text := StringReplace(nVisible, ';', #13, [rfReplaceAll);
+    nList.Text := StringReplace(nVisible, ';', #13, [rfReplaceAll]);
     if nList.Count <> nView.ColumnCount then Exit;
 
     nCount := nView.ColumnCount - 1;
     for i:=0 to nCount do
-      nView.Columns[i.Visible := nList[i <> '0';
+      nView.Columns[i].Visible := nList[i] <> '0';
     //xxxxx
   finally
     nList.Free;
@@ -238,13 +238,13 @@ begin
     else nTmp := TIniFile.Create(gPath + sFormConfig); 
 
     nList.Text := StringReplace(nTmp.ReadString(nID, nListBox.Name + '_Head', ''),
-                                ';', #13, [rfReplaceAll);
+                                ';', #13, [rfReplaceAll]);
     if nList.Count <> nListBox.HeaderSections.Count then Exit;
 
     nCount := nListBox.HeaderSections.Count - 1;
     for i:=0 to nCount do
-     if IsNumber(nList[i, False) then
-      nListBox.HeaderSections[i.Width := StrToInt(nList[i);
+     if IsNumber(nList[i], False) then
+      nListBox.HeaderSections[i].Width := StrToInt(nList[i]);
     //xxxxx
   finally
     nList.Free;
@@ -272,7 +272,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      nStr := nStr + IntToStr(nListBox.HeaderSections[i.Width);
+      nStr := nStr + IntToStr(nListBox.HeaderSections[i].Width);
       if i <> nCount then nStr := nStr + ';';
     end;
 
@@ -299,13 +299,13 @@ begin
     else nTmp := TIniFile.Create(gPath + sFormConfig); 
 
     nList.Text := StringReplace(nTmp.ReadString(nID, nListView.Name + '_Cols',
-                                ''), ';', #13, [rfReplaceAll);
+                                ''), ';', #13, [rfReplaceAll]);
     if nList.Count <> nListView.Columns.Count then Exit;
 
     nCount := nListView.Columns.Count - 1;
     for i:=0 to nCount do
-     if IsNumber(nList[i, False) then
-      nListView.Columns[i.Width := StrToInt(nList[i);
+     if IsNumber(nList[i], False) then
+      nListView.Columns[i].Width := StrToInt(nList[i]);
     //xxxxx
   finally
     nList.Free;
@@ -333,7 +333,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      nStr := nStr + IntToStr(nListView.Columns[i.Width);
+      nStr := nStr + IntToStr(nListView.Columns[i].Width);
       if i <> nCount then nStr := nStr + ';';
     end;
 
@@ -354,7 +354,7 @@ begin
     Title := '导出';
     Filter := 'Excell表格(*.xls)|*.xls|格式化文本(*.xml)|*.xml|' +
               '网页文件(*.htm)|*.html|普通文本(*.txt)|*.txt';
-    Options := Options + [ofOverwritePrompt;
+    Options := Options + [ofOverwritePrompt];
 
     if Execute then
     begin

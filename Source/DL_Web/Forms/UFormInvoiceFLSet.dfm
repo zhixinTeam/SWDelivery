@@ -61,7 +61,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       ReadOnly = True
     end
@@ -85,7 +85,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 6
       ReadOnly = True
     end
@@ -100,7 +100,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 7
       ReadOnly = True
     end
@@ -115,7 +115,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 8
       ReadOnly = True
     end
@@ -130,7 +130,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 9
       ReadOnly = True
     end
@@ -163,7 +163,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 12
       ReadOnly = True
     end
@@ -178,7 +178,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 13
     end
     object UniLabel5: TUniLabel
@@ -220,7 +220,7 @@ inherited fFormInvoiceFLSet: TfFormInvoiceFLSet
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 17
     end
     object UnLbl2: TUniLabel

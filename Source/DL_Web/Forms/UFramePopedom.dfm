@@ -15,7 +15,7 @@ object fFramePopedom: TfFramePopedom
     Hint = ''
     ParentColor = False
     Align = alClient
-    Anchors = [akLeft, akTop, akRight, akBottom
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object UniToolBar1: TUniToolBar
       Left = 0
@@ -27,7 +27,7 @@ object fFramePopedom: TfFramePopedom
       ButtonWidth = 87
       Images = UniMainModule.ImageListBar
       ShowCaptions = True
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       Align = alTop
       TabOrder = 1
       ParentColor = False
@@ -146,7 +146,7 @@ object fFramePopedom: TfFramePopedom
       Hint = ''
       ParentColor = False
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
       object Grid1: TUniStringGrid
         Left = 0
@@ -155,13 +155,13 @@ object fFramePopedom: TfFramePopedom
         Height = 544
         Hint = ''
         DefaultColWidth = 66
-        Options = [goVertLine, goHorzLine
+        Options = [goVertLine, goHorzLine]
         ShowColumnTitles = True
         Columns = <>
         OnClick = Grid1Click
         OnMouseDown = Grid1MouseDown
         Align = alClient
-        Anchors = [akLeft, akTop, akRight, akBottom
+        Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
       end
     end
@@ -173,7 +173,7 @@ object fFramePopedom: TfFramePopedom
       Hint = ''
       ParentColor = False
       Align = alLeft
-      Anchors = [akLeft, akTop, akBottom
+      Anchors = [akLeft, akTop, akBottom]
       TabOrder = 4
       object TreeGroup: TUniTreeView
         Left = 0
@@ -184,7 +184,7 @@ object fFramePopedom: TfFramePopedom
         Items.FontData = {0100000000}
         AutoExpand = True
         Align = alClient
-        Anchors = [akLeft, akTop, akRight, akBottom
+        Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 1
         Color = clWindow
         OnClick = TreeGroupClick
@@ -199,7 +199,7 @@ object fFramePopedom: TfFramePopedom
         AutoSize = False
         Caption = 'title'
         Align = alTop
-        Anchors = [akLeft, akTop, akRight
+        Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
       end
     end

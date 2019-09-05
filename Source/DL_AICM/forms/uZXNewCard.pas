@@ -124,7 +124,7 @@ begin
   editWebOrderNo.Clear;
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i;
+    nComp := dxLayout1.Components[i];
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Clear;
@@ -176,13 +176,13 @@ procedure TfFormNewCard.FormShow(Sender: TObject);
 begin
   SetControlsReadOnly;
   dxlytmLayout1Item13.Visible := False;
-  EditTruck.Properties.Buttons[0.Visible := False;
+  EditTruck.Properties.Buttons[0].Visible := False;
   ActiveControl := editWebOrderNo;
   btnOK.Enabled := False;
   FAutoClose := gSysParam.FAutoClose_Mintue;
   TimerAutoClose.Interval := 60*1000;
   TimerAutoClose.Enabled := True;
-  EditPrice.Properties.Buttons[0.Visible := False;
+  EditPrice.Properties.Buttons[0].Visible := False;
   dxLayout1Item11.Visible := False;           nSuccCard:= '';
   LoadStockFactory;
   {$IFDEF PrintHYEach}
@@ -199,7 +199,7 @@ var
 begin
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i;
+    nComp := dxLayout1.Components[i];
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Properties.ReadOnly := True;
@@ -275,30 +275,30 @@ begin
     SetLength(FWebOrderItems,nWebOrderCount);
     for i := 0 to nWebOrderCount-1 do
     begin
-      nListB.Text := PackerDecodeStr(nListA.Strings[i);
+      nListB.Text := PackerDecodeStr(nListA.Strings[i]);
 
-      FWebOrderItems[i.FYunTianOrderId := nListB.Values['fac_order_no';
-      FWebOrderItems[i.FOrder_id := nListB.Values['order_id';
-      FWebOrderItems[i.FOrdernumber := nListB.Values['ordernumber';           
-      FWebOrderItems[i.FGoodsID := nListB.Values['goodsID';
+      FWebOrderItems[i].FYunTianOrderId := nListB.Values['fac_order_no'];
+      FWebOrderItems[i].FOrder_id := nListB.Values['order_id'];
+      FWebOrderItems[i].FOrdernumber := nListB.Values['ordernumber'];
+      FWebOrderItems[i].FGoodsID := nListB.Values['goodsID'];
       //*******************************************
       nStr := 'Select D_StockName From %s a Join %s b on a.Z_ID = b.D_ZID ' +
               'Where Z_ID=''%s'' and D_StockNo=''%s'' ';
-      nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,FWebOrderItems[i.FYunTianOrderId,FWebOrderItems[i.FGoodsID);
+      nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,FWebOrderItems[i].FYunTianOrderId,FWebOrderItems[i].FGoodsID]);
       with FDM.QueryTemp(nStr) do
       begin
         if RecordCount>0 then
         begin
-          FWebOrderItems[i.FGoodsname  := Fields[0.AsString;
+          FWebOrderItems[i].FGoodsname  := Fields[0].AsString;
         end;
       end;
       //*******************************************
-      FWebOrderItems[i.FGoodstype := nListB.Values['goodstype';
-      //FWebOrderItems[i.FGoodsname := nListB.Values['goodsname';
-      FWebOrderItems[i.FData := nListB.Values['data';
-      FWebOrderItems[i.Ftracknumber := nListB.Values['tracknumber';
+      FWebOrderItems[i].FGoodstype := nListB.Values['goodstype'];
+      //FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
+      FWebOrderItems[i].FData := nListB.Values['data'];
+      FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
 
-      AddListViewItem(FWebOrderItems[i);
+      AddListViewItem(FWebOrderItems[i]);
     end;
   finally
     nListB.Free;
@@ -311,8 +311,8 @@ procedure TfFormNewCard.Writelog(nMsg: string);
 var
   nStr:string;
 begin
-  nStr := 'WebOrder[%sClientId[%sClientName[%ssotckno[%sStockName[%s';
-  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text);
+  nStr := 'WebOrder[%s]ClientId[%s]ClientName[%s]sotckno[%s]StockName[%s]';
+  nStr := Format(nStr,[editWebOrderNo.Text,EditCus.Text,EditCName.Text,EditStock.Text,EditSName.Text]);
   gSysLoger.AddLog(nStr+nMsg);
 end;
 
@@ -375,7 +375,7 @@ var
   nWebOrderID, nLid:string;
   nMsg,nStr:string;
 begin
-  nOrderItem := FWebOrderItems[FWebOrderIndex;
+  nOrderItem := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := nOrderItem.FOrdernumber;   nLid:= '';
 
   FBegin := Now;
@@ -399,24 +399,24 @@ begin
   nStr := 'Select Z_Customer,D_Price,D_YunFei From %s a join %s b on a.Z_ID = b.D_ZID ' +
           'where Z_ID=''%s'' and D_StockNo=''%s'' ';
 
-  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,nOrderItem.FYunTianOrderId,nOrderItem.FGoodsID);
+  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,nOrderItem.FYunTianOrderId,nOrderItem.FGoodsID]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount = 1 then
     begin
-      EditCus.Text    := Fields[0.AsString;
-      EditPrice.Text  := Fields[1.AsString;
-      edt_YunFei.Text := Fields[2.AsString;
+      EditCus.Text    := Fields[0].AsString;
+      EditPrice.Text  := Fields[1].AsString;
+      edt_YunFei.Text := Fields[2].AsString;
     end;
   end;
 
   nStr := 'Select C_Name From %s Where C_ID=''%s'' ';
-  nStr := Format(nStr, [sTable_Customer, EditCus.Text);
+  nStr := Format(nStr, [sTable_Customer, EditCus.Text]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then
     begin
-      EditCName.Text  := Fields[0.AsString;
+      EditCName.Text  := Fields[0].AsString;
     end;
   end;
 
@@ -436,7 +436,7 @@ var
 begin
   Result := False;
   nStr := 'Select * From %s Where WOM_WebOrderID=''%s''';
-  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem);
+  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then
@@ -453,21 +453,21 @@ var
 begin                    
   Result := False;
   nStr := 'Select * From %s Where L_Card=''%s''';
-  nStr := Format(nStr,[sTable_Bill,nCardNo);
+  nStr := Format(nStr,[sTable_Bill,nCardNo]);
   with FDM.QueryTemp(nStr) do
   begin
     Result:= RecordCount=0;
   end;
 
   nStr := 'Select * From %s Where O_Card=''%s''';
-  nStr := Format(nStr,[sTable_Order,nCardNo);
+  nStr := Format(nStr,[sTable_Order,nCardNo]);
   with FDM.QueryTemp(nStr) do
   begin
     Result:= RecordCount=0;
   end;
 
   nStr := 'Select * From %s Where C_Card=''%s'' ';
-  nStr := Format(nStr,[sTable_Card,nCardNo);
+  nStr := Format(nStr,[sTable_Card,nCardNo]);
   with FDM.QueryTemp(nStr) do
   begin
     Result:= RecordCount=1;
@@ -532,7 +532,7 @@ var
   nOrderItem:stMallOrderItem;
 begin
   Result := False;
-  nOrderItem := FWebOrderItems[FWebOrderIndex;
+  nOrderItem := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := editWebOrderNo.Text;     nLid:= '';
 
 
@@ -623,34 +623,34 @@ begin
       LoadSysDictItem(sFlag_PrintBill, nStocks);
 
       if Pos('袋',EditSName.Text) > 0 then
-        nTmp.Values['Type' := 'D'
+        nTmp.Values['Type'] := 'D'
       else
-        nTmp.Values['Type' := 'S';
+        nTmp.Values['Type'] := 'S';
 
-      nTmp.Values['StockNO' := EditStock.Text;
-      nTmp.Values['StockName' := EditSName.Text;
-      nTmp.Values['Price' := EditPrice.Text;
-      nTmp.Values['YunFeiPrice' := edt_YunFei.Text;
-      nTmp.Values['Value' := EditValue.Text;
+      nTmp.Values['StockNO'] := EditStock.Text;
+      nTmp.Values['StockName'] := EditSName.Text;
+      nTmp.Values['Price'] := EditPrice.Text;
+      nTmp.Values['YunFeiPrice'] := edt_YunFei.Text;
+      nTmp.Values['Value'] := EditValue.Text;
 
       if PrintHY.Checked  then
-           nTmp.Values['PrintHY' := sFlag_Yes
-      else nTmp.Values['PrintHY' := sFlag_No;
+           nTmp.Values['PrintHY'] := sFlag_Yes
+      else nTmp.Values['PrintHY'] := sFlag_No;
 
       nList.Add(PackerEncodeStr(nTmp.Text));
       nPrint := nStocks.IndexOf(EditStock.Text) >= 0;
 
       with nList do
       begin
-        Values['Bills' := PackerEncodeStr(nList.Text);
-        Values['ZhiKa' := nOrderItem.FYunTianOrderId;
-        Values['Truck' := EditTruck.Text;
-        Values['Lading' := sFlag_TiHuo;
-        Values['Memo'  := EmptyStr;
-        Values['IsVIP' := Copy(GetCtrlData(EditType),1,1);
-        Values['Seal' := '';
-        Values['HYDan' := '';
-        Values['WebOrderID' := nWebOrderID;
+        Values['Bills'] := PackerEncodeStr(nList.Text);
+        Values['ZhiKa'] := nOrderItem.FYunTianOrderId;
+        Values['Truck'] := EditTruck.Text;
+        Values['Lading'] := sFlag_TiHuo;
+        Values['Memo']  := EmptyStr;
+        Values['IsVIP'] := Copy(GetCtrlData(EditType),1,1);
+        Values['Seal'] := '';
+        Values['HYDan'] := '';
+        Values['WebOrderID'] := nWebOrderID;
 
         {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
         nFact:= GetCtrlData(cbb_Factory);
@@ -658,14 +658,14 @@ begin
         if nFact='' then
         begin
           {$IFDEF SWYL}
-          Values['SendFactory' := '榆林';
+          Values['SendFactory'] := '榆林';
           {$ENDIF}
 
           {$IFDEF SWAS}
-          Values['SendFactory' := '安塞';
+          Values['SendFactory'] := '安塞';
           {$ENDIF}
         end
-        else Values['SendFactory' := nFact;
+        else Values['SendFactory'] := nFact;
         {$ENDIF}
       end;
       Writelog('单据内容：'+nList.Text);
@@ -673,7 +673,7 @@ begin
       FBegin := Now;
       nBillID := SaveBill(nBillData);
       if nBillID = '' then Exit;
-      Writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+'-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+      Writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
       FBegin := Now;
       SaveWebOrderMatch(nBillID,nWebOrderID,sFlag_Sale);
       Writelog('TfFormNewCard.SaveBillProxy 保存商城订单号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
@@ -708,14 +708,14 @@ begin
   end;
   if nRet then
   begin
-    nHint := '商城订单号['+editWebOrderNo.Text+'发卡成功,卡号['+nNewCardNo+',请收好您的卡片';
+    nHint := '商城订单号['+editWebOrderNo.Text+']发卡成功,卡号['+nNewCardNo+'],请收好您的卡片';
     WriteLog(nHint);
     ShowMsg(nHint,sWarn);
   end
   else begin
     gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
 
-    nHint := '商城订单号['+editWebOrderNo.Text+',卡号['+nNewCardNo+'关联订单失败，请到开票窗口重新关联。';
+    nHint := '商城订单号['+editWebOrderNo.Text+'],卡号['+nNewCardNo+']关联订单失败，请到开票窗口重新关联。';
     WriteLog(nHint);
     ShowDlg(nHint,sHint,Self.Handle);
   end;
@@ -748,7 +748,7 @@ begin
   SF('WOM_MsgType'      , cSendWeChatMsgType_AddBill),
   SF('WOM_BillType'     , nBillType),
   SF('WOM_deleted'     , sFlag_No)
-  , sTable_WebOrderMatch, '', True);
+  ], sTable_WebOrderMatch, '', True);
   fdm.ADOConn.BeginTrans;
   try
     fdm.ExecuteSQL(nStr);
@@ -769,7 +769,7 @@ begin
   begin
     for i := 0 to lvOrders.Items.Count-1 do
     begin
-      if nSelItem = lvOrders.Items[i then
+      if nSelItem = lvOrders.Items[i] then
       begin
         FWebOrderIndex := i;
         LoadSingleOrder;

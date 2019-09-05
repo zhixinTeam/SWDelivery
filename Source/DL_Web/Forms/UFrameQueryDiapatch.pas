@@ -39,7 +39,8 @@ begin
     Result := ' Select zt.*,Z_Name,L_CusID,L_CusName,L_Status,L_Value ' +
               'From $ZT zt ' +
               ' Left Join $ZL zl On zl.Z_ID=zt.T_Line ' +
-              ' Left Join $Bill b On b.L_ID=zt.T_Bill ';
+              ' Left Join $Bill b On b.L_ID=zt.T_Bill ' +
+              ' Left Join S_Customer cus On C_ID=L_CusID ' ;
     //xxxxx
 
     if nWhere <> '' then
@@ -49,11 +50,13 @@ begin
     if (Not UniMainModule.FUserConfig.FIsAdmin) then
     begin
       if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
-        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''')';
+        Result := Result + 'And (L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''' or cus.C_WeiXin='''+
+                                                UniMainModule.FUserConfig.FUserID +''')';
+
     end;
 
     Result := MacroValue(Result, [MI('$ZT', sTable_ZTTrucks),
-              MI('$ZL', sTable_ZTLines), MI('$Bill', sTable_Bill));
+              MI('$ZL', sTable_ZTLines), MI('$Bill', sTable_Bill)]);
     //xxxxx
   end;
 end;
@@ -68,7 +71,7 @@ begin
     EditTruck.Text := Trim(EditTruck.Text);
     if EditTruck.Text = '' then Exit;
 
-    FWhere := Format('zt.T_Truck like ''%%%s%%''', [EditTruck.Text);
+    FWhere := Format('zt.T_Truck like ''%%%s%%''', [EditTruck.Text]);
     InitFormData(FWhere);
   end;
 end;

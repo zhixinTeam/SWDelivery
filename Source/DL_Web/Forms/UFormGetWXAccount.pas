@@ -85,8 +85,8 @@ begin
       procedure(Sender: TComponent; Result:Integer)
       begin
         if Result <> mrOk then Exit;
-        FParam.FParamB := FUsers[FRowSelected.FBindID;
-        FParam.FParamC := FUsers[FRowSelected.FCusName;
+        FParam.FParamB := FUsers[FRowSelected].FBindID;
+        FParam.FParamC := FUsers[FRowSelected].FCusName;
         nResult(mrOk, @FParam);
       end);
     //xxxxx
@@ -104,7 +104,7 @@ begin
     FixedCols := 0;
     RowCount := 0;
     ColCount := 3;
-    Options := [goVertLine,goHorzLine,goDrawFocusSelected;
+    Options := [goVertLine,goHorzLine,goDrawFocusSelected];
   end;
 
   nIni := nil;
@@ -133,7 +133,7 @@ end;
 procedure TfFormGetWXAccount.UniTimer1Timer(Sender: TObject);
 begin
   Editid.Text := '';
-  BtnFind.JSInterface.JSCall('fireEvent', ['click', BtnFind);
+  BtnFind.JSInterface.JSCall('fireEvent', ['click', BtnFind]);
   //调用远程代码,显示进度并执行click操作
 end;
 
@@ -154,7 +154,7 @@ procedure TfFormGetWXAccount.Grid1SelectCell(Sender: TObject; ACol,
 var nIdx : Integer;
 begin
   for nIdx:=Low(FUsers) to High(FUsers) do
-    if FUsers[nIdx.FPhone=Grid1.Cells[giPhone, ARow then
+    if FUsers[nIdx].FPhone=Grid1.Cells[giPhone, ARow] then
       FRowSelected:= nIdx;
 end;
 
@@ -167,17 +167,17 @@ begin
   try
     nRow := 0;
     for nIdx:=Low(FUsers) to High(FUsers) do
-      if FUsers[nIdx.FSelected then Inc(nRow);
+      if FUsers[nIdx].FSelected then Inc(nRow);
     Grid1.RowCount := nRow;
 
     nRow := 0;
     for nIdx:=Low(FUsers) to High(FUsers) do
-     with FUsers[nIdx do
+     with FUsers[nIdx] do
       if FSelected then
       begin
-        Grid1.Cells[giID, nRow    := FCusName;
-        Grid1.Cells[giMail, nRow  := FEmail;
-        Grid1.Cells[giPhone, nRow := FPhone;
+        Grid1.Cells[giID, nRow]    := FCusName;
+        Grid1.Cells[giMail, nRow]  := FEmail;
+        Grid1.Cells[giPhone, nRow] := FPhone;
         Inc(nRow);
       end;
     //xxxxx
@@ -205,12 +205,12 @@ begin
 
     for nIdx:=0 to nListA.Count-1 do
     begin
-      nListB.Text := PackerDecodeStr(nListA[nIdx);
-      with FUsers[nInt,nListB do
+      nListB.Text := PackerDecodeStr(nListA[nIdx]);
+      with FUsers[nInt],nListB do
       begin
-        FBindID   := Values['BindID';
-        FCusName  := Values['Name';
-        FPhone    := Values['Phone';
+        FBindID   := Values['BindID'];
+        FCusName  := Values['Name'];
+        FPhone    := Values['Phone'];
 
         Inc(nInt);
       end;
@@ -226,7 +226,7 @@ begin
     //case
 
     for nIdx:=Low(FUsers) to High(FUsers) do
-     with FUsers[nIdx do
+     with FUsers[nIdx] do
       FSelected := (nFilter = '') or
                    (Pos(nFilter, LowerCase(FCusName)) > 0) or
                    (Pos(nFilter, LowerCase(FPhone)) > 0);

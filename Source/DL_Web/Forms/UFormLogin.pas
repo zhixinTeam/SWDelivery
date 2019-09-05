@@ -70,7 +70,7 @@ begin
             'Where U_NAME=''$b'' and U_State=1';
 
     nStr := MacroValue(nStr, [MI('$a',sTable_User),
-                              MI('$b',EditUser.Text));
+                              MI('$b',EditUser.Text)]);
     //xxxxx
 
     nQuery := LockDBQuery(ctMain);
@@ -94,7 +94,7 @@ begin
 
     //--------------------------------------------------------------------------
     {nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam]);
 
     with DBQuery(nStr, nQuery),UniMainModule.FUserConfig do
     if RecordCount > 0 then
@@ -102,9 +102,9 @@ begin
       First;
       while not Eof do
       begin
-        nStr := Fields[1.AsString;
+        nStr := Fields[1].AsString;
         if nStr = sFlag_WXServiceMIT then
-          FWechatURL := Fields[0.AsString;
+          FWechatURL := Fields[0].AsString;
         //xxxxx
         Next;
       end;

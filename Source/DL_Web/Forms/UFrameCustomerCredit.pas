@@ -69,7 +69,7 @@ begin
 
     Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
               MI('$CA', sTable_CusAccount), MI('$SM', sTable_Salesman),
-              MI('$CC', sTable_CusCredit), MI('$NO', sFlag_No));
+              MI('$CC', sTable_CusCredit), MI('$NO', sFlag_No)]);
     Result := Result + ' Order By C_ID';
   end;
 end;
@@ -86,7 +86,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'C_Name like ''%%%s%%'' Or C_PY like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;
 end;

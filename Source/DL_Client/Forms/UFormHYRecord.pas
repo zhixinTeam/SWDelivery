@@ -146,6 +146,13 @@ type
       Shift: TShiftState);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
     procedure cxTextEdit17KeyPress(Sender: TObject; var Key: Char);
+    procedure cxTextEdit17Exit(Sender: TObject);
+    procedure cxTextEdit26Exit(Sender: TObject);
+    procedure cxTextEdit23Exit(Sender: TObject);
+    procedure cxTextEdit24Exit(Sender: TObject);
+    procedure cxTextEdit18Exit(Sender: TObject);
+    procedure cxTextEdit28Exit(Sender: TObject);
+    procedure cxTextEdit27Exit(Sender: TObject);
   private
     { Private declarations }
     FRecordID: string;
@@ -500,6 +507,48 @@ begin
 
   ModalResult := mrOK;
   ShowMsg('数据已保存', sHint);
+end;
+
+procedure TfFormHYRecord.cxTextEdit17Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit17.Text), 0)>5 then
+    ShowMsg('氧化镁参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit26Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit26.Text), 0)<300 then
+    ShowMsg('表比面积参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit23Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit23.Text), 0)>3.5 then
+    ShowMsg('三氧化硫参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit24Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit24.Text), 0)>5 then
+    ShowMsg('烧失量参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit18Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit18.Text), 0)>5 then
+    ShowMsg('氯离子参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit28Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit28.Text), 0)<45 then
+    ShowMsg('初凝参数输入超标请确认', '提示');
+end;
+
+procedure TfFormHYRecord.cxTextEdit27Exit(Sender: TObject);
+begin
+  if StrToFloatDef(Trim(cxTextEdit27.Text), 0)>600 then
+    ShowMsg('终凝参数输入超标请确认', '提示');
 end;
 
 end.

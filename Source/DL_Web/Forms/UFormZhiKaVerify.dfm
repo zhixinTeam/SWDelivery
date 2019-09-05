@@ -100,7 +100,7 @@ inherited fFormZhiKaVerify: TfFormZhiKaVerify
       FixedCols = 0
       FixedRows = 0
       ColCount = 3
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
       ShowColumnTitles = True
       Columns = <
         item
@@ -122,7 +122,7 @@ inherited fFormZhiKaVerify: TfFormZhiKaVerify
           Title.Caption = #20215#26684#19978#38480
           Width = 80
         end>
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 7
       ParentFont = False
       Font.Charset = GB2312_CHARSET

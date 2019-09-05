@@ -315,7 +315,7 @@ inherited fFormOptions: TfFormOptions
           OnClick = btn_DelClick
         end
         object btn_Add: TcxButton
-          Left = 250
+          Left = 251
           Top = 230
           Width = 55
           Height = 22

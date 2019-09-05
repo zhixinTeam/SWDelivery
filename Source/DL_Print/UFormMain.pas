@@ -250,6 +250,16 @@ end;
 //Date: 2012-4-1
 //Parm: 交货单号;提示;数据对象;打印机
 //Desc: 打印nBill交货单号
+function UPDateBillPrinterNum(const nPrinter: string): Boolean;
+var nStr: string;
+begin
+  nStr := ' UPDate Sys_PrintTotle Set P_CurrNum=P_CurrNum+1 Where P_PrinterName='''+nPrinter+'''';
+  FDM.ExecuteSQL(nStr);
+end;
+
+//Date: 2012-4-1
+//Parm: 交货单号;提示;数据对象;打印机
+//Desc: 打印nBill交货单号
 function PrintBillReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''; const nMoney: string = '0'; const nPrintStd: Boolean = False): Boolean;
 var nStr: string;
@@ -315,6 +325,7 @@ begin
   {$ENDIF}
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
+  if Result then UPDateBillPrinterNum(nPrinter);
 
   {$IFDEF PrintGLF}
   if nDS.FieldByName('L_PrintGLF').AsString <> 'Y' then Exit;
@@ -351,7 +362,7 @@ begin
 
   if nDS.RecordCount < 1 then
   begin
-    nHint := '采购单[ %s  已无效!!';
+    nHint := '采购单 %s 已无效!!';
     nHint := Format(nHint, [nOrder]);
     Exit;
   end;
@@ -456,13 +467,13 @@ begin
          'Where  L_ID=''$ID'' And C_InstantPrintHYD=''Y''';
 
   nStr:= MacroValue(nStr, [MI('$Bill', sTable_Bill),
-          MI('$Customer', sTable_Customer), MI('$ID', nBill));
+          MI('$Customer', sTable_Customer), MI('$ID', nBill)]);
   //xxxxx
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin
-    nHint := '提货单[ %s 没有提前随车打印化验单的特权';
-    nHint := Format(nHint, [nBill);
+    nHint := '提货单[ %s ]没有提前随车打印化验单的特权';
+    nHint := Format(nHint, [nBill]);
     Exit;
   end;
   {$ENDIF}
@@ -483,7 +494,7 @@ begin
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin
-    nHint := '提货单[ %s 没有对应的化验单';
+    nHint := '提货单[ %s ]没有对应的化验单';
     nHint := Format(nHint, [nBill]);
     Exit;
   end;
@@ -509,28 +520,34 @@ end;
 //Desc: 打印标识为nID的合格证
 function PrintHeGeReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''): Boolean;
-var nStr,nSR, nBatchNO: string;
+var nStr,nSR, nBatchNO, nStockNo, nStockName: string;
     nField: TField;
 begin
   nHint := '';
   Result := False;
 
-  {$IFDEF SWTC}    // 声威铜川工厂 熟料 骨料出厂不需要打印合格证
+  //*******************  出厂不需要打印合格证
   nSR := ' Select * From %s Where L_ID=''%s''  ';
-  nSR := Format(nSR, [sTable_Bill, nBill);
+  nSR := Format(nSR, [sTable_Bill, nBill]);
   with FDM.QuerySQL(nSR) do
   begin
     if RecordCount >0 then
     begin
-      if (Pos('骨料', FieldByName('L_StockName').AsString) >0)OR
-          (Pos('熟料', FieldByName('L_StockName').AsString) >0) then
-      begin
-        WriteLog(Format('铜川 骨料、熟料不需打合格证: %s', [nBill));
-        Exit;
-      end;
+      nStockNo  := FieldByName('L_StockNo').AsString;
+      nStockName:= FieldByName('L_StockName').AsString;
     end;
   end;
-  {$ENDIF}
+
+  nSR := ' Select * From %s Where D_Name=''NoPrintHGZ'' And D_ParamB=''%s''  ';
+  nSR := Format(nSR, [sTable_SysDict, nStockNo]);
+  with FDM.QuerySQL(nSR) do
+  begin
+    if RecordCount >0 then
+    begin
+      WriteLog(Format('%s 无需打印合格证: %s', [nStockName, nBill]));
+      Exit;
+    end;
+  end;
 
 
   {$IFDEF HeGeZhengSimpleData}

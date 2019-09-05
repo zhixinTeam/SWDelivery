@@ -83,7 +83,8 @@ const
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
   cFI_FrameSyncOrderForNC = $0072;                   //NC订单同步
-  
+  cFI_FrameQueryCusZhiKaInfo = $0073;                //NC订单余量查询
+
   cFI_FrameTransBase    = $0093;                     //短倒办理
   cFI_FrameTransferDetailQuery = $0094;              //短倒明细查询
 
@@ -94,6 +95,8 @@ const
   cFI_FrameOrderBase    = $0108;                     //采购申请单
   cFI_FrameOrderDetail  = $0109;                     //采购明细
   cFI_FrameMsgLog       = $0700;                     //通知事件记录
+  cFI_FramePrinterJs    = $0701;                     //打印机计数
+
 
   cFI_FrameWXAccount    = $0110;                     //微信账户
   cFI_FrameWXSendLog    = $0111;                     //发送日志
@@ -108,6 +111,7 @@ const
   cFI_FormBillSalePlan  = $2005;                     //销售供应编辑
   cFI_FormCstmerCategoryInfo   = $2006;              //客户类别
   cFI_FormUPDateBindBillZhika  = $2007;              //重新绑定开单纸卡
+  cFI_FormPrinterJs     = $2008;                     //打印机计数
 
 
   cFI_FormBaseInfo      = $1006;                     //基本信息
@@ -360,6 +364,8 @@ begin
   AddMenuModuleItem('MAIN_A08', cFI_FormTodo, mtForm);
   AddMenuModuleItem('MAIN_A09', cFI_FrameTodo);
   AddMenuModuleItem('MAIN_A10', cFI_FrameSyncOrderForNC);
+  AddMenuModuleItem('MAIN_A11', cFI_FramePrinterJs);
+
 
   AddMenuModuleItem('MAIN_B01', cFI_FormBaseInfo, mtForm);
   AddMenuModuleItem('MAIN_B02', cFI_FrameCustomer);
@@ -392,6 +398,7 @@ begin
   AddMenuModuleItem('MAIN_DXL01', cFI_FormBillSalePlan, mtForm);
   AddMenuModuleItem('MAIN_DXL02', cFI_FrameBillSalePlan);
   AddMenuModuleItem('MAIN_DL01', cFI_FrameQueryNcZhiKaLog);
+  AddMenuModuleItem('MAIN_DL02', cFI_FrameQueryCusZhiKaInfo);
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);

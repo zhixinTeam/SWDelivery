@@ -107,7 +107,7 @@ begin
   editWebOrderNo.Clear;
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i;
+    nComp := dxLayout1.Components[i];
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Clear;
@@ -138,7 +138,7 @@ procedure TfFormNewPurchaseCard.FormShow(Sender: TObject);
 begin
   SetControlsReadOnly;
   btnOK.Enabled := False;
-  EditTruck.Properties.Buttons[0.Visible := False;    nSuccCard:= '';
+  EditTruck.Properties.Buttons[0].Visible := False;    nSuccCard:= '';
 
   FAutoClose := gSysParam.FAutoClose_Mintue;
   TimerAutoClose.Interval := 60*1000;
@@ -228,7 +228,7 @@ var
 begin
   for i := 0 to dxLayout1.ComponentCount-1 do
   begin
-    nComp := dxLayout1.Components[i;
+    nComp := dxLayout1.Components[i];
     if nComp is TcxTextEdit then
     begin
       TcxTextEdit(nComp).Properties.ReadOnly := True;
@@ -251,8 +251,8 @@ procedure TfFormNewPurchaseCard.Writelog(nMsg: string);
 var
   nStr:string;
 begin
-  nStr := 'weborder[%scontractcode[%sprovname[%sproductname[%s:';
-  nStr := Format(nStr,[editWebOrderNo.Text,EditID.Text,EditProv.Text,EditProduct.Text);
+  nStr := 'weborder[%s]contractcode[%s]provname[%s]productname[%s]:';
+  nStr := Format(nStr,[editWebOrderNo.Text,EditID.Text,EditProv.Text,EditProduct.Text]);
   gSysLoger.AddLog(nStr+nMsg);
 end;
 
@@ -298,14 +298,14 @@ begin
     SetLength(FWebOrderItems,nWebOrderCount);
     for i := 0 to nWebOrderCount-1 do
     begin
-      nListB.Text := PackerDecodeStr(nListA.Strings[i);
-      FWebOrderItems[i.FOrder_id := nListB.Values['ordernumber';
-      FWebOrderItems[i.Fpurchasecontract_no := nListB.Values['fac_order_no';
-      FWebOrderItems[i.FgoodsID := nListB.Values['goodsID';
-      FWebOrderItems[i.FGoodsname := (nListB.Values['goodsname');
-      FWebOrderItems[i.FData := nListB.Values['data';
-      FWebOrderItems[i.Ftracknumber := nListB.Values['tracknumber';
-      AddListViewItem(FWebOrderItems[i);
+      nListB.Text := PackerDecodeStr(nListA.Strings[i]);
+      FWebOrderItems[i].FOrder_id := nListB.Values['ordernumber'];
+      FWebOrderItems[i].Fpurchasecontract_no := nListB.Values['fac_order_no'];
+      FWebOrderItems[i].FgoodsID := nListB.Values['goodsID'];
+      FWebOrderItems[i].FGoodsname := (nListB.Values['goodsname']);
+      FWebOrderItems[i].FData := nListB.Values['data'];
+      FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
+      AddListViewItem(FWebOrderItems[i]);
     end;
   finally
     nListB.Free;
@@ -335,7 +335,7 @@ var
   nWebOrderID:string;
   nMsg:string;
 begin
-  nOrderItem := FWebOrderItems[FWebOrderIndex;
+  nOrderItem := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := nOrderItem.FOrder_id;
   FBegin := now;
   nRepeat := IsRepeatCard(nWebOrderID);
@@ -366,7 +366,7 @@ begin
   EditTruck.Text := nOrderItem.Ftracknumber;
   EditValue.Text := nOrderItem.FData;
 
-  FWebOrderItems[FWebOrderIndex := nOrderItem;
+  FWebOrderItems[FWebOrderIndex] := nOrderItem;
   BtnOK.Enabled := not nRepeat;
 end;
 
@@ -377,7 +377,7 @@ var
 begin
   Result := False;
   nStr := 'select * from %s where WOM_WebOrderID=''%s'' ';
-  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem);
+  nStr := Format(nStr,[sTable_WebOrderMatch,nWebOrderItem]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount>0 then
@@ -397,13 +397,13 @@ begin
 
   //查询采购申请单
   nStr := 'select b_proid as provider_code,b_proname as provider_name,b_stockno as con_materiel_Code, B_StockName,b_restvalue as con_remain_quantity from %s where b_id=''%s''';
-  nStr := Format(nStr,[sTable_OrderBase,nWebOrderItem.Fpurchasecontract_no);
+  nStr := Format(nStr,[sTable_OrderBase,nWebOrderItem.Fpurchasecontract_no]);
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount<=0 then
     begin
-      nMsg := '采购合同编号有误或采购合同已被删除[%s。';
-      nMsg := Format(nMsg,[nWebOrderItem.Fpurchasecontract_no);
+      nMsg := '采购合同编号有误或采购合同已被删除[%s]。';
+      nMsg := Format(nMsg,[nWebOrderItem.Fpurchasecontract_no]);
       ShowMsg(nMsg,sError);
       Writelog(nMsg);
       Exit;
@@ -414,8 +414,8 @@ begin
 
     if nWebOrderItem.FGoodsID<>FieldByName('con_materiel_Code').AsString then
     begin
-      nMsg := '商城货单中原材料[%s有误。';
-      nMsg := Format(nMsg,[nWebOrderItem.FGoodsname);
+      nMsg := '商城货单中原材料[%s]有误。';
+      nMsg := Format(nMsg,[nWebOrderItem.FGoodsname]);
       ShowMsg(nMsg,sError);
       Writelog(nMsg);
       Exit;
@@ -436,8 +436,8 @@ begin
 
     if nwebOrderValue-FMaxQuantity>0.00001 then
     begin
-      nMsg := '商城货单中提货数量有误，最多可提货数量为[%f。';
-      nMsg := Format(nMsg,[FMaxQuantity);
+      nMsg := '商城货单中提货数量有误，最多可提货数量为[%f]。';
+      nMsg := Format(nMsg,[FMaxQuantity]);
       ShowMsg(nMsg,sError);
       Writelog(nMsg);
       Exit;
@@ -459,7 +459,7 @@ var
   nRet:Boolean;
 begin
   Result := False;
-  nOrderItem := FWebOrderItems[FWebOrderIndex;
+  nOrderItem := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := editWebOrderNo.Text;
 
   if EditID.Text='' then
@@ -517,24 +517,24 @@ begin
 
   nList := TStringList.Create;
   try
-    nList.Values['SQID' := EditID.Text;
-    nList.Values['Area' := '';
-    nList.Values['Truck' := Trim(EditTruck.Text);
-    nList.Values['Project' := EditID.Text;
-    nList.Values['CardType' := 'L';
+    nList.Values['SQID'] := EditID.Text;
+    nList.Values['Area'] := '';
+    nList.Values['Truck'] := Trim(EditTruck.Text);
+    nList.Values['Project'] := EditID.Text;
+    nList.Values['CardType'] := 'L';
     {$IFDEF SendMorefactoryStock}           // 开单将根据开单工厂打印单据 声威
-    nList.Values['SendFactory' := '榆林';
+    nList.Values['SendFactory'] := '榆林';
     {$ENDIF}
     
-    nList.Values['ProviderID' := nOrderItem.FProvID;
-    nList.Values['ProviderName' := nOrderItem.FProvName;
-    nList.Values['StockNO' := nOrderItem.FGoodsID;
-    nList.Values['StockName' := nOrderItem.FGoodsname;
-    nList.Values['Value' := EditValue.Text;
-    nList.Values['YJZValue' := '0';     // 原始净重
-    nList.Values['KFTime' := FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);       // 矿发时间
+    nList.Values['ProviderID'] := nOrderItem.FProvID;
+    nList.Values['ProviderName'] := nOrderItem.FProvName;
+    nList.Values['StockNO'] := nOrderItem.FGoodsID;
+    nList.Values['StockName'] := nOrderItem.FGoodsname;
+    nList.Values['Value'] := EditValue.Text;
+    nList.Values['YJZValue'] := '0';     // 原始净重
+    nList.Values['KFTime'] := FormatDateTime('yyyy-MM-dd HH:mm:ss', Now);       // 矿发时间
 
-    nList.Values['WebOrderID' := nWebOrderID;
+    nList.Values['WebOrderID'] := nWebOrderID;
 
     FBegin := Now;
     nOrder := SaveOrder(PackerEncodeStr(nList.Text));
@@ -572,15 +572,15 @@ begin
 
   if nRet then
   begin
-    nHint := '商城货单号['+editWebOrderNo.Text+'发卡成功,卡号['+nNewCardNo+',请收好您的卡片';
+    nHint := '商城货单号['+editWebOrderNo.Text+']发卡成功,卡号['+nNewCardNo+'],请收好您的卡片';
     WriteLog(nHint);
     ShowMsg(nHint,sWarn);
   end
   else begin
     gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
 
-    nHint := '商城货单号[%s卡号 [%s 关联采购订单 [%s 失败，请到开票窗口重新关联。';
-    nHint := Format(nHint,[editWebOrderNo.Text,nNewCardNo,nOrder);
+    nHint := '商城货单号[%s]卡号 [%s] 关联采购订单 [%s] 失败，请到开票窗口重新关联。';
+    nHint := Format(nHint,[editWebOrderNo.Text,nNewCardNo,nOrder]);
     Writelog(nHint);
     ShowMsg(nHint,sHint);
   end;
@@ -601,7 +601,7 @@ begin
   SF('WOM_MsgType'      , cSendWeChatMsgType_AddBill),
   SF('WOM_BillType'     , nBillType),
   SF('WOM_deleted'     , sFlag_No)
-  , sTable_WebOrderMatch, '', True);
+  ], sTable_WebOrderMatch, '', True);
   fdm.ADOConn.BeginTrans;
   try
     fdm.ExecuteSQL(nStr);

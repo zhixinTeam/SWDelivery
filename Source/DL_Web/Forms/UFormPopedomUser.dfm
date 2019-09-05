@@ -21,9 +21,11 @@ inherited fFormPopedomUser: TfFormPopedomUser
     ExplicitTop = 293
   end
   inherited PanelWork: TUniSimplePanel
+    Top = 10
     Width = 296
     Height = 277
     TabOrder = 0
+    ExplicitTop = 10
     ExplicitWidth = 296
     ExplicitHeight = 277
     object EditName: TUniEdit
@@ -118,12 +120,12 @@ inherited fFormPopedomUser: TfFormPopedomUser
       TabOrder = 10
     end
     object Chk_VerifyCredit: TUniCheckBox
-      Left = 7
+      Left = 3
       Top = 208
-      Width = 97
+      Width = 126
       Height = 17
       Hint = ''
-      Caption = #20449#29992#23457#26680
+      Caption = #25910#27454#12289#20449#29992#23457#26680
       TabOrder = 11
     end
   end

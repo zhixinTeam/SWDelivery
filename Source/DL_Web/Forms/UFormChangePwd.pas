@@ -57,7 +57,7 @@ begin
 
   nStr := 'Update %s Set U_Password=''%s'' Where U_Name=''%s''';
   nStr := Format(nStr, [sTable_User, EditNew.Text,
-                        UniMainModule.FUserConfig.FUserID);
+                        UniMainModule.FUserConfig.FUserID]);
   DBExecute(nStr);
 
   UniMainModule.FUserConfig.FUserPwd := EditNew.Text;

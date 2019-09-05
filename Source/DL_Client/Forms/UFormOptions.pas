@@ -314,6 +314,7 @@ begin
        ListStockNF.Items.AddObject(FID + ListStockNF.Delimiter + FName, Pointer(nIdx));
     //items
   end;
+  BtnOK.Click;
 end;
 
 procedure TfFormOptions.LoadNYSStockList;
@@ -328,6 +329,7 @@ begin
        ListStockNYS.Items.AddObject(FID + ListStockNYS.Delimiter + FName, Pointer(nIdx));
     //items
   end;
+  BtnOK.Click;
 end;
 
 //------------------------------------------------------------------------------
@@ -644,7 +646,7 @@ procedure TfFormOptions.btn_DelClick(Sender: TObject);
 var nIdx: Integer;
 begin
   if ListStockNYS.ItemIndex > -1 then
-  with gNFStock do
+  with gNYSStock do
   begin
     nIdx := Integer(ListStockNYS.Items.Objects[ListStockNYS.ItemIndex]);
     FItems[nIdx].FEnabled := False;

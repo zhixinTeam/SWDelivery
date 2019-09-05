@@ -9,7 +9,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, UFormBase, ULibFun, UAdjustForm, USysConst, dxLayoutControl,
-  StdCtrls, cxControls, cxGraphics, cxLookAndFeels, cxLookAndFeelPainters;
+  StdCtrls, cxControls, cxGraphics, cxLookAndFeels, cxLookAndFeelPainters,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormNormal = class(TBaseForm)
@@ -73,7 +74,7 @@ begin
 
     for i:=0 to nCount do
     begin
-      nObj := TObject(nCtrls[i);
+      nObj := TObject(nCtrls[i]);
       if not OnVerifyCtrl(nObj, nStr) then
       begin
         if nObj is TWinControl then
@@ -115,7 +116,7 @@ begin
       nCount := nSQLs.Count - 1;
 
       for i:=0 to nCount do
-        FDM.ExecuteSQL(nSQLs[i);
+        FDM.ExecuteSQL(nSQLs[i]);
       FDM.ADOConn.CommitTrans;
     end;
 

@@ -215,7 +215,7 @@ var nStr: string;
 begin
   Result:= False;
   nStr :='Select * From %s Where L_Truck=''%s'' And L_OutFact is Null ';
-  nStr := Format(nStr, [sTable_Bill, nTruck);
+  nStr := Format(nStr, [sTable_Bill, nTruck]);
   with FDM.QueryTemp(nStr) do
   begin
     Result:= (RecordCount=0);
@@ -228,7 +228,7 @@ var nStr: string;
 begin
   Result:= False;
   nStr :='Select * From %s Where C_Card=''%s'' or C_Card2=''%s'' or C_Card3=''%s'' ';
-  nStr := Format(nStr, [sTable_Card, nCardNo, nCardNo, nCardNo);
+  nStr := Format(nStr, [sTable_Card, nCardNo, nCardNo, nCardNo]);
   with FDM.QueryTemp(nStr) do
   begin
     Result:= (RecordCount > 0);
@@ -244,7 +244,7 @@ begin
   try
     nList.Text := nHint;
     for nIdx:=0 to nList.Count - 1 do
-      nList[nIdx := '※.' + nList[nIdx;
+      nList[nIdx] := '※.' + nList[nIdx];
     Result := nList.Text;
   finally
     nList.Free;
@@ -267,11 +267,11 @@ function GetTruckEmptyValue(nTruck: string): Double;
 var nStr: string;
 begin
   nStr := 'Select T_PValue From %s Where T_Truck=''%s''';
-  nStr := Format(nStr, [sTable_Truck, nTruck);
+  nStr := Format(nStr, [sTable_Truck, nTruck]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
-       Result := Fields[0.AsFloat
+       Result := Fields[0].AsFloat
   else Result := 0;
 end;
 
@@ -458,8 +458,8 @@ begin
   nList := nil;
   try
     nList := TStringList.Create;
-    nList.Values['Group' := nGroup;
-    nList.Values['Object' := nObject;
+    nList.Values['Group'] := nGroup;
+    nList.Values['Object'] := nObject;
 
     if nUseDate then
          nStr := sFlag_Yes
@@ -499,7 +499,7 @@ begin
   nStr := 'Select D_Value,D_Memo,D_ParamB From $Table ' +
           'Where D_Name=''$Name'' Order By D_Index ASC';
   nStr := MacroValue(nStr, [MI('$Table', sTable_SysDict),
-                            MI('$Name', sFlag_StockItem));
+                            MI('$Name', sFlag_StockItem)]);
   //xxxxx
 
   with FDM.QueryTemp(nStr) do
@@ -512,9 +512,9 @@ begin
 
       while not Eof do
       begin
-        nItems[nIdx.FType := FieldByName('D_Memo').AsString;
-        nItems[nIdx.FName := FieldByName('D_Value').AsString;
-        nItems[nIdx.FID := FieldByName('D_ParamB').AsString;
+        nItems[nIdx].FType := FieldByName('D_Memo').AsString;
+        nItems[nIdx].FName := FieldByName('D_Value').AsString;
+        nItems[nIdx].FID := FieldByName('D_ParamB').AsString;
 
         Next;
         Inc(nIdx);
@@ -540,14 +540,14 @@ begin
             SF('P_Name', nTruck),
             SF('P_Mate', nMate),
             SF('P_Date', sField_SQLServer_Now, sfVal)
-            , sTable_Picture, '', True);
+            ], sTable_Picture, '', True);
     //xxxxx
 
     if FDM.ExecuteSQL(nStr) < 1 then Exit;
     nRID := FDM.GetFieldMax(sTable_Picture, 'R_ID');
 
     nStr := 'Select P_Picture From %s Where R_ID=%d';
-    nStr := Format(nStr, [sTable_Picture, nRID);
+    nStr := Format(nStr, [sTable_Picture, nRID]);
     FDM.SaveDBImage(FDM.QueryTemp(nStr), 'P_Picture', nFile);
 
     FDM.ADOConn.CommitTrans;
@@ -615,8 +615,8 @@ begin
 
       if nIdx = cRetry then
       begin
-        nStr := '登录摄像机[ %s.%d 失败,错误码: %d';
-        nStr := Format(nStr, [nTunnel.FCamera.FHost, nTunnel.FCamera.FPort, nErr);
+        nStr := '登录摄像机[ %s.%d ]失败,错误码: %d';
+        nStr := Format(nStr, [nTunnel.FCamera.FHost, nTunnel.FCamera.FPort, nErr]);
         WriteLog(nStr);
         Exit;
       end;
@@ -627,7 +627,7 @@ begin
 
     for nIdx:=Low(nTunnel.FCameraTunnels) to High(nTunnel.FCameraTunnels) do
     begin
-      if nTunnel.FCameraTunnels[nIdx = MaxByte then continue;
+      if nTunnel.FCameraTunnels[nIdx] = MaxByte then continue;
       //invalid
 
       for nInt:=1 to cRetry do
@@ -635,7 +635,7 @@ begin
         nStr := MakePicName();
         //file path
 
-        NET_DVR_CaptureJPEGPicture(nLogin, nTunnel.FCameraTunnels[nIdx,
+        NET_DVR_CaptureJPEGPicture(nLogin, nTunnel.FCameraTunnels[nIdx],
                                    @nPic, PChar(nStr));
         //capture pic
 
@@ -648,9 +648,9 @@ begin
 
         if nIdx = cRetry then
         begin
-          nStr := '抓拍图像[ %s.%d 失败,错误码: %d';
+          nStr := '抓拍图像[ %s.%d ]失败,错误码: %d';
           nStr := Format(nStr, [nTunnel.FCamera.FHost,
-                   nTunnel.FCameraTunnels[nIdx, nErr);
+                   nTunnel.FCameraTunnels[nIdx], nErr]);
           WriteLog(nStr);
         end;
       end;
@@ -671,7 +671,7 @@ var nStr: string;
 begin
   nList.Clear;
   nStr := MacroValue(sQuery_SysDict, [MI('$Table', sTable_SysDict),
-                                      MI('$Name', nItem));
+                                      MI('$Name', nItem)]);
   Result := FDM.QueryTemp(nStr);
 
   if Result.RecordCount > 0 then
@@ -694,14 +694,14 @@ var nStr,nW: string;
 begin
   if nWhere = '' then
        nW := ''
-  else nW := Format(' And (%s)', [nWhere);
+  else nW := Format(' And (%s)', [nWhere]);
 
   nStr := 'S_ID=Select S_ID,S_PY,S_Name From %s ' +
           'Where IsNull(S_InValid, '''')<>''%s'' %s Order By S_PY';
-  nStr := Format(nStr, [sTable_Salesman, sFlag_Yes, nW);
+  nStr := Format(nStr, [sTable_Salesman, sFlag_Yes, nW]);
 
   AdjustStringsItem(nList, True);
-  FDM.FillStringsData(nList, nStr, -1, '.', DSA(['S_ID'));
+  FDM.FillStringsData(nList, nStr, -1, '.', DSA(['S_ID']));
   
   AdjustStringsItem(nList, False);
   Result := nList.Count > 0;
@@ -713,11 +713,11 @@ var nStr,nW: string;
 begin
   if nWhere = '' then
        nW := ''
-  else nW := Format(' And (%s)', [nWhere);
+  else nW := Format(' And (%s)', [nWhere]);
 
   nStr := 'C_ID=Select C_ID,C_Name From %s ' +
           'Where IsNull(C_XuNi, '''')<>''%s'' %s Order By C_PY';
-  nStr := Format(nStr, [sTable_Customer, sFlag_Yes, nW);
+  nStr := Format(nStr, [sTable_Customer, sFlag_Yes, nW]);
 
   AdjustStringsItem(nList, True);
   FDM.FillStringsData(nList, nStr, -1, '.');
@@ -735,7 +735,7 @@ begin
           ' Left Join $SM sm On sm.S_ID=cus.C_SaleMan ' +
           'Where C_ID=''$ID''';
   nStr := MacroValue(nStr, [MI('$Cus', sTable_Customer), MI('$ID', nCID),
-          MI('$SM', sTable_Salesman));
+          MI('$SM', sTable_Salesman)]);
   //xxxxx
 
   nList.Clear;
@@ -789,8 +789,8 @@ begin
     //capture file
 
     for nIdx:=0 to nList.Count - 1 do
-      SavePicture(nOut.FData, nData[0.FTruck,
-                              nData[0.FStockName, nList[nIdx);
+      SavePicture(nOut.FData, nData[0].FTruck,
+                              nData[0].FStockName, nList[nIdx]);
     //save file
   finally
     nList.Free;
@@ -830,24 +830,24 @@ begin
     if not Result then Exit;
 
     nListA.Text := PackerDecodeStr(nOut.FData);
-    nSLine := nListA.Values['Lines';
-    nSTruck := nListA.Values['Trucks';
+    nSLine := nListA.Values['Lines'];
+    nSTruck := nListA.Values['Trucks'];
 
     nListA.Text := PackerDecodeStr(nSLine);
     SetLength(nLines, nListA.Count);
 
     for nIdx:=0 to nListA.Count - 1 do
-    with nLines[nIdx,nListB do
+    with nLines[nIdx],nListB do
     begin
-      nListB.Text := PackerDecodeStr(nListA[nIdx);
-      FID       := Values['ID';
-      FName     := Values['Name';
-      FStock    := Values['Stock';
-      FValid    := Values['Valid' <> sFlag_No;
-      FPrinterOK:= Values['Printer' <> sFlag_No;
+      nListB.Text := PackerDecodeStr(nListA[nIdx]);
+      FID       := Values['ID'];
+      FName     := Values['Name'];
+      FStock    := Values['Stock'];
+      FValid    := Values['Valid'] <> sFlag_No;
+      FPrinterOK:= Values['Printer'] <> sFlag_No;
 
-      if IsNumber(Values['Weight', False) then
-           FWeight := StrToInt(Values['Weight')
+      if IsNumber(Values['Weight'], False) then
+           FWeight := StrToInt(Values['Weight'])
       else FWeight := 1;
     end;
 
@@ -855,26 +855,26 @@ begin
     SetLength(nTrucks, nListA.Count);
 
     for nIdx:=0 to nListA.Count - 1 do
-    with nTrucks[nIdx,nListB do
+    with nTrucks[nIdx],nListB do
     begin
-      nListB.Text := PackerDecodeStr(nListA[nIdx);
-      FTruck    := Values['Truck';
-      FLine     := Values['Line';
-      FBill     := Values['Bill';
+      nListB.Text := PackerDecodeStr(nListA[nIdx]);
+      FTruck    := Values['Truck'];
+      FLine     := Values['Line'];
+      FBill     := Values['Bill'];
 
-      if IsNumber(Values['Value', True) then
-           FValue := StrToFloat(Values['Value')
+      if IsNumber(Values['Value'], True) then
+           FValue := StrToFloat(Values['Value'])
       else FValue := 0;
 
-      FInFact   := Values['InFact' = sFlag_Yes;
-      FIsRun    := Values['IsRun' = sFlag_Yes;
+      FInFact   := Values['InFact'] = sFlag_Yes;
+      FIsRun    := Values['IsRun'] = sFlag_Yes;
            
-      if IsNumber(Values['Dai', False) then
-           FDai := StrToInt(Values['Dai')
+      if IsNumber(Values['Dai'], False) then
+           FDai := StrToInt(Values['Dai'])
       else FDai := 0;
 
-      if IsNumber(Values['Total', False) then
-           FTotal := StrToInt(Values['Total')
+      if IsNumber(Values['Total'], False) then
+           FTotal := StrToInt(Values['Total'])
       else FTotal := 0;
     end;
   finally
@@ -957,10 +957,10 @@ begin
   if nVerify then
   begin
     nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard]);
 
     with FDM.QueryTemp(nStr) do
-     if (RecordCount < 1) or (Fields[0.AsString <> sFlag_Yes) then Exit;
+     if (RecordCount < 1) or (Fields[0].AsString <> sFlag_Yes) then Exit;
     //no need do card
   end;
 
@@ -1025,8 +1025,8 @@ begin
       //capture file
 
       for nIdx:=0 to nList.Count - 1 do
-        SavePicture(nOut.FData, nData[0.FTruck,
-                                nData[0.FStockName, nList[nIdx);
+        SavePicture(nOut.FData, nData[0].FTruck,
+                                nData[0].FStockName, nList[nIdx]);
       //save file
     finally
       nList.Free;
@@ -1083,10 +1083,10 @@ begin
   if nVerify then
   begin
     nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard]);
 
     with FDM.QueryTemp(nStr) do
-     if (RecordCount < 1) or (Fields[0.AsString <> sFlag_Yes) then Exit;
+     if (RecordCount < 1) or (Fields[0].AsString <> sFlag_Yes) then Exit;
     //no need do card
   end;
 
@@ -1173,8 +1173,8 @@ begin
       //capture file
 
       for nIdx:=0 to nList.Count - 1 do
-        SavePicture(nOut.FData, nData[0.FTruck,
-                                nData[0.FStockName, nList[nIdx);
+        SavePicture(nOut.FData, nData[0].FTruck,
+                                nData[0].FStockName, nList[nIdx]);
       //save file
     finally
       nList.Free;
@@ -1192,21 +1192,21 @@ begin
   with nItem,nMC do
   begin
     Clear;
-    Add(Format('车牌号码:%s %s', [nDelimiter, FTruck));
-    Add(Format('当前状态:%s %s', [nDelimiter, TruckStatusToStr(FStatus)));
+    Add(Format('车牌号码:%s %s', [nDelimiter, FTruck]));
+    Add(Format('当前状态:%s %s', [nDelimiter, TruckStatusToStr(FStatus)]));
 
-    Add(Format('%s ', [nDelimiter));
-    Add(Format('交货单号:%s %s', [nDelimiter, FId));
-    Add(Format('交货数量:%s %.3f 吨', [nDelimiter, FValue));
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('交货单号:%s %s', [nDelimiter, FId]));
+    Add(Format('交货数量:%s %.3f 吨', [nDelimiter, FValue]));
     if FType = sFlag_Dai then nStr := '袋装' else nStr := '散装';
 
-    Add(Format('品种类型:%s %s', [nDelimiter, nStr));
-    Add(Format('品种名称:%s %s', [nDelimiter, FStockName));
+    Add(Format('品种类型:%s %s', [nDelimiter, nStr]));
+    Add(Format('品种名称:%s %s', [nDelimiter, FStockName]));
     
-    Add(Format('%s ', [nDelimiter));
-    Add(Format('提货磁卡:%s %s', [nDelimiter, FCard));
-    Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)));
-    Add(Format('客户名称:%s %s', [nDelimiter, FCusName));
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('提货磁卡:%s %s', [nDelimiter, FCard]));
+    Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)]));
+    Add(Format('客户名称:%s %s', [nDelimiter, FCusName]));
   end;
 end;
 
@@ -1220,21 +1220,21 @@ begin
   with nItem,nMC do
   begin
     Clear;
-    Add(Format('车牌号码:%s %s', [nDelimiter, FTruck));
-    Add(Format('当前状态:%s %s', [nDelimiter, TruckStatusToStr(FStatus)));
+    Add(Format('车牌号码:%s %s', [nDelimiter, FTruck]));
+    Add(Format('当前状态:%s %s', [nDelimiter, TruckStatusToStr(FStatus)]));
 
-    Add(Format('%s ', [nDelimiter));
-    Add(Format('采购单号:%s %s', [nDelimiter, FZhiKa));
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('采购单号:%s %s', [nDelimiter, FZhiKa]));
 //    Add(Format('交货数量:%s %.3f 吨', [nDelimiter, FValue));
     if FType = sFlag_Dai then nStr := '袋装' else nStr := '散装';
 
-    Add(Format('品种类型:%s %s', [nDelimiter, nStr));
-    Add(Format('品种名称:%s %s', [nDelimiter, FStockName));
+    Add(Format('品种类型:%s %s', [nDelimiter, nStr]));
+    Add(Format('品种名称:%s %s', [nDelimiter, FStockName]));
 
-    Add(Format('%s ', [nDelimiter));
-    Add(Format('送货磁卡:%s %s', [nDelimiter, FCard));
-    Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)));
-    Add(Format('供 应 商:%s %s', [nDelimiter, FCusName));
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('送货磁卡:%s %s', [nDelimiter, FCard]));
+    Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)]));
+    Add(Format('供 应 商:%s %s', [nDelimiter, FCusName]));
   end;
 end;
 
@@ -1244,11 +1244,11 @@ function GetHYMaxValue: Double;
 var nStr: string;
 begin
   nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
-  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_HYValue);
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_HYValue]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
-       Result := Fields[0.AsFloat
+       Result := Fields[0].AsFloat
   else Result := 0;
 end;
 
@@ -1259,11 +1259,11 @@ begin
   nStr := 'Select R_SerialNo,Sum(H_Value) From %s ' +
           ' Left Join %s on H_SerialNo= R_SerialNo ' +
           'Where R_SerialNo=''%s'' Group By R_SerialNo';
-  nStr := Format(nStr, [sTable_StockRecord, sTable_StockHuaYan, nNo);
+  nStr := Format(nStr, [sTable_StockRecord, sTable_StockHuaYan, nNo]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
-       Result := Fields[1.AsFloat
+       Result := Fields[1].AsFloat
   else Result := -1;
 end;
 
@@ -1284,13 +1284,13 @@ begin
   //添加引号
 
   nStr := 'Select * From %s  Where L_ID In(%s)';
-  nStr := Format(nStr, [sTable_Bill, nBill);
+  nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
     nStr := '编号为[ %s  的记录已无效!!';
-    nStr := Format(nStr, [nBill);
+    nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -1334,7 +1334,7 @@ begin
 //  end;
 
   nStr := 'Select * From %s  Where L_ID=''%s''';
-  nStr := Format(nStr, [sTable_Bill, nBill);
+  nStr := Format(nStr, [sTable_Bill, nBill]);
 
   nDS := FDM.QueryTemp(nStr);
   if not Assigned(nDS) then Exit;
@@ -1342,7 +1342,7 @@ begin
   if nDS.RecordCount < 1 then
   begin
     nStr := '交货单[ %s  已无效!!';
-    nStr := Format(nStr, [nBill);
+    nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -1384,12 +1384,12 @@ begin
   end;
 
   nStr := 'Select * From %s Where P_ID=''%s''';
-  nStr := Format(nStr, [sTable_PoundLog, nPound);
+  nStr := Format(nStr, [sTable_PoundLog, nPound]);
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
     nStr := '称重记录[ %s  已无效!!';
-    nStr := Format(nStr, [nPound);
+    nStr := Format(nStr, [nPound]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -1415,7 +1415,7 @@ begin
   if Result  then
   begin
     nStr := 'Update %s Set P_PrintNum=P_PrintNum+1 Where P_ID=''%s''';
-    nStr := Format(nStr, [sTable_PoundLog, nPound);
+    nStr := Format(nStr, [sTable_PoundLog, nPound]);
     FDM.ExecuteSQL(nStr);
   end;
 end;
@@ -1437,13 +1437,13 @@ begin
   //添加引号
   
   nStr := 'Select * From %s b Where L_ID In(%s)';
-  nStr := Format(nStr, [sTable_Bill, nBill);
+  nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
     nStr := '编号为[ %s  的记录已无效!!';
-    nStr := Format(nStr, [nBill);
+    nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -1461,7 +1461,7 @@ begin
   begin
     nStr := 'Select * From %s b Where L_HKRecord =''%s''';
     nStr := Format(nStr, [sTable_Bill,
-            FDM.SqlTemp.FieldByName('L_HKRecord').AsString);
+            FDM.SqlTemp.FieldByName('L_HKRecord').AsString]);
     //xxxxx
 
     if FDM.QuerySQL(nStr).RecordCount > 0 then
@@ -1528,13 +1528,13 @@ begin
   end;
   
   nStr := 'Select * From %s Where L_ID = ''%s'' ';
-  nStr := Format(nStr, [sTable_Bill, nBill);
+  nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
     nStr := '编号为[ %s  的记录已无效!!';
-    nStr := Format(nStr, [nBill);
+    nStr := Format(nStr, [nBill]);
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -1566,7 +1566,7 @@ begin
   nSR  := ' Select * From  %s  Where L_ID=''%s''  ';
           //' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
           //' Where b.L_ID=''%s'' And b.L_HYDan=''%s'' ';
-  nStr := Format(nSR, [sTable_Bill, nHID);
+  nStr := Format(nSR, [sTable_Bill, nHID]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
@@ -1586,7 +1586,7 @@ begin
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
     nStr := '单号[ %s  的合格证记录未能找到、请联系管理人员处理!!';
-    nStr := Format(nStr, [nHID);
+    nStr := Format(nStr, [nHID]);
     ShowMsg(nStr, sHint); Exit;
   end;
 

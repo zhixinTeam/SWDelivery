@@ -154,7 +154,7 @@ begin
   if (not gSysParam.FIsAdmin)and
      (gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewMYCusData)) then
   begin
-      Result := Result + ' And ((L_SaleName=''' + gSysParam.FUserID + ''') or (L_CusName=''' +
+      Result := Result + ' And ((L_SaleMan=''' + gSysParam.FUserID + ''') or (L_CusName=''' +
             gSysParam.FUserID + '''))';
   end;
 
@@ -188,7 +188,7 @@ begin
     EditLID.Text := Trim(EditLID.Text);
     if EditLID.Text = '' then Exit;
 
-    FUseDate := Length(EditLID.Text) <= 3;
+    FUseDate := Length(EditLID.Text) <= 3;    FUseDate := True;
     FWhere := 'L_ID like ''%' + EditLID.Text + '%''';
     InitFormData(FWhere);
   end else
@@ -197,7 +197,7 @@ begin
   begin
     EditCus.Text := Trim(EditCus.Text);
     if EditCus.Text = '' then Exit;
-
+                                              FUseDate := True;
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
     FWhere := Format(FWhere, [EditCus.Text, EditCus.Text]);
     InitFormData(FWhere);
@@ -208,7 +208,7 @@ begin
     EditCard.Text := Trim(EditCard.Text);
     if EditCard.Text = '' then Exit;
 
-    FUseDate := Length(EditCard.Text) <= 3;
+    FUseDate := Length(EditCard.Text) <= 3;    FUseDate := True;
     FWhere := Format(' (L_Truck like ''%%%s%%'' Or L_HYDan like ''%%%s%%'') ', [EditCard.Text, EditCard.Text]);
     InitFormData(FWhere);
   end;

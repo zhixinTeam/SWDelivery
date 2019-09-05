@@ -34,7 +34,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
       Hint = ''
       ParentColor = False
       Align = alBottom
-      Anchors = [akLeft, akRight, akBottom
+      Anchors = [akLeft, akRight, akBottom]
       TabOrder = 2
       object Check1: TUniCheckBox
         Tag = 10
@@ -96,7 +96,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
       ParentShowHint = False
       FixedCols = 0
       FixedRows = 0
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
       ShowColumnTitles = True
       Columns = <
         item
@@ -121,7 +121,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
         end>
       OnClick = Grid1Click
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
       ParentFont = False
       Font.Charset = GB2312_CHARSET

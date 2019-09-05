@@ -100,7 +100,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('确定要删除该条设置么?', [nStr);
+  nStr := Format('确定要删除该条设置么?', [nStr]);
   MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
@@ -112,13 +112,13 @@ begin
           begin
             nStr := ClientDS.FieldByName('R_ID').AsString;
             nSQL := 'Delete From %s Where R_ID=''%s''';
-            nSQL := Format(nSQL, [sTable_SalePlanStock, nStr);
+            nSQL := Format(nSQL, [sTable_SalePlanStock, nStr]);
           end
           else
           begin
             nStr := Ds_StockCus.FieldByName('R_ID').AsString;
             nSQL := 'Delete From %s Where R_ID=''%s''';
-            nSQL := Format(nSQL, [sTable_SalePlanCustomer, nStr);
+            nSQL := Format(nSQL, [sTable_SalePlanCustomer, nStr]);
           end;
 
           DBExecute(nSQL, nil, FDBType);
@@ -201,7 +201,7 @@ begin
     unpgcntrl1.ActivePageIndex:= 1;
 
     FWhere := ' C_CusName like ''%%%s%%'' ';
-    FWhere := Format(FWhere, [EditCustomer.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text]);
   end;
 
   EditStock.Text := Trim(EditStock.Text);
@@ -252,7 +252,7 @@ begin
          nStr := nStr + ' Where (' + nWhere + ')';
 
       nStr := MacroValue(nStr, [MI('$SalePlanStock', sTable_SalePlanStock),
-                                    MI('$SalePlanCustomer', sTable_SalePlanCustomer));
+                                    MI('$SalePlanCustomer', sTable_SalePlanCustomer)]);
       //xxxxx
       if unpgcntrl1.ActivePageIndex=0 then
           DBQuery(nStr, nQry, ClientDS)

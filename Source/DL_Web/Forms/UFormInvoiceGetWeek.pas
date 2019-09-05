@@ -100,14 +100,14 @@ begin
     EditYear.Items.Clear;
 
     nStr := 'SELECT MIN(W_Begin) AS W_Begin, MAX(W_End) AS W_End FROM %s';
-    nStr := Format(nStr, [sTable_InvoiceWeek);
+    nStr := Format(nStr, [sTable_InvoiceWeek]);
 
     nQuery := LockDBQuery(FDBType);
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      DecodeDate(Fields[0.AsDateTime, nY1, nM, nD);
-      DecodeDate(Fields[1.AsDateTime, nY2, nM, nD);
+      DecodeDate(Fields[0].AsDateTime, nY1, nM, nD);
+      DecodeDate(Fields[1].AsDateTime, nY2, nM, nD);
 
       for nInt:=nY1 to nY2 do
         EditYear.Items.Add(IntToStr(nInt));
@@ -137,12 +137,12 @@ begin
               'Where (W_Begin<=$Now And W_End+1>$Now) Or (W_Begin>=$Now) ' +
               'Order By W_Begin ASC';
       nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
-              MI('$Now', sField_SQLServer_Now));
+              MI('$Now', sField_SQLServer_Now)]);
       //get now fix week
 
       with DBQuery(nStr, nQuery) do
       if RecordCount > 0 then
-           nStr := Fields[0.AsString
+           nStr := Fields[0].AsString
       else nStr := '';
     end else nStr := nWeek;
 
@@ -169,7 +169,7 @@ begin
             'W_Begin<''$E'') or (W_End>=''$S'' and W_End<''$E'') ' +
             'Order By W_NO Desc';
     nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
-            MI('$S', nYear), MI('$E', IntToStr(StrToInt(nYear)+1)));
+            MI('$S', nYear), MI('$E', IntToStr(StrToInt(nYear)+1))]);
     //xxxxx
 
     with DBQuery(nStr, nQuery) do

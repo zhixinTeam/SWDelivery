@@ -10,7 +10,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
-  Font.Style = [
+  Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
@@ -36,7 +36,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Color = clRed
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
     end
     object labelIdCard: TcxLabel
@@ -48,7 +48,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = #24494#36719#38597#40657
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object editWebOrderNo: TcxTextEdit
@@ -60,7 +60,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -32
       Style.Font.Name = 'MS Sans Serif'
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = editWebOrderNoKeyPress
@@ -77,7 +77,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
       TabOrder = 2
       OnClick = btnQueryClick
@@ -92,7 +92,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = #24494#36719#38597#40657
-      Font.Style = [
+      Font.Style = []
       ParentFont = False
       TabOrder = 3
       OnClick = btnClearClick
@@ -124,7 +124,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = #24494#36719#38597#40657
-        Font.Style = [
+        Font.Style = []
         ParentFont = False
         TabOrder = 5
         OnClick = BtnOKClick
@@ -139,7 +139,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Color = clWindowText
         Font.Height = -24
         Font.Name = #24494#36719#38597#40657
-        Font.Style = [
+        Font.Style = []
         ParentFont = False
         TabOrder = 6
         OnClick = BtnExitClick
@@ -154,7 +154,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 4
         Width = 266
@@ -171,7 +171,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 1
         Width = 265
@@ -188,7 +188,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 0
         Width = 259
@@ -204,7 +204,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 2
         Width = 259
@@ -224,19 +224,19 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Color = clWindowText
         Style.Font.Height = -24
         Style.Font.Name = 'MS Sans Serif'
-        Style.Font.Style = [
+        Style.Font.Style = []
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
         TabOrder = 3
         Width = 259
       end
       object dxLayoutGroup1: TdxLayoutGroup
-        AutoAligns = [aaHorizontal
+        AutoAligns = [aaHorizontal]
         ShowCaption = False
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           Caption = #22522#26412#20449#24687
           object dxGroupLayout1Group2: TdxLayoutGroup
             ShowCaption = False
@@ -244,7 +244,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayoutGroup2: TdxLayoutGroup
-              AutoAligns = [aaVertical
+              AutoAligns = [aaVertical]
               AlignHorz = ahClient
               ShowCaption = False
               Hidden = True
@@ -268,14 +268,14 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
             end
           end
           object dxlytmLayout1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             Caption = #21407#26448#26009
             Control = EditProduct
             ControlOptions.ShowBorder = False
           end
         end
         object dxGroup2: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           Caption = #36135#21333#20449#24687
           object dxGroupLayout1Group6: TdxLayoutGroup
             ShowCaption = False
@@ -295,20 +295,20 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
           end
         end
         object dxLayoutGroup3: TdxLayoutGroup
-          AutoAligns = [aaVertical
+          AutoAligns = [aaVertical]
           AlignHorz = ahRight
           ShowCaption = False
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutItem1: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnOK
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item2: TdxLayoutItem
-            AutoAligns = [aaVertical
+            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnExit
             ControlOptions.ShowBorder = False
@@ -336,7 +336,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Style.Font.Color = clWindowText
       Style.Font.Height = -19
       Style.Font.Name = #24494#36719#38597#40657
-      Style.Font.Style = [
+      Style.Font.Style = []
       Style.IsFontAssigned = True
     end
     object lvOrders: TListView
@@ -350,7 +350,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
       Font.Color = clWindowText
       Font.Height = -24
       Font.Name = 'MS Sans Serif'
-      Font.Style = [
+      Font.Style = []
       RowSelect = True
       ParentFont = False
       TabOrder = 1

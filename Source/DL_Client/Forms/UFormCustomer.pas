@@ -115,6 +115,26 @@ var
   gForm: TfFormCustomer = nil;
   //全局使用
 
+
+function GetLeftStr(SubStr, Str: string): string;
+begin
+   Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+end;
+//-------------------------------------------
+
+function GetRightStr(SubStr, Str: string): string;
+var
+   i: integer;
+begin
+   i := pos(SubStr, Str);
+   if i > 0 then
+     Result := Copy(Str
+       , i + Length(SubStr)
+       , Length(Str) - i - Length(SubStr) + 1)
+   else
+     Result := '';
+end;
+
 class function TfFormCustomer.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nP: PFormCommandParam;
@@ -358,7 +378,7 @@ end;
 procedure TfFormCustomer.BtnOKClick(Sender: TObject);
 var nList: TStrings;
     i,nCount,nPos: integer;
-    nStr,nSQL,nTmp,nID: string;
+    nStr,nSQL,nTmp,nID,nSManId,nSManName: string;
 begin
   EditName.Text := Trim(EditName.Text);
   if EditName.Text = '' then
@@ -390,7 +410,7 @@ begin
   begin
     nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False);
     if nID = '' then Exit;
-    
+
     nList.Add(SF('C_ID', nID));
     nSQL := MakeSQLByForm(Self, sTable_Customer, '', True, GetData, nList);
   end else
@@ -399,6 +419,9 @@ begin
     nStr := 'C_ID=''' + FCustomerID + '''';
     nSQL := MakeSQLByForm(Self, sTable_Customer, nStr, False, GetData, nList);
   end;
+
+  nSManId  := '';
+  nSManName:= GetRightStr('.', EditSaleMan.Text);
 
   nList.Free;
   FDM.ADOConn.BeginTrans;
@@ -434,6 +457,27 @@ begin
               'Values(''%s'', ''%s'', ''%s'', ''%s'')';
       nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nID, nTmp, nStr]);
       FDM.ExecuteSQL(nSQL);
+    end;
+
+    if nID<>'' then
+    begin
+      nSQL := 'Select * From %s Where S_Name=''%s''';
+      nSQL := Format(nSQL, [sTable_Salesman, nSManName]);
+      with FDM.QueryTemp(nSQL) do
+      begin
+        nSManId  := fieldbyName('S_ID').AsString;
+      end;
+
+      if nSManId<>'' then
+      begin
+        nSQL := 'UPDate S_ZhiKa Set Z_SaleMan=''%s'' Where Z_Customer=''%s''';
+        nSQL := Format(nSQL, [nSManId, nID]);
+        FDM.ExecuteSQL(nSQL);
+
+        nSQL := 'UPDate S_Bill Set L_SaleID=''%s'', L_SaleMan=''%s'' Where L_CusID=''%s''';
+        nSQL := Format(nSQL, [nSManId, nSManName, nID]);
+        FDM.ExecuteSQL(nSQL);
+      end;
     end;
 
     FDM.ADOConn.CommitTrans;

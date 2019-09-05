@@ -104,7 +104,7 @@ begin
 
     nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
             'Where D_Name=''%s'' Order By D_Index ASC';
-    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem);
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -115,7 +115,7 @@ begin
 
       while not Eof do
       begin
-        with FStockList[nIdx do
+        with FStockList[nIdx] do
         begin
           FKey   := FieldByName('D_ParamB').AsString;
           FValue := FieldByName('D_Value').AsString;
@@ -128,7 +128,7 @@ begin
     end;
 
     for nIdx := Low(FStockList) to High(FStockList) do
-      cbb_Stock.Items.AddObject(FStockList[nIdx.FValue, Pointer(nIdx));
+      cbb_Stock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
     cbb_Stock.ItemIndex := 0;
   finally
     cbb_Stock.Items.EndUpdate;
@@ -158,17 +158,46 @@ begin
   Result := '';
   if cbb_Stock.ItemIndex < 1 then Exit;
 
-  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex);
-  Result := FStockList[nIdx.FKey;
+  nIdx := NativeInt(cbb_Stock.Items.Objects[cbb_Stock.ItemIndex]);
+  Result := FStockList[nIdx].FKey;
 end;
 
 function TfFrameQuerySaleDetail.InitFormDataSQL(const nWhere: string): string;
-var nWH, nWR, nNo: string;
+var nWH, nWR, nNo, nFields: string;
+    nQuery: TADOQuery;
+    nIdx : Integer;
 begin
+  nQuery := nil;
   with TStringHelper, TDateTimeHelper do
   begin
     nWH := '';
-    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd));
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+
+    nFields := '';
+    nFields := Format('Select * From %s Where 1<>1', [sTable_Bill]);
+    //only for fields
+    nQuery := LockDBQuery(FDBType);
+    try
+      with DBQuery(nFields, nQuery) do
+      begin
+        nFields := '';
+
+        for nIdx:=0 to FieldCount - 1 do
+          nFields := nFields + 'Null ' + Fields[nIdx].FieldName + ',';
+          //所有字段
+
+        System.Delete(nFields, Length(nFields), 1);
+      end;
+    finally
+      nFields:= StringReplace(nFields, 'Null L_ID', 'S_Bill L_ID', [rfReplaceAll]);
+      nFields:= StringReplace(nFields, 'Null L_CusID', 'C_ID l_CusId', [rfReplaceAll]);
+      nFields:= StringReplace(nFields, 'Null L_CusName', 'C_Name L_CusName', [rfReplaceAll]);
+      nFields:= StringReplace(nFields, 'Null L_CusPY', 'C_PY L_CusPY', [rfReplaceAll]);
+      nFields:= StringReplace(nFields, 'Null L_StockName', 'S_StockName L_StockName', [rfReplaceAll]);
+
+      ReleaseDBQuery(nQuery);
+    end;
+
 
     Result := 'Select L_Price,L_Value,Convert(Decimal(15,2), L_Value*(L_Price+IsNull(L_YunFei, 0))) as L_Money,' +
       'L_YunFei,b.* from $Bill b $WH union all ' +
@@ -176,6 +205,12 @@ begin
       'S_Value*S_Price*(-1) as L_Money,L_Value*S_YunFei*(-1) as L_YunFei,b.*' +
       ' From $ST st Left Join $Bill b on b.L_ID=st.S_Bill $WR';
     //xxxxx
+
+    Result := 'Select L_Price,L_Value,Convert(Decimal(15,2), (L_Value*L_Price)) as L_Money,' +
+      'L_YunFei,(L_Value*IsNull(L_YunFei, 0)) as L_YunFeiMoney,b.* from $Bill b Left Join S_Customer c on c.C_ID=L_CusID $WH union all ' +
+      'Select S_Price*(-1) as L_Price,0 as L_Value,S_Value*S_Price*(-1) as L_Money,S_YunFei*(-1) as L_YunFei, '+
+        'S_Value*(IsNull(S_YunFei, 0)*(-1)) as L_YunFeiMoney,$Fields' +
+      ' From $ST st Left Join $CusM b on b.C_ID=st.S_CusID Left Join S_Salesman m on b.C_SaleMan=m.S_ID $WR';
 
     if FJBWhere = '' then
     begin
@@ -198,16 +233,23 @@ begin
     begin
       if HasPopedom2(sPopedom_ViewMYCusData, FPopedom) then
         nWH := nWH + 'And ((L_SaleMan='''+ UniMainModule.FUserConfig.FUserID +''') or (L_CusName='''+
-                            UniMainModule.FUserConfig.FUserID+'''))';
+                   UniMainModule.FUserConfig.FUserID+''') or (C_WeiXin='''+ UniMainModule.FUserConfig.FUserID +'''))';
     end;
 
-    nWR:= StringReplace(nWH, 'L_OutFact', 'S_Date', [rfReplaceAll);
+    nWR:= StringReplace(nWH, 'L_OutFact', 'S_Date', [rfReplaceAll]);
+    nWR:= StringReplace(nWR, 'b.L_ID', 'S_Bill', [rfReplaceAll]);
+    nWR:= StringReplace(nWR, 'b.L_Truck', '''''', [rfReplaceAll]);
+    nWR:= StringReplace(nWR, 'L_SaleMan', 'S_Name', [rfReplaceAll]);
+    nWR:= StringReplace(nWR, 'L_CusName', 'C_Name', [rfReplaceAll]);
+    nWR:= StringReplace(nWR, 'L_CusPY', 'C_PY', [rfReplaceAll]);
 
-    Result := MacroValue(Result, [MI('$WH', nWH));
-    Result := MacroValue(Result, [MI('$WR', nWR));
+    Result := MacroValue(Result, [MI('$Fields', nFields)]);
+    Result := MacroValue(Result, [MI('$CusM', sTable_Customer)]);
+    Result := MacroValue(Result, [MI('$WH', nWH)]);
+    Result := MacroValue(Result, [MI('$WR', nWR)]);
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
               MI('$ST', sTable_InvSettle), MI('$No', nNo),
-              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)));
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;
 end;
@@ -229,7 +271,7 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text,EditBill.Text);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text,EditBill.Text]);
     InitFormData(FWhere);
   end else
 
@@ -239,7 +281,7 @@ begin
     if EditTruck.Text = '' then Exit;
 
     FWhere := 'b.L_Truck like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditTruck.Text);
+    FWhere := Format(FWhere, [EditTruck.Text]);
     InitFormData(FWhere);
   end;
 
@@ -249,7 +291,7 @@ begin
     if EditBill.Text = '' then Exit;
 
     FWhere := 'b.L_ID like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditBill.Text);
+    FWhere := Format(FWhere, [EditBill.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -280,7 +322,7 @@ begin
 
     FJBWhere := '(L_OutFact>=''%s'' and L_OutFact <''%s'')';
     FJBWhere := Format(FJBWhere, [DateTime2Str(FTimeS), DateTime2Str(FTimeE),
-                sFlag_BillPick, sFlag_BillPost);
+                sFlag_BillPick, sFlag_BillPost]);
     InitFormData('');
   finally
     FJBWhere := '';

@@ -51,7 +51,7 @@ begin
     else Result := Result + ' Where (' + nWhere + ')';
 
     Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
-              MI('$Yes', sFlag_Yes));
+              MI('$Yes', sFlag_Yes)]);
     //xxxxx
   end;
 end;
@@ -119,17 +119,17 @@ begin
     nQuery := LockDBQuery(FDBType);
     nStr := ClientDS.FieldByName('S_ID').AsString;
     nSQL := 'Select Count(*) From %s Where C_SaleMan=''%s''';
-    nSQL := Format(nSQL, [sTable_SaleContract, nStr);
+    nSQL := Format(nSQL, [sTable_SaleContract, nStr]);
 
     with DBQuery(nSQL, nQuery) do
-    if Fields[0.AsInteger > 0 then
+    if Fields[0].AsInteger > 0 then
     begin
       ShowMessage('该业务员已签合同,不能删除.');
       Exit;
     end;
 
     nStr := ClientDS.FieldByName('S_Name').AsString;
-    nStr := Format('确定要删除名称为[ %s 的业务员吗?', [nStr);
+    nStr := Format('确定要删除名称为[ %s ]的业务员吗?', [nStr]);
     MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
@@ -142,11 +142,11 @@ begin
           nStr := ClientDS.FieldByName('S_ID').AsString;
 
           nSQL := 'Delete From %s Where S_ID=''%s''';
-          nSQL := Format(nSQL, [sTable_Salesman, nStr);
+          nSQL := Format(nSQL, [sTable_Salesman, nStr]);
           nList.Add(nSQL);
 
           nSQL := 'Delete From %s Where I_Group=''%s'' and I_ItemID=''%s''';
-          nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_SalesmanItem, nStr);
+          nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_SalesmanItem, nStr]);
           nList.Add(nSQL);
 
           DBExecute(nList, nil, FDBType);
@@ -180,7 +180,7 @@ begin
     if EditName.Text = '' then Exit;
 
     FWhere := 'S_Name like ''%%%s%%'' Or S_PY like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditName.Text, EditName.Text);
+    FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -195,7 +195,7 @@ end;
 procedure TfFrameSalesMan.MenuItemN1Click(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
-    10: FWhere := Format('S_InValid=''%s''', [sFlag_Yes);
+    10: FWhere := Format('S_InValid=''%s''', [sFlag_Yes]);
     20: FWhere := '1=1';
   end;
 

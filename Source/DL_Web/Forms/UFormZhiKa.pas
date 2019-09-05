@@ -85,7 +85,7 @@ begin
     FixedCols := 2;
     RowCount := 0;
     ColCount := 8;
-    Options := [goVertLine,goHorzLine, goColSizing, goEditing,goFixedColClick;
+    Options := [goVertLine,goHorzLine, goColSizing, goEditing,goFixedColClick];
   end;
 
   ActiveControl := EditName;
@@ -124,7 +124,7 @@ begin
     EditPayment.Text := '现款';
 
     nStr := Copy(Date2Str(Now(), False), 3, 4);
-    EditName.Text := Format('%s零售价', [nStr);
+    EditName.Text := Format('%s零售价', [nStr]);
   end;
 end;
 
@@ -171,7 +171,7 @@ begin
               'Where zk.R_ID=$ID';
       nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa),
               MI('$Cus', sTable_Customer), MI('$SM', sTable_Salesman),
-              MI('$ID', nID));
+              MI('$ID', nID)]);
       //xxxxx
 
       nQuery := LockDBQuery(FDBType);
@@ -181,8 +181,8 @@ begin
       begin
         if RecordCount < 1 then
         begin
-          nStr := '记录号为[ %s 的纸卡已无效.';
-          ShowMessage(Format(nStr, [nID));
+          nStr := '记录号为[ %s ]的纸卡已无效.';
+          ShowMessage(Format(nStr, [nID]));
           Exit;
         end;
 
@@ -214,7 +214,7 @@ begin
     //加载合同
 
     nStr := 'Select * From %s Where D_ZID=''%s''';
-    nStr := Format(nStr, [sTable_ZhiKaDtl, FParam.FParamB);
+    nStr := Format(nStr, [sTable_ZhiKaDtl, FParam.FParamB]);
 
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
@@ -224,13 +224,13 @@ begin
       begin
         nStr := FieldByName('D_StockNo').AsString;
         for nIdx := 0 to Grid1.RowCount-1 do
-        if Grid1.Cells[0, nIdx = nStr then //编号匹配
+        if Grid1.Cells[0, nIdx] = nStr then //编号匹配
         begin
-          Grid1.Cells[giValue, nIdx := FieldByName('D_Value').AsString;
-          Grid1.Cells[giPrice, nIdx := FieldByName('D_Price').AsString;
-          Grid1.Cells[giFLPrice, nIdx := FieldByName('D_FLPrice').AsString;
-          Grid1.Cells[giYunFei, nIdx := FieldByName('D_YunFei').AsString;
-          Grid1.Cells[giCheck, nIdx := sCheckFlag;
+          Grid1.Cells[giValue, nIdx] := FieldByName('D_Value').AsString;
+          Grid1.Cells[giPrice, nIdx] := FieldByName('D_Price').AsString;
+          Grid1.Cells[giFLPrice, nIdx] := FieldByName('D_FLPrice').AsString;
+          Grid1.Cells[giYunFei, nIdx] := FieldByName('D_YunFei').AsString;
+          Grid1.Cells[giCheck, nIdx] := sCheckFlag;
           Break;
         end;
 
@@ -268,7 +268,7 @@ begin
               'Where sc.C_ID=''$ID''';
       nStr := MacroValue(nStr, [MI('$SC', sTable_SaleContract),
               MI('$SM', sTable_Salesman), MI('$Cus', sTable_Customer),
-              MI('$ID', nCID), MI('$Now', sField_SQLServer_Now));
+              MI('$ID', nCID), MI('$Now', sField_SQLServer_Now)]);
       //xxxxx
 
       with DBQuery(nStr, nC) do
@@ -305,7 +305,7 @@ begin
 
     //--------------------------------------------------------------------------
     nStr := 'Select * From %s Where E_CID=''%s''';
-    nStr := Format(nStr, [sTable_SContractExt, nCID);
+    nStr := Format(nStr, [sTable_SContractExt, nCID]);
 
     with DBQuery(nStr, nC) do
     if RecordCount > 0 then
@@ -320,13 +320,13 @@ begin
 
       while not Eof do
       begin
-        Grid1.Cells[giID, nIdx := FieldByName('E_StockNo').AsString;
-        Grid1.Cells[giName, nIdx := FieldByName('E_StockName').AsString;
-        Grid1.Cells[giPrice, nIdx := FieldByName('E_Price').AsString;
-        Grid1.Cells[giFLPrice, nIdx := '0';
-        Grid1.Cells[giYunFei, nIdx := '0';
-        Grid1.Cells[giValue, nIdx := '0';
-        Grid1.Cells[giType, nIdx := FieldByName('E_Type').AsString;
+        Grid1.Cells[giID, nIdx] := FieldByName('E_StockNo').AsString;
+        Grid1.Cells[giName, nIdx] := FieldByName('E_StockName').AsString;
+        Grid1.Cells[giPrice, nIdx] := FieldByName('E_Price').AsString;
+        Grid1.Cells[giFLPrice, nIdx] := '0';
+        Grid1.Cells[giYunFei, nIdx] := '0';
+        Grid1.Cells[giValue, nIdx] := '0';
+        Grid1.Cells[giType, nIdx] := FieldByName('E_Type').AsString;
 
         Inc(nIdx);
         Next;
@@ -343,9 +343,9 @@ procedure TfFormZhiKa.Grid1Click(Sender: TObject);
 begin
   if Grid1.Col = giCheck then
   begin
-    if Grid1.Cells[giCheck, Grid1.Row = sCheckFlag then
-         Grid1.Cells[giCheck, Grid1.Row := ''
-    else Grid1.Cells[giCheck, Grid1.Row := sCheckFlag;
+    if Grid1.Cells[giCheck, Grid1.Row] = sCheckFlag then
+         Grid1.Cells[giCheck, Grid1.Row] := ''
+    else Grid1.Cells[giCheck, Grid1.Row] := sCheckFlag;
   end;
 end;
 
@@ -360,7 +360,7 @@ begin
     Exit;
   end;
 
-  nStr := Format('C_SaleMan=''%s''', [nStr);
+  nStr := Format('C_SaleMan=''%s''', [nStr]);
   LoadCustomer(EditCus.Items, nStr);
 end;
 
@@ -385,7 +385,7 @@ begin
   if Key = Char(VK_RETURN) then
   begin
     Key := #0;
-    ShowGetCustomerForm(GetNameFromBox(EditCus),
+    ShowGetCustomerForm(GetNameFromBox(EditCus), '',
       procedure(const nResult: Integer; const nParam: PFormCommandParam)
       begin
         nStr := Trim(nParam.FParamC + '.' + nParam.FParamD); //saleman: id.name
@@ -454,27 +454,27 @@ begin
   for nIdx := 0 to Grid1.RowCount - 1 do
   with TStringHelper do
   begin
-    if Grid1.Cells[giCheck, nIdx <> sCheckFlag then Continue;
-    if (not IsNumber(Grid1.Cells[giPrice, nIdx, True)) or
-       (StrToFloat(Grid1.Cells[giPrice, nIdx) <= 0) then
+    if Grid1.Cells[giCheck, nIdx] <> sCheckFlag then Continue;
+    if (not IsNumber(Grid1.Cells[giPrice, nIdx], True)) or
+       (StrToFloat(Grid1.Cells[giPrice, nIdx]) <= 0) then
     begin
-      nStr := '品种[ %s 单价无效.';
-      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx));
+      nStr := '品种[ %s ]单价无效.';
+      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
       Exit;
     end;
 
-    if not IsNumber(Grid1.Cells[giFLPrice, nIdx, True) then
+    if not IsNumber(Grid1.Cells[giFLPrice, nIdx], True) then
     begin
-      nStr := '品种[ %s 返利价差无效.';
-      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx));
+      nStr := '品种[ %s ]返利价差无效.';
+      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
       Exit;
     end;
 
-    if (not IsNumber(Grid1.Cells[giYunFei, nIdx, True)) or
-       (StrToFloat(Grid1.Cells[giYunFei, nIdx) < 0) then
+    if (not IsNumber(Grid1.Cells[giYunFei, nIdx], True)) or
+       (StrToFloat(Grid1.Cells[giYunFei, nIdx]) < 0) then
     begin
-      nStr := '品种[ %s 运费无效.';
-      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx));
+      nStr := '品种[ %s ]运费无效.';
+      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
       Exit;
     end;
   end;
@@ -504,7 +504,7 @@ begin
     nStr := SF('R_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('Z_ID', nID), '', nBool),
+      SF_IF([SF('Z_ID', nID), ''], nBool),
       SF('Z_Name', EditName.Text),
       SF('Z_CID', FParam.FParamC),
       SF('Z_Project', EditProject.Text),
@@ -516,36 +516,36 @@ begin
       SF('Z_Man', UniMainModule.FUserConfig.FUserID),
       SF('Z_Date', sField_SQLServer_Now, sfVal),
       
-      SF_IF([SF('Z_Customer', GetIDFromBox(EditCus)), '', nBool),
-      SF_IF([SF('Z_SaleMan', GetIDFromBox(EditSaleMan)), '', nBool),
-      SF_IF([SF('Z_Verified', nVerify), '', nBool)
-      , sTable_ZhiKa, nStr, nBool);
+      SF_IF([SF('Z_Customer', GetIDFromBox(EditCus)), ''], nBool),
+      SF_IF([SF('Z_SaleMan', GetIDFromBox(EditSaleMan)), ''], nBool),
+      SF_IF([SF('Z_Verified', nVerify), ''], nBool)
+      ], sTable_ZhiKa, nStr, nBool);
     nList.Add(nStr);
 
     if not nBool then
     begin
       nStr := 'Delete From %s Where D_ZID=''%s''';
-      nStr := Format(nStr, [sTable_ZhiKaDtl, nID);
+      nStr := Format(nStr, [sTable_ZhiKaDtl, nID]);
       nList.Add(nStr);
     end;
 
     for nIdx:=0 to Grid1.RowCount-1 do
     begin
-      if Grid1.Cells[giCheck, nIdx <> sCheckFlag then Continue;
+      if Grid1.Cells[giCheck, nIdx] <> sCheckFlag then Continue;
       //no selected
 
       nStr := MakeSQLByStr([SF('D_ZID', nID),
-              SF('D_Type', Grid1.Cells[giType, nIdx),
-              SF('D_StockNo', Grid1.Cells[giID, nIdx),
-              SF('D_StockName', Grid1.Cells[giName, nIdx),
-              SF('D_Price', Grid1.Cells[giPrice, nIdx, sfVal),
-              SF('D_FLPrice', Grid1.Cells[giFLPrice, nIdx, sfVal),
-              SF('D_YunFei', Grid1.Cells[giYunFei, nIdx, sfVal),
+              SF('D_Type', Grid1.Cells[giType, nIdx]),
+              SF('D_StockNo', Grid1.Cells[giID, nIdx]),
+              SF('D_StockName', Grid1.Cells[giName, nIdx]),
+              SF('D_Price', Grid1.Cells[giPrice, nIdx], sfVal),
+              SF('D_FLPrice', Grid1.Cells[giFLPrice, nIdx], sfVal),
+              SF('D_YunFei', Grid1.Cells[giYunFei, nIdx], sfVal),
 
-              SF_IF([SF('D_Value', Grid1.Cells[giValue, nIdx, sfVal),
-                     'D_Value=0', IsNumber(Grid1.Cells[giValue, nIdx, True))
+              SF_IF([SF('D_Value', Grid1.Cells[giValue, nIdx], sfVal),
+                     'D_Value=0'], IsNumber(Grid1.Cells[giValue, nIdx], True))
               //xxxxx
-              , sTable_ZhiKaDtl, '', True);
+              ], sTable_ZhiKaDtl, '', True);
       nList.Add(nStr);
     end;
 

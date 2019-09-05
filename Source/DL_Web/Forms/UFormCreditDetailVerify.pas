@@ -125,13 +125,13 @@ begin
               '※.客户名称: %s' + #13#10 +
               '※.授信金额: %.2f元' + #13#10#13#10 +
               '继续授信请点击"是".';
-      nStr := Format(nStr, [UnLbl_CusName.Caption, nVal);
+      nStr := Format(nStr, [UnLbl_CusName.Caption, nVal]);
     end
     else
     begin
       nStr := '拒绝本次信用额度申请' + #13#10#13#10 +
               '继续请点击 "是".';
-      nStr := Format(nStr, [UnLbl_CusName.Caption, nVal);
+      nStr := Format(nStr, [UnLbl_CusName.Caption, nVal]);
     end;
 
     MessageDlg(nStr, mtConfirmation, mbYesNo,
@@ -146,7 +146,7 @@ begin
                   SF('V_Verify', nFlag),
                   SF('V_Memo', Trim(UnMMo_1.Text)),
                   SF('V_VerDate', sField_SQLServer_Now, sfVal)
-                  , sTable_CusCreditVif, nStr, False);
+                  ], sTable_CusCreditVif, nStr, False);
           nList.Add(nStr);
 
           if nFlag=sFlag_Yes then
@@ -159,12 +159,12 @@ begin
                         SF('C_VerMan', UniMainModule.FUserConfig.FUserID),
                         SF('C_VerDate', sField_SQLServer_Now, sfVal),
                         SF('C_Memo', Trim(UnMMo_1.Text))
-                        , sTable_CusCredit, nStr, False);
+                        ], sTable_CusCredit, nStr, False);
                 nList.Add(nStr);
 
                 nStr := 'UPDate %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
                           'Where A_CID=''%s''';
-                nStr := Format(nStr, [sTable_CusAccount, nVal, FCusId);
+                nStr := Format(nStr, [sTable_CusAccount, nVal, FCusId]);
                 nList.Add(nStr);
             end
             else
@@ -172,14 +172,14 @@ begin
               nStr := SF('C_CreditID', FCrdVifId);
               nStr := MakeSQLByStr([
                       SF('C_VerMan', Trim(cbb_NextVarMan.Text))
-                      , sTable_CusCredit, nStr, False);
+                      ], sTable_CusCredit, nStr, False);
               nList.Add(nStr);
 
               nStr := MakeSQLByStr([SF('V_CreditID', FCrdVifId),
                       SF('V_Verify', sFlag_Unknow),
                       SF('V_VerMan', Trim(cbb_NextVarMan.Text)),
                       SF('V_PreFxMan', UniMainModule.FUserConfig.FUserID)
-                      , sTable_CusCreditVif, '', True);
+                      ], sTable_CusCreditVif, '', True);
               nList.Add(nStr);
             end;
           end;

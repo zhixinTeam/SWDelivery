@@ -52,16 +52,17 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SWAS}
+{$DEFINE SWTC}
 //特定系统       SWJY  SWTC  SWAS  SWYL  SWFX      CQJJ
 
 //陕西声威集团 铜川工厂
 {$IFDEF SWTC}
-  {.$DEFINE OnleBF}
+  {$DEFINE ProhibitMultipleOrder}
+  {.$DEFINE OnleBF}//磅房
   {$DEFINE AllowMultiM}
   //散装允许多次过重车
   {$DEFINE NCPurchase}
-  {$DEFINE NCSale}
+  {$DEFINE NCSale}    // NC销售开关
   {$DEFINE ProberMidChk} // 车检4通道光栅检查 (磅2端+磅中间)
   {$DEFINE BasisWeight}
   //启用定量装车
@@ -69,7 +70,6 @@
   //库底计量: 定量装车时过皮毛重
   {$DEFINE PRINT3dHY}
   {$DEFINE DelNotInBill} // 调价删除未进厂单据 
-  {.$DEFINE NCSale}	// NC销售开关
   {$DEFINE DelBillNeedReson}
   {$DEFINE ChkSaleCardInTimeOut}
   {$DEFINE MsgPoundVoice} //通知磅房虚拟读卡器
@@ -222,8 +222,10 @@
 
 //声威泾阳工厂
 {$IFDEF SWJY}
-  {$DEFINE NCPurchase}
-  {$DEFINE NCSale}	// NC销售开关
+  {$DEFINE ShowDaiWuChaLog} //显示袋装误差检查日志
+  {$DEFINE SampleNoWuChaChk}    //袋装样品不做误差检查
+  {$DEFINE NCPurchase}//NC采购开关
+  {$DEFINE NCSale}	    // NC销售开关
   {$DEFINE DelBillNeedReson}
   {$DEFINE SXSW}
   //声威批次号  年月日 + 水泥批次号

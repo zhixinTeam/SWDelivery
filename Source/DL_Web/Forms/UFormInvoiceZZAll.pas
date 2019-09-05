@@ -107,7 +107,7 @@ procedure TfFormInvoiceZZAll.InitFormData;
 begin
   if FParam.FParamB = '' then
        EditWeek.Text := '请选择结算周期'
-  else EditWeek.Text := Format('%s 年份:[ %s ', [FParam.FParamC, FParam.FParamA);
+  else EditWeek.Text := Format('%s 年份:[ %s ]', [FParam.FParamC, FParam.FParamA]);
 end;
 
 procedure TfFormInvoiceZZAll.ShowHintText(const nText: string);
@@ -150,7 +150,7 @@ begin
     nInt := IsPreWeekOver(FParam.FParamB, nQuery, nWeek);
     if nInt > 0 then
     begin
-      nStr := Format('周期[ %s 还有[ %d 笔未返利完毕,请先处理!', [nWeek, nInt);
+      nStr := Format('周期[ %s ]还有[ %d ]笔未返利完毕,请先处理!', [nWeek, nInt]);
       ShowMessage(nStr); Exit;
     end;
 
@@ -166,7 +166,7 @@ begin
         if Res = mrYes then
         begin
           EditMemo.Text := '开始扎帐,请耐心等待';
-          BtnRun.JSInterface.JSCall('fireEvent', ['click', BtnRun);
+          BtnRun.JSInterface.JSCall('fireEvent', ['click', BtnRun]);
           //调用远程代码,显示进度并执行click操作
         end;
       end);
@@ -196,7 +196,7 @@ begin
     if FParam.FParamE = sFlag_Yes then
     begin
       nStr := 'Delete From %s Where R_Week=''%s''';
-      nStr := Format(nStr, [sTable_InvoiceReq, FParam.FParamB);
+      nStr := Format(nStr, [sTable_InvoiceReq, FParam.FParamB]);
       nList.Add(nStr);
     end;
 
@@ -208,11 +208,11 @@ begin
     nStr := 'Insert Into %s(%s) Select %s From %s';
     //move into normal table
 
-    nStr := Format(nStr, [sTable_InvoiceReq, nFields, nFields, sTable_InvReqtemp);
+    nStr := Format(nStr, [sTable_InvoiceReq, nFields, nFields, sTable_InvReqtemp]);
     nList.Add(nStr);
     
-    nStr := '用户[ %s 对周期[ %s 执行扎账操作.';
-    nStr := Format(nStr, [uniMainModule.FUserConfig.FUserID, FParam.FParamC);
+    nStr := '用户[ %s ]对周期[ %s ]执行扎账操作.';
+    nStr := Format(nStr, [uniMainModule.FUserConfig.FUserID, FParam.FParamC]);
     nStr := WriteSysLog(sFlag_CommonItem, FParam.FParamB, nStr, 
             FDBType, nil, False, False);
     nList.Add(nStr);
@@ -239,7 +239,7 @@ procedure TfFormInvoiceZZAll.ZZ_All(const nNeedCombine: Boolean;
 var nStr, nSQL, nSqlMx, nCusId, nStockId: string;
 begin
   nStr := 'Select * From ' + sTable_InvoiceWeek + ' Where W_NO=''%s''';
-  nStr := Format(nStr, [FParam.FParamB);
+  nStr := Format(nStr, [FParam.FParamB]);
   with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
@@ -268,7 +268,7 @@ begin
   with TStringHelper,TDateTimeHelper do
     nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),
             MI('$STime', DateTime2Str(FWeekBegin)), MI('$ETime', DateTime2Str(FWeekEnd)+'.999'),
-            MI('$CusID', nCusId), MI('$StockNo', nStockId));
+            MI('$CusID', nCusId), MI('$StockNo', nStockId)]);
 
 //  nSQL := nSQL + ' Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
 //                           'L_Type,L_StockNo,L_StockName,L_Price, L_YunFei';
@@ -280,13 +280,13 @@ begin
   with TStringHelper do
     nSQL := MacroValue(nStr, [MI('$Week', FParam.FParamB), MI('$Bill', nSQL),
             MI('$Man', UniMainModule.FUserConfig.FUserID), 
-            MI('$Now', sField_SQLServer_Now));
+            MI('$Now', sField_SQLServer_Now)]);
   //合并有效内容
 
   nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_SaleMan,' +
     'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,R_Price,R_YunFei,' +
     'R_Value,R_LID,R_OutFact) Select * From (%s) t';
-  nStr := Format(nStr, [sTable_InvReqtemp, nSQL);
+  nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户总提货量...');
   DBExecute(nStr, nQuery);
@@ -300,7 +300,7 @@ begin
 
   with TStringHelper do
   nStr := MacroValue(nSQL, [MI('$T', sTable_InvReqtemp),
-          MI('$Z', sTable_ZhiKaDtl));
+          MI('$Z', sTable_ZhiKaDtl)]);
   //xxxxx
 
   ShowHintText('开始合并提货单价及返利价差...');
@@ -319,7 +319,7 @@ begin
 
     with TStringHelper do
     nStr := MacroValue(nSQL, [MI('$T', sTable_InvReqtemp),
-            MI('$R', sTable_InvoiceReq), MI('$W', FParam.FParamB));
+            MI('$R', sTable_InvoiceReq), MI('$W', FParam.FParamB)]);
     //xxxxx
 
     ShowHintText('开始合并上次扎账数据...');

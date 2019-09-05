@@ -18,7 +18,7 @@ type
   PNET_DVR_DEVICEINFO = ^TNET_DVR_DEVICEINFO;
   {$EXTERNALSYM NET_DVR_DEVICEINFO}
   NET_DVR_DEVICEINFO = Record
-    sSerialNumber: Array[0..SERIALNO_LEN - 1 of Char ;  //序列号
+    sSerialNumber: Array[0..SERIALNO_LEN - 1] of Char ;  //序列号
     byAlarmInPortNum: BYTE ;	 //DVR报警输入个数
     byAlarmOutPortNum: BYTE ;	 //DVR报警输出个数
     byDiskNum: BYTE;	         //DVR 硬盘个数
@@ -104,7 +104,7 @@ type
     mode: LongInt;
     InterSnap: LongInt;
     CmdSerial: LongInt;
-    Reserved : array [0..3 of LongInt;
+    Reserved : array [0..3] of LongInt;
   end;
   LPSNAP_PARAMS = SNAP_PARAMS;
 
@@ -284,8 +284,8 @@ var
 begin
   if not Assigned(nPFunc) then
   begin
-    nLog := '获取函数池[%s失败';
-    nLog := Format(nLog, [nFuncName);
+    nLog := '获取函数池[%s]失败';
+    nLog := Format(nLog, [nFuncName]);
 
     WriteLog(nLog);Result:= False;
     Exit;
@@ -483,9 +483,9 @@ begin
   FLibhandle := SafeLoadLibrary(FDllPath + gHCNetSDKDll);
   if FLibhandle <= 0 then
   begin
-    nLog := '设备驱动[%s加载失败';
+    nLog := '设备驱动[%s]加载失败';
     nErr := FDllPath + gHCNetSDKDll;
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);Result := False;
     Exit;
@@ -507,9 +507,9 @@ begin
   Result := FCLIENT_Init;
   if not Result then
   begin
-    nLog := '设备初始化失败，返回错误码[%s';
+    nLog := '设备初始化失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
     Exit;
@@ -580,8 +580,8 @@ begin
 
   if nDevLoginID<=0 then
   begin
-    nLog := '注册用户到设备失败，返回错误码[%s';
-    nLog := Format(nLog, [IntToHex(NET_DVR_GetLastError,2));
+    nLog := '注册用户到设备失败，返回错误码[%s]';
+    nLog := Format(nLog, [IntToHex(NET_DVR_GetLastError,2)]);
 
     WriteLog(nLog);
   end;
@@ -607,9 +607,9 @@ begin
 
   if not Result then
   begin
-    nLog := '用户退出设备失败，返回错误码[%s';
+    nLog := '用户退出设备失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
   end;
@@ -633,9 +633,9 @@ begin
   Result := FCLIENT_CapturePicture(nLoginID,nChannel,nJpegPara,nPicFileName);
   if not Result then
   begin
-    nLog := '实时抓图失败，返回错误码[%s';
+    nLog := '实时抓图失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
     Exit;
@@ -698,9 +698,9 @@ begin
   FLibhandle              := SafeLoadLibrary(FDllPath + gDHNetSDKDll);
   if FLibhandle <= 0 then
   begin
-    nLog := '设备驱动[%s加载失败';
+    nLog := '设备驱动[%s]加载失败';
     nErr := FDllPath + gHCNetSDKDll;
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog); Result := False;
     Exit;
@@ -731,9 +731,9 @@ begin
   Result := FCLIENT_Init(FDisConnect , 0);
   if not Result then
   begin
-    nLog := '设备初始化失败，返回错误码[%s';
+    nLog := '设备初始化失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
     Exit;
@@ -808,8 +808,8 @@ begin
 
   if nDevLoginID<=0 then
   begin
-    nLog := '注册用户到设备失败，返回错误码[%d:%s';
-    nLog := Format(nLog, [nErr,IntToHex(NET_DVR_GetLastError,2));
+    nLog := '注册用户到设备失败，返回错误码[%d:%s]';
+    nLog := Format(nLog, [nErr,IntToHex(NET_DVR_GetLastError,2)]);
 
     WriteLog(nLog);
   end;
@@ -835,9 +835,9 @@ begin
 
   if not Result then
   begin
-    nLog := '用户退出设备失败，返回错误码[%s';
+    nLog := '用户退出设备失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
   end;
@@ -875,9 +875,9 @@ begin
   Result := FCLIENT_SnapPictureEx(nLoginID,@nSnapparams,@nReserved);
   if not Result then
   begin
-    nLog := '异步抓图失败，返回错误码[%s';
+    nLog := '异步抓图失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog); Exit;
   end;
@@ -903,9 +903,9 @@ begin
   Result := FCLIENT_RealPlay(nLoginID, nChannelID, nHWnd);
   if Result=0 then
   begin
-    nLog := '启动实时监视失败，返回错误码[%s';
+    nLog := '启动实时监视失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
     Exit;
@@ -929,9 +929,9 @@ begin
   Result := FCLIENT_StopRealPlay(nRealHandle);
   if not Result then
   begin
-    nLog := '停止实时监视失败，返回错误码[%s';
+    nLog := '停止实时监视失败，返回错误码[%s]';
     nErr := IntToHex(NET_DVR_GetLastError,2);
-    nLog := Format(nLog, [nErr);
+    nLog := Format(nLog, [nErr]);
 
     WriteLog(nLog);
     Exit;
@@ -958,9 +958,9 @@ begin
   try
     if nRealHandle=0 then
     begin
-      nLog := '启动实时监视失败，返回错误码[%s';
+      nLog := '启动实时监视失败，返回错误码[%s]';
       nErr := IntToHex(NET_DVR_GetLastError,2);
-      nLog := Format(nLog, [nErr);
+      nLog := Format(nLog, [nErr]);
 
       WriteLog(nLog);
       Exit;
@@ -969,9 +969,9 @@ begin
     Result := FCLIENT_SaveRealData(nRealHandle, nVideoFileName);
     if not Result then
     begin
-      nLog := '实时监控保存失败，返回错误码[%s';
+      nLog := '实时监控保存失败，返回错误码[%s]';
       nErr := IntToHex(NET_DVR_GetLastError,2);
-      nLog := Format(nLog, [nErr);
+      nLog := Format(nLog, [nErr]);
 
       WriteLog(nLog);
       Exit;

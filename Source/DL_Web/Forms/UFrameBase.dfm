@@ -15,7 +15,7 @@ object fFrameBase: TfFrameBase
     Hint = ''
     ParentColor = False
     Align = alClient
-    Anchors = [akLeft, akTop, akRight, akBottom
+    Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 0
     object UniToolBar1: TUniToolBar
       Left = 0
@@ -27,7 +27,7 @@ object fFrameBase: TfFrameBase
       ButtonWidth = 87
       Images = UniMainModule.ImageListBar
       ShowCaptions = True
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       Align = alTop
       TabOrder = 1
       ParentColor = False
@@ -139,7 +139,7 @@ object fFrameBase: TfFrameBase
       ParentColor = False
       Border = True
       Align = alTop
-      Anchors = [akLeft, akTop, akRight
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
     end
     object DBGridMain: TUniDBGrid
@@ -149,10 +149,10 @@ object fFrameBase: TfFrameBase
       Height = 494
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
       LoadMask.Message = 'Loading data...'
       Align = alClient
-      Anchors = [akLeft, akTop, akRight, akBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
     end
   end
@@ -180,7 +180,7 @@ object fFrameBase: TfFrameBase
     Version = '5.6.1'
     DotMatrixReport = False
     IniFile = '\Software\Fast Reports'
-    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick
+    PreviewOptions.Buttons = [pbPrint, pbLoad, pbSave, pbExport, pbZoom, pbFind, pbOutline, pbPageSetup, pbTools, pbEdit, pbNavigator, pbExportQuick]
     PreviewOptions.Zoom = 1.000000000000000000
     PrintOptions.Printer = #39044#35774
     PrintOptions.PrintOnSheet = 0
@@ -210,7 +210,7 @@ object fFrameBase: TfFrameBase
     Transparency = False
     Author = 'FastReport'
     Subject = 'FastReport PDF export'
-    ProtectionFlags = [ePrint, eModify, eCopy, eAnnot
+    ProtectionFlags = [ePrint, eModify, eCopy, eAnnot]
     HideToolbar = False
     HideMenubar = False
     HideWindowUI = False

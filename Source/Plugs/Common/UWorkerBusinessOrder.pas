@@ -315,7 +315,7 @@ end;
 //Date: 2015-8-5
 //Desc: 保存采购单
 function TWorkerBusinessOrders.SaveOrder(var nData: string): Boolean;
-var nStr, nOId, nKfTime, nYJz: string;
+var nStr, nOId, nKfTime, nYJz, nTruck: string;
     nIdx: Integer;
     nVal: Double;
     nOut: TWorkerBusinessCommand;
@@ -324,12 +324,46 @@ begin
   nVal := StrToFloat(FListA.Values['Value']);
   //unpack Order
 
+  nTruck:= FListA.Values['Truck'];
+  {$IFDEF SWTC}
+  nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid From %s ' +
+          'Where T_Truck=''%s''';
+  nStr := Format(nStr, [sField_SQLServer_Now, sTable_Truck, nTruck]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+      if FieldByName('T_Valid').AsString = sFlag_No then
+      begin
+        nData := '车辆[ %s ]被管理员禁止开单.';
+        nData := Format(nData, [nTruck]);
+        Exit;
+      end;
+  end;
+  //----------------------------------------------------------------------------
+  {$ENDIF}
+
   nStr := FListA.Values['Truck'];
   TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo,nStr, '',@nOut);
   //保存车牌号
   nYJz:= FListA.Values['YJZValue'];
   if nYJz='' then nYJz:= '0';
 
+  {$IFDEF ProhibitMultipleOrder}
+  //----------------------------------------------------------------------------
+  nStr := 'Select L_ID From S_Bill Where L_OutFact is Null  AND L_Truck=''%s'' '+
+          'Union '+
+          'Select O_ID L_ID From P_Order Left Join P_OrderDtl On O_ID=D_OID '+
+          'Where D_OutFact is Null AND D_Truck=''%s'' ';
+  nStr := Format(nStr, [nTruck, nTruck]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '车辆[ %s ]在未完成订单[ %s ]之前禁止开单.';
+    nData := Format(nStr, [nTruck, FieldByName('L_ID').AsString]);
+    Exit;
+  end;
+  {$ENDIF}
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
   try

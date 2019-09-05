@@ -409,7 +409,6 @@ begin
 end;
 
 
-
 initialization
   gBusinessWorkerManager.RegisteWorker(TClientWorkerQueryField);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessCommand);
