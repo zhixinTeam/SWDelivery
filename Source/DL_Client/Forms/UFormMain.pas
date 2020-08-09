@@ -33,6 +33,7 @@ type
     Sheet1: TcxTabSheet;
     PanelBG: TZnBitmapPanel;
     tmr1: TTimer;
+    chk1: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Timer1Timer(Sender: TObject);
@@ -42,6 +43,7 @@ type
     procedure wPageChange(Sender: TObject);
     procedure tmr1Timer(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure chk1Click(Sender: TObject);
   private
     { Private declarations }
     FTrayIcon: TTrayIcon;
@@ -159,7 +161,7 @@ var nStr: string;
 begin
   Application.Title := gSysParam.FAppTitle;
   InitGlobalVariant(gPath, gPath + sConfigFile, gPath + sFormConfig, gPath + sDBConfig);
-  FisPicSaving:= True;
+  FisPicSaving:= True;   chk1.Visible:= False;
 
   nStr := GetFileVersionStr(Application.ExeName);
   if nStr <> '' then
@@ -181,6 +183,8 @@ begin
     //载入导航栏
     FormLoadConfig;
     //载入配置
+    if gSysParam.FUserName='admin' then
+      chk1.Visible:= True;
 
     FTrayIcon := TTrayIcon.Create(Self);
     FTrayIcon.Visible := True;
@@ -617,13 +621,17 @@ begin
 end;
 
 procedure TfMainForm.tmr1Timer(Sender: TObject);
-var nStr,nID,nDir,nYear,nMonth,nDay: string;
+var nStr,nID,nDir,nYear,nMonth,nDay,nHour: string;
     nPic: TPicture;
 begin
-  if FisPicSaving then Exit;
+  if FisPicSaving then Exit;                              FisPicSaving:= True;
   nDir:= gSysParam.FPicPath + nID + '\';
   nPic := nil;  nPic := TPicture.Create;
-  nStr := 'Select Top 500 * From %s Where P_Date<=''2019-04-26'' And IsSave=0  Order by P_ID, P_Date ';
+
+  FDM.ExecuteSQL('Delete Sys_Picture Where R_ID IN( Select TOP 1000 R_ID From Sys_Picture Where IsSave=1 And P_Date<DateAdd(dd,-31,GetDate()))');
+  //*********************
+
+  nStr := 'Select Top 500 * From %s Where P_Date<=GetDate() And IsSave=0  Order by P_ID, P_Date ';
   nStr := Format(nStr, [sTable_Picture, nID]);
 
   try
@@ -636,28 +644,30 @@ begin
           Exit;
         end;
 
-        //ShowMsg('本次图片数量:'+IntToStr(RecordCount), sHint);
-
-        First;
+        First;           ShowMsg('称重抓拍转移开始', sHint);
         While not eof do
         begin
           Sleep(20);
           Application.ProcessMessages;
-          FisPicSaving:= True;
+
           nID := FieldByName('P_ID').AsString;
           nYear := FormatDateTime('YYYY\',FieldByName('P_Date').AsDateTime);
           nMonth:= FormatDateTime('MM\',FieldByName('P_Date').AsDateTime);
           nDay  := FormatDateTime('DD\',FieldByName('P_Date').AsDateTime);
+          nHour := FormatDateTime('HH\',FieldByName('P_Date').AsDateTime);
 
-          nDir:= gSysParam.FPicPath +nYear+nMonth+nDay+ nID + '\';
+          nDir:= gSysParam.FPicPath +nYear+nMonth+nDay+nHour+ nID + '\';
           if not DirectoryExists(nDir) then ForceDirectories(nDir);
 
           nStr := nDir + Format('%s_%s.jpg', [FieldByName('P_ID').AsString,
                   FieldByName('R_ID').AsString]);
           //xxxxx
 
-          FDM.LoadDBImage(FDM.Qry_1, 'P_Picture', nPic);
-          nPic.SaveToFile(nStr);                                        //WriteLog(nStr);
+          if Not FileExists(nStr) then
+          begin
+            FDM.LoadDBImage(FDM.Qry_1, 'P_Picture', nPic);
+            nPic.SaveToFile(nStr);                            //WriteLog(nStr);
+          end;                                                //,P_Dir='''+nStr+'''
 
           FDM.ExecuteSQL('UPDate Sys_Picture Set IsSave=1 Where R_ID='''+FieldByName('R_ID').AsString+'''');
           Next;
@@ -674,16 +684,20 @@ begin
     end;
   finally
     FisPicSaving:= False;
-    nPic.Free;
+    FreeAndNil(nPic);
     CloseWaitForm;
-    FDM.SqlTemp.Close;
+    FDM.Qry_1.Close;
   end;
-
 end;
 
 procedure TfMainForm.FormShow(Sender: TObject);
 begin
   FisPicSaving:= False;
+end;
+
+procedure TfMainForm.chk1Click(Sender: TObject);
+begin
+  tmr1.Enabled:= chk1.Checked;
 end;
 
 end.

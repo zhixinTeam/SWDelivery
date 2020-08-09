@@ -36,7 +36,7 @@ uses
   SysUtils, USysLoger, UHardBusiness, UMgrTruckProbe, UMgrParam,
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
+  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
   UMgrRFID102, UMgrVoiceNet, UBlueReader,{$IFDEF HKVDVR} UMgrCamera,{$ENDIF}
   UMgrRemoteSnap, UMgrBasisWeight,
   UMgrSendCardNo;
@@ -142,6 +142,14 @@ begin
     end;
     {$ENDIF}
 
+    {$IFDEF UseBXFontLED}
+    nStr := '装车道/出厂 网口小屏';
+    if FileExists(nCfg + 'BXFontLED.xml') then
+    begin
+      gBXFontCardManager := TBXFontCardManager.Create;
+      gBXFontCardManager.LoadConfig(nCfg + 'BXFontLED.xml');
+    end;
+    {$ENDIF}
   except
     on E:Exception do
     begin
@@ -261,6 +269,10 @@ begin
   //remote snap   车牌识别远程抓拍
   {$ENDIF}
 
+  {$IFDEF UseBXFontLED}
+  //网口小屏
+  gBXFontCardManager.StartService;
+  {$ENDIF}
 end;
 
 procedure THardwareWorker.AfterStopServer;
@@ -329,6 +341,10 @@ begin
   //remote snap
   {$ENDIF}
 
+  {$IFDEF UseBXFontLED}
+  gBXFontCardManager.StopService;
+  {$ENDIF}
+  
   gTruckQueueManager.StopQueue;
   //queue
 end;

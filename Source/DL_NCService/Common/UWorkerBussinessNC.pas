@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Classes, Controls, SysUtils, DB, ADODB, NativeXml, UBusinessWorker, StrUtils,
-  UBusinessPacker, UBusinessConst, UMgrDBConn, UMgrParam, UFormCtrl, USysLoger,DateUtils,
+  UBusinessPacker, UBusinessConst, UMgrDBConn, UMgrParam, UFormCtrl, USysLoger,DateUtils, 
   ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel, IdHTTP, Graphics, uNC_SOAP;
 
 const
@@ -75,6 +75,7 @@ type
     //供应商
     function EditUnit(var nData: string): Boolean;
     //计量单位
+    function EditArea(var nData: string): Boolean;
     function EditStocks(var nData: string): Boolean;
     //水泥品种
     function EditCusCredit(var nData: string): Boolean;
@@ -91,7 +92,8 @@ type
 
     function AddSyncOrder(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
     function AddSyncBill(nOrderNo, nStatus, nProc, nErrMsg: string): Boolean;
-
+    function MarkBillUPLoaded(nLID: string): Boolean;
+    
     function SendMsg(nPrmA, nPrmB, nPrmC:string):string;
     function SendOrderPoundInfo(var nData:string):boolean;
     //采购单
@@ -358,6 +360,8 @@ begin
     else
     if nNode.AttributeByName['billtype']='BD0009' then FIn.FCommand:= cBC_NCCHOrder
     else
+    if nNode.AttributeByName['billtype']='BD0010' then FIn.FCommand:= cBC_NCArea
+    else
     begin
       nData := '无效的请求类型(Message.billtype error).';
     end;
@@ -414,6 +418,12 @@ begin
                               Result := EditZhiKa(nData);
                             end;
 
+      cBC_NCArea           :
+                            begin
+                              Result := EditArea(nData);
+                            end;
+
+
 
       cBC_SendToNcOrdreInfo    :
                             begin
@@ -442,6 +452,7 @@ begin
                             begin
                               Result := DoCHOrder(nData);
                             end;
+
    else
     begin
       Result := False;
@@ -728,7 +739,7 @@ begin
                                 NodeByName('smancode').ValueAsString, NodeByName('cusid').ValueAsString]);
                 FListA.Add(nSql);
 
-                nSql:= Format(' UPDate S_Bill Set L_SaleID=''%s'', L_SaleMan=''%s'' Where Z_Customer=''%s'' ', [
+                nSql:= Format(' UPDate S_Bill Set L_SaleID=''%s'', L_SaleMan=''%s'' Where L_CusId=''%s'' ', [
                                 NodeByName('smancode').ValueAsString, NodeByName('smanname').ValueAsString, NodeByName('cusid').ValueAsString]);
                 FListA.Add(nSql);
 
@@ -1003,6 +1014,121 @@ begin
       begin
         nData:= '操作失败、解析XML数据发生错误';
         WriteLog('计量单位同步 出错：' + Ex.Message);
+      end;
+    end;
+  finally
+    BuildDefaultXML;
+    with FPacker.XMLBuilder.Root.NodeNewAtIndex(0, 'DataRow') do
+    begin
+      WriteString('Pk', nPK);
+      WriteString('Message', nData);
+
+      if Result then
+        WriteInteger('Status', 1)
+      else WriteInteger('Status', -1);
+    end;
+    nData:= FPacker.XMLBuilder.WriteToString;
+
+    Result := True;
+    FOut.FData := nData;
+    FOut.FBase.FResult := True;
+  end;
+end;
+
+//Date: 2020-05-12
+//Desc:区域
+function TBusWorkerBusinessNC.EditArea(var nData: string): Boolean;
+var nSql, nPK: string;
+    nIdx: Integer;
+    nNode,nRoot: TXmlNode;
+    ExecSql:Boolean;
+begin
+  WriteLog('【区域】入参：' + nData);
+
+  try
+    try
+      Result := False;   ExecSql:= True;
+
+      with FPacker.XMLBuilder do
+      begin
+        ReadFromString(nData);
+        if not ParseDefault(nData) then Exit;
+        nRoot := Root.FindNode('DataRow');
+
+        if not Assigned(nRoot) then
+        begin
+          nData := '无效参数节点(WebService-Message.DataRow Is Null).';
+          Exit;
+        end;
+
+        FListA.Clear;
+        //
+        for nIdx:=0 to Root.NodeCount-1 do
+        begin
+          nNode := Root.Nodes[nIdx];  nSql:= '';
+
+          if (Not CheckNode(nNode, 'pk_area', nData)) or (Not CheckNode(nNode, 'areacode', nData)) or
+                (Not CheckNode(nNode, 'areaname', nData)) then
+          begin
+              ExecSql:= False;
+              Break;
+          end;
+          //**************************
+          with nNode do
+          begin
+            if NodeByName('proc').ValueAsString='add' then
+            begin
+              nSql:= Format(' Insert Into Sys_Dict (D_Name, D_Desc, D_Value, D_Memo, D_ParamB) Select top 1 ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' '+
+                                 ' From Master..SysDatabases Where Not exists(Select * From Sys_Dict Where D_Name=''AreaItems'' And D_Memo =''%s'') '  ,
+                            [ 'AreaItems','区域信息',NodeByName('areaname').ValueAsString,NodeByName('areacode').ValueAsString,
+                              NodeByName('pk_area').ValueAsString, NodeByName('areacode').ValueAsString ]);
+              FListA.Add(nSql);
+            end
+            else if NodeByName('proc').ValueAsString='update' then
+            begin
+              nSql:= Format(' UPDate Sys_Dict Set D_Value=''%s'' Where D_Name=''AreaItem'' And D_Memo=''%s'' ',  [
+                            NodeByName('areaname').ValueAsString,NodeByName('areacode').ValueAsString]);
+              FListA.Add(nSql);
+            end
+            else if NodeByName('proc').ValueAsString='delete' then
+            begin
+              nSql:= Format(' Delete Sys_Dict Where D_Name=''AreaItem'' And D_Memo=''%s'' ',  [NodeByName('areacode').ValueAsString]);
+              FListA.Add(nSql);
+            end
+            else
+            begin
+              nData:= '节点 proc 无效的操作标示';
+              ExecSql:= False;
+              Break;
+            end;
+
+            nPK:= NodeByName('pk_area').ValueAsString;
+          end;
+        end;
+
+        if ExecSql then
+        begin
+          FDBConn.FConn.BeginTrans;
+          try
+            for nIdx:=0 to FListA.Count - 1 do
+            begin
+              gDBConnManager.WorkerExec(FDBConn, FListA[nIdx]);
+              gSysLoger.AddLog('区域档案' + FListA[nIdx]);
+            end;
+
+            FDBConn.FConn.CommitTrans;
+            nData:= '处理成功';
+            Result := True;
+          except
+            FDBConn.FConn.RollbackTrans;
+            nData:= '处理失败';
+          end;
+        end;
+      end;
+    except on Ex : Exception do
+      begin
+        nData:= '操作失败、解析XML数据发生错误';
+        WriteLog('区域同步 出错：' + Ex.Message);
       end;
     end;
   finally
@@ -1581,11 +1707,12 @@ end;
 //Date: 2018-11-25
 //Desc: 销售纸卡
 function TBusWorkerBusinessNC.EditZhiKa(var nData: string): Boolean;
-var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanPk, nSmanId, nSMan, nFixmoney, nXml, nStatus,
+var nSql, nPK, nPKDtl, nZId, nZName, nCusId, nSmanPk, nSmanId, nSMan, nFixmoney, nXml,
+    nStatus, nArea, nAreaCode,
     nValidDay, nCMan, nCTime, nProc, nFlag, nType, nZ_InValid, nOldZid, nOldDtl, nIsTail: string;
     nPrice,nFlPrice,nValue,nYFPrice, nFreezeMoney, nFixmoneyNew:Double;
     nIdx: Integer;
-    nRoot, nDetails, nItem: TXmlNode;
+    nRoot, nDetails, nItem, nTP: TXmlNode;
     ExecSql, NeedExecDtl, nInValid :Boolean;
 begin
   WriteLog('【销售纸卡】入参：' + nData);
@@ -1628,6 +1755,15 @@ begin
         nZName  := Root.Nodes[0].NodeByName('zname').ValueAsString;
         nCusId  := Root.Nodes[0].NodeByName('cusid').ValueAsString;
         nSmanPk := Root.Nodes[0].NodeByName('smanid').ValueAsString;
+
+        nTP := Root.Nodes[0].FindNode('areacode');
+        if Assigned(nTP) then
+          nAreaCode   := Root.Nodes[0].NodeByName('areacode').ValueAsString;
+
+        nTP := Root.Nodes[0].FindNode('areaname');
+        if Assigned(nTP) then
+          nArea   := Root.Nodes[0].NodeByName('areaname').ValueAsString;
+
         nValidDay:= Root.Nodes[0].NodeByName('validdays').ValueAsString;
         if nValidDay='0' then
              nValidDay:= FormatDateTime('yyyy-MM-dd HH:mm:ss', IncYear(Now, 30))
@@ -1644,7 +1780,6 @@ begin
 
         if Root.Nodes[0].NodeByName('issupporttail').ValueAsBoolDef(False) then
           nIsTail:= 'Y' else  nIsTail:= 'N';
-
 
         nFlag   := Root.Nodes[0].NodeByName('flag').ValueAsString;
         if nFlag='0' then
@@ -1675,10 +1810,10 @@ begin
             FListA.Add(' Delete S_ZhiKa Where Z_ID='''+ nZId +'''');
 
             nSql:= Format(' Insert Into S_ZhiKa(Z_ID, Z_Name, Z_PKzk, Z_Customer, Z_SaleMan, Z_Lading, Z_ValidDays, Z_Verified,'+
-                                                'Z_YFMoney, Z_FixedMoney, Z_OnlyMoney, Z_Man, Z_Date, Z_IsSupportTail) '+
-                                    'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s, ''%s'', ''%s'', ''%s'', ''%s'' '+
-                                    'From Master..SysDatabases Where Not exists(Select * From S_ZhiKa Where Z_ID=''%s'' And Z_PKzk =''%s'') '  ,
-                              [ nZId, nZName, nPK, nCusId, nSmanId, 'T', nValidDay, nFlag, '0', nFixmoney, 'Y', nCMan, nCTime, nIsTail, nZId, nPK ]);
+                                                'Z_YFMoney, Z_FixedMoney, Z_OnlyMoney, Z_Man, Z_Date, Z_IsSupportTail, Z_Area, Z_AreaCode) '+
+                                'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', %s, ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' '+
+                                'From Master..SysDatabases Where Not exists(Select * From S_ZhiKa Where Z_ID=''%s'' And Z_PKzk =''%s'') '  ,
+                          [ nZId, nZName, nPK, nCusId, nSmanId, 'T', nValidDay, nFlag, '0', nFixmoney, 'Y', nCMan, nCTime, nIsTail, nArea, nAreaCode, nZId, nPK ]);
             FListA.Add(nSql);
             FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
             FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 新增纸卡 %s  金额：%s  状态为: %s 支持尾单：%s', [nCMan, nCusId, nZId, nFixmoney, nStatus, nIsTail]), nXml));
@@ -1687,9 +1822,9 @@ begin
           begin
 
             nSql:= Format(' UPDate S_ZhiKa Set Z_Name=''%s'', Z_Customer=''%s'', Z_SaleMan=''%s'', Z_ValidDays=''%s'', Z_Verified=''%s'', Z_InValid=%s, Z_FixedMoney=''%s'', ' +
-                                                      'Z_Man=''%s'', Z_Date=''%s'', Z_IsSupportTail=''%s'' ' +
+                                              'Z_Man=''%s'', Z_Date=''%s'', Z_IsSupportTail=''%s'', Z_Area=''%s'', Z_AreaCode=''%s'' ' +
                               ' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ',
-                              [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nIsTail, nZId, nPK]);
+                              [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nIsTail, nArea, nAreaCode, nZId, nPK]);
             FListA.Add(nSql);
             FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
             FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s  金额为：%s  状态为: %s 支持尾单：%s', [nCMan, nCusId, nZId, nFixmoney, nStatus, nIsTail]), nXml));
@@ -1697,7 +1832,7 @@ begin
           //else NeedExecDtl:= False;
         end
         else if nProc='update' then
-        begin
+        begin                                  
           ///////////////  获取未出厂单据金额以及出厂未上传、上传失败单据金额
           {nFreezeMoney:= GetZhiKaFreezeMoney(nZId, nCusId);
           if nFixmoneyNew<nFreezeMoney then
@@ -1708,9 +1843,9 @@ begin
           else nFixmoney:= FloatToStr(nFixmoneyNew-nFreezeMoney);  }
 
           nSql:= Format(' UPDate S_ZhiKa Set Z_Name=''%s'', Z_Customer=''%s'', Z_SaleMan=''%s'', Z_ValidDays=''%s'', Z_Verified=''%s'', Z_InValid=%s, Z_FixedMoney=''%s'', ' +
-                                                    'Z_Man=''%s'', Z_Date=''%s'', Z_IsSupportTail=''%s'' ' +
-                            ' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ',
-                            [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nIsTail, nZId, nPK]);
+                                            'Z_Man=''%s'', Z_Date=''%s'', Z_IsSupportTail=''%s'', Z_Area=''%s'', Z_AreaCode=''%s'' ' +
+                        ' Where Z_ID=''%s'' AND Z_PKzk=''%s'' ',
+                        [ nZName, nCusId, nSmanId, nValidDay, nFlag, nZ_InValid, nFixmoney, nCMan, nCTime, nIsTail, nArea, nAreaCode, nZId, nPK]);
           FListA.Add(nSql);
           FListA.Add(' Delete S_ZhiKaDtl Where D_ZID='''+ nZId +'''');
           FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s  金额为：%s  状态为: %s 支持尾单：%s', [nCMan, nCusId, nZId, nFixmoney, nStatus, nIsTail]), nXml));
@@ -1789,7 +1924,7 @@ begin
                                     'Select top 1  ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'', ''%s'' '+
                                     'From Master..SysDatabases Where Not exists(Select * From S_ZhiKaDtl Where D_ZID=''%s'' And D_StockNo =''%s'') '  ,
                               [ nZId, nType, NodeByName('stockno').ValueAsString, NodeByName('stockname').ValueAsString, FloatToStr(nPrice),
-                                FloatToStr(nValue), 'Y', FloatToStr(nFlPrice), FloatToStr(nYFPrice), nPKDtl,
+                                FormatFloat('0.000000', nValue), 'Y', FloatToStr(nFlPrice), FloatToStr(nYFPrice), nPKDtl,
                                 nZId, NodeByName('stockno').ValueAsString]);
                 FListA.Add(nSql);
                 FListA.Add(MakeZhiKaLog(nZId, nCusId, Format('%s 为客户 %s 修改纸卡 %s 品种 %s  水泥、运费单价分别为：%s 、%s ',
@@ -2238,6 +2373,14 @@ begin
   gDBConnManager.WorkerExec(FDBConn, nStr);
 end;
 
+// 标记 nLID 为做过上传操作
+function TBusWorkerBusinessNC.MarkBillUPLoaded(nLID: string): Boolean;
+var nstr, nNum : string;
+begin
+  nStr := 'UPDate S_Bill Set L_HasUPLoaded=''Y'' Where L_ID=''$ID'' ';
+  nStr := MacroValue(nStr, [MI('$ID', nLID ) ]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+end;
 
 //Desc: 采购单过磅
 function TBusWorkerBusinessNC.SendOrderPoundInfo(var nData: string): Boolean;
@@ -2495,6 +2638,16 @@ begin
     begin
       if RecordCount= 1 then
       begin
+        if FListA.Values['proc']='Delete' then
+        begin
+          if FieldByName('L_Status').AsString='N' then
+          begin
+            WriteLog(FListA.Values['ID'] + '为未进厂单据、无需同步');
+            Result:= True;
+            Exit;
+          end;
+        end;
+
         nTime := FormatDateTime('yyyy-MM-dd HH:mm:ss', FieldByName('L_Date').AsDateTime);
         nZhiKaPK   := FieldByName('L_PKzk').AsString;
         nZhiKaDtlPK:= FieldByName('L_PkDtl').AsString;
@@ -2544,11 +2697,12 @@ begin
 
     nProc:= FListA.Values['proc'];
     if (nCard<>'') then nProc:= 'add';
-    if (nProc='') then
+    if nProc='' then
     begin
       nData:= '订单 '+FListA.Values['ID'] + ' 无法推送、缺少操作标示';
       Exit;
     end;
+
     //***********************************************************
     nStr := '<?xml version="1.0" encoding="UTF-8"?>' +
             '<Message billtype="BS0002">' +
@@ -2580,6 +2734,7 @@ begin
     WriteLog('销售单上传NC：'+nStr);
     WriteLog('销售单上传NC：'+gSysParam.FSrvRemote);
     try
+      MarkBillUPLoaded( FListA.Values['ID'] );
       try
         FNCChannel := GetIDataReceivePortType(False, gSysParam.FSrvRemote);
         nStr := FNCChannel.receiveData('BS0002', 'null', nStr);
@@ -2657,6 +2812,11 @@ begin
             else
             begin
               Result:= True;
+
+              nStr := 'UPDate S_Bill Set L_HasUPLoaded=''Y'' Where L_ID=''$LID'' ';
+              nStr := MacroValue(nStr, [MI('$LID', FListA.Values['ID']) ]);
+              gDBConnManager.WorkerExec(FDBConn, nStr);
+
               if nCard<>'' then // 中间件出厂触发时如NC同步成功直接写入 同步历史表
               begin
                 nStr := MakeSQLByStr([SF('N_OrderNo', FListA.Values['ID']),

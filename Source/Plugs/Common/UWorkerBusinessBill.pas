@@ -45,7 +45,7 @@ type
     //分组匹配
     FBillLines: array of TBillLadingLine;
     //装车线
-    FOnLine : Boolean;
+    FOnLine, FHasUPLoaded : Boolean;
   protected
     procedure WriteBillLog(const nEvent: string);
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
@@ -58,6 +58,8 @@ type
     function VerifyBeforSave(var nData: string): Boolean;
     function VerifyBeforSaveEx(var nData: string): Boolean;
     function ChkNcServiceStatus: Boolean;
+    function BillHasUPLoaded(nLID:string): Boolean;
+
     function SaveBills(var nData: string): Boolean;
     //保存交货单
     function DeleteBill(var nData: string): Boolean;
@@ -313,28 +315,77 @@ end;
 function TWorkerBusinessBills.VerifyBeforSave(var nData: string): Boolean;
 var nIdx: Integer;
     nSalePlanYu : Double; // x限量开单后当前最大可开单量
-    nStr,nTruck, nStockNo, nStockName: string;
+    nStr,nTruck, nStockNo, nStockName, nField: string;
     nOut: TWorkerBusinessCommand;
+    nProhibitNoSignenCreate:string;
 begin
-  Result := False;    {$IFDEF NCSale} ChkNcServiceStatus; {$ENDIF}
+  Result := False;
+  {$IFDEF NCSale} ChkNcServiceStatus; {$ENDIF}
   nTruck := FListA.Values['Truck'];
   if not VerifyTruckNO(nTruck, nData) then Exit;
 
-  nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid From %s ' +
+  TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
+  //保存车牌号
+
+  {$IFDEF TruckInFactSigned}
+  nStr := 'Select * From %s Where D_Name=''TruckItem''';
+  nStr := Format(nStr, [sTable_SysDict]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if recordCount>0 then
+    begin
+      nProhibitNoSignenCreate:= FieldByName('D_Value').AsString;
+    end;
+  end;
+  {$ENDIF}
+
+  nField:= '';
+  {$IFDEF TruckInFactSigned} nField:= ', IsSigned '; {$ENDIF}
+  nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid' + nField + ' From %s ' +
           'Where T_Truck=''%s''';
   nStr := Format(nStr, [sField_SQLServer_Now, sTable_Truck, nTruck]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
     if RecordCount > 0 then
+    begin
       if FieldByName('T_Valid').AsString = sFlag_No then
       begin
         nData := '车辆[ %s ]被管理员禁止开单.';
         nData := Format(nData, [nTruck]);
         Exit;
       end;
+
+      {$IFDEF TruckInFactSigned}      //  进厂签到方可开单
+      if FieldByName('IsSigned').AsString = sFlag_No then
+      begin
+        nData := '车辆[ %s ]未抓拍到进厂签到、禁止开单.';
+        nData := Format(nData, [nTruck]);
+        WriteLog(nData);
+
+        IF nProhibitNoSignenCreate='Y' then
+          Exit;
+      end;
+      {$ENDIF}
+    end;
   end;
 
+  {$IFDEF ProhibitMultipleOrder}
+  nStr := 'Select L_ID From S_Bill Where L_OutFact is Null  AND L_Truck=''%s'' '+
+          'Union '+
+          'Select O_ID L_ID From P_Order Left Join P_OrderDtl On O_ID=D_OID '+
+          'Where D_OutFact is Null AND D_Truck=''%s'' ';
+  nStr := Format(nStr, [nTruck, nTruck]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '车辆[ %s ]在未完成订单[ %s ]之前禁止开单.';
+    nData := Format(nStr, [nTruck, FieldByName('L_ID').AsString]);
+    WriteLog(nData);
+    Exit;
+  end;
+  {$ENDIF}
+  
   nStockNo  := FListC.Values['StockNo'];
   nStockName:= FListC.Values['StockName'];
   //----------------------------------------------------------------------------
@@ -368,22 +419,6 @@ begin
       Next;
     end;
   end;
-
-  {$IFDEF ProhibitMultipleOrder}
-  nStr := 'Select L_ID From S_Bill Where L_OutFact is Null  AND L_Truck=''%s'' '+
-          'Union '+
-          'Select O_ID L_ID From P_Order Left Join P_OrderDtl On O_ID=D_OID '+
-          'Where D_OutFact is Null AND D_Truck=''%s'' ';
-  nStr := Format(nStr, [nTruck, nTruck]);
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  if RecordCount > 0 then
-  begin
-    nStr := '车辆[ %s ]在未完成订单[ %s ]之前禁止开单.';
-    nData := Format(nStr, [nTruck, FieldByName('L_ID').AsString]);
-    WriteLog(nData);
-    Exit;
-  end;
-  {$ENDIF}
   ////**********************************************************
   ////**********************************************************
   nStr := 'Select R_ID,T_Bill,T_StockNo,T_Type,T_InFact,T_Valid From %s ' +
@@ -434,8 +469,6 @@ begin
     end;
   end;
 
-  TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
-  //保存车牌号
 
   //----------------------------------------------------------------------------
   nStr := 'Select zk.*,ht.C_Area,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
@@ -618,6 +651,24 @@ begin
     if RecordCount > 0 then
     begin
       FOnLine:= (FieldByName('D_Value').AsString='OnLine');
+      Result:= True;
+    end;
+  end;
+end;
+
+//**** 订单是否上传过
+function TWorkerBusinessBills.BillHasUPLoaded(nLID:string): Boolean;
+var nSQL : string;
+begin
+  Result:= False;
+  //*****************
+  nSQL := 'Select * From %s Where L_ID='''+nLID+''' ';
+  nSQL := Format(nSQL, [sTable_Bill]);
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+  begin
+    if RecordCount > 0 then
+    begin
+      FHasUPLoaded:= (FieldByName('L_HasUPLoaded').AsString='Y');
       Result:= True;
     end;
   end;
@@ -925,6 +976,7 @@ begin
                 ], sTable_PoundLog, SF('P_Bill', nOut.FData), False);
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //更新磅单基本信息
+
 
       nStr := 'Update %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s''';
           {$IFDEF SendMorefactoryStock}
@@ -1546,7 +1598,7 @@ begin
     nHasOut := FieldByName('L_OutFact').AsString <> '';
 
     //已出厂
-    if nHasOut and ((FIn.FBase.FFrom.FUser<>'admin')or(FIn.FBase.FFrom.FUser<>'张茴')) then
+    if nHasOut and ((FIn.FBase.FFrom.FUser<>'admin')And(FIn.FBase.FFrom.FUser<>'张茴')) then
     begin
       nData := '交货单[ %s ]已出厂,非管理员不允许删除.';
       nData := Format(nData, [FIn.FData]);
@@ -1585,7 +1637,6 @@ begin
     end;
   end;
   {$ENDIF}
-
 
   nStr := 'Select R_ID,T_HKBills,T_Bill From %s ' +
           'Where T_HKBills Like ''%%%s%%''';
@@ -2546,9 +2597,9 @@ var nStr,nP,nSQL,nTmp,nFixMoney, nFactory,nOutFactTime, nHDInfo,
     nBills: TLadingBillItems;
     nPrice, nYunFei, nMoney : Double;
     nOut: TWorkerBusinessCommand;
-    nPriceChanged, nTail:Boolean;
+    nPriceChanged, nTail,nNeedCreateNew:Boolean;
 begin
-  Result := False;    nPriceChanged:= False;  nNewBillValue:= 0;
+  Result := False;    nPriceChanged:= False;  nNewBillValue:= 0; nNeedCreateNew:= True;
   AnalyseBillItems(FIn.FData, nBills);
   nInt := Length(nBills);
 
@@ -2879,102 +2930,102 @@ begin
 
             if (FBillValue<FValue)and(f>0) then        //(StrToFloat(nOut.FData))=0
             begin
-                nNewBillValue:= FValue-FBillValue;
+                    nNewBillValue:= FValue-FBillValue;
 
-                nStr:= ' Select top 1 * From (  ' +
-                       ' Select D_ZID, Z_PKzk, D_PKDtl, D_Type, D_StockNo, D_StockName, D_Price, D_YunFei, Z_FixedMoney, ISNULL(YFMoney, 0) YFMoney,   ' +
-                       ' Convert(decimal(18,5),(isNull(Z_FixedMoney, 0) - ISNULL(YFMoney, 0))/isNull((D_YunFei+D_Price), 10000)) D_Valuex, D_Value, Z_Customer  ' +
-                       ' From S_ZhiKa a   ' +
-                       ' Join S_ZhiKaDtl b on a.Z_ID = b.D_ZID ' +
-                       ' Left Join (  ' +
-                           ' Select L_zhika, sum((L_Price+L_YunFei)*L_Value) YFMoney ' +
-                           ' From S_Bill ' +
-                           ' Where L_CusID=''%s'' Group by L_zhika) c on c.L_ZhiKa = a.Z_ID ' +
-                           ' Where Z_Verified=''Y'' And (Z_InValid<>''Y'' or Z_InValid is null) And Z_ValidDays>GetDate() and ' +
-                           ' Z_Customer=''%s'' And Z_IsSupportTail=''Y'' And D_StockNo=''%s'' ) x ' +
-                       ' Where D_Valuex>=%g Order by D_Valuex  ';
-                nStr := Format(nStr, [FCusID, FCusID, FStockNo, (nNewBillValue)]);
-                         WriteBillLog(nStr);
-                with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-                begin
-                  if recordCount=0 then
-                  begin
-                    nData := '该发货单已超可发量且未找到支持尾单合并的NC订单';
-                    WriteLog(nData);
-                    Exit;
-                  end;
+                    nStr:= ' Select top 1 * From (  ' +
+                           ' Select D_ZID, Z_PKzk, D_PKDtl, D_Type, D_StockNo, D_StockName, D_Price, D_YunFei, Z_FixedMoney, ISNULL(YFMoney, 0) YFMoney,   ' +
+                           ' Convert(decimal(18,5),(isNull(Z_FixedMoney, 0) - ISNULL(YFMoney, 0))/isNull((D_YunFei+D_Price), 10000)) D_Valuex, D_Value, Z_Customer  ' +
+                           ' From S_ZhiKa a   ' +
+                           ' Join S_ZhiKaDtl b on a.Z_ID = b.D_ZID ' +
+                           ' Left Join (  ' +
+                               ' Select L_zhika, sum((L_Price+L_YunFei)*L_Value) YFMoney ' +
+                               ' From S_Bill ' +
+                               ' Where L_CusID=''%s'' Group by L_zhika) c on c.L_ZhiKa = a.Z_ID ' +
+                               ' Where Z_Verified=''Y'' And (Z_InValid<>''Y'' or Z_InValid is null) And Z_ValidDays>GetDate() and ' +
+                               ' Z_Customer=''%s'' And Z_IsSupportTail=''Y'' And D_StockNo=''%s'' ) x ' +
+                           ' Where D_Valuex>=%g Order by D_Valuex  ';
+                    nStr := Format(nStr, [FCusID, FCusID, FStockNo, (nNewBillValue)]);
+                             WriteBillLog(nStr);
+                    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+                    begin
+                      if recordCount=0 then
+                      begin
+                        nData := '该发货单已超可发量且未找到支持尾单合并的NC订单';
+                        WriteLog(nData);
+                        Exit;
+                      end;
 
-                  nZKID:= FieldByName('D_ZID').AsString;
-                  nPKzk:= FieldByName('Z_PKzk').AsString;
-                  nPKDtl:= FieldByName('D_PKDtl').AsString;
-                  nNewPrice:= FieldByName('D_Price').AsString;
-                  nNewYunFei:= FieldByName('D_YunFei').AsString;
-                end;
+                      nZKID:= FieldByName('D_ZID').AsString;
+                      nPKzk:= FieldByName('Z_PKzk').AsString;
+                      nPKDtl:= FieldByName('D_PKDtl').AsString;
+                      nNewPrice:= FieldByName('D_Price').AsString;
+                      nNewYunFei:= FieldByName('D_YunFei').AsString;
+                    end;
 
-                if (nZKID<>'')and(nPKzk<>'')and(nPKDtl<>'') then
-                begin
-                  FListC.Clear;
-                  FListC.Values['Group'] := sFlag_BusGroup;
-                  FListC.Values['Object']:= sFlag_BillNo;
-                  //to get serial no
+                    if (nZKID<>'')and(nPKzk<>'')and(nPKDtl<>'') then
+                    begin
+                      FListC.Clear;
+                      FListC.Values['Group'] := sFlag_BusGroup;
+                      FListC.Values['Object']:= sFlag_BillNo;
+                      //to get serial no
 
-                  if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
-                        FListC.Text, sFlag_Yes, @nOut) then
-                    raise Exception.Create(nOut.FData);
-                  //xxxxx
-                  if (nOut.FData='')then
-                  begin
-                    nData := '获取销售订单编号失败、未能生成新单据';
-                    WriteLog(nData);
-                    Exit;
-                  end;
+                      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+                            FListC.Text, sFlag_Yes, @nOut) then
+                        raise Exception.Create(nOut.FData);
+                      //xxxxx
+                      if (nOut.FData='')then
+                      begin
+                        nData := '获取销售订单编号失败、未能生成新单据';
+                        WriteLog(nData);
+                        Exit;
+                      end;
 
-                  nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
-                  //only for fields
-                  nP := '';
-                  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-                  begin
-                    for nIdx:=0 to FieldCount - 1 do
-                     if (Fields[nIdx].DataType <> ftAutoInc) and
-                        (Fields[nIdx].FieldName<>'L_ID') and
-                        (Fields[nIdx].FieldName<>'L_HDBills') and
-                        (Fields[nIdx].FieldName<>'L_Status') and
-                        (Fields[nIdx].FieldName<>'L_NextStatus') and
-                        (Fields[nIdx].FieldName<>'L_ZhiKa') and
-                        (Fields[nIdx].FieldName<>'L_PKzk') and
-                        (Fields[nIdx].FieldName<>'L_PKDtl') and
-                        (Fields[nIdx].FieldName<>'L_Price') and
-                        (Fields[nIdx].FieldName<>'L_YunFei') and
+                      nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
+                      //only for fields
+                      nP := '';
+                      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+                      begin
+                        for nIdx:=0 to FieldCount - 1 do
+                         if (Fields[nIdx].DataType <> ftAutoInc) and
+                            (Fields[nIdx].FieldName<>'L_ID') and
+                            (Fields[nIdx].FieldName<>'L_HDBills') and
+                            (Fields[nIdx].FieldName<>'L_Status') and
+                            (Fields[nIdx].FieldName<>'L_NextStatus') and
+                            (Fields[nIdx].FieldName<>'L_ZhiKa') and
+                            (Fields[nIdx].FieldName<>'L_PKzk') and
+                            (Fields[nIdx].FieldName<>'L_PKDtl') and
+                            (Fields[nIdx].FieldName<>'L_Price') and
+                            (Fields[nIdx].FieldName<>'L_YunFei') and
 
-                        (Fields[nIdx].FieldName<>'L_Value') and
-                        (Fields[nIdx].FieldName<>'L_MValue') then
-                      nP := nP + Fields[nIdx].FieldName + ',';
-                    //所有字段,不包括删除
+                            (Fields[nIdx].FieldName<>'L_Value') and
+                            (Fields[nIdx].FieldName<>'L_MValue') then
+                          nP := nP + Fields[nIdx].FieldName + ',';
+                        //所有字段,不包括删除
 
-                    System.Delete(nP, Length(nP), 1);
-                  end;
+                        System.Delete(nP, Length(nP), 1);
+                      end;
 
 
-                  nStr := 'Insert Into $BB($FL,L_Value,L_MValue,L_ZhiKa, L_PKzk,L_PKDtl, L_Price, L_YunFei, L_ID,L_Status,L_NextStatus,L_HDBills) ' +
-                          'Select $FL,'+FloatToStr(nNewBillValue)+','+FloatToStr(nNewBillValue)+'+L_PValue, '+
-                                 '''$ZhiKa'', ''$Pkzk'', ''$PkDtl'', $Price, $YunFei, ''$New'',''M'',''O'',''$HDB'' From $BI Where L_ID=''$ID''';
-                  nStr := MacroValue(nStr, [MI('$BB', sTable_Bill),MI('$FL', nP),
-                                            MI('$ZhiKa', nZKID),MI('$Pkzk', nPKzk),MI('$PkDtl', nPKDtl),
-                                            MI('$Price', nNewPrice),MI('$YunFei', nNewYunFei),MI('$New', nOut.FData),
-                                            MI('$HDB', FID +'、'+ nOut.FData),
-                                            MI('$BI', sTable_Bill), MI('$ID', FID)]);
-                  FListA.Add(nStr); //生成新订单 （L_Value=实际装车量-开单量）
+                      nStr := 'Insert Into $BB($FL,L_Value,L_MValue,L_ZhiKa, L_PKzk,L_PKDtl, L_Price, L_YunFei, L_ID,L_Status,L_NextStatus,L_HDBills) ' +
+                              'Select $FL,'+FloatToStr(nNewBillValue)+','+FloatToStr(nNewBillValue)+'+L_PValue, '+
+                                     '''$ZhiKa'', ''$Pkzk'', ''$PkDtl'', $Price, $YunFei, ''$New'',''M'',''O'',''$HDB'' From $BI Where L_ID=''$ID''';
+                      nStr := MacroValue(nStr, [MI('$BB', sTable_Bill),MI('$FL', nP),
+                                                MI('$ZhiKa', nZKID),MI('$Pkzk', nPKzk),MI('$PkDtl', nPKDtl),
+                                                MI('$Price', nNewPrice),MI('$YunFei', nNewYunFei),MI('$New', nOut.FData),
+                                                MI('$HDB', FID +'、'+ nOut.FData),
+                                                MI('$BI', sTable_Bill), MI('$ID', FID)]);
+                      FListA.Add(nStr); //生成新订单 （L_Value=实际装车量-开单量）
 
-                  nHDInfo:= Format('订单 %s 开单量：%g 实际净重：%g  所属纸卡 %s 剩余量不足、进行尾单处理、订单分别为: %s、%s ',
-                                              [FID, FBillValue, FValue, FZhiKa, FID, nOut.FData]);
-                  nTail:= True;   nBillNo:= nOut.FData;
-                end;
+                      nHDInfo:= Format('订单 %s 开单量：%g 实际净重：%g  所属纸卡 %s 剩余量不足、进行尾单处理、订单分别为: %s、%s ',
+                                                  [FID, FBillValue, FValue, FZhiKa, FID, nOut.FData]);
+                      nTail:= True;   nBillNo:= nOut.FData;
+                    end;
             end
             else
             begin
-              nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
-                      ], sTable_Bill, SF('L_ID', FID), False);
-              FListA.Add(nSQL); //更新提货量
+                nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
+                        ], sTable_Bill, SF('L_ID', FID), False);
+                FListA.Add(nSQL); //更新提货量
             end;
           {$ENDIF}
 
@@ -3207,6 +3258,7 @@ begin
                                               
         {$IFDEF NCSale}
         ChkNcServiceStatus;
+        {$IFDEF UPLoadedChk} BillHasUPLoaded( nBills[nIdx].FID ); {$ENDIF}
         //*******
         if (FValue>0) then
         begin
@@ -3216,11 +3268,30 @@ begin
             begin
               WriteBillLog(Format('推送销售出厂单到 NC、%s', [nBills[nIdx].FID]));
 
+              {$IFDEF UPLoadedChk}
+              /// 铜川工厂场地特殊、为防止多次过磅、多次推送 导致与NC 数据不一致，对上传过的单据做删除操作后再上传。
+              IF FHasUPLoaded then
+              begin
+                WriteBillLog(Format('检测到 %s 已推送过 NC、现做 [ 删除 ] 操作', [nBills[nIdx].FID]));
+
+                FListC.Clear;
+                FListC.Values['ID']  := nBills[nIdx].FID;
+                FListC.Values['Proc']:= 'delete';
+                FListC.Values['Card']:= '';
+                //************
+                if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerEncodeStr(FListC.Text), nOutFactTime, @nOut) then
+                begin
+                  gSysLoger.AddLog(TWorkerBusinessBills, '销售单出厂', Format(' %s 上传过 NC、本次删除失败：'+nOut.FData, [nBills[nIdx].FID]));
+                  Exit;
+                end
+              end;
+              {$ENDIF}
+
               FListC.Clear;
               FListC.Values['ID']  := nBills[nIdx].FID;
               FListC.Values['Proc']:= 'add';
               FListC.Values['Card']:= nBills[nIdx].FCard;
-
+              //************
               if not CallBusinessSaleBillToNC(cBC_SendToNcBillInfo, PackerEncodeStr(FListC.Text), nOutFactTime, @nOut) then
               begin
                 gSysLoger.AddLog(TWorkerBusinessBills, '销售单出厂', Format(' %s 出厂失败：'+nOut.FData, [nBills[nIdx].FID]));
@@ -3346,6 +3417,13 @@ begin
         nSQL := Format(nSQL, [sTable_CusAccount, nVal, nVal, FCusID]);
         FListA.Add(nSQL); //更新客户资金(可能不同客户)
       end;
+      {$ENDIF}
+
+      {$IFDEF TruckInFactSigned}
+          nSQL := 'UPDate $T Set IsSigned=''N'' Where T_Truck= ''$K''';
+          nSQL := MacroValue(nSQL, [MI('$T', sTable_Truck),
+                                    MI('$K', FTruck) ]);
+          FListA.Add(nSQL);
       {$ENDIF}
 
       {$IFNDEF CreateBillCreateHYEach}   //未在开单开化验单

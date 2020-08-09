@@ -28,6 +28,7 @@ type
     FWechatURL  : string;                            //微信业务
 
     FIsEncode   : Boolean;                           //是否需要密码启动
+    FNcURL      : string;
   end;
   //系统参数
 

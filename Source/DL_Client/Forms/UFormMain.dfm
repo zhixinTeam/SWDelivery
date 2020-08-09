@@ -14,6 +14,9 @@ object fMainForm: TfMainForm
   OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
+  DesignSize = (
+    622
+    395)
   PixelsPerInch = 96
   TextHeight = 12
   object HintPanel: TPanel
@@ -1408,6 +1411,20 @@ object fMainForm: TfMainForm
       end
     end
   end
+  object chk1: TCheckBox
+    Left = 14
+    Top = 362
+    Width = 112
+    Height = 14
+    Anchors = [akLeft, akBottom]
+    Caption = #20445#23384#22270#29255#21040#30828#30424
+    Color = clWhite
+    Ctl3D = False
+    ParentColor = False
+    ParentCtl3D = False
+    TabOrder = 5
+    OnClick = chk1Click
+  end
   object MainMenu1: TMainMenu
     AutoHotkeys = maManual
     Left = 16
@@ -1423,7 +1440,7 @@ object fMainForm: TfMainForm
   end
   object tmr1: TTimer
     Enabled = False
-    Interval = 60000
+    Interval = 300000
     OnTimer = tmr1Timer
     Left = 18
     Top = 222

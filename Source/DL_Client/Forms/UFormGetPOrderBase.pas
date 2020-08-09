@@ -95,6 +95,7 @@ begin
     SetLength(FOrderItems, 0);
 
     FShowAllOrder:= nP.FParamA<>'';
+    FShowAllOrder:= gSysParam.FIsAdmin;
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
 

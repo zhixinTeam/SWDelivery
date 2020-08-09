@@ -52,12 +52,13 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SWTC}
+{$DEFINE SWJY}
 //特定系统       SWJY  SWTC  SWAS  SWYL  SWFX      CQJJ
 
 //陕西声威集团 铜川工厂
 {$IFDEF SWTC}
-  {$DEFINE ProhibitMultipleOrder}
+  {$DEFINE TruckInFactSigned}//进厂车牌识别签到
+  {$DEFINE ProhibitMultipleOrder}//禁止同时开多单
   {.$DEFINE OnleBF}//磅房
   {$DEFINE AllowMultiM}
   //散装允许多次过重车
@@ -78,6 +79,8 @@
   {$DEFINE RemoteSnap}
   //车牌识别  磅房
 
+  {$DEFINE CementPrintPoundAddHGZ}
+  // 出厂小票 水泥品种打印小票附带合格证
   {$DEFINE PoundRoundJZ}
   // 磅房随机净重  路政
 
@@ -90,8 +93,8 @@
 
   {.$DEFINE UseUTFDecode}
   //使用UTF解包函数
-  {.$DEFINE ChkCardFHTime}  
-  // 声威泾阳工厂  时间控制散装放灰 
+  {$DEFINE ChkCardFHTime}  
+  // 时间控制散装放灰 
   {.$DEFINE FixLoad}
   // 地磅控制散装放灰 	
   {$DEFINE ChkPopedomPrintHYD}
@@ -137,6 +140,14 @@
   //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
+  {$DEFINE UseBXFontLED}
+  //网口小屏
+  {$DEFINE InFactMsgTip}
+  //进厂消息提示
+  {$DEFINE OutFactMsgTip}
+  //出厂消息提示
+  {$DEFINE UPLoadedChk}
+  //推送订单做已上传订单检查
 {$ENDIF}
 
 
@@ -233,6 +244,8 @@
   //原料开单必须录入原始净重
   {$DEFINE SalePlanCheck}
   //销售计划限量检查
+  {$DEFINE CementPrintPoundAddHGZ}
+  // 出厂小票 水泥品种打印小票附带合格证
   {$DEFINE CheckTruckNo} //开单检查车号有正在进行中的单子做2次提醒
   {$DEFINE ChkSaleCardInTimeOut}  // 检查车辆进出时间
   {$DEFINE ChkCardFHTime}	//放灰时间检查
@@ -271,6 +284,12 @@
   //订单量使用订单金额-已发金额
   {.$DEFINE PrintHY}
   //出厂打印化验单
+  {$DEFINE InFactMsgTip}
+  //进厂小屏提示
+  {$DEFINE UseBXFontLED}
+  //网口小屏
+  {$DEFINE OutSoundTips}
+  //出厂语音
 {$ENDIF}
 
 

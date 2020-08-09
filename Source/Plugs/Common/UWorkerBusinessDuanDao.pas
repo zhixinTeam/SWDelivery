@@ -977,7 +977,6 @@ begin
 
   end else
 
-  {$IFDEF DuanDaoCanFH}
   if FIn.FExtParam = sFlag_TruckFH then           //短倒放灰现场   声威业务
   begin
     with nPound[0] do
@@ -1006,7 +1005,7 @@ begin
         nLineName:= FieldByName('Z_Name').AsString;
       end;
 
-      nSQL := 'Insert Into %S (T_ID, T_Card, T_Truck, T_PID, T_StockNo, T_StockName, T_PValue, T_PDate, T_PMan, T_MValue, '+
+      nSQL := 'Insert Into %s (T_ID, T_Card, T_Truck, T_PID, T_StockNo, T_StockName, T_PValue, T_PDate, T_PMan, T_MValue, '+
                               'T_MDate, T_MMan, T_Status, T_NextStatus, T_Value, T_Man, T_Date, T_InTime, T_InMan, T_OutFact, T_OutMan, '+
                               'T_LadeLine, T_LineName, T_LadeTime, T_LadeMan, T_CusName, T_KDValue) '+
               '       Select   T_ID, T_Card, T_Truck, T_PID, T_StockNo, T_StockName, T_PValue, T_PDate, T_PMan, T_MValue, T_MDate, T_MMan, '+
@@ -1020,7 +1019,6 @@ begin
       //生成短倒提货记录
     end;
   end else
-  {$ENDIF}
 
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckBFM then //称量毛重

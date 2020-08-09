@@ -489,7 +489,7 @@ procedure TfFrameAutoPoundItem.LoadBillItems(const nCard: string);
 var nRet: Boolean;
     nIdx,nInt: Integer;
     nBills: TLadingBillItems;
-    nStr,nHint, nVoice, nSql: string;
+    nStr,nHint, nVoice, nSql, nPos: string;
 begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
@@ -542,22 +542,25 @@ begin
 
   {$IFDEF RemoteSnap}
   if chk1.Checked then
-  if not VerifySnapTruck(FLastReader, nBills[0], nHint) then
+  if not VerifySnapTruck(FLastReader, nBills[0], nHint, nPos) then
   begin
-    nVoice := '%s车牌识别失败,请移动车辆或联系工作人员';
+    nVoice := '%s 车牌识别失败,请移动车辆或联系工作人员';
     nVoice := Format(nVoice, [nBills[0].FTruck]);
 
     WriteSysLog('识别结果 ' + nVoice);
+    RemoteSnapDisPlay(nPos, nHint,sFlag_No);
+    WriteSysLog(nHint);
 //    PlayVoice(nHint);
-//    LEDDisplay('车牌识别失败,请移动车辆');
-//    WriteSysLog(nHint);
 //    SetUIData(True);
 //    Exit;
   end
   else
   begin
     if nHint <> '' then
+    begin
+      RemoteSnapDisPlay(nPos, nHint,sFlag_No);
       WriteSysLog('车牌验证通过 '+nHint);
+    end;
   end;
   {$ENDIF}
   //车牌匹配检查
@@ -576,7 +579,8 @@ begin
     begin
       FNextStatus := sFlag_TruckBFM;
       //销售允许多次过重
-      AdjustBillStatus(nBills[nIdx].FID);
+      AdjustBillStatus(FID);
+      WriteSysLog(Format('车辆 %s 再次过毛重 ', [FTruck] ));
     end;
     {$ENDIF}
 

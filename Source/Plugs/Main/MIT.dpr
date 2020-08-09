@@ -28,7 +28,8 @@ uses
   UFormPerform in '..\Forms\UFormPerform.pas' {fFormPerform},
   UFormServiceURL in '..\Forms\UFormServiceURL.pas' {fFormServiceURL},
   UFramePlugs in '..\Forms\UFramePlugs.pas' {fFramePlugs: TFrame},
-  UFrameStatus in '..\Forms\UFrameStatus.pas' {fFrameStatus: TFrame};
+  UFrameStatus in '..\Forms\UFrameStatus.pas' {fFrameStatus: TFrame},
+  UWorkThread in '..\Common\UWorkThread.pas';
 
 {$R *.res}
 {$R RODLFile.RES}

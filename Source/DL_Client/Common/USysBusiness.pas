@@ -348,11 +348,12 @@ procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
 
 
 
-function VeriFySnapTruck(const nReader: string; nBill: TLadingBillItem;
-                         var nMsg: string): Boolean;
+function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem; var nMsg, nPos: string): Boolean;
 //车牌识别   验证车牌
+procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
 function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
 //车牌识别   读取nReader岗位、部门
+
 function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
 function IsSaleCardInTimeOut(const nDiffTime: integer): Boolean;
 //进厂超时检查
@@ -2400,8 +2401,11 @@ begin
 
 
   nStr := gPath + sReportDir + 'LadingBill.fr3';
-  if Pos('水泥', nStockName)>0 then
+  {$IFDEF CementPrintPoundAddHGZ}
+  if (Pos('水泥', nStockName)>0) or
+      (Pos('熟料', nStockName)>0) then
     nStr := gPath + sReportDir + 'LadingBillEx.fr3';
+  {$ENDIF}
 
   if not FDR.LoadReportFile(nStr) then
   begin
@@ -2710,6 +2714,9 @@ begin
     Result := gPath + sReportDir + 'HuaYan42.fr3'
   else if Pos('52', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan42.fr3'
+
+  else if Pos('sl', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYanSL.fr3'
 
   else if Pos('dlsn', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_DaoLu.fr3'
@@ -3532,8 +3539,8 @@ end;
 
 //车牌识别验证
 function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem;
-                         var nMsg: string): Boolean;
-var nStr, nPos, nDept: string;
+                         var nMsg, nPos: string): Boolean;
+var nStr, nDept: string;
     nNeedManu, nUpdate: Boolean;
     nSnapTruck, nTruck, nEvent, nPicName: string;
 begin
@@ -3680,6 +3687,36 @@ begin
   FDM.ExecuteSQL(nStr);
 end;
 
+procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
+var nOut: TWorkerBusinessCommand;
+    nList: TStrings;
+begin
+  nList := TStringList.Create;
+  try
+    nList.Values['text'] := nText;
+    nList.Values['succ'] := nSucc;
+
+    CallBusinessHardware(cBC_RemoteSnapDisPlay, nPost, PackerEncodeStr(nList.Text), @nOut);
+  finally
+    nList.Free;
+  end;
+end;
+
+//Date: 2018-08-03
+//Parm: 读卡器ID
+//Desc: 读取nReader岗位、部门
+function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := ''; nDept:= '';
+  //卡号
+  if CallBusinessHardware(cBC_GetPoundReaderInfo, nReader, '', @nOut)  then
+  begin
+    Result := Trim(nOut.FData);
+    nDept:= Trim(nOut.FExtParam);
+  end;
+end;
+
 function GetSaleCardInTimeDiff(nLid:string;var nDiffTime: integer): Boolean;
 var nstr:string;
 begin
@@ -3719,24 +3756,9 @@ begin
   Result:= True;
 end;
 
-//Date: 2018-08-03
-//Parm: 读卡器ID
-//Desc: 读取nReader岗位、部门
-function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
-var nOut: TWorkerBusinessCommand;
-begin
-  Result := ''; nDept:= '';
-  //卡号
-  if CallBusinessHardware(cBC_GetPoundReaderInfo, nReader, '', @nOut)  then
-  begin
-    Result := Trim(nOut.FData);
-    nDept:= Trim(nOut.FExtParam);
-  end;
-end;
-
 //Desc: 修改采购单车牌
 function UPDateTruckNo(nDid,nTruck: string): Boolean;
-var nStr: string;
+var nStr : string;
     nBool: Boolean;
 begin
   try
@@ -3751,11 +3773,11 @@ begin
         FDM.ExecuteSQL(nStr);
 
         nStr := 'UPDate %s Set D_Truck=''%s'' Where D_ID=''%s''';
-        nStr := Format(nStr, [sTable_OrderDtl, nTruck, FieldByName('D_ID').AsString]);
+        nStr := Format(nStr, [sTable_OrderDtl, nTruck, nDid]);
         FDM.ExecuteSQL(nStr);
 
         nStr := 'UPDate %s Set P_Truck=''%s'' Where P_Order=''%s''';
-        nStr := Format(nStr, [sTable_PoundLog, nTruck, FieldByName('D_ID').AsString]);
+        nStr := Format(nStr, [sTable_PoundLog, nTruck, nDid]);
         FDM.ExecuteSQL(nStr);
       end;
     end;

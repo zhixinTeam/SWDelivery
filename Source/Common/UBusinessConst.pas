@@ -63,6 +63,7 @@ const
   cBC_SavePostBills           = $0031;   //保存岗位交货单
   cBC_MakeSanPreHK            = $0032;   //执行散装预合卡
 
+  cBC_MakeGateSound           = $0050;   //播报语音
   cBC_RemoteSnapDisPlay       = $0051;   //抓拍小屏显示
   cBC_GetPoundReaderInfo      = $0052;   //获取磅站读卡器岗位、部门
 
@@ -143,6 +144,7 @@ const
 
   cBC_NCCHBill                = $0790;   //销售单冲红
   cBC_NCCHOrder               = $0791;   //采购单冲红
+  cBC_NCArea                  = $0792;   //区域
 
 
 type

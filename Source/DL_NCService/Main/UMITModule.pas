@@ -12,7 +12,7 @@ interface
 uses
   Forms, Classes, SysUtils, ULibFun, UMITConst, USysDB,
   //常规定义
-  UMITPacker, UWorkerBussinessNC, UMessageScan, UNCStatusChkThread,
+  UMITPacker, UWorkerBussinessNC, UMessageScan, UNCStatusChkThread, 
   //业务对象
   UBusinessWorker, UBusinessPacker, UMgrDBConn, UMgrParam, UMgrPlug,
   UMgrChannel, UTaskMonitor, UChannelChooser, USysShareMem,

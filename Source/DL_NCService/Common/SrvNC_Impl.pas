@@ -52,7 +52,7 @@ begin
   try
     Result:= ((nFunName='BD0001') or (nFunName='BD0002') or (nFunName='BD0003') or
       (nFunName='BD0004') or (nFunName='BD0005') or (nFunName='BD0006') or
-      (nFunName='BD0007')or (nFunName='BD0008')or (nFunName='BD0009'));
+      (nFunName='BD0007')or (nFunName='BD0008')or (nFunName='BD0009')or (nFunName='BD0010'));
 
     if Pos('"'+nFunName+'"', nData)=0 then
     begin

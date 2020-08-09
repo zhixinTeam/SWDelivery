@@ -273,7 +273,7 @@ begin
     nStr := 'Select *,%s As L_ValidMoney, (Case When L_PrintNum>0 then ''补'' else '''' end) AS IsBuDan '+
             'From %s Left Join Sys_PoundLog on P_Bill=L_ID Where L_ID=''%s''';
     {$IFDEF SetStdValue}
-    nStr := nStr + ' Union ' + 
+    nStr := nStr + ' Union ' +
               ' Select S_Bill.R_ID, L_ID, L_Card, L_ZhiKa, L_Order, L_Project, L_Area, L_CusID, L_CusName,L_CusPY,L_SaleID,L_SaleMan,L_Type,L_StockNo,L_StockName,  ' +
               ' L_StdValue AS L_Value,L_Price,L_ZKMoney,L_YunFei,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,L_PDate,L_PMan, L_StdValue+L_PValue  L_MValue, ' +
               ' L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,L_PrintGLF,L_Lading,L_IsVIP,L_Seal,L_HYDan, ' +
@@ -307,7 +307,17 @@ begin
     Exit;
   end;
 
+  if nDS.RecordCount>1 then
+  begin
+    WriteLog('本次查询到记录数量为：'+ IntToStr(nDS.RecordCount));
+  end;
+
   nStr := gPath + 'Report\LadingBill.fr3';
+  if (Pos('水泥', nStockName)>0)or
+     (Pos('熟料', nStockName)>0) then
+    nStr := gPath + 'Report\LadingBillEx.fr3';
+                                                      WriteLog('打印小票、本次使用模版：'+nStr);
+
   if not FDR.LoadReportFile(nStr) then
   begin
     nHint := '无法正确加载报表文件';

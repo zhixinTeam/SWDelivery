@@ -125,7 +125,7 @@ inherited fFormSaleAdjust: TfFormSaleAdjust
       inherited dxGroup1: TdxLayoutGroup
         Caption = '1.'#36873#25321#23458#25143
         object dxLayout1Item7: TdxLayoutItem
-          AutoAligns = [aaHorizontal
+          AutoAligns = [aaHorizontal]
           Control = ListInfo
           ControlOptions.ShowBorder = False
         end

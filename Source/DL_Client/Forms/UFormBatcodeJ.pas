@@ -115,13 +115,13 @@ begin
     cbb_Factory.Visible:= False;
     {$endif}
 
-    {$IFDEF SendMorefactoryStock}
+    {$IFNDEF SendMorefactoryStock}
     dxlytm_Fact.Visible:= False;
     {$ENDIF}
 
     if dxlytm_Fact.Visible then
       LoadStockFactory;
-      
+
     LoadFormData(FRecordID);
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;

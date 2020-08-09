@@ -13,7 +13,7 @@ uses
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, Menus, ImgList, dxorgchr, cxSplitter, ComCtrls,
-  ToolWin, ExtCtrls, UMemDataPool;
+  ToolWin, ExtCtrls, UMemDataPool, dxSkinsCore, dxSkinsDefaultPainters;
 
 type
   TfFormMain = class(TForm)

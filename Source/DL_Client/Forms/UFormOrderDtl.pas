@@ -61,6 +61,8 @@ type
     dxLayoutControl1Item15: TdxLayoutItem;
     UnType: TcxComboBox;
     dxLayoutControl1Group8: TdxLayoutGroup;
+    dxlytmLayoutControl1Item16: TdxLayoutItem;
+    edt_KFValue: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -420,6 +422,7 @@ begin
               SF('O_StockNo', EditStock.Text),
               SF('O_StockName', EditStockName.Text),
               SF('O_BID', Edt_OrderBase.Text),
+              SF('O_YJZValue', edt_KFValue.Text),
               SF('O_Truck', EditTruck.Text)
               ], sTable_Order, SF('O_ID', FOrderID), False);
       FDM.ExecuteSQL(nSQL);

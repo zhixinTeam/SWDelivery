@@ -675,6 +675,11 @@ begin
     gDBConnManager.WorkerExec(FDBConn, nStr);
     //更新修改信息
 
+    nStr := 'UPDate %s Set D_Truck=''%s'' Where D_OID=''%s''';
+    nStr := Format(nStr, [sTable_OrderDtl, FIn.FExtParam, FIn.FData]);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+    //更新修改信息
+
     FDBConn.FConn.CommitTrans;
     Result := True;
   except

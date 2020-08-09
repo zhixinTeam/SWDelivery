@@ -5,6 +5,7 @@
 unit UFrameOrderDetail;
 
 interface
+{$I Link.Inc}
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
@@ -341,7 +342,7 @@ begin
                  'Union  ' +
                  'Select N_OrderNo, N_Status From %s Where N_OrderNo=''%s'' And N_Status=0 ';
 
-          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nID, sTable_UPLoadOrderNcHistory, nID);
+          nStr:= Format(nStr, [sTable_UPLoadOrderNc, nID, sTable_UPLoadOrderNcHistory, nID]);
           with FDM.QueryTemp(nStr) do
           begin
             if RecordCount>0 then
@@ -349,7 +350,7 @@ begin
               nData:= GetOrderDtlInfo(nID);
               if Not SendDeleteOrderDtlMsgToNc(nData, nMsg) then
               begin
-                ShowMsg('É¾³ýÊ§°Ü', sError);
+                ShowMsg('NC É¾³ýÊ§°Ü', sError);
                 Exit;
               end;
             end;
@@ -430,8 +431,12 @@ begin
       //²åÈëÉ¾³ýÍÆËÍ
 
     except
-      FDM.ADOConn.RollbackTrans;
-      ShowMsg('É¾³ýÊ§°Ü', sError);
+      on Ex: Exception do
+      begin
+        FDM.ADOConn.RollbackTrans;
+        ShowMsg('É¾³ýÊ§°Ü ' + Ex.Message, sError);
+      end;
+
     end;
   end;
 

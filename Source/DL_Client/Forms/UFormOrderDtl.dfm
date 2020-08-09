@@ -3,8 +3,8 @@ inherited fFormOrderDtl: TfFormOrderDtl
   Top = 299
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 302
-  ClientWidth = 498
+  ClientHeight = 331
+  ClientWidth = 486
   OldCreateOrder = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -14,8 +14,8 @@ inherited fFormOrderDtl: TfFormOrderDtl
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 498
-    Height = 302
+    Width = 486
+    Height = 331
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -23,32 +23,32 @@ inherited fFormOrderDtl: TfFormOrderDtl
     LookAndFeel = FDM.dxLayoutWeb1
     object EditMemo: TcxMemo
       Left = 81
-      Top = 211
+      Top = 236
       Hint = 'D.D_Memo'
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
       Style.Edges = [bBottom]
-      TabOrder = 13
+      TabOrder = 14
       Height = 45
       Width = 385
     end
     object BtnOK: TButton
-      Left = 342
-      Top = 269
+      Left = 330
+      Top = 298
       Width = 70
       Height = 22
       Caption = #20445#23384
-      TabOrder = 15
+      TabOrder = 16
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 417
-      Top = 269
+      Left = 405
+      Top = 298
       Width = 70
       Height = 22
       Caption = #21462#28040
-      TabOrder = 16
+      TabOrder = 17
       OnClick = BtnExitClick
     end
     object EditPValue: TcxTextEdit
@@ -57,10 +57,10 @@ inherited fFormOrderDtl: TfFormOrderDtl
       Hint = 'D.D_PValue'
       ParentFont = False
       TabOrder = 4
-      Width = 144
+      Width = 155
     end
     object EditMValue: TcxTextEdit
-      Left = 288
+      Left = 299
       Top = 136
       Hint = 'D.D_MValue'
       ParentFont = False
@@ -80,10 +80,10 @@ inherited fFormOrderDtl: TfFormOrderDtl
       Properties.ReadOnly = True
       TabOrder = 2
       OnKeyPress = EditStockKeyPress
-      Width = 121
+      Width = 155
     end
     object EditProName: TcxTextEdit
-      Left = 288
+      Left = 299
       Top = 86
       Hint = 'D.D_ProName'
       ParentFont = False
@@ -104,10 +104,10 @@ inherited fFormOrderDtl: TfFormOrderDtl
       Properties.ReadOnly = True
       TabOrder = 1
       OnKeyPress = EditStockKeyPress
-      Width = 121
+      Width = 155
     end
     object EditStockName: TcxTextEdit
-      Left = 288
+      Left = 299
       Top = 61
       Hint = 'D.D_StockName'
       ParentFont = False
@@ -127,10 +127,10 @@ inherited fFormOrderDtl: TfFormOrderDtl
         end>
       TabOrder = 3
       OnKeyPress = EditStockKeyPress
-      Width = 121
+      Width = 155
     end
     object EditKZValue: TcxTextEdit
-      Left = 288
+      Left = 299
       Top = 111
       Hint = 'D.D_KZValue'
       ParentFont = False
@@ -139,12 +139,12 @@ inherited fFormOrderDtl: TfFormOrderDtl
     end
     object EditCheck: TcxCheckBox
       Left = 11
-      Top = 269
+      Top = 298
       Caption = #26356#26032#21150#21345#35760#24405
       ParentFont = False
       Properties.ReadOnly = True
       State = cbsChecked
-      TabOrder = 14
+      TabOrder = 15
       Transparent = True
       Width = 121
     end
@@ -170,7 +170,7 @@ inherited fFormOrderDtl: TfFormOrderDtl
       Hint = 'D.D_YMan'
       ParentFont = False
       TabOrder = 9
-      Width = 144
+      Width = 155
     end
     object UnPlace: TcxComboBox
       Left = 81
@@ -185,10 +185,10 @@ inherited fFormOrderDtl: TfFormOrderDtl
         #19977#32447#21407#26448#26009
         #29028#22330)
       TabOrder = 11
-      Width = 144
+      Width = 155
     end
     object YSStatus: TcxComboBox
-      Left = 288
+      Left = 299
       Top = 161
       Hint = 'D.D_YSResult'
       ParentFont = False
@@ -201,17 +201,25 @@ inherited fFormOrderDtl: TfFormOrderDtl
       Width = 161
     end
     object UnType: TcxComboBox
-      Left = 288
+      Left = 299
       Top = 186
       Hint = 'D.D_UnloadType'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.ItemHeight = 18
       Properties.Items.Strings = (
-        #20154#24037#21368#26009
+        #20154#24037#21368#36135
         #33258#21368)
       TabOrder = 12
       Width = 161
+    end
+    object edt_KFValue: TcxTextEdit
+      Left = 81
+      Top = 211
+      Hint = 'D.O_YJZValue'
+      ParentFont = False
+      TabOrder = 13
+      Width = 155
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
@@ -316,6 +324,12 @@ inherited fFormOrderDtl: TfFormOrderDtl
             Control = UnType
             ControlOptions.ShowBorder = False
           end
+        end
+        object dxlytmLayoutControl1Item16: TdxLayoutItem
+          AutoAligns = [aaVertical]
+          Caption = #30719#21457#20928#37325':'
+          Control = edt_KFValue
+          ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item4: TdxLayoutItem
           Caption = #22791#27880#20449#24687':'

@@ -113,7 +113,7 @@ inherited fFrameTrucks: TfFrameTrucks
     AutoHotkeys = maManual
     OnPopup = PMenu1Popup
     Left = 6
-    Top = 262
+    Top = 261
     object N1: TMenuItem
       Caption = '-'
       Enabled = False

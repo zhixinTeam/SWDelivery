@@ -824,14 +824,16 @@ begin
     nCusId := FieldByName('A_CID').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
     {$IFDEF NCSale}
-    // NC 离线 计算最大发货金额 默认为 80% 
-    if not gSysParam.FNcIsOnLine then
-    begin
-      nMoney:= Float2Float(nMoney*gSysParam.FProportion, cPrecision, True);
-    end;
+    // NC 离线 计算最大发货金额 默认为 80%
 
     nMoney := nMoney - nBillsMoney;
     // 扣减已开单金额
+
+    if not gSysParam.FNcIsOnLine then
+    begin
+      nMoney:= Float2Float(nMoney * gSysParam.FProportion, cPrecision, True);
+    end;
+
     if nMoney<0 then nMoney:= 0;
     {$ENDIF}
 
@@ -976,6 +978,9 @@ begin
   if Fields[0].AsInteger < 1 then
   begin
     nStr := 'Insert Into %s(T_Truck, T_PY) Values(''%s'', ''%s'')';
+    {$IFDEF TruckInFactSigned}
+    nStr := 'Insert Into %s(T_Truck, T_PY, IsSigned) Values(''%s'', ''%s'', ''N'')';
+    {$ENDIF}
     nStr := Format(nStr, [sTable_Truck, FIn.FData, GetPinYinOfStr(FIn.FData)]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
@@ -1531,7 +1536,7 @@ begin
 
     if not nNew then //编号超发
     begin
-      nVal := FieldByName('B_HasUse').AsFloat-100 + StrToFloat(FIn.FExtParam);
+      nVal := FieldByName('B_HasUse').AsFloat + StrToFloat(FIn.FExtParam);
       //已使用+预使用
       nPer := FieldByName('B_Value').AsFloat * FieldByName('B_High').AsFloat / 100;
       //可用上限

@@ -10,7 +10,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, UTrayIcon, UcxChinese, UMgrPlug, cxGraphics, cxControls,
-  cxLookAndFeelPainters, dxSkinsCore,
+  cxLookAndFeelPainters, dxSkinsCore, UWorkThread,
   dxSkinsDefaultPainters, dxSkinsdxNavBar2Painter, cxContainer, cxEdit,
   ExtCtrls, ComCtrls, cxLabel, dxNavBarCollns, cxClasses, dxNavBarBase,
   dxNavBar, cxLookAndFeels;
@@ -55,6 +55,7 @@ type
     { Private declarations }
     FTrayIcon: TTrayIcon;
     {*状态栏图标*}
+    XWorker:TWorkThread;
   protected
     procedure SetHintText(const nLabel: TcxLabel);
     {*提示信息*}
@@ -200,6 +201,9 @@ begin
   InitSystemObject(Handle);
   //system object
 
+  XWorker:= TWorkThread.Create;
+  // 定时任务
+
   RunSystemObject;
   //run object
 end;
@@ -212,6 +216,9 @@ begin
     ROModule.ActiveServer([stTcp, stHttp], False, nStr);
     //stop server
 
+    XWorker.Terminate;
+    XWorker.Free;
+    
     FormSaveConfig;
     //save config
 

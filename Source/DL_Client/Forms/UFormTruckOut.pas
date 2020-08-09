@@ -75,9 +75,6 @@ begin
     if nStr = '' then Continue;
 
     gCardUsed := GetCardUsed(nStr);
-//    if gCardUsed = sFlag_Provide then
-//         nRet := GetPurchaseOrders(nStr, sFlag_TruckOut, gBills)
-//    else nRet := GetLadingBills(nStr, sFlag_TruckOut, gBills);
     if gCardUsed = sFlag_Provide then
       nRet := GetPurchaseOrders(nStr, sFlag_TruckIn, gBills)
     else if gCardUsed = sFlag_Sale then

@@ -81,6 +81,7 @@ type
     //定制放灰
     function RemoteSnap_DisPlay(var nData: string): Boolean;
     //抓拍小屏显示
+    function MakeGateSound(var nData: string): Boolean;
   public
     constructor Create; override;
     destructor destroy; override;
@@ -94,7 +95,7 @@ implementation
 
 uses
 	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
+  UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor, UMgrVoiceNet,
   UMgrTruckProbe, UMgrERelay, UMgrRemoteSnap;
 
 //Date: 2012-3-13
@@ -243,6 +244,7 @@ begin
    cBC_GetPoundCard         : Result := PoundCardNo(nData);
    cBC_GetPoundReaderInfo   : Result := PoundReaderInfo(nData);     //  获取读卡器绑定的标示
    cBC_RemoteSnapDisPlay    : Result := RemoteSnap_DisPlay(nData);  //  车牌识别小屏显示
+   cBC_MakeGateSound        : Result := MakeGateSound(nData);  //  车牌识别小屏显示
 
    cBC_GetQueueData         : Result := LoadQueue(nData);
    cBC_SaveCountData        : Result := SaveDaiNum(nData);
@@ -770,7 +772,7 @@ begin
 end;
 
 //Date: 2018-08-14
-//Parm: 岗位[FIn.FData 发送内容[FIn.FExt
+//Parm: 岗位[FIn.FData] 发送内容[FIn.FExt]
 //Desc: 向指定通道的显示屏发送内容
 function THardwareCommander.RemoteSnap_DisPlay(var nData: string): Boolean;
 var nInt: Integer;
@@ -786,13 +788,41 @@ begin
   else nInt := 2;
 
   gHKSnapHelper.Display(FIn.FData,FListA.Values['text'], nInt);
-
-  nData := Format('RemoteSnapDisPlay -> %s:%s:%s', [FIn.FData, FListA.Values['text'],
-                                                    FListA.Values['succ']]);
+  nData := Format('车牌识别小屏 -> %s:%s:%s', [FIn.FData, FListA.Values['text'],
+                                                          FListA.Values['succ']]);
   WriteLog(nData);
 end;
 
+//Date: 2017-10-16
+//Parm: 内容;岗位;业务成功
+//Desc: 播放门岗语音
+function THardwareCommander.MakeGateSound(var nData: string): Boolean;
+var nStr, nText, nCard: string;
+    nInt: Integer;
+begin
+  Result := True;
 
+  if gNetVoiceHelper=nil then Exit;
+  try
+    FListA.Clear;
+    FListA.Text := PackerDecodeStr(FIn.FData);
+
+    nText:= FListA.Values['text'];
+    nCard:= FListA.Values['Card'];
+    if (nText='')or(nCard='') then Exit;
+
+    gNetVoiceHelper.PlayVoice(nText, nCard);
+    //播发语音
+    //WriteHardHelperLog(Format('发送语音[%s %s]', [nPost ,nText]));
+  except
+    on nErr: Exception do
+    begin
+      nStr := '播放[ %s ]语音失败,描述: %s';
+      nStr := Format(nStr, [nCard, nErr.Message]);
+      WriteLog(nStr);
+    end;
+  end;
+end;
 
 
 initialization

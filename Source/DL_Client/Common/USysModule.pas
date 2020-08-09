@@ -23,16 +23,18 @@ uses
   UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus,
   UFormGetZhiKa, UFrameBill, UFormReadCard, UFormTruckEmpty,
   UFormBill, UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
+  UFromUPDateBindBillZhiKa,
   UFormZhiKaPrice, UFrameQueryDiapatch, UFrameTruckQuery, UFrameBillCard,
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
   UFormLadingDuanDao,              UFramePoundAutoItem,                                      
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
-  UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,      
+  UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
   UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormTransfer, UFrameTransfer, UFrameQueryTransferDetail,
-  UFrameQueryDuanDaoFH, UFrameBillHYDanHD, UFrameBillSalePlan, UFrameQuerySyncOrderForNC,
+  UFrameQueryDuanDaoFH, UFrameBillHYDanHD, UFrameQuerySyncOrderForNC,
+  UFrameBillSalePlan, UFormSalePlan,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
@@ -40,8 +42,8 @@ uses
   {.$IFDEF XAZL}
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
-  UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
-  UFormGetPOrderBase, UFormOrderDtl, UFormCstmerCategoryInfo, UFormSalePlan,
+  UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,       UFrameQueryOrderHD,
+  UFormGetPOrderBase, UFormOrderDtl, UFormCstmerCategoryInfo,
   {.$ENDIF}
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,

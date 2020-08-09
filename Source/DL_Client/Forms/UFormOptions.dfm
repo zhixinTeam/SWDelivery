@@ -40,8 +40,8 @@ inherited fFormOptions: TfFormOptions
     object wPage: TcxPageControl [2]
       Left = 23
       Top = 36
-      Width = 289
-      Height = 193
+      Width = 478
+      Height = 299
       ActivePage = cxtbsht1
       ParentColor = False
       ShowFrame = True
@@ -49,9 +49,9 @@ inherited fFormOptions: TfFormOptions
       TabOrder = 0
       TabSlants.Kind = skCutCorner
       OnChange = wPageChange
-      ClientRectBottom = 192
+      ClientRectBottom = 298
       ClientRectLeft = 1
-      ClientRectRight = 288
+      ClientRectRight = 477
       ClientRectTop = 19
       object Sheet1: TcxTabSheet
         Caption = #38144#21806#26080#38656#21457#36135#21697#31181
@@ -73,7 +73,7 @@ inherited fFormOptions: TfFormOptions
         object ListStockNF: TcxMCListBox
           Left = 0
           Top = 0
-          Width = 287
+          Width = 476
           Height = 195
           Align = alTop
           HeaderSections = <
@@ -131,7 +131,7 @@ inherited fFormOptions: TfFormOptions
         object ListDaiWuCha: TcxMCListBox
           Left = 0
           Top = 0
-          Width = 287
+          Width = 476
           Height = 177
           Align = alTop
           HeaderSections = <
@@ -272,7 +272,7 @@ inherited fFormOptions: TfFormOptions
         object ListStockNYS: TcxMCListBox
           Left = 0
           Top = 0
-          Width = 287
+          Width = 476
           Height = 195
           Align = alTop
           HeaderSections = <

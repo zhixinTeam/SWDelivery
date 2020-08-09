@@ -70,6 +70,8 @@ type
     FVReader: string;          //读头标识
     FVPrinter: string;         //虚拟打印机
     FVHYPrinter: string;       //化验打印机
+    FVoiceCard : string;       //语音卡
+    FBXCard    : string;       //提示屏
     FVType  : TM100ReaderVType;  //虚拟类型
 
     FKeepOnce: Integer;        //单次保持
@@ -395,6 +397,8 @@ begin
           FVReader := nTmp.AttributeByName['reader'];
           FVPrinter:= nTmp.AttributeByName['printer'];
           FVHYPrinter := nTmp.AttributeByName['hy_printer'];
+          FVoiceCard  := nTmp.AttributeByName['VoiceCard'];
+          FBXCard     := nTmp.AttributeByName['BXCard'];
 
           i := StrToIntDef(nTmp.AttributeByName['type'], 0);
           case i of

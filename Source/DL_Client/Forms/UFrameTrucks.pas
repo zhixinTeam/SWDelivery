@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameTrucks;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -139,14 +140,22 @@ end;
 
 //Desc: 车辆签到
 procedure TfFrameTrucks.N2Click(Sender: TObject);
-var nStr: string;
+var nStr, nField : string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
-    nStr := 'Update %s Set T_LastTime=getDate() Where R_ID=%s';
+    nField:= '';
+    {$IFDEF TruckInFactSigned} nField:= ', IsSigned=''Y'' '; {$ENDIF}
+
+    nStr := 'UPDate %s Set T_LastTime=GetDate() '+ nField +' Where R_ID=%s';
     nStr := Format(nStr, [sTable_Truck, SQLQuery.FieldByName('R_ID').AsString]);
 
     FDM.ExecuteSQL(nStr);
+    //**********************************
+    nStr:= SQLQuery.FieldByName('T_Truck').AsString;
+    nStr:= Format(' %s 对车辆 %s 人工签到', [gSysParam.FUserName, nStr]);
+    FDM.WriteSysLog(sFlag_BillItem, '', nStr, False);
+    //******
     InitFormData(FWhere);
     ShowMsg('签到成功', sHint);
   end;

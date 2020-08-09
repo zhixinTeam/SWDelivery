@@ -153,6 +153,7 @@ begin
   LoadFormConfig(Self);
   LoadMCListBoxConfig(Name, ListStockNF);
   LoadMCListBoxConfig(Name, ListDaiWuCha);
+  LoadMCListBoxConfig(Name, ListStockNYS);
 end;
 
 procedure TfFormOptions.FormClose(Sender: TObject;
@@ -161,6 +162,7 @@ begin
   SaveFormConfig(Self);
   SaveMCListBoxConfig(Name, ListStockNF);
   SaveMCListBoxConfig(Name, ListDaiWuCha);
+  SaveMCListBoxConfig(Name, ListStockNYS);
 end;
 
 procedure TfFormOptions.InitFormData;
@@ -314,7 +316,7 @@ begin
        ListStockNF.Items.AddObject(FID + ListStockNF.Delimiter + FName, Pointer(nIdx));
     //items
   end;
-  BtnOK.Click;
+  //BtnOK.Click;
 end;
 
 procedure TfFormOptions.LoadNYSStockList;
@@ -329,7 +331,6 @@ begin
        ListStockNYS.Items.AddObject(FID + ListStockNYS.Delimiter + FName, Pointer(nIdx));
     //items
   end;
-  BtnOK.Click;
 end;
 
 //------------------------------------------------------------------------------

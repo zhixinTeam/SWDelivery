@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   CPort, CPortTypes, UFormNormal, UFormBase, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxLabel, cxTextEdit,
-  dxLayoutControl, StdCtrls, cxGraphics, cxMaskEdit, cxButtonEdit;
+  dxLayoutControl, StdCtrls, cxGraphics, cxMaskEdit, cxButtonEdit,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormBillFactIn = class(TfFormNormal)

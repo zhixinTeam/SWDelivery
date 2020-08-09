@@ -11,11 +11,12 @@ uses
   Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB, TypInfo,
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue, UMgrBasisWeight,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint, UFormCtrl,
+  UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint, UFormCtrl, UMgrBXFontCard,
   UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrTruckProbe,
   {$IFDEF HKVDVR}UMgrCamera, {$ENDIF} UMgrRemoteSnap, UMgrVoiceNet,
   UMgrSendCardNo;
 
+procedure ShowTextByBXFontCard(nCard, nTitle, nData:string;IsStatic:Boolean=False);
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
 procedure WhenBlueReaderCardArrived(nHost: TBlueReaderHost; nCard: TBlueReaderCard);
@@ -402,7 +403,7 @@ begin
     //if GetHasVoice(nPost) then
       gNetVoiceHelper.PlayVoice(nText, nPost);
     //播发语音
-    //WriteHardHelperLog(Format('发送语音[%s %s]', [nPost ,nText]));
+    WriteHardHelperLog(Format('发送语音[%s %s]', [nPost ,nText]));
   except
     on nErr: Exception do
     begin
@@ -435,8 +436,8 @@ end;
 //Date: 2012-4-22
 //Parm: 卡号
 //Desc: 对nCard放行进厂
-procedure MakeTruckIn(const nCard,nReader: string; const nDB: PDBWorker);
-var nStr,nStrx,nTruck,nCardType: string;
+procedure MakeTruckIn(const nCard,nReader: string; const nDB: PDBWorker; const nBxCardNo:string='');
+var nStr,nStrx,nTruck,nCardType,nInMsg: string;
     nIdx,nInt: Integer;
     nPLine: PLineItem;
     nPTruck: PTruckItem;
@@ -455,12 +456,9 @@ begin
 
   if nCardType = sFlag_Provide then
         nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks)
-
   else if nCardType = sFlag_DuanDao then
         nRet := GetDuanDaoItems(nCard, sFlag_TruckIn, nTrucks)
-
   else  nRet := GetLadingBills(nCard, sFlag_TruckIn, nTrucks);
-
 
   if not nRet then
   begin
@@ -468,6 +466,10 @@ begin
     nStr := Format(nStr, [nCard]);
 
     WriteHardHelperLog(nStr, sPost_In);
+    {$IFDEF InFactMsgTip}
+    nInMsg:= '获取订单失败';
+    ShowTextByBXFontCard(nBxCardNo, '', nInMsg);
+    {$ENDIF}
     Exit;
   end;
 
@@ -477,6 +479,10 @@ begin
     nStr := Format(nStr, [nCard]);
 
     WriteHardHelperLog(nStr, sPost_In);
+    {$IFDEF InFactMsgTip}
+    nInMsg:= '获取订单失败';
+    ShowTextByBXFontCard(nBxCardNo, '', nInMsg);
+    {$ENDIF}
     Exit;
   end;
 
@@ -505,6 +511,10 @@ begin
       {$ENDIF}
 
       WriteHardHelperLog(nStr, sPost_In);
+      {$IFDEF InFactMsgTip}
+      nInMsg:= '获取订单失败';
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nInMsg);
+      {$ENDIF}
       Exit;
     end;
     {$ENDIF}
@@ -524,6 +534,10 @@ begin
     nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
 
     WriteHardHelperLog(nStr, sPost_In);
+    {$IFDEF InFactMsgTip}
+    nInMsg:= '应去' + TruckStatusToStr(FNextStatus);
+    ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nInMsg);
+    {$ENDIF}
     Exit;
   end;
 
@@ -574,6 +588,10 @@ begin
       nStr := Format(nStr, [nTrucks[0].FTruck]);
 
       WriteHardHelperLog(nStr, sPost_In);
+      {$IFDEF InFactMsgTip}
+      nInMsg:= '进厂放行失败';
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nInMsg);
+      {$ENDIF}
       Exit;
     end;
 
@@ -590,6 +608,9 @@ begin
     nStr := '%s磁卡 %s 进厂抬杆成功';
     nStr := Format(nStr, [BusinessToStr(nCardType), nCard]);
     WriteHardHelperLog(nStr, sPost_In);
+    {$IFDEF InFactMsgTip}
+    ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nTrucks[0].FStockName);
+    {$ENDIF}
     Exit;
   end;
   //采购磁卡直接抬杆
@@ -620,6 +641,10 @@ begin
       nStr := Format(nStr, [nTrucks[0].FTruck]);
 
       WriteHardHelperLog(nStr, sPost_In);
+      {$IFDEF InFactMsgTip}
+      nInMsg:= '不在队列中';
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nInMsg);
+      {$ENDIF}
       Exit;
     end;
   finally
@@ -632,6 +657,10 @@ begin
     nStr := Format(nStr, [nTrucks[0].FTruck]);
 
     WriteHardHelperLog(nStr, sPost_In);
+    {$IFDEF InFactMsgTip}
+    nInMsg:= '请重新刷卡';
+    ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nInMsg);
+    {$ENDIF}
     Exit;
   end;
 
@@ -650,6 +679,14 @@ begin
     //抬杆
   end;
 
+  {$IFDEF InFactMsgTip}  // 进厂消息小屏
+      {$IFDEF SWJY}
+      ShowTextByBXFontCard('East01', nTrucks[0].FTruck, nTrucks[0].FStockName);
+      ShowTextByBXFontCard('East02', nTrucks[0].FTruck, nTrucks[0].FStockName);
+      {$ELSE}
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nTrucks[0].FStockName);
+      {$ENDIF}
+  {$ENDIF}
   with gTruckQueueManager do
   if not IsDelayQueue then //厂外模式,进厂时绑定道号(一车多单)
   try
@@ -681,8 +718,8 @@ end;
 //Parm: 卡号;读头;打印机;化验单打印机
 //Desc: 对nCard放行出厂
 function MakeTruckOut(const nCard,nReader,nPrinter: string;
- const nHYPrinter: string = ''): Boolean;
-var nStr,nCardType: string;
+ const nHYPrinter: string = ''; nSoundCard: string = ''; nBxCardNo: string = ''): Boolean;
+var nStr,nCardType, nTruck, nMsg: string;
     nIdx: Integer;
     nRet: Boolean;
     nTrucks: TLadingBillItems;
@@ -690,7 +727,7 @@ var nStr,nCardType: string;
     nOut: TWorkerBusinessCommand;
     {$ENDIF}
 begin
-  Result := False;
+  Result := False;           nSoundCard:= 'EastOut';
   nCardType := '';
   try
     if not GetCardUsed(nCard, nCardType) then Exit;
@@ -709,6 +746,10 @@ begin
       nStr := Format(nStr, [nCard]);
 
       WriteHardHelperLog(nStr, sPost_Out);
+      {$IFDEF OutFactMsgTip}
+      nMsg:= '获取订单失败';
+      ShowTextByBXFontCard(nBxCardNo, nCard, nMsg);
+      {$ENDIF}
       Exit;
     end;
 
@@ -727,8 +768,18 @@ begin
       if FNextStatus = sFlag_TruckOut then Continue;
       nStr := '车辆[ %s ]下一状态为:[ %s ],无法出厂.';
       nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
-    
+
       WriteHardHelperLog(nStr, sPost_Out);
+      {$IFDEF OutSoundTips}
+      MakeGateSound(nStr, nSoundCard, False);
+      {$ENDIF}
+      {$IFDEF OutFactMsgTip}
+
+      nMsg:= {$IFDEF SWTC} '请等待'
+             {$ELSE} '应去'
+             {$ENDIF}  + TruckStatusToStr(FNextStatus);
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nMsg);
+      {$ENDIF}
       Exit;
     end;
 
@@ -741,10 +792,17 @@ begin
 
     if not nRet then
     begin
-      nStr := '车辆[ %s ]出厂放行失败.';
+      nStr := '车辆[ %s ]出厂放行失败,请联系工作人员.';
       nStr := Format(nStr, [nTrucks[0].FTruck]);
 
+      {$IFDEF OutSoundTips}
+      MakeGateSound(nStr, nSoundCard, False);
+      {$ENDIF}
       WriteHardHelperLog(nStr, sPost_Out);
+      {$IFDEF OutFactMsgTip}
+      nMsg:= '请重试';
+      ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nMsg);
+      {$ENDIF}
       Exit;
     end;
 
@@ -752,6 +810,15 @@ begin
       BlueOpenDoor(nReader); //抬杆
     Result := True;
 
+    {$IFDEF OutSoundTips}
+    nTruck:= nTrucks[0].FTruck;
+    if Result then
+      MakeGateSound(nTruck+' 请出厂,祝您一路顺风,欢迎您再次光临', nSoundCard, False);
+    {$ENDIF}
+    {$IFDEF OutFactMsgTip}
+    nMsg:= '请重试';
+    ShowTextByBXFontCard(nBxCardNo, nTrucks[0].FTruck, nMsg);
+    {$ENDIF}
     for nIdx:=Low(nTrucks) to High(nTrucks) do
     begin
       {$IFDEF PrintBillMoney}
@@ -834,6 +901,38 @@ begin
   end;
 end;
 
+// 发送网口小屏显示信息
+procedure ShowTextByBXFontCard(nCard, nTitle, nData:string;IsStatic:Boolean);
+var nStr  : string;
+    nTitleM, nDataM : TBXDisplayMode;
+begin
+  if nCard<>'' then
+  if Assigned(gBXFontCardManager) then
+  begin
+    gBXFontCardManager.InitDisplayMode(nTitleM);
+    gBXFontCardManager.InitDisplayMode(nDataM);
+
+    //title
+    nTitleM.FDisplayMode := 1;
+    nTitleM.FNewLine := BX_NewLine_02;
+    nTitleM.FSpeed   := $03;
+
+    //Data
+    nDataM.FDisplayMode := 3;
+    nDataM.FNewLine := BX_NewLine_02;
+    nDataM.FSpeed   := $03;
+
+    if IsStatic then nDataM.FDisplayMode := 1; // 静止显示
+
+    WriteNearReaderLog(Format('向网口小屏 %s 发送 %s %s', [nCard, nTitle, nData]));
+
+    if (Pos('ZT',nCard)>0)or(Pos('East',nCard)>0) then
+      gBXFontCardManager.Display(nTitle, nData, nCard, 8, 8, @nTitleM, @nTitleM)
+    else gBXFontCardManager.Display(nTitle, nData, nCard, 3, 100, @nTitleM, @nDataM);
+  end
+  else WriteNearReaderLog('网口小屏管理器不存在');
+end;
+
 //Date: 2012-4-22
 //Parm: 读头数据
 //Desc: 对nReader读到的卡号做具体动作
@@ -878,7 +977,7 @@ begin
     try
       if nReader.FType = rtIn then
       begin
-        MakeTruckIn(nCard, nReader.FID, nDBConn);
+        MakeTruckIn(nCard, nReader.FID, nDBConn, nReader.FPost);
       end else
 
       if nReader.FType = rtOut then
@@ -1031,12 +1130,12 @@ begin
   end;
 
   case nTunnel.FStatusNew of
-   bsInit      : WriteNearReaderLog('初始化:' + nTunnel.FID);
-   bsNew       : WriteNearReaderLog('新添加:' + nTunnel.FID);
-   bsStart     : WriteNearReaderLog('开始称重:' + nTunnel.FID);
-   bsClose     : WriteNearReaderLog('称重关闭:' + nTunnel.FID);
-   bsDone      : WriteNearReaderLog('称重完成:' + nTunnel.FID);
-   bsStable    : WriteNearReaderLog('数据平稳:' + nTunnel.FID);
+       bsInit      : WriteNearReaderLog('初始化:' + nTunnel.FID);
+       bsNew       : WriteNearReaderLog('新添加:' + nTunnel.FID);
+       bsStart     : WriteNearReaderLog('开始称重:' + nTunnel.FID);
+       bsClose     : WriteNearReaderLog('称重关闭:' + nTunnel.FID);
+       bsDone      : WriteNearReaderLog('称重完成:' + nTunnel.FID);
+       bsStable    : WriteNearReaderLog('数据平稳:' + nTunnel.FID);
   end; //log
 
   if nTunnel.FStatusNew = bsClose then
@@ -1143,14 +1242,14 @@ begin
     if nItem.FVType = rtOutM100 then
     begin
       nRetain := MakeTruckOut(nItem.FCard, nItem.FVReader, nItem.FVPrinter,
-                              nItem.FVHYPrinter);
+                              nItem.FVHYPrinter, nItem.FVoiceCard, nItem.FBXCard);
       //xxxxx
     end else
     begin
       gHardwareHelper.SetReaderCard(nItem.FVReader, nItem.FCard, False);
     end;
   finally
-    gSysLoger.AddLog(T02NReader, '现场近距读卡器', Format('读卡器类型：%s 卡片回收：%s',
+    gSysLoger.AddLog(T02NReader, '吞卡机', Format('类型：%s 卡片回收：%s',
           [GetEnumName(TypeInfo(TM100ReaderVType),Ord(nItem.FVType)), BoolToStr(nRetain, True)]));
 
     gM100ReaderManager.DealtWithCard(nItem, nRetain)
@@ -1691,14 +1790,14 @@ begin
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
   begin
-    if (FStatus = sFlag_TruckFH) or (FNextStatus = sFlag_TruckFH) then Continue;
-    //未装或已装
-
     {$IFDEF AllowMultiM}
     if FStatus = sFlag_TruckBFM then
       FStatus := sFlag_TruckFH;
     //过重后允许返回再次装车 （多次过重）
     {$ENDIF}
+
+    if (FStatus = sFlag_TruckFH) or (FNextStatus = sFlag_TruckFH) then Continue;
+    //未装或已装
 
     nStr := '车辆[ %s ]下一状态为:[ %s ],无法放灰.';
     nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
@@ -1745,7 +1844,6 @@ begin
     //发送卡号和通道号到定置装车服务器
     gSendCardNo.SendCardNo(nTunnel+'@'+nCard);
     {$ENDIF}
-
     Exit;
   end;
 

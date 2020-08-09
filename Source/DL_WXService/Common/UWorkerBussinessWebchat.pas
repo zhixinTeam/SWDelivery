@@ -805,8 +805,11 @@ begin
   WriteLog('获取订单列表返回:'+nData);
   Result := True;
 
-  nStr:= 'UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID In ('+Copy(nNoShowZhiKa, 2, Length(nNoShowZhiKa))+')';
-  gDBConnManager.WorkerExec(FDBConn, nStr);
+  if nNoShowZhiKa<>'' then
+  begin
+    nStr:= 'UPDate S_ZhiKa Set Z_InValid=''Y'' Where Z_ID In ('+Copy(nNoShowZhiKa, 2, Length(nNoShowZhiKa))+')';
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+  end;
 end;
 
 function TBusWorkerBusinessWebchat.GetOrderInfo(var nData: string): Boolean;

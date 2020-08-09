@@ -767,8 +767,8 @@ const
        'Z_ValidDays DateTime, Z_Password varChar(16), Z_OnlyPwd Char(1),' +
        'Z_Verified Char(1), Z_InValid Char(1), Z_Freeze Char(1),' +
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
-       'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
-       'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime)';
+       'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32), Z_Date DateTime,' +
+       'Z_VerifyMan varChar(32), Z_VerifyDate DateTime, Z_Area Varchar(80), Z_AreaCode Varchar(30) )';
   {-----------------------------------------------------------------------------
    纸卡办理: ZhiKa
    *.R_ID:记录编号
@@ -795,6 +795,8 @@ const
    *.Z_TJStatus:调价状态
    *.Z_Man:操作人
    *.Z_Date:创建时间
+   *.Z_AreaCode   区域编号
+   *.Z_Area       区域名称
   -----------------------------------------------------------------------------}
 
   sSQL_NewZhiKaDtl = 'Create Table $Table(R_ID $Inc, D_ZID varChar(15),' +
@@ -851,7 +853,8 @@ const
        'L_DelMan varChar(32), L_DelDate DateTime, L_ICCardNo varChar(32) not null default(''''),'+
        'L_SnapTruck Char(1) Not Null Default ''Y'', L_SendFactory Varchar(60) Not Null  Default '''' ,'+
        'L_StdValue Decimal(15, 2) Not Null Default 0, L_PKzk varChar(50), L_PKDtl varChar(50), '+
-       'L_RefundPrice Decimal(15, 2) Not Null Default 0, L_Refuse char(1) not null default(''N'') )';
+       'L_RefundPrice Decimal(15, 2) Not Null Default 0, L_Refuse char(1) not null default(''N''),'+
+       'L_HasUPLoaded Char(1) )';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -891,6 +894,7 @@ const
    *.L_EmptyOut: 空车出厂标记
    *.L_Audit: 补单审核状态Y待审核N已审核
    *.L_ICCardNo 原系统IC 卡号
+   *.L_HasUPLoaded  上传过 NC (如上传过、过后上传需先做删除操作以保持双方数据一致)
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
@@ -1046,7 +1050,7 @@ const
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
        'T_Card varChar(32), T_CardUse Char(1), T_NoVerify Char(1),' +
        'T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1), T_IDCard varChar(32),'+
-       'T_Card2 varchar(32))';
+       'T_Card2 varchar(32), IsSigned Char(1) Default ''N'' )';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
